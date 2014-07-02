@@ -6,6 +6,10 @@
 		"npm": "1.4.x"
 	},
 	"dependencies": {
+		"express": "4.4.x", "compression": "1.0.x", "cookie-parser": "1.1.x",
+		"html-minifier": "0.6.x",
+		"mime": "1.2.x",
+		"mustache": "0.8.x",
 		"socket.io": "1.0.x"
 	}
 }

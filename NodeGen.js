@@ -61,6 +61,8 @@ var Express = {
 	
 	serverHandle: null,
 	
+	httpHandle: null,
+	
 	init: function() {
 		Express.expressHandle = require('express');
 
@@ -85,6 +87,8 @@ var Express = {
 		}
 		
 		Express.serverHandle = Express.expressHandle();
+		
+		Express.httpHandle = null;
 	},
 	
 	dispel: function() {
@@ -103,6 +107,8 @@ var Express = {
 		Express.connectmongoHandle = null;
 		
 		Express.serverHandle = null;
+		
+		Express.httpHandle = null;
 	},
 	
 	run: function() {
@@ -146,7 +152,7 @@ var Express = {
 			
 		}
 		
-		Express.serverHandle.listen(process.env.intExpressPort);
+		Express.httpHandle = Express.serverHandle.listen(process.env.intExpressPort);
 		
 		setInterval(function() {
 			var FilesystemRead_strFile = [];
@@ -347,35 +353,53 @@ var Socket = {
 	
 	serverHandle: null,
 	
+	httpHandle: null,
+	
 	init: function() {
 		Socket.socketHandle = require('socket.io');
 		
 		Socket.serverHandle = Socket.socketHandle();
+		
+		Socket.httpHandle = null;
 	},
 	
 	dispel: function() {
 		Socket.socketHandle = null;
 		
 		Socket.serverHandle = null;
+		
+		Socket.httpHandle = null;
 	},
 	
 	run: function() {
-		var httpHandle = Node.httpHandle.createServer(function(requestHandle, responseHandle) {
-			responseHandle.writeHead(200, {
-				'Access-Control-Allow-Origin': '*',
-				'Access-Control-Allow-Methods': 'POST, GET'
-			});
+		if (Express.serverHandle === null) {
+			{
+				Socket.httpHandle = Node.httpHandle.createServer(function(requestHandle, responseHandle) {
+					responseHandle.writeHead(200, {
+						'Access-Control-Allow-Origin': '*',
+						'Access-Control-Allow-Methods': 'POST, GET'
+					});
+					
+					responseHandle.end();
+				});
+				
+				{
+					Socket.serverHandle.attach(Socket.httpHandle);
+					
+					Socket.serverHandle.origins('*:*');
+				}
+				
+				Socket.httpHandle.listen(process.env.intSocketPort);
+			}
 			
-			responseHandle.end();
-		});
-		
-		{
-			Socket.serverHandle.attach(httpHandle);
+		} else if (Express.serverHandle !== null) {
+			{
+				Socket.serverHandle.attach(Express.httpHandle);
+				
+				Socket.serverHandle.origins('*:*');
+			}
 			
-			Socket.serverHandle.origins('*:*');
 		}
-		
-		httpHandle.listen(process.env.intSocketPort);
 	}
 };
 

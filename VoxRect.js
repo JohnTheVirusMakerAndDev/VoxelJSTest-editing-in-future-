@@ -54,13 +54,13 @@ var Node = {
 	});
 }
 
-//TODO: insert domain
+//TODO: insert domain / start immediately
 setInterval(function () {
 	var functionRequest = function() {
 		var requestHttp = Node.httpHandle.request({
 			'host': '127.0.0.1',
 			'port': 26866,
-			'path': '/host.xml?strName=' + encodeURIComponent(process.env.strName) + '&intPort=' + encodeURIComponent(process.env.intSocketPort) + '&strMotd=' + encodeURIComponent(process.env.strMotd),
+			'path': '/host.xml?intPort=' + encodeURIComponent(process.env.intSocketPort) + '&strName=' + encodeURIComponent(process.env.strName) + '&strMap=' + encodeURIComponent(process.env.strMap) + '&strCapacity=' + encodeURIComponent(process.env.strCapacity) + '&strMotd=' + encodeURIComponent(process.env.strMotd),
 			'method': 'GET'
 		}, function(responseHttp) {
 			var strContent = '';
@@ -111,4 +111,4 @@ setInterval(function () {
 	};
 	
 	functionRequest();
-}(), 5 * 60 * 1000);
+}, 5 * 60 * 1000);
