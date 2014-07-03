@@ -260,6 +260,18 @@ var Express = {
 	}
 };
 
+var Geoip = {
+		geoipHandle: null,
+	
+	init: function() {
+		Geoip.geoipHandle = require('geoip-lite');
+	},
+	
+	dispel: function() {
+		Geoip.geoipHandle = null;
+	}
+};
+
 var Hypertextminfier = {
 	hypertextminfierHandle: null,
 	
@@ -432,6 +444,10 @@ var Sqlite = {
 	
 	if (process.env.boolExpress === 'true') {
 		Express.init();
+	}
+	
+	if (process.env.boolGeoip === 'true') {
+		Geoip.init();
 	}
 	
 	if (process.env.boolHypertextminfier === 'true') {

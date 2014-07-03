@@ -7,6 +7,8 @@
 		
 		<title>Voxel Warriors</title>
 		
+		<link rel="icon" type="image/png" href="http://dhiont4yb3hlc.cloudfront.net/WebsiteRect/bodyFavicon.png" />
+		
 		<link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css" />
 
 		<style>
@@ -29,10 +31,12 @@
 		<script type="text/javascript" src="http://code.jquery.com/ui/1.11.0/jquery-ui.min.js"></script>
 		
 		<script type="text/javascript" src="http://cdn.jsdelivr.net/momentjs/2.7.0/moment.min.js"></script>
+		
+		<script type="text/javascript" src="/index.js"></script>
 	</head>
 	<body>
-		<div id="idError" title="Error">
-			
+		<div id="idLoading" title="Loading">
+			<img width="31" height="31" border="0" src="http://dhiont4yb3hlc.cloudfront.net/WebsiteRect/bodyLoading.gif">
 		</div>
 		
 		<div id="idLogin" title="Login">
@@ -47,15 +51,21 @@
 				</tr>
 				<tr>
 					<td style="font-weight:bold; text-align:right;">
+						Password:
+					</td>
+					<td>
+						<input class="ui-widget ui-state-default ui-corner-all" id="idLogin_Password" type="password" style="width:257px; padding:0.4em 2.1em 0.4em 1em; background:none;" />
+					</td>
+				</tr>
+				<tr>
+					<td style="font-weight:bold; text-align:right;">
 						Skin:
 					</td>
 					<td>
 						<select id="idLogin_Skin">
-							<option selected="selected">asdf 1</option>
-							<option>asdf 2</option>
-							<option>asdf 3</option>
-							<option>asdf 4</option>
-							<option>asdf 5</option>
+							{{#objectFilesystemSkins}}
+								<option>{{.}}</option>
+							{{/objectFilesystemSkins}}
 						</select>
 					</td>
 				</tr>
@@ -73,8 +83,21 @@
 			
 			<div style="height:7px;"></div>
 			
-			<textarea class="ui-widget ui-state-default  ui-corner-all" style="width:322px; padding:0.4em 2.1em 0.4em 1em; background:none;">{{objectMain.strRandom}}</textarea> 
+			<textarea class="ui-widget ui-state-default  ui-corner-all" style="width:352px; padding:0.4em 2.1em 0.4em 1em; background:none;">{{objectGameserver.strMotd}}</textarea> 
 		</div>
+		
+		<script type="text/javascript">
+			if ({{objectGameserver.intPassword}} === 0) {
+				jQuery('#idLogin_Password')
+					.prop({
+						'disabled': true
+					})
+					.css({
+						'background-color': '#F2F2F2'
+					})
+				;
+			}
+		</script>
 		
 		<div id="idMenu" title="Menu">
 
@@ -83,7 +106,5 @@
 		<div id="idVoxel">
 		
 		</div>
-		
-		<script type="text/javascript" src="/index.js"></script>
 	</body>
 </html>

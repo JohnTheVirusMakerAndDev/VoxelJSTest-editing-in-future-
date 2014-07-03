@@ -66,9 +66,16 @@ var Node = {
 	Express.serverHandle.get('/index.html', function(requestHandle, responseHandle) {
 		var Mustache_objectHandle = {
 			'objectMain': {
-				'strRandom': '',
+				'strRandom': ''
+			},
+			'objectGameserver': {
+				'strName': '',
+				'strMap': '',
+				'strCapacity': '',
+				'intPassword': 0,
 				'strMotd': ''
-			}
+			},
+			'objectFilesystemSkins': []
 		};
 		
 		{
@@ -89,8 +96,41 @@ var Node = {
 		}
 		
 		{
-			Mustache_objectHandle.objectMain.strMotd = process.env.strMotd;
+			Mustache_objectHandle.objectGameserver.strName = Gameserver.strName;
+			Mustache_objectHandle.objectGameserver.strMap = Gameserver.strMap;
+			Mustache_objectHandle.objectGameserver.intCapacity = Gameserver.intCapacity;
+			Mustache_objectHandle.objectGameserver.strMotd = Gameserver.strMotd;
+			Mustache_objectHandle.objectGameserver.intActive = Gameserver.intActive;
+			Mustache_objectHandle.objectGameserver.strPassword = Gameserver.strPassword;
+			Mustache_objectHandle.objectGameserver.intPassword = Gameserver.intPassword;
+			Mustache_objectHandle.objectGameserver.strMotd = Gameserver.strMotd;
 		}
+		
+		var functionFilesystemDir = function() {
+			Node.fsHandle.readdir(__dirname + '/assets/skins', function(errorHandle, dirHandle) {
+				if (errorHandle !== null) {
+					responseHandle.end();
+					
+					return;
+				}
+				
+				{
+					for (var intFor1 = 0; intFor1 < dirHandle.length; intFor1 += 1) {
+						var strSkin = dirHandle[intFor1];
+						
+						{
+							strSkin = strSkin.replace(new RegExp('\\.png', 'g'), '');
+						}
+						
+						{
+							Mustache_objectHandle.objectFilesystemSkins.push(strSkin);
+						}
+					}
+				}
+				
+				functionFilesystemRead();
+			});
+		};
 		
 		var FilesystemRead_bufferHandle = null;
 		
@@ -149,7 +189,7 @@ var Node = {
 			responseHandle.end();
 		};
 		
-		functionFilesystemRead();
+		functionFilesystemDir();
 	});
 	
 	Express.serverHandle.use('/', Express.expressHandle.static(__dirname + '/assets'));
@@ -163,13 +203,53 @@ var Node = {
 	});
 }
 
+var Gameserver = {
+	strName: '',
+	strMap: '',
+	intCapacity: 0,
+	intActive: 0,
+	strPassword: '',
+	intPassword: 0,
+	strMotd: '',
+	
+	objectPlayer: {},
+	
+	init: function() {
+		Gameserver.strName = process.env.strName;
+		Gameserver.strMap = '';
+		Gameserver.intCapacity = process.env.intCapacity;
+		Gameserver.intActive = 0;
+		Gameserver.strPassword = process.env.strPassword;
+		Gameserver.intPassword = (process.env.strPassword === '') ? (0) : (1);
+		Gameserver.strMotd = process.env.strMotd;
+		
+		Gameserver.objectPlayer = {};
+	},
+	
+	dispel: function() {
+		Gameserver.strName = '';
+		Gameserver.strMap = '';
+		Gameserver.intCapacity = 0;
+		Gameserver.intActive = 0;
+		Gameserver.strPassword = '';
+		Gameserver.intPassword = 0;
+		Gameserver.strMotd = '';
+		
+		Gameserver.objectPlayer = {};
+	}
+};
+
+{
+	Gameserver.init();
+}
+
 //TODO: insert domain / start immediately
 setInterval(function () {
 	var functionRequest = function() {
 		var requestHttp = Node.httpHandle.request({
 			'host': '127.0.0.1',
 			'port': 26866,
-			'path': '/host.xml?intPort=' + encodeURIComponent(process.env.intSocketPort) + '&strName=' + encodeURIComponent(process.env.strName) + '&strMap=' + encodeURIComponent(process.env.strMap) + '&strCapacity=' + encodeURIComponent(process.env.strCapacity),
+			'path': '/host.xml?intPort=' + encodeURIComponent(process.env.intSocketPort) + '&strName=' + encodeURIComponent(Gameserver.strName) + '&strMap=' + encodeURIComponent(Gameserver.strMap) + '&intCapacity=' + encodeURIComponent(Gameserver.intCapacity) + '&intActive=' + encodeURIComponent(Gameserver.intActive) + '&intPassword=' + encodeURIComponent(Gameserver.intPassword),
 			'method': 'GET'
 		}, function(responseHttp) {
 			var strContent = '';
