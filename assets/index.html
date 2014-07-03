@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		
+		<meta name="viewport" content="width=1000" />
+		
+		<title>Voxel Warriors</title>
+		
+		<link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css" />
+
+		<style>
+			body {
+				cursor:default;
+				
+				color:#000000;
+				font-size:12px;
+				font-weight:normal;
+				font-family:Tahoma;
+				text-decoration:none;
+				text-align:left;
+				line-height:1;
+				white-space:normal;
+			}
+		</style>
+
+		<script type="text/javascript" src="http://cdn.jsdelivr.net/jquery/2.1.1/jquery.min.js"></script>
+		
+		<script type="text/javascript" src="http://code.jquery.com/ui/1.11.0/jquery-ui.min.js"></script>
+		
+		<script type="text/javascript" src="http://cdn.jsdelivr.net/momentjs/2.7.0/moment.min.js"></script>
+	</head>
+	<body>
+		<div id="idError" title="Error">
+			
+		</div>
+		
+		<div id="idLogin" title="Login">
+			<table cellpadding="0" cellspacing="10" border="0">
+				<tr>
+					<td style="font-weight:bold; text-align:right;">
+						Name:
+					</td>
+					<td>
+						<input class="ui-widget ui-state-default ui-corner-all" id="idLogin_Name" style="width:257px; padding:0.4em 2.1em 0.4em 1em; background:none;" />
+					</td>
+				</tr>
+				<tr>
+					<td style="font-weight:bold; text-align:right;">
+						Skin:
+					</td>
+					<td>
+						<select id="idLogin_Skin">
+							<option selected="selected">asdf 1</option>
+							<option>asdf 2</option>
+							<option>asdf 3</option>
+							<option>asdf 4</option>
+							<option>asdf 5</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						
+					</td>
+					<td>
+						<button id="idLogin_Login" style="margin:0px;">Login</button>
+					</td>
+				</tr>
+			</table>
+			
+			<hr></hr>
+			
+			<div style="height:7px;"></div>
+			
+			<textarea class="ui-widget ui-state-default  ui-corner-all" style="width:322px; padding:0.4em 2.1em 0.4em 1em; background:none;">{{objectMain.strRandom}}</textarea> 
+		</div>
+		
+		<div id="idMenu" title="Menu">
+
+		</div>
+		
+		<div id="idVoxel">
+		
+		</div>
+		
+		<script type="text/javascript" src="/index.js"></script>
+	</body>
+</html>

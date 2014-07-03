@@ -1,0 +1,14 @@
+{
+	"name": "VoxRect",
+	"version": "1.0.0",
+	"engines": {
+		"node": "0.10.x",
+		"npm": "1.4.x"
+	},
+	"dependencies": {
+		"voxel-engine": "0.20.x",
+		"painterly-textures": "0.0.x",
+		"voxel-highlight": "0.0.x",
+		"voxel-player": "0.1.x"
+	}
+}
