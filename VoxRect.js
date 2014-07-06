@@ -69,13 +69,16 @@ var Node = {
 				'strRandom': ''
 			},
 			'objectGameserver': {
-				'strName': '',
-				'strMap': '',
-				'strCapacity': '',
-				'intPassword': 0,
-				'strMotd': ''
-			},
-			'objectFilesystemSkins': []
+				strName: '',
+				strLoginPassword: '',
+				intLoginPassword: 0,
+				strLoginMotd: '',
+				intPlayerActive: 0,
+				intPlayerCapacity: 0,
+				strPlayerSkin: [],
+				strMapActive: '',
+				strMapAvailable: []
+			}
 		};
 		
 		{
@@ -97,40 +100,15 @@ var Node = {
 		
 		{
 			Mustache_objectHandle.objectGameserver.strName = Gameserver.strName;
-			Mustache_objectHandle.objectGameserver.strMap = Gameserver.strMap;
-			Mustache_objectHandle.objectGameserver.intCapacity = Gameserver.intCapacity;
-			Mustache_objectHandle.objectGameserver.strMotd = Gameserver.strMotd;
-			Mustache_objectHandle.objectGameserver.intActive = Gameserver.intActive;
-			Mustache_objectHandle.objectGameserver.strPassword = Gameserver.strPassword;
-			Mustache_objectHandle.objectGameserver.intPassword = Gameserver.intPassword;
-			Mustache_objectHandle.objectGameserver.strMotd = Gameserver.strMotd;
+			Mustache_objectHandle.objectGameserver.strLoginPassword = Gameserver.strLoginPassword;
+			Mustache_objectHandle.objectGameserver.intLoginPassword = Gameserver.intLoginPassword;
+			Mustache_objectHandle.objectGameserver.strLoginMotd = Gameserver.strLoginMotd;
+			Mustache_objectHandle.objectGameserver.intPlayerActive = Gameserver.intPlayerActive;
+			Mustache_objectHandle.objectGameserver.intPlayerCapacity = Gameserver.intPlayerCapacity;
+			Mustache_objectHandle.objectGameserver.strPlayerSkin = Gameserver.strPlayerSkin;
+			Mustache_objectHandle.objectGameserver.strMapActive = Gameserver.strMapActive;
+			Mustache_objectHandle.objectGameserver.strMapAvailable = Gameserver.strMapAvailable;
 		}
-		
-		var functionFilesystemDir = function() {
-			Node.fsHandle.readdir(__dirname + '/assets/skins', function(errorHandle, dirHandle) {
-				if (errorHandle !== null) {
-					responseHandle.end();
-					
-					return;
-				}
-				
-				{
-					for (var intFor1 = 0; intFor1 < dirHandle.length; intFor1 += 1) {
-						var strSkin = dirHandle[intFor1];
-						
-						{
-							strSkin = strSkin.replace(new RegExp('\\.png', 'g'), '');
-						}
-						
-						{
-							Mustache_objectHandle.objectFilesystemSkins.push(strSkin);
-						}
-					}
-				}
-				
-				functionFilesystemRead();
-			});
-		};
 		
 		var FilesystemRead_bufferHandle = null;
 		
@@ -189,7 +167,7 @@ var Node = {
 			responseHandle.end();
 		};
 		
-		functionFilesystemDir();
+		functionFilesystemRead();
 	});
 	
 	Express.serverHandle.use('/', Express.expressHandle.static(__dirname + '/assets'));
@@ -197,6 +175,129 @@ var Node = {
 
 {
 	Socket.serverHandle.on('connection', function(socketHandle) {
+		{
+			var strSocket = '';
+			
+			{
+				strSocket = socketHandle.id.substr(1, 8);
+			}
+			
+			Gameserver.objectPlayer[socketHandle.id] = {
+				'strSocket': strSocket,
+				'strTeam': 'teamLogin',
+				'strName': '',
+				'strSkin': '',
+				'dblPositionX': 0.0,
+				'dblPositionY': 0.0,
+				'dblPositionZ': 0.0,
+				'dblVerletX': 0.0,
+				'dblVerletY': 0.0,
+				'dblVerletZ': 0.0
+			};
+		}
+		
+		{
+			socketHandle.emit('loginHandle', {
+				'strType': 'typeReject',
+				'strMessage': ''
+			});
+		}
+		
+		socketHandle.on('loginHandle', function(jsonHandle) {
+			if (jsonHandle.strName === undefined) {
+				return;
+				
+			} else if (jsonHandle.strPassword === undefined) {
+				return;
+				
+			} else if (jsonHandle.strSkin === undefined) {
+				return;
+				
+			}
+
+			if (Gameserver.objectPlayer[socketHandle.id].strTeam !== 'teamLogin') {
+				return;
+			}
+			
+			{
+				if (Gameserver.intPlayerActive === Gameserver.intPlayerCapacity) {
+					socketHandle.emit('loginHandle', {
+						'strType': 'typeReject',
+						'strMessage': 'server full'
+					});
+					
+					return;
+					
+				} else if (jsonHandle.strName === '') {
+					socketHandle.emit('loginHandle', {
+						'strType': 'typeReject',
+						'strMessage': 'name invalid'
+					});
+					
+					return;
+					
+				} else if (jsonHandle.strPassword !== Gameserver.strLoginPassword) {
+					socketHandle.emit('loginHandle', {
+						'strType': 'typeReject',
+						'strMessage': 'password wrong'
+					});
+					
+					return;
+					
+				} else if (Gameserver.strPlayerSkin.indexOf(jsonHandle.strSkin) === -1) {
+					socketHandle.emit('loginHandle', {
+						'strType': 'typeReject',
+						'strMessage': 'skin invalid'
+					});
+					
+					return;
+					
+				}
+			}
+			
+			{
+				// TODO: assign team
+				
+				socketHandle.emit('loginHandle', {
+					'strType': 'typeAccept',
+					'strMessage': ''
+				});
+			}
+		});
+		
+		socketHandle.on('chatHandle', function(jsonHandle) {
+			if (jsonHandle.strMessage === undefined) {
+				return;
+			}
+			
+			if (Gameserver.objectPlayer[socketHandle.id].strStatus === 'teamLogin') {
+				return;
+				
+			} else if (jsonHandle.strMessage === '') {
+				return;
+				
+			}
+			
+			{
+				var strMessage = jsonHandle.strMessage;
+				
+				{
+					if (strMessage.length > 140) {
+						strMessage = strMessage.substr(1, 140) + ' ' + '...';
+					}
+				}
+				
+				jsonHandle.strMessage = strMessage;
+			}
+			
+			{
+				Socket.serverHandle.emit('chatHandle', {
+					'strName': Gameserver.objectPlayer[socketHandle.id].strName,
+					'strMessage': jsonHandle.strMessage
+				});
+			}
+		});
+		
 		socketHandle.on('disconnect', function() {
 			
 		});
@@ -205,35 +306,83 @@ var Node = {
 
 var Gameserver = {
 	strName: '',
-	strMap: '',
-	intCapacity: 0,
-	intActive: 0,
-	strPassword: '',
-	intPassword: 0,
-	strMotd: '',
+	strLoginPassword: '',
+	intLoginPassword: 0,
+	strLoginMotd: '',
+	intPlayerActive: 0,
+	intPlayerCapacity: 0,
+	strPlayerSkin: [],
+	strMapActive: '',
+	strMapAvailable: [],
 	
 	objectPlayer: {},
 	
 	init: function() {
 		Gameserver.strName = process.env.strName;
-		Gameserver.strMap = '';
-		Gameserver.intCapacity = process.env.intCapacity;
-		Gameserver.intActive = 0;
-		Gameserver.strPassword = process.env.strPassword;
-		Gameserver.intPassword = (process.env.strPassword === '') ? (0) : (1);
-		Gameserver.strMotd = process.env.strMotd;
+		Gameserver.strLoginPassword = process.env.strLoginPassword;
+		Gameserver.intLoginPassword = 0;
+		Gameserver.strLoginMotd = process.env.strLoginMotd;
+		Gameserver.intPlayerCapacity = process.env.intPlayerCapacity;
+		Gameserver.intPlayerActive = 0;
+		Gameserver.strPlayerSkin = [];
+		Gameserver.strMapActive = '';
+		Gameserver.strMapAvailable = [];
 		
 		Gameserver.objectPlayer = {};
+
+		{
+			if (process.env.strLoginPassword === '') {
+				Gameserver.intLoginPassword = 0;
+				
+			} else if (process.env.strLoginPassword !== '') {
+				Gameserver.intLoginPassword = 1;
+				
+			}
+		}
+
+		{
+			var dirHandle = Node.fsHandle.readdirSync(__dirname + '/assets/skins');
+			
+			for (var intFor1 = 0; intFor1 < dirHandle.length; intFor1 += 1) {
+				var strSkin = dirHandle[intFor1];
+				
+				{
+					strSkin = strSkin.replace(new RegExp('\\.png', 'g'), '');
+				}
+				
+				{
+					Gameserver.strPlayerSkin.push(strSkin);
+				}
+			}
+		}
+
+		{
+			var dirHandle = Node.fsHandle.readdirSync(__dirname + '/assets/maps');
+			
+			for (var intFor1 = 0; intFor1 < dirHandle.length; intFor1 += 1) {
+				var strMap = dirHandle[intFor1];
+				
+				{
+					strMap = strMap.replace(new RegExp('\\.json', 'g'), '');
+				}
+				
+				{
+					Gameserver.strMapAvailable.push(strMap);
+				}
+			}
+		}
 	},
 	
 	dispel: function() {
 		Gameserver.strName = '';
-		Gameserver.strMap = '';
-		Gameserver.intCapacity = 0;
-		Gameserver.intActive = 0;
-		Gameserver.strPassword = '';
-		Gameserver.intPassword = 0;
-		Gameserver.strMotd = '';
+		Gameserver.strLoginPassword = '';
+		Gameserver.intLoginPassword = 0;
+		Gameserver.strLoginMotd = '';
+		Gameserver.intPlayerCapacity = 0
+		Gameserver.intPlayerActive = 0;
+		Gameserver.strPlayerSkin = [];
+		Gameserver.strMapActive = '';
+		Gameserver.strMapAvailable = [];
 		
 		Gameserver.objectPlayer = {};
 	}
@@ -249,7 +398,7 @@ setInterval(function () {
 		var requestHttp = Node.httpHandle.request({
 			'host': '127.0.0.1',
 			'port': 26866,
-			'path': '/host.xml?intPort=' + encodeURIComponent(process.env.intSocketPort) + '&strName=' + encodeURIComponent(Gameserver.strName) + '&strMap=' + encodeURIComponent(Gameserver.strMap) + '&intCapacity=' + encodeURIComponent(Gameserver.intCapacity) + '&intActive=' + encodeURIComponent(Gameserver.intActive) + '&intPassword=' + encodeURIComponent(Gameserver.intPassword),
+			'path': '/host.xml?intPort=' + encodeURIComponent(process.env.intSocketPort) + '&strName=' + encodeURIComponent(Gameserver.strName) + '&intLoginPassword=' + encodeURIComponent(Gameserver.intLoginPassword) + '&intPlayerCapacity=' + encodeURIComponent(Gameserver.intPlayerCapacity) + '&intPlayerActive=' + encodeURIComponent(Gameserver.intPlayerActive) + '&strMapActive=' + encodeURIComponent(Gameserver.strMapActive),
 			'method': 'GET'
 		}, function(responseHttp) {
 			var strContent = '';

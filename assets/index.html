@@ -40,6 +40,16 @@
 		</div>
 		
 		<div id="idLogin" title="Login">
+			<div style="height:8px;"></div>
+			
+			<div class="ui-state-highlight ui-corner-all" id="idLogin_Message" style="padding:0.4em 2.1em 0.4em 1em;">
+				
+			</div>
+			
+			<div style="height:8px;"></div>
+			
+			<hr></hr>
+			
 			<table cellpadding="0" cellspacing="10" border="0">
 				<tr>
 					<td style="font-weight:bold; text-align:right;">
@@ -63,9 +73,9 @@
 					</td>
 					<td>
 						<select id="idLogin_Skin">
-							{{#objectFilesystemSkins}}
+							{{#objectGameserver.strPlayerSkin}}
 								<option>{{.}}</option>
-							{{/objectFilesystemSkins}}
+							{{/objectGameserver.strPlayerSkin}}
 						</select>
 					</td>
 				</tr>
@@ -81,13 +91,13 @@
 			
 			<hr></hr>
 			
-			<div style="height:7px;"></div>
+			<div style="height:8px;"></div>
 			
-			<textarea class="ui-widget ui-state-default  ui-corner-all" style="width:352px; padding:0.4em 2.1em 0.4em 1em; background:none;">{{objectGameserver.strMotd}}</textarea> 
+			<textarea class="ui-widget ui-state-default ui-corner-all" style="width:352px; padding:0.4em 2.1em 0.4em 1em; background:none;">{{objectGameserver.strLoginMotd}}</textarea> 
 		</div>
 		
 		<script type="text/javascript">
-			if ({{objectGameserver.intPassword}} === 0) {
+			if ({{objectGameserver.intLoginPassword}} === 0) {
 				jQuery('#idLogin_Password')
 					.prop({
 						'disabled': true
