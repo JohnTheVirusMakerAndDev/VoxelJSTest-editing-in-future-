@@ -7,7 +7,7 @@ jQuery(document).ready(function() {
 				'height': 'auto',
 				'minHeight': 0,
 				'minWidth': 0,
-				'modal': true,
+				'modal': false,
 				'resizable': false,
 				'width': 'auto',
 				'create': function() {
@@ -44,7 +44,7 @@ jQuery(document).ready(function() {
 				'height': 'auto',
 				'minHeight': 0,
 				'minWidth': 0,
-				'modal': true,
+				'modal': false,
 				'resizable': false,
 				'width': 422,
 				'create': function() {
@@ -62,24 +62,51 @@ jQuery(document).ready(function() {
 				}
 			})
 		;
-		
 	}
 	
 	{
-		jQuery('#idLogin_Skin').find('option').eq(0)
+		jQuery('#idOnline')
+			.dialog({
+				'autoOpen': false,
+				'closeOnEscape': false,
+				'height': 'auto',
+				'minHeight': 0,
+				'minWidth': 0,
+				'modal': false,
+				'resizable': false,
+				'width': 422,
+				'create': function() {
+					{
+						jQuery(this).closest('.ui-dialog').find('.ui-dialog-titlebar')
+							.css({
+								'line-height': '125%'
+							})
+						;
+						
+						jQuery(this).closest('.ui-dialog').find('.ui-dialog-titlebar-close')
+							.hide()
+						;
+					}
+				}
+			})
+		;
+	}
+
+	{
+		jQuery('#idLogin_Team').find('option').eq(Math.round(Math.random()))
 		    .prop({
 		        'selected': true
 		    })
 		;
 		
-		jQuery('#idLogin_Skin')
+		jQuery('#idLogin_Team')
 			.selectmenu({
 				'disabled': false,
 				'width': 300
 			})
 		;
 		
-		jQuery('#idLogin_Skin').closest('.ui-dialog').find('.ui-selectmenu-button')
+		jQuery('#idLogin_Team').closest('.ui-dialog').find('.ui-selectmenu-button')
 			.css({
 				'background': 'none'
 			})
@@ -112,7 +139,7 @@ jQuery(document).ready(function() {
 					Socket.socketHandle.emit('loginHandle', {
 						'strName': jQuery('#idLogin_Name').val(),
 						'strPassword': jQuery('#idLogin_Password').val(),
-						'strSkin': jQuery('#idLogin_Skin').val()
+						'strTeam': jQuery('#idLogin_Team').val()
 					});
 				}
 			});
@@ -127,7 +154,7 @@ jQuery(document).ready(function() {
 				'height': 'auto',
 				'minHeight': 0,
 				'minWidth': 0,
-				'modal': true,
+				'modal': false,
 				'resizable': false,
 				'width': 640,
 				'create': function() {
@@ -184,6 +211,10 @@ var Socket = {
 								jQuery('#idLogin')
 									.dialog('open')
 								;
+								
+								jQuery('#idOnline')
+									.dialog('open')
+								;
 							}
 							
 							{
@@ -219,6 +250,40 @@ var Socket = {
 						} else if (jsonHandle.strType === 'typeAccept') {
 							
 	
+						}
+					}
+				});
+				
+				Socket.socketHandle.on('onlineHandle', function(jsonHandle) {
+					{
+						jQuery('#idOnline_Red')
+							.clear()
+						;
+
+						jQuery('#idOnline_Blue')
+							.clear()
+						;
+					}
+					
+					{
+						for (var intFor1 = 0; intFor1 < jsonHandle.length; intFor1 += 1) {
+							{
+								if (jsonHandle.strTeam === 'teamRed') {
+									jQuery('#idOnline_Red')
+										.append(jQuery('<div></div>')
+											.text(jsonHandle.strName)
+										)
+									;
+									
+								} else if (jsonHandle.strTeam === 'teamBlue') {
+									jQuery('#idOnline_Blue')
+										.append(jQuery('<div></div>')
+											.text(jsonHandle.strName)
+										)
+									;
+									
+								}	
+							}
 						}
 					}
 				});

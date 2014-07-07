@@ -75,7 +75,6 @@ var Node = {
 				strLoginMotd: '',
 				intPlayerActive: 0,
 				intPlayerCapacity: 0,
-				strPlayerSkin: [],
 				strMapActive: '',
 				strMapAvailable: []
 			}
@@ -105,7 +104,6 @@ var Node = {
 			Mustache_objectHandle.objectGameserver.strLoginMotd = Gameserver.strLoginMotd;
 			Mustache_objectHandle.objectGameserver.intPlayerActive = Gameserver.intPlayerActive;
 			Mustache_objectHandle.objectGameserver.intPlayerCapacity = Gameserver.intPlayerCapacity;
-			Mustache_objectHandle.objectGameserver.strPlayerSkin = Gameserver.strPlayerSkin;
 			Mustache_objectHandle.objectGameserver.strMapActive = Gameserver.strMapActive;
 			Mustache_objectHandle.objectGameserver.strMapAvailable = Gameserver.strMapAvailable;
 		}
@@ -186,7 +184,6 @@ var Node = {
 				'strSocket': strSocket,
 				'strTeam': 'teamLogin',
 				'strName': '',
-				'strSkin': '',
 				'dblPositionX': 0.0,
 				'dblPositionY': 0.0,
 				'dblPositionZ': 0.0,
@@ -210,7 +207,7 @@ var Node = {
 			} else if (jsonHandle.strPassword === undefined) {
 				return;
 				
-			} else if (jsonHandle.strSkin === undefined) {
+			} else if (jsonHandle.strTeam === undefined) {
 				return;
 				
 			}
@@ -244,10 +241,10 @@ var Node = {
 					
 					return;
 					
-				} else if (Gameserver.strPlayerSkin.indexOf(jsonHandle.strSkin) === -1) {
+				} else if (([ 'Red', 'Blue' ]).indexOf(jsonHandle.strTeam) === -1) {
 					socketHandle.emit('loginHandle', {
 						'strType': 'typeReject',
-						'strMessage': 'skin invalid'
+						'strMessage': 'team invalid'
 					});
 					
 					return;
@@ -256,8 +253,20 @@ var Node = {
 			}
 			
 			{
-				// TODO: assign team
-				
+				Gameserver.intPlayerActive += 1;
+			}
+			
+			{
+				if (jsonHandle.strTeam === 'Red') {
+					Gameserver.objectPlayer[socketHandle.id].strTeam = 'teamRed';
+					
+				} else if (jsonHandle.strTeam === 'Blue') {
+					Gameserver.objectPlayer[socketHandle.id].strTeam = 'teamBlue';
+					
+				}
+			}
+			
+			{
 				socketHandle.emit('loginHandle', {
 					'strType': 'typeAccept',
 					'strMessage': ''
@@ -299,7 +308,13 @@ var Node = {
 		});
 		
 		socketHandle.on('disconnect', function() {
+			{
+				Gameserver.intPlayerActive -= 1;
+			}
 			
+			{
+				delete Gameserver.objectPlayer[socketHandle.id];
+			}
 		});
 	});
 }
@@ -311,7 +326,6 @@ var Gameserver = {
 	strLoginMotd: '',
 	intPlayerActive: 0,
 	intPlayerCapacity: 0,
-	strPlayerSkin: [],
 	strMapActive: '',
 	strMapAvailable: [],
 	
@@ -324,7 +338,6 @@ var Gameserver = {
 		Gameserver.strLoginMotd = process.env.strLoginMotd;
 		Gameserver.intPlayerCapacity = process.env.intPlayerCapacity;
 		Gameserver.intPlayerActive = 0;
-		Gameserver.strPlayerSkin = [];
 		Gameserver.strMapActive = '';
 		Gameserver.strMapAvailable = [];
 		
@@ -337,22 +350,6 @@ var Gameserver = {
 			} else if (process.env.strLoginPassword !== '') {
 				Gameserver.intLoginPassword = 1;
 				
-			}
-		}
-
-		{
-			var dirHandle = Node.fsHandle.readdirSync(__dirname + '/assets/skins');
-			
-			for (var intFor1 = 0; intFor1 < dirHandle.length; intFor1 += 1) {
-				var strSkin = dirHandle[intFor1];
-				
-				{
-					strSkin = strSkin.replace(new RegExp('\\.png', 'g'), '');
-				}
-				
-				{
-					Gameserver.strPlayerSkin.push(strSkin);
-				}
 			}
 		}
 
@@ -380,7 +377,6 @@ var Gameserver = {
 		Gameserver.strLoginMotd = '';
 		Gameserver.intPlayerCapacity = 0
 		Gameserver.intPlayerActive = 0;
-		Gameserver.strPlayerSkin = [];
 		Gameserver.strMapActive = '';
 		Gameserver.strMapAvailable = [];
 		
@@ -391,6 +387,27 @@ var Gameserver = {
 {
 	Gameserver.init();
 }
+
+setInterval(function () {
+	var jsonHandle = [];
+	
+    for (var strSocket in Gameserver.objectPlayer) {
+		var playerHandle = Gameserver.objectPlayer[strSocket];
+		
+		if (playerHandle.strTeam === 'teamLogin') {
+			continue;
+		}
+		
+		{
+			jsonHandle.push({
+				'strTeam': playerHandle.strTeam,
+				'strName': playerHandle.strName
+			});
+		}
+    }
+    
+    Socket.serverHandle.emit('onlineHandle', jsonHandle);
+}, 1000);
 
 //TODO: insert domain / start immediately
 setInterval(function () {
@@ -415,7 +432,6 @@ setInterval(function () {
 		});
 		
 		requestHttp.on('error', function(errorHandle) {
-			console.log(errorHandle);
 			functionError();
 		});
 		

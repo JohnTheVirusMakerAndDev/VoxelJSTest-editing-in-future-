@@ -69,13 +69,12 @@
 				</tr>
 				<tr>
 					<td style="font-weight:bold; text-align:right;">
-						Skin:
+						Team:
 					</td>
 					<td>
-						<select id="idLogin_Skin">
-							{{#objectGameserver.strPlayerSkin}}
-								<option>{{.}}</option>
-							{{/objectGameserver.strPlayerSkin}}
+						<select id="idLogin_Team">
+							<option>Red</option>
+							<option>Blue</option>
 						</select>
 					</td>
 				</tr>
@@ -108,6 +107,34 @@
 				;
 			}
 		</script>
+		
+		<div id="idOnline" title="Online">
+			<table cellpadding="0" cellspacing="0" border="0">
+				<tr>
+					<td id="idOnline_Table" style="vertical-align:top;">
+						<div style="font-weight:bold;">
+							Red
+						</div>
+						
+						<div id="idOnline_Red">
+						
+						</div>
+					</td>
+					<td vertical-align:top;">
+					
+					</td>
+					<td style="vertical-align:top;">
+						<div style="font-weight:bold;">
+							Blue
+						</div>
+						
+						<div id="idOnline_Blue">
+						
+						</div>
+					</td>
+				</tr>
+			</table>
+		</div>
 		
 		<div id="idMenu" title="Menu">
 
