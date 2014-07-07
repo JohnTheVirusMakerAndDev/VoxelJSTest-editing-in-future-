@@ -184,6 +184,9 @@ var Node = {
 				'strSocket': strSocket,
 				'strTeam': 'teamLogin',
 				'strName': '',
+				'intScore': 0,
+				'intKills': 0,
+				'intDeaths': 0,
 				'dblPositionX': 0.0,
 				'dblPositionY': 0.0,
 				'dblPositionZ': 0.0,
@@ -211,7 +214,7 @@ var Node = {
 				return;
 				
 			}
-
+			
 			if (Gameserver.objectPlayer[socketHandle.id].strTeam !== 'teamLogin') {
 				return;
 			}
@@ -264,6 +267,10 @@ var Node = {
 					Gameserver.objectPlayer[socketHandle.id].strTeam = 'teamBlue';
 					
 				}
+			}
+			
+			{
+				Gameserver.objectPlayer[socketHandle.id].strName = jsonHandle.strName;
 			}
 			
 			{
@@ -328,6 +335,8 @@ var Gameserver = {
 	intPlayerCapacity: 0,
 	strMapActive: '',
 	strMapAvailable: [],
+	intScoreRed: 0,
+	intScoreBlue: 0,
 	
 	objectPlayer: {},
 	
@@ -340,9 +349,11 @@ var Gameserver = {
 		Gameserver.intPlayerActive = 0;
 		Gameserver.strMapActive = '';
 		Gameserver.strMapAvailable = [];
+		Gameserver.intScoreRed = 0;
+		Gameserver.intScoreBlue = 0;
 		
 		Gameserver.objectPlayer = {};
-
+		
 		{
 			if (process.env.strLoginPassword === '') {
 				Gameserver.intLoginPassword = 0;
@@ -352,7 +363,7 @@ var Gameserver = {
 				
 			}
 		}
-
+		
 		{
 			var dirHandle = Node.fsHandle.readdirSync(__dirname + '/assets/maps');
 			
@@ -379,6 +390,8 @@ var Gameserver = {
 		Gameserver.intPlayerActive = 0;
 		Gameserver.strMapActive = '';
 		Gameserver.strMapAvailable = [];
+		Gameserver.intScoreRed = 0;
+		Gameserver.intScoreBlue = 0;
 		
 		Gameserver.objectPlayer = {};
 	}
@@ -388,29 +401,48 @@ var Gameserver = {
 	Gameserver.init();
 }
 
-setInterval(function () {
-	var jsonHandle = [];
+setInterval(function() {
+	var jsonHandle = {
+		'serverHandle': {},
+		'playerHandle': []
+	};
 	
-    for (var strSocket in Gameserver.objectPlayer) {
-		var playerHandle = Gameserver.objectPlayer[strSocket];
-		
-		if (playerHandle.strTeam === 'teamLogin') {
-			continue;
+	{
+		jsonHandle.serverHandle = {
+			'intPlayerCapacity': Gameserver.intPlayerCapacity,
+			'intPlayerActive': Gameserver.intPlayerActive,
+			'strMapActive': Gameserver.strMapActive,
+			'strMapAvailable': Gameserver.strMapAvailable,
+			'intScoreRed': Gameserver.intScoreRed,
+			'intScoreBlue': Gameserver.intScoreBlue
+		};
+	}
+	
+	{
+		for (var strSocket in Gameserver.objectPlayer) {
+			var playerHandle = Gameserver.objectPlayer[strSocket];
+			
+			if (playerHandle.strTeam === 'teamLogin') {
+				continue;
+			}
+			
+			{
+				jsonHandle.playerHandle.push({
+					'strTeam': playerHandle.strTeam,
+					'strName': playerHandle.strName,
+					'intScore': playerHandle.intScore,
+					'intKills': playerHandle.intKills,
+					'intDeaths': playerHandle.intDeaths
+				});
+			}
 		}
-		
-		{
-			jsonHandle.push({
-				'strTeam': playerHandle.strTeam,
-				'strName': playerHandle.strName
-			});
-		}
-    }
-    
-    Socket.serverHandle.emit('onlineHandle', jsonHandle);
+	}
+	
+	Socket.serverHandle.emit('onlineHandle', jsonHandle);
 }, 1000);
 
 //TODO: insert domain / start immediately
-setInterval(function () {
+setInterval(function() {
 	var functionRequest = function() {
 		var requestHttp = Node.httpHandle.request({
 			'host': '127.0.0.1',
@@ -442,7 +474,7 @@ setInterval(function () {
 	
 	var functionError = function() {
 		var dateHandle = new Date();
-
+		
 		console.log('');
 		console.log('------------------------------------------------------------');
 		console.log('- Timestamp: ' + dateHandle.toISOString());
@@ -454,7 +486,7 @@ setInterval(function () {
 	
 	var functionSuccess = function() {
 		var dateHandle = new Date();
-
+		
 		console.log('');
 		console.log('------------------------------------------------------------');
 		console.log('- Timestamp: ' + dateHandle.toISOString());

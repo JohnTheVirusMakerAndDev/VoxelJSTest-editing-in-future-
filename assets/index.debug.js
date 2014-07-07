@@ -199,6 +199,9 @@ var Socket = {
 				});
 
 				Socket.socketHandle.on('loginHandle', function(jsonHandle) {
+					console.log('loginHandle');
+					console.log(jsonHandle);
+					
 					{
 						jQuery('.ui-dialog').find('.ui-dialog-content')
 							.dialog('close')
@@ -213,6 +216,11 @@ var Socket = {
 								;
 								
 								jQuery('#idOnline')
+									.dialog('option', 'position', {
+										'my': 'left top',
+										'at': 'right top',
+										'of': '#idLogin'
+									})
 									.dialog('open')
 								;
 							}
@@ -255,30 +263,45 @@ var Socket = {
 				});
 				
 				Socket.socketHandle.on('onlineHandle', function(jsonHandle) {
+					console.log('onlineHandle');
+					console.log(jsonHandle);
+					
 					{
-						jQuery('#idOnline_Red')
-							.clear()
+						jQuery('#idOnline_RedServer')
+							.text('Red' + ' ' + jsonHandle.serverHandle.intScoreRed)
 						;
 
-						jQuery('#idOnline_Blue')
-							.clear()
+						jQuery('#idOnline_BlueServer')
+							.text('Blue' + ' ' + jsonHandle.serverHandle.intScoreBlue)
 						;
 					}
 					
 					{
-						for (var intFor1 = 0; intFor1 < jsonHandle.length; intFor1 += 1) {
+						jQuery('#idOnline_RedPlayer')
+							.empty()
+						;
+
+						jQuery('#idOnline_BluePlayer')
+							.empty()
+						;
+					}
+					
+					{
+						for (var intFor1 = 0; intFor1 < jsonHandle.playerHandle.length; intFor1 += 1) {
+							var playerHandle = jsonHandle.playerHandle[intFor1];
+							
 							{
-								if (jsonHandle.strTeam === 'teamRed') {
-									jQuery('#idOnline_Red')
+								if (playerHandle.strTeam === 'teamRed') {
+									jQuery('#idOnline_RedPlayer')
 										.append(jQuery('<div></div>')
-											.text(jsonHandle.strName)
+											.text(playerHandle.strName + ' ' + playerHandle.intScore + ' ' + playerHandle.intKills + ' ' + playerHandle.intDeaths)
 										)
 									;
 									
-								} else if (jsonHandle.strTeam === 'teamBlue') {
-									jQuery('#idOnline_Blue')
+								} else if (playerHandle.strTeam === 'teamBlue') {
+									jQuery('#idOnline_BluePlayer')
 										.append(jQuery('<div></div>')
-											.text(jsonHandle.strName)
+											.text(playerHandle.strName + ' ' + playerHandle.intScore + ' ' + playerHandle.intKills + ' ' + playerHandle.intDeaths)
 										)
 									;
 									
@@ -289,6 +312,8 @@ var Socket = {
 				});
 				
 				Socket.socketHandle.on('chatHandle', function(jsonHandle) {
+					console.log('chatHandle');
+					console.log(jsonHandle);
 
 				});
 			});
