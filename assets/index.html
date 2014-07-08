@@ -85,7 +85,7 @@
 		<div id="idLogin" title="Login">
 			<div style="height:8px;"></div>
 			
-			<div class="ui-state-highlight ui-corner-all" id="idLogin_Message" style="padding:0.4em 2.1em 0.4em 1em;">
+			<div class="ui-state-highlight ui-corner-all" id="idLogin_Message" style="padding:0.4em 1.0em 0.4em 1em;">
 				
 			</div>
 			
@@ -97,7 +97,7 @@
 						Name:
 					</td>
 					<td>
-						<input class="ui-widget ui-state-default ui-corner-all" id="idLogin_Name" style="width:257px; padding:0.4em 2.1em 0.4em 1em; background:none;" />
+						<input class="ui-widget ui-state-default ui-corner-all" id="idLogin_Name" style="width:271px; padding:0.4em 1.0em 0.4em 1em; background:none;" />
 					</td>
 				</tr>
 				<tr>
@@ -106,10 +106,10 @@
 					</td>
 					<td>
 						{{#objectGameserver.intLoginPassword}}
-							<input class="ui-widget ui-state-default ui-corner-all" id="idLogin_Password" type="password" style="width:257px; padding:0.4em 2.1em 0.4em 1em; background:none;" />
+							<input class="ui-widget ui-state-default ui-corner-all" id="idLogin_Password" type="password" style="width:271px; padding:0.4em 1.0em 0.4em 1em; background:none;" />
 						{{/objectGameserver.intLoginPassword}}
 						{{^objectGameserver.intLoginPassword}}
-							<input class="ui-widget ui-state-default ui-corner-all" id="idLogin_Password" type="password" disabled="disabled" style="width:257px; padding:0.4em 2.1em 0.4em 1em; background:none; background-color:#F2F2F2;" />
+							<input class="ui-widget ui-state-default ui-corner-all" id="idLogin_Password" type="password" disabled="disabled" style="width:271px; padding:0.4em 1.0em 0.4em 1em; background:none; background-color:#F2F2F2;" />
 						{{/objectGameserver.intLoginPassword}}
 					</td>
 				</tr>
@@ -143,7 +143,41 @@
 					</div>
 				</div>
 				<div class="ui-dialog-content ui-widget-content">
-					<textarea class="ui-widget ui-state-default" style="width:412px; border:none; background:none; font-family:Courier;">{{objectGameserver.strLoginMotd}}</textarea> 
+					<div style="height:8px;"></div>
+					
+					<div class="ui-widget ui-state-default ui-corner-all" style="height:100px; padding:0.8em 1.0em 0.8em 1em; background:none; overflow-y:scroll; font-family:Courier;">
+						{{objectGameserver.strLoginMotd}}
+					</div>
+					
+					<div style="height:8px;"></div>
+				</div>
+			</div>
+			
+			<div class="ui-dialog ui-widget ui-widget-content ui-corner-all" style="position:static; margin:16px;">
+				<div class="ui-dialog-titlebar ui-widget-header ui-corner-all ui-helper-clearfix">
+					<div class="ui-dialog-title">
+						Chat
+					</div>
+				</div>
+				<div class="ui-dialog-content ui-widget-content">
+					<div style="height:8px;"></div>
+					
+					<div class="ui-widget ui-state-default ui-corner-all" id="idChat_Log" style="height:200px; background:none; overflow-y:scroll;">
+						
+					</div>
+					
+					<div style="height:8px;"></div>
+					
+					<table cellpadding="0" cellspacing="10" border="0">
+						<tr>
+							<td style="font-weight:bold; text-align:right;">
+								Message:
+							</td>
+							<td>
+								<input class="ui-widget ui-state-default ui-corner-all" id="idChat_Message" style="width:298px; padding:0.4em 1.0em 0.4em 1em; background:none;" />
+							</td>
+						</tr>
+					</table>
 				</div>
 			</div>
 		</div>
@@ -162,7 +196,7 @@
 								Players:
 							</td>
 							<td>
-								<input class="ui-widget ui-state-default ui-corner-all" id="idServer_Players" style="width:291px; padding:0.4em 2.1em 0.4em 1em; background:none;" />
+								<input class="ui-widget ui-state-default ui-corner-all" id="idServer_Players" style="width:303px; padding:0.4em 1.0em 0.4em 1em; background:none;" />
 							</td>
 						</tr>
 						<tr>
@@ -170,7 +204,7 @@
 								Map:
 							</td>
 							<td>
-								<input class="ui-widget ui-state-default ui-corner-all" id="idServer_Map" style="width:291px; padding:0.4em 2.1em 0.4em 1em; background:none;" />
+								<input class="ui-widget ui-state-default ui-corner-all" id="idServer_Map" style="width:303px; padding:0.4em 1.0em 0.4em 1em; background:none;" />
 							</td>
 						</tr>
 					</table>
@@ -190,7 +224,7 @@
 								Players:
 							</td>
 							<td>
-								<input class="ui-widget ui-state-default ui-corner-all" id="idTeamRed_Players" style="width:291px; padding:0.4em 2.1em 0.4em 1em; background:none;" />
+								<input class="ui-widget ui-state-default ui-corner-all" id="idTeamRed_Players" style="width:303px; padding:0.4em 1.0em 0.4em 1em; background:none;" />
 							</td>
 						</tr>
 						<tr>
@@ -198,7 +232,7 @@
 								Score:
 							</td>
 							<td>
-								<input class="ui-widget ui-state-default ui-corner-all" id="idTeamRed_Score" style="width:291px; padding:0.4em 2.1em 0.4em 1em; background:none;" />
+								<input class="ui-widget ui-state-default ui-corner-all" id="idTeamRed_Score" style="width:303px; padding:0.4em 1.0em 0.4em 1em; background:none;" />
 							</td>
 						</tr>
 					</table>
@@ -229,7 +263,7 @@
 								Players:
 							</td>
 							<td>
-								<input class="ui-widget ui-state-default ui-corner-all" id="idTeamBlue_Players" style="width:291px; padding:0.4em 2.1em 0.4em 1em; background:none;" />
+								<input class="ui-widget ui-state-default ui-corner-all" id="idTeamBlue_Players" style="width:303px; padding:0.4em 1.0em 0.4em 1em; background:none;" />
 							</td>
 						</tr>
 						<tr>
@@ -237,7 +271,7 @@
 								Score:
 							</td>
 							<td>
-								<input class="ui-widget ui-state-default ui-corner-all" id="idTeamBlue_Score" style="width:291px; padding:0.4em 2.1em 0.4em 1em; background:none;" />
+								<input class="ui-widget ui-state-default ui-corner-all" id="idTeamBlue_Score" style="width:303px; padding:0.4em 1.0em 0.4em 1em; background:none;" />
 							</td>
 						</tr>
 					</table>

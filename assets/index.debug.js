@@ -84,6 +84,29 @@ jQuery(document).ready(function() {
 	}
 	
 	{
+		jQuery('#idChat_Message')
+			.off('keyup')
+			.on('keyup', function(eventHandle) {
+				if (eventHandle.keyCode !== 13) {
+					return;
+				}
+				
+				{
+					Socket.socketHandle.emit('chatHandle', {
+						'strMessage': jQuery('#idChat_Message').val()
+					});
+				}
+				
+				{
+					jQuery('#idChat_Message')
+						.val('')
+					;
+				}
+			})
+		;
+	}
+	
+	{
 		jQuery('#idMenu')
 			.dialog({
 				'autoOpen': false,
@@ -124,9 +147,6 @@ var Socket = {
 				});
 
 				Socket.socketHandle.on('loginHandle', function(jsonHandle) {
-					console.log('loginHandle');
-					console.log(jsonHandle);
-					
 					{
 						if (jsonHandle.strType === 'typeReject') {
 							{
@@ -177,9 +197,6 @@ var Socket = {
 				});
 				
 				Socket.socketHandle.on('onlineHandle', function(jsonHandle) {
-					console.log('onlineHandle');
-					console.log(jsonHandle);
-					
 					{
 						jQuery('#idServer_Players')
 							.val(jsonHandle.serverHandle.intPlayerActive + ' / ' + jsonHandle.serverHandle.intPlayerCapacity)
@@ -266,9 +283,26 @@ var Socket = {
 				});
 				
 				Socket.socketHandle.on('chatHandle', function(jsonHandle) {
-					console.log('chatHandle');
-					console.log(jsonHandle);
-
+					jQuery('#idChat_Log')
+						.append(jQuery('<div></div>')
+							.css({
+								'margin': '0.8em 1.0em 0.8em 1em'
+							})
+							.append(jQuery('<a></a>')
+								.css({
+									'font-weight': 'bold'
+								})
+								.text(jsonHandle.strName + ':' + ' ')
+							)
+							.append(jQuery('<a></a>')
+								.text(jsonHandle.strMessage)
+							)
+						)
+					;
+					
+					jQuery('#idChat_Log')
+						.scrollTop(jQuery('#idChat_Log').get(0).scrollHeight - jQuery('#idChat_Log').height())
+					;
 				});
 			});
 		}
