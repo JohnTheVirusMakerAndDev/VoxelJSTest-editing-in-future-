@@ -7,7 +7,7 @@ jQuery(document).ready(function() {
 				'height': 'auto',
 				'minHeight': 0,
 				'minWidth': 0,
-				'modal': false,
+				'modal': true,
 				'resizable': false,
 				'width': 'auto',
 				'create': function() {
@@ -44,35 +44,7 @@ jQuery(document).ready(function() {
 				'height': 'auto',
 				'minHeight': 0,
 				'minWidth': 0,
-				'modal': false,
-				'resizable': false,
-				'width': 422,
-				'create': function() {
-					{
-						jQuery(this).closest('.ui-dialog').find('.ui-dialog-titlebar')
-							.css({
-								'line-height': '125%'
-							})
-						;
-						
-						jQuery(this).closest('.ui-dialog').find('.ui-dialog-titlebar-close')
-							.hide()
-						;
-					}
-				}
-			})
-		;
-	}
-	
-	{
-		jQuery('#idOnline')
-			.dialog({
-				'autoOpen': false,
-				'closeOnEscape': false,
-				'height': 'auto',
-				'minHeight': 0,
-				'minWidth': 0,
-				'modal': false,
+				'modal': true,
 				'resizable': false,
 				'width': 422,
 				'create': function() {
@@ -124,12 +96,10 @@ jQuery(document).ready(function() {
 			.off('click')
 			.on('click', function() {
 				{
-					jQuery('.ui-dialog').find('.ui-dialog-content')
+					jQuery('#idLogin')
 						.dialog('close')
 					;
-				}
-				
-				{
+					
 					jQuery('#idLoading')
 						.dialog('open')
 					;
@@ -203,24 +173,13 @@ var Socket = {
 					console.log(jsonHandle);
 					
 					{
-						jQuery('.ui-dialog').find('.ui-dialog-content')
-							.dialog('close')
-						;
-					}
-					
-					{
 						if (jsonHandle.strType === 'typeReject') {
 							{
-								jQuery('#idLogin')
-									.dialog('open')
+								jQuery('#idLoading')
+									.dialog('close')
 								;
 								
-								jQuery('#idOnline')
-									.dialog('option', 'position', {
-										'my': 'left top',
-										'at': 'right top',
-										'of': '#idLogin'
-									})
+								jQuery('#idLogin')
 									.dialog('open')
 								;
 							}
@@ -233,14 +192,14 @@ var Socket = {
 							
 							{
 								if (jsonHandle.strMessage === '') {
-									jQuery('#idLogin').children().slice(0, 4)
+									jQuery('#idLogin').children().slice(0, 3)
 										.css({
 											'display': 'none'
 										})
 									;
 									
 								} else if (jsonHandle.strMessage !== '') {
-									jQuery('#idLogin').children().slice(0, 4)
+									jQuery('#idLogin').children().slice(0, 3)
 										.css({
 											'display': 'block'
 										})
@@ -249,15 +208,15 @@ var Socket = {
 								}
 							}
 							
+						} else if (jsonHandle.strType === 'typeAccept') {
 							{
-								jQuery('#idLogin')
-									.dialog('open')
+								jQuery('#idLoading')
+									.dialog('close')
 								;
+
+								// TODO
 							}
 							
-						} else if (jsonHandle.strType === 'typeAccept') {
-							
-	
 						}
 					}
 				});
@@ -267,22 +226,22 @@ var Socket = {
 					console.log(jsonHandle);
 					
 					{
-						jQuery('#idOnline_RedServer')
-							.text('Red' + ' ' + jsonHandle.serverHandle.intScoreRed)
+						jQuery('#idServer_Players')
+							.val(jsonHandle.serverHandle.intPlayerActive + ' / ' + jsonHandle.serverHandle.intPlayerCapacity)
 						;
-
-						jQuery('#idOnline_BlueServer')
-							.text('Blue' + ' ' + jsonHandle.serverHandle.intScoreBlue)
+						
+						jQuery('#idServer_Map')
+							.val(jsonHandle.serverHandle.strMapActive)
 						;
 					}
 					
 					{
-						jQuery('#idOnline_RedPlayer')
-							.empty()
+						jQuery('#idTeamRed_Table').find('tr').slice(1)
+							.remove()
 						;
 
-						jQuery('#idOnline_BluePlayer')
-							.empty()
+						jQuery('#idTeamBlue_Table').find('tr').slice(1)
+							.remove()
 						;
 					}
 					
@@ -292,22 +251,62 @@ var Socket = {
 							
 							{
 								if (playerHandle.strTeam === 'teamRed') {
-									jQuery('#idOnline_RedPlayer')
-										.append(jQuery('<div></div>')
-											.text(playerHandle.strName + ' ' + playerHandle.intScore + ' ' + playerHandle.intKills + ' ' + playerHandle.intDeaths)
+									jQuery('#idTeamRed_Table')
+										.append(jQuery('<tr></tr>')
+											.append(jQuery('<td></td>')
+												.text(playerHandle.strName)
+											)
+											.append(jQuery('<td></td>')
+												.text(playerHandle.intScore)
+											)
+											.append(jQuery('<td></td>')
+												.text(playerHandle.intKills)
+											)
+											.append(jQuery('<td></td>')
+												.text(playerHandle.intDeaths)
+											)
 										)
 									;
 									
 								} else if (playerHandle.strTeam === 'teamBlue') {
-									jQuery('#idOnline_BluePlayer')
-										.append(jQuery('<div></div>')
-											.text(playerHandle.strName + ' ' + playerHandle.intScore + ' ' + playerHandle.intKills + ' ' + playerHandle.intDeaths)
+									jQuery('#idTeamBlue_Table')
+										.append(jQuery('<tr></tr>')
+											.append(jQuery('<td></td>')
+												.text(playerHandle.strName)
+											)
+											.append(jQuery('<td></td>')
+												.text(playerHandle.intScore)
+											)
+											.append(jQuery('<td></td>')
+												.text(playerHandle.intKills)
+											)
+											.append(jQuery('<td></td>')
+												.text(playerHandle.intDeaths)
+											)
 										)
 									;
 									
 								}	
 							}
 						}
+					}
+					
+					{
+						jQuery('#idTeamRed_Players')
+							.val(jQuery('#idTeamRed_Table').find('tr').size() - 1)
+						;
+						
+						jQuery('#idTeamBlue_Players')
+							.val(jQuery('#idTeamBlue_Table').find('tr').size() - 1)
+						;
+						
+						jQuery('#idTeamRed_Score')
+							.val(jsonHandle.serverHandle.intScoreRed)
+						;
+						
+						jQuery('#idTeamBlue_Score')
+							.val(jsonHandle.serverHandle.intScoreBlue)
+						;
 					}
 				});
 				

@@ -316,7 +316,9 @@ var Node = {
 		
 		socketHandle.on('disconnect', function() {
 			{
-				Gameserver.intPlayerActive -= 1;
+				if (Gameserver.objectPlayer[socketHandle.id].strTeam !== 'teamLogin') {
+					Gameserver.intPlayerActive -= 1;
+				}
 			}
 			
 			{
