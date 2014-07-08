@@ -9,9 +9,23 @@
 		
 		<link rel="icon" type="image/png" href="http://dhiont4yb3hlc.cloudfront.net/WebsiteRect/bodyFavicon.png" />
 		
-		<link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css" />
+		<link rel="stylesheet" type="text/css" href="http://cdn.jsdelivr.net/jquery.ui/1.11.0/themes/smoothness/jquery-ui.min.css" />
 
-		<style>
+		<style type="text/css">
+			.ui-dialog .ui-dialog-titlebar {
+				line-height:125%;
+			}
+			
+			.no-titlebar .ui-dialog-titlebar {
+				display:none;
+			}
+			
+			.no-close .ui-dialog-titlebar-close {
+				display:none;
+			}
+		</style>
+
+		<style type="text/css">
 			body {
 				cursor:default;
 				
@@ -53,7 +67,7 @@
 
 		<script type="text/javascript" src="http://cdn.jsdelivr.net/jquery/2.1.1/jquery.min.js"></script>
 		
-		<script type="text/javascript" src="http://code.jquery.com/ui/1.11.0/jquery-ui.min.js"></script>
+		<script type="text/javascript" src="http://cdn.jsdelivr.net/jquery.ui/1.11.0/jquery-ui.min.js"></script>
 		
 		<script type="text/javascript" src="http://cdn.jsdelivr.net/momentjs/2.7.0/moment.min.js"></script>
 		
@@ -63,7 +77,9 @@
 		<!-- // TODO: give credits and download -->
 		
 		<div id="idLoading" title="Loading">
-			<img width="31" height="31" border="0" src="http://dhiont4yb3hlc.cloudfront.net/WebsiteRect/bodyLoading.gif">
+			<div style="margin:32px 28px 32px 28px;">
+				<img width="31" height="31" border="0" src="http://dhiont4yb3hlc.cloudfront.net/WebsiteRect/bodyLoading.gif">
+			</div>
 		</div>
 		
 		<div id="idLogin" title="Login">

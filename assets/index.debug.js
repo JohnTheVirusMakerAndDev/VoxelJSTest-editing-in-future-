@@ -4,34 +4,13 @@ jQuery(document).ready(function() {
 			.dialog({
 				'autoOpen': true,
 				'closeOnEscape': false,
+				'dialogClass': 'no-titlebar',
 				'height': 'auto',
 				'minHeight': 0,
 				'minWidth': 0,
 				'modal': true,
 				'resizable': false,
-				'width': 'auto',
-				'create': function() {
-					{
-						jQuery(this).closest('.ui-dialog')
-							.css({
-								'border': 'none',
-								'background': 'none'
-							})
-						;
-						
-						jQuery(this).closest('.ui-dialog').find('.ui-dialog-titlebar')
-							.css({
-								'display': 'none'
-							})
-						;
-					}
-					
-					{
-						jQuery(this).closest('.ui-dialog').find('.ui-dialog-titlebar-close')
-							.hide()
-						;
-					}
-				}
+				'width': 'auto'
 			})
 		;
 	}
@@ -41,25 +20,13 @@ jQuery(document).ready(function() {
 			.dialog({
 				'autoOpen': false,
 				'closeOnEscape': false,
+				'dialogClass': 'no-close',
 				'height': 'auto',
 				'minHeight': 0,
 				'minWidth': 0,
 				'modal': true,
 				'resizable': false,
-				'width': 422,
-				'create': function() {
-					{
-						jQuery(this).closest('.ui-dialog').find('.ui-dialog-titlebar')
-							.css({
-								'line-height': '125%'
-							})
-						;
-						
-						jQuery(this).closest('.ui-dialog').find('.ui-dialog-titlebar-close')
-							.hide()
-						;
-					}
-				}
+				'width': 422
 			})
 		;
 	}
@@ -121,25 +88,13 @@ jQuery(document).ready(function() {
 			.dialog({
 				'autoOpen': false,
 				'closeOnEscape': false,
+				'dialogClass': 'no-close',
 				'height': 'auto',
 				'minHeight': 0,
 				'minWidth': 0,
 				'modal': false,
 				'resizable': false,
-				'width': 640,
-				'create': function() {
-					{
-						jQuery(this).closest('.ui-dialog').find('.ui-dialog-titlebar')
-							.css({
-								'line-height': '125%'
-							})
-						;
-						
-						jQuery(this).closest('.ui-dialog').find('.ui-dialog-titlebar-close')
-							.hide()
-						;
-					}
-				}
+				'width': 640
 			})
 		;
 	}
