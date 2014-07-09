@@ -1,5 +1,37 @@
 jQuery(document).ready(function() {
 	{
+		jQuery(document.body)
+			.off('keydown')
+			.on('keydown', function(eventHandle) {
+				//if (jQuery('#idMessagebox_Chat').is(':focus') === true) {
+				//	return;
+				//}
+				//
+				//{
+				//	eventHandle.preventDefault();
+				//}
+				
+				if (eventHandle.keyCode === 9) {
+					jQuery('#idInformation')
+						.dialog('close')
+					;
+				}
+			})
+			.off('keyup')
+			.on('keyup', function(eventHandle) {
+				//if (jQuery('#idMessagebox_Chat').is(':focus') === true) {
+				//	return;
+				//}
+				//
+				//{
+				//	eventHandle.preventDefault();
+				//}
+				
+			})
+		;
+	}
+	
+	{
 		jQuery('#idLoading')
 			.dialog({
 				'autoOpen': true,
@@ -84,30 +116,7 @@ jQuery(document).ready(function() {
 	}
 	
 	{
-		jQuery('#idChat_Message')
-			.off('keyup')
-			.on('keyup', function(eventHandle) {
-				if (eventHandle.keyCode !== 13) {
-					return;
-				}
-				
-				{
-					Socket.socketHandle.emit('chatHandle', {
-						'strMessage': jQuery('#idChat_Message').val()
-					});
-				}
-				
-				{
-					jQuery('#idChat_Message')
-						.val('')
-					;
-				}
-			})
-		;
-	}
-	
-	{
-		jQuery('#idMenu')
+		jQuery('#idInformation')
 			.dialog({
 				'autoOpen': false,
 				'closeOnEscape': false,
@@ -117,13 +126,67 @@ jQuery(document).ready(function() {
 				'minWidth': 0,
 				'modal': false,
 				'resizable': false,
-				'width': 640
+				'width': 313
+			})
+		;
+	}
+	
+	{
+		jQuery('#idInformation_Tab')
+			.button({
+				'disabled': false,
+				'icons': {
+					'primary': 'ui-icon-arrowthick-2-e-w'
+				}
+			})
+			.off('click')
+			.on('click', function() {
+				{
+					jQuery(document.body)
+						.trigger(jQuery.Event('keydown', {
+							'keyCode': 9
+						}))
+					;
+					
+					jQuery(document.body)
+						.trigger(jQuery.Event('keyup', {
+							'keyCode': 9
+						}))
+					;
+				}
+			});
+		;
+	}
+	
+	{
+		jQuery('#idMessagebox_Chat')
+			.off('keyup')
+			.on('keyup', function(eventHandle) {
+				if (eventHandle.keyCode !== 13) {
+					return;
+				}
+				
+				{
+					Socket.socketHandle.emit('chatHandle', {
+						'strMessage': jQuery('#idMessagebox_Chat').val()
+					});
+				}
+				
+				{
+					jQuery('#idMessagebox_Chat')
+						.val('')
+					;
+				}
 			})
 		;
 	}
 
 	{
 		Socket.init();
+	}
+
+	{
+		Voxel.init();
 	}
 });
 
@@ -189,7 +252,9 @@ var Socket = {
 									.dialog('close')
 								;
 
-								// TODO
+								jQuery('#idInformation')
+									.dialog('open')
+								;
 							}
 							
 						}
@@ -283,7 +348,7 @@ var Socket = {
 				});
 				
 				Socket.socketHandle.on('chatHandle', function(jsonHandle) {
-					jQuery('#idChat_Log')
+					jQuery('#idMessagebox_Log')
 						.append(jQuery('<div></div>')
 							.css({
 								'margin': '0.8em 1.0em 0.8em 1em'
@@ -300,8 +365,8 @@ var Socket = {
 						)
 					;
 					
-					jQuery('#idChat_Log')
-						.scrollTop(jQuery('#idChat_Log').get(0).scrollHeight - jQuery('#idChat_Log').height())
+					jQuery('#idMessagebox_Log')
+						.scrollTop(jQuery('#idMessagebox_Log').get(0).scrollHeight - jQuery('#idMessagebox_Log').height())
 					;
 				});
 			});
@@ -339,7 +404,7 @@ var Voxel = {
 		Voxel.voxelhighlightHandle = require('voxel-highlight')(Voxel.voxelengineHandle);
 
 		{
-			Voxel.voxelengineHandle.appendTo(jQuery('#idVoxel').get(0));
+			Voxel.voxelengineHandle.appendTo(document.body);
 		}
 		
 		{
