@@ -4,20 +4,28 @@ var Aws = {
 	storageHandle: null,
 	
 	init: function() {
-		Aws.awsHandle = require('aws-sdk');
-		
-		Aws.awsHandle.config.update({
+		{
+			Aws.awsHandle = require('aws-sdk');
+			
+			Aws.awsHandle.config.update({
 			'accessKeyId': process.env.strAwsIdent,
 			'secretAccessKey': process.env.strAwsKey
-		});
+			});
+		}
 		
-		Aws.storageHandle = new Aws.awsHandle.S3();
+		{
+			Aws.storageHandle = new Aws.awsHandle.S3();
+		}
 	},
 	
 	dispel: function() {
-		Aws.awsHandle = null;
+		{
+			Aws.awsHandle = null;
+		}
 		
-		Aws.storageHandle = null;
+		{
+			Aws.storageHandle = null;
+		}
 	}
 };
 
@@ -29,19 +37,27 @@ var Casable = {
 	clientHandle: null,
 	
 	init: function() {
-		Casable.casableHandle = require('casable');
+		{
+			Casable.casableHandle = require('casable');
+		}
 		
-		Casable.clientHandle = Casable.casableHandle.authentication(process.env.strCasableServer, {
-			'casVersion': process.env.strCasableVersion,
-			'logoutPath': process.env.strCasableLogout
-		});
+		{
+			Casable.clientHandle = Casable.casableHandle.authentication(process.env.strCasableServer, {
+				'casVersion': process.env.strCasableVersion,
+				'logoutPath': process.env.strCasableLogout
+			});
+		}
 	},
 	
 	dispel: function() {
-		Casable.casableHandle = null;
+		{
+			Casable.casableHandle = null;
+		}
 		
-		Casable.clientHandle = null;
-	}	
+		{
+			Casable.clientHandle = null;
+		}
+	}
 };
 
 var Express = {
@@ -52,11 +68,11 @@ var Express = {
 	cookieparserHandle: null,
 	
 	multerHandle: null,
-
+	
 	expresssessionHandle: null,
 	
 	cookiesessionHandle: null,
-
+	
 	connectmongoHandle: null,
 	
 	serverHandle: null,
@@ -64,211 +80,259 @@ var Express = {
 	httpHandle: null,
 	
 	init: function() {
-		Express.expressHandle = require('express');
-
-		Express.compressionHandle = require('compression');
-
-		Express.cookieparserHandle = require('cookie-parser');
-		
-		if (process.env.boolExpressUpload === 'true') {
-			Express.multerHandle = require('multer');
+		{
+			Express.expressHandle = require('express');
 		}
 		
-		if (process.env.strExpressSession === 'sessionCookie') {
-			Express.expresssessionHandle = require('express-session');
-			
-			Express.cookiesessionHandle = require('cookie-session');
-			
-		} else if (process.env.strExpressSession === 'sessionMongo') {
-			Express.expresssessionHandle = require('express-session');
-			
-			Express.connectmongoHandle = require('connect-mongo')(Express.expresssessionHandle);
-			
+		{
+			Express.compressionHandle = require('compression');
 		}
 		
-		Express.serverHandle = Express.expressHandle();
+		{
+			Express.cookieparserHandle = require('cookie-parser');
+		}
 		
-		Express.httpHandle = null;
+		{
+			if (process.env.boolExpressUpload === 'true') {
+				Express.multerHandle = require('multer');
+			}
+		}
+		
+		{
+			if (process.env.strExpressSession === 'sessionCookie') {
+				Express.expresssessionHandle = require('express-session');
+				
+				Express.cookiesessionHandle = require('cookie-session');
+				
+			} else if (process.env.strExpressSession === 'sessionMongo') {
+				Express.expresssessionHandle = require('express-session');
+				
+				Express.connectmongoHandle = require('connect-mongo')(Express.expresssessionHandle);
+				
+			}
+		}
+		
+		{
+			Express.serverHandle = Express.expressHandle();
+		}
+		
+		{
+			Express.httpHandle = null;
+		}
 	},
 	
 	dispel: function() {
-		Express.expressHandle = null;
+		{
+			Express.expressHandle = null;
+		}
 		
-		Express.compressionHandle = null;
+		{
+			Express.compressionHandle = null;
+		}
 		
-		Express.cookieparserHandle = null;
-
-		Express.multerHandle = null;
-
-		Express.expresssessionHandle = null;
+		{
+			Express.cookieparserHandle = null;
+		}
 		
-		Express.cookiesessionHandle = null;
+		{
+			Express.multerHandle = null;
+		}
 		
-		Express.connectmongoHandle = null;
+		{
+			Express.expresssessionHandle = null;
+		}
 		
-		Express.serverHandle = null;
+		{
+			Express.cookiesessionHandle = null;
+		}
 		
-		Express.httpHandle = null;
+		{
+			Express.connectmongoHandle = null;
+		}
+		
+		{
+			Express.serverHandle = null;
+		}
+		
+		{
+			Express.httpHandle = null;
+		}
 	},
 	
 	run: function() {
-		Express.serverHandle.enable('trust proxy');
-		
-		Express.serverHandle.use(Express.compressionHandle({
-			'threshold': 0
-		}));
-		
-		Express.serverHandle.use(Express.cookieparserHandle());
-		
-		if (process.env.boolExpressUpload === 'true') {
-			Express.serverHandle.use(Express.multerHandle({
-				'dest': __dirname + '/tmp',
-				'limits': {
-					'fileSize': 10 * 1024 * 1024,
-					'files': 1
-				}
+		{
+			Express.serverHandle.enable('trust proxy');
+			
+			Express.serverHandle.use(Express.compressionHandle({
+				'threshold': 0
 			}));
+			
+			Express.serverHandle.use(Express.cookieparserHandle());
 		}
 		
-		if (process.env.strExpressSession === 'sessionCookie') {
-			Express.serverHandle.use(Express.cookiesessionHandle({
-				'secret': process.env.strExpressSecret,
-				'cookie': { 
-					'maxAge': 31 * 24 * 60 * 60 * 1000
-				}
-			}));
-			
-		} else if (process.env.strExpressSession === 'sessionMongo') {
-			Express.serverHandle.use(Express.expresssessionHandle({
-				'secret': process.env.strExpressSecret,
-				'cookie': { 
-					'maxAge': 31 * 24 * 60 * 60 * 1000
-				},
-				'store': new Express.connectmongoHandle({
-					'url': process.env.strMongoServer,
-					'collection': 'collectionSession'
-				})
-			}));
-			
-		}
-		
-		Express.httpHandle = Express.serverHandle.listen(process.env.intExpressPort);
-		
-		setInterval(function() {
-			var FilesystemRead_strFile = [];
-			
-			var functionFilesystemRead = function() {
-				Node.fsHandle.readdir(__dirname + '/tmp', function(errorHandle, dirHandle) {
-					if (errorHandle !== null) {
-						functionError();
-						
-						return;
+		{
+			if (process.env.boolExpressUpload === 'true') {
+				Express.serverHandle.use(Express.multerHandle({
+					'dest': __dirname + '/tmp',
+					'limits': {
+						'fileSize': 10 * 1024 * 1024,
+						'files': 1
 					}
-					
+				}));
+			}
+		}
+		
+		{
+			if (process.env.strExpressSession === 'sessionCookie') {
+				Express.serverHandle.use(Express.cookiesessionHandle({
+					'secret': process.env.strExpressSecret,
+					'cookie': {
+						'maxAge': 31 * 24 * 60 * 60 * 1000
+					}
+				}));
+				
+			} else if (process.env.strExpressSession === 'sessionMongo') {
+				Express.serverHandle.use(Express.expresssessionHandle({
+					'secret': process.env.strExpressSecret,
+					'cookie': {
+						'maxAge': 31 * 24 * 60 * 60 * 1000
+					},
+					'store': new Express.connectmongoHandle({
+						'url': process.env.strMongoServer,
+						'collection': 'collectionSession'
+					})
+				}));
+				
+			}
+		}
+		
+		{
+			Express.httpHandle = Express.serverHandle.listen(process.env.intExpressPort);
+		}
+		
+		{
+			var functionInterval = function() {
+				var FilesystemRead_strFile = [];
+				
+				var functionFilesystemRead = function() {
+					Node.fsHandle.readdir(__dirname + '/tmp', function(errorHandle, dirHandle) {
+						if (errorHandle !== null) {
+							functionError();
+							
+							return;
+						}
+						
+						{
+							for (var intFor1 = 0; intFor1 < dirHandle.length; intFor1 += 1) {
+								FilesystemRead_strFile.push(dirHandle[intFor1]);
+							}
+						}
+						
+						functionFilesystemStatIteratorFirst();
+					});
+				};
+				
+				var FilesystemStatIterator_intIndex = 0;
+				
+				var functionFilesystemStatIteratorFirst = function() {
 					{
-						for (var intFor1 = 0; intFor1 < dirHandle.length; intFor1 += 1) {
-							FilesystemRead_strFile.push(dirHandle[intFor1]);
+						var intCount = Math.min(FilesystemRead_strFile.length);
+						
+						if (FilesystemStatIterator_intIndex < intCount) {
+							functionFilesystemStat();
+							
+							return;
 						}
 					}
 					
-					functionFilesystemReadIteratorFirst();
-				});
-			};
-
-			var FilesystemReadIterator_intIndex = 0;
-			
-			var functionFilesystemReadIteratorFirst = function() {
-				{
-					var intCount = Math.min(FilesystemRead_strFile.length);
-					
-					if (FilesystemReadIterator_intIndex < intCount) {
-						functionFilesystemStat();
-						
-						return;
-					}
-				}
+					functionSuccess();
+				};
 				
-				functionSuccess();
-			};
-			
-			var functionFilesystemReadIteratorNext = function() {
-				{
-					FilesystemReadIterator_intIndex += 1;
-				}
+				var functionFilesystemStatIteratorNext = function() {
+					{
+						FilesystemStatIterator_intIndex += 1;
+					}
+					
+					functionFilesystemStatIteratorFirst();
+				};
 				
-				functionFilesystemReadIteratorFirst();
-			};
-			
-			var functionFilesystemStat = function() {
-				Node.fsHandle.stat(__dirname + '/tmp/' + FilesystemRead_strFile[FilesystemReadIterator_intIndex], function (errorHandle, statHandle) {
-					if (errorHandle !== null) {
-						functionError();
+				var functionFilesystemStat = function() {
+					Node.fsHandle.stat(__dirname + '/tmp/' + FilesystemRead_strFile[FilesystemStatIterator_intIndex], function(errorHandle, statHandle) {
+						if (errorHandle !== null) {
+							functionError();
+							
+							return;
+						}
 						
-						return;
-					}
-					
-					if (statHandle.ctime.getTime() < new Date().getTime() - (60 * 60 * 1000)) {
-						functionFilesystemDelete();
+						if (statHandle.ctime.getTime() < new Date().getTime() - (60 * 60 * 1000)) {
+							functionFilesystemDelete();
+							
+							return;
+						}
 						
-						return;
-					}
-					
-					functionFilesystemReadIteratorNext();
-				});
-			};
-			
-			var functionFilesystemDelete = function() {
-				Node.fsHandle.unlink(__dirname + '/tmp/' + FilesystemRead_strFile[FilesystemReadIterator_intIndex], function(errorHandle) {
-					if (errorHandle !== null) {
-						functionError();
+						functionFilesystemStatIteratorNext();
+					});
+				};
+				
+				var functionFilesystemDelete = function() {
+					Node.fsHandle.unlink(__dirname + '/tmp/' + FilesystemRead_strFile[FilesystemStatIterator_intIndex], function(errorHandle) {
+						if (errorHandle !== null) {
+							functionError();
+							
+							return;
+						}
 						
-						return;
-					}
+						functionFilesystemStatIteratorNext();
+					});
+				};
+				
+				var Errorsuccess_intTimestamp = new Date().getTime();
+				
+				var functionError = function() {
+					var dateHandle = new Date();
 					
-					functionFilesystemReadIteratorNext();
-				});
+					console.log('');
+					console.log('------------------------------------------------------------');
+					console.log('- Timestamp: ' + dateHandle.toISOString());
+					console.log('- Origin: NodeGen - Express');
+					console.log('- Duration: ' + (dateHandle.getTime() - Errorsuccess_intTimestamp));
+					console.log('- Status: Error');
+					console.log('------------------------------------------------------------');
+				};
+				
+				var functionSuccess = function() {
+					var dateHandle = new Date();
+					
+					console.log('');
+					console.log('------------------------------------------------------------');
+					console.log('- Timestamp: ' + dateHandle.toISOString());
+					console.log('- Origin: NodeGen - Express');
+					console.log('- Duration: ' + (dateHandle.getTime() - Errorsuccess_intTimestamp));
+					console.log('- Status: Success');
+					console.log('------------------------------------------------------------');
+				};
+				
+				functionFilesystemRead();
 			};
 			
-			var Errorsuccess_intTimestamp = new Date().getTime();
-			
-			var functionError = function() {
-				var dateHandle = new Date();
-
-				console.log('');
-				console.log('------------------------------------------------------------');
-				console.log('- Timestamp: ' + dateHandle.toISOString());
-				console.log('- Origin: NodeGen - Express');
-				console.log('- Duration: ' + (dateHandle.getTime() - Errorsuccess_intTimestamp));
-				console.log('- Status: Error');
-				console.log('------------------------------------------------------------');
-			};
-			
-			var functionSuccess = function() {
-				var dateHandle = new Date();
-
-				console.log('');
-				console.log('------------------------------------------------------------');
-				console.log('- Timestamp: ' + dateHandle.toISOString());
-				console.log('- Origin: NodeGen - Express');
-				console.log('- Duration: ' + (dateHandle.getTime() - Errorsuccess_intTimestamp));
-				console.log('- Status: Success');
-				console.log('------------------------------------------------------------');
-			};
-			
-			functionFilesystemRead();	
-		}, 5 * 60 * 1000);
+			setInterval(functionInterval, 5 * 60 * 1000);
+		}
 	}
 };
 
 var Geoip = {
-		geoipHandle: null,
+	geoipHandle: null,
 	
 	init: function() {
-		Geoip.geoipHandle = require('geoip-lite');
+		{
+			Geoip.geoipHandle = require('geoip-lite');
+		}
 	},
 	
 	dispel: function() {
-		Geoip.geoipHandle = null;
+		{
+			Geoip.geoipHandle = null;
+		}
 	}
 };
 
@@ -276,11 +340,15 @@ var Hypertextminfier = {
 	hypertextminfierHandle: null,
 	
 	init: function() {
-		Hypertextminfier.hypertextminfierHandle = require('html-minifier');
+		{
+			Hypertextminfier.hypertextminfierHandle = require('html-minifier');
+		}
 	},
 	
 	dispel: function() {
-		Hypertextminfier.hypertextminfierHandle = null;
+		{
+			Hypertextminfier.hypertextminfierHandle = null;
+		}
 	}
 };
 
@@ -288,11 +356,15 @@ var Mime = {
 	mimeHandle: null,
 	
 	init: function() {
-		Mime.mimeHandle = require('mime');
+		{
+			Mime.mimeHandle = require('mime');
+		}
 	},
 	
 	dispel: function() {
-		Mime.mimeHandle = null;
+		{
+			Mime.mimeHandle = null;
+		}
 	}
 };
 
@@ -302,17 +374,25 @@ var Mongo = {
 	clientHandle: null,
 	
 	init: function() {
-		Mongo.mongoHandle = require('mongodb');
+		{
+			Mongo.mongoHandle = require('mongodb');
+		}
 		
-		Mongo.mongoHandle.MongoClient.connect(process.env.strMongoServer, function(errorHandle, clientHandle) {
-			Mongo.clientHandle = clientHandle;
-		});
+		{
+			Mongo.mongoHandle.MongoClient.connect(process.env.strMongoServer, function(errorHandle, clientHandle) {
+				Mongo.clientHandle = clientHandle;
+			});
+		}
 	},
 	
 	dispel: function() {
-		Mongo.mongoHandle = null;
+		{
+			Mongo.mongoHandle = null;
+		}
 		
-		Mongo.clientHandle = null;
+		{
+			Mongo.clientHandle = null;
+		}
 	}
 };
 
@@ -320,11 +400,15 @@ var Mustache = {
 	mustacheHandle: null,
 	
 	init: function() {
-		Mustache.mustacheHandle = require('mustache');
+		{
+			Mustache.mustacheHandle = require('mustache');
+		}
 	},
 	
 	dispel: function() {
-		Mustache.mustacheHandle = null;
+		{
+			Mustache.mustacheHandle = null;
+		}
 	}
 };
 
@@ -334,11 +418,15 @@ var Phantom = {
 	phantomjsHandle: null,
 	
 	init: function() {
-		Phantom.phantomjsHandle = require('phantomjs');
+		{
+			Phantom.phantomjsHandle = require('phantomjs');
+		}
 	},
 	
 	dispel: function() {
-		Phantom.phantomjsHandle = null;
+		{
+			Phantom.phantomjsHandle = null;
+		}
 	}
 };
 
@@ -348,15 +436,23 @@ var Recaptcha = {
 	clientHandle: null,
 	
 	init: function() {
-		Recaptcha.recaptchaHandle = require('re-captcha');
+		{
+			Recaptcha.recaptchaHandle = require('re-captcha');
+		}
 		
-		Recaptcha.clientHandle = new Recaptcha.recaptchaHandle(process.env.strRecaptchaPublic, process.env.strRecaptchaPrivate);
+		{
+			Recaptcha.clientHandle = new Recaptcha.recaptchaHandle(process.env.strRecaptchaPublic, process.env.strRecaptchaPrivate);
+		}
 	},
 	
 	dispel: function() {
-		Recaptcha.recaptchaHandle = null;
+		{
+			Recaptcha.recaptchaHandle = null;
+		}
 		
-		Recaptcha.clientHandle = null;
+		{
+			Recaptcha.clientHandle = null;
+		}
 	}
 };
 
@@ -368,69 +464,91 @@ var Socket = {
 	httpHandle: null,
 	
 	init: function() {
-		Socket.socketHandle = require('socket.io');
+		{
+			Socket.socketHandle = require('socket.io');
+		}
 		
-		Socket.serverHandle = Socket.socketHandle();
+		{
+			Socket.serverHandle = Socket.socketHandle();
+		}
 		
-		Socket.httpHandle = null;
+		{
+			Socket.httpHandle = null;
+		}
 	},
 	
 	dispel: function() {
-		Socket.socketHandle = null;
+		{
+			Socket.socketHandle = null;
+		}
 		
-		Socket.serverHandle = null;
+		{
+			Socket.serverHandle = null;
+		}
 		
-		Socket.httpHandle = null;
+		{
+			Socket.httpHandle = null;
+		}
 	},
 	
 	run: function() {
-		if (Express.serverHandle === null) {
-			{
-				Socket.httpHandle = Node.httpHandle.createServer(function(requestHandle, responseHandle) {
-					responseHandle.writeHead(200, {
-						'Access-Control-Allow-Origin': '*',
-						'Access-Control-Allow-Methods': 'POST, GET'
+		{
+			if (Express.serverHandle === null) {
+				{
+					Socket.httpHandle = Node.httpHandle.createServer(function(requestHandle, responseHandle) {
+						responseHandle.writeHead(200, {
+							'Access-Control-Allow-Origin': '*',
+							'Access-Control-Allow-Methods': 'POST, GET'
+						});
+						
+						responseHandle.end();
 					});
 					
-					responseHandle.end();
-				});
+					{
+						Socket.serverHandle.attach(Socket.httpHandle);
+						
+						Socket.serverHandle.origins('*:*');
+					}
+					
+					Socket.httpHandle.listen(process.env.intSocketPort);
+				}
 				
+			} else if (Express.serverHandle !== null) {
 				{
-					Socket.serverHandle.attach(Socket.httpHandle);
+					Socket.serverHandle.attach(Express.httpHandle);
 					
 					Socket.serverHandle.origins('*:*');
 				}
-				
-				Socket.httpHandle.listen(process.env.intSocketPort);
+		
 			}
-			
-		} else if (Express.serverHandle !== null) {
-			{
-				Socket.serverHandle.attach(Express.httpHandle);
-				
-				Socket.serverHandle.origins('*:*');
-			}
-			
 		}
 	}
 };
 
 var Sqlite = {
-    sqliteHandle: null,
-    
-    clientHandle: null,
-    
-    init: function() {
-	    Sqlite.sqliteHandle = require('sqlite3');
-	    
-	    Sqlite.clientHandle = new Sqlite.sqliteHandle.Database(process.env.strSqliteDatabase);
-    },
-    
-    dispel: function() {
-	    Sqlite.sqliteHandle = null;
-	    
-	    Sqlite.clientHandle = null;
-    }
+	sqliteHandle: null,
+	
+	clientHandle: null,
+	
+	init: function() {
+		{
+			Sqlite.sqliteHandle = require('sqlite3');
+		}
+		
+		{
+			Sqlite.clientHandle = new Sqlite.sqliteHandle.Database(process.env.strSqliteDatabase);
+		}
+	},
+	
+	dispel: function() {
+		{
+			Sqlite.sqliteHandle = null;
+		}
+		
+		{
+			Sqlite.clientHandle = null;
+		}
+	}
 };
 
 {

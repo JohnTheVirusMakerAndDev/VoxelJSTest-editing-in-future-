@@ -7,8 +7,8 @@
 	},
 	"dependencies": {
 		"voxel-engine": "0.20.x",
-		"painterly-textures": "0.0.x",
 		"voxel-highlight": "0.0.x",
-		"voxel-player": "0.1.x"
+		"voxel-player": "0.1.x",
+		"minecraft-skin": "0.1.x"
 	}
 }

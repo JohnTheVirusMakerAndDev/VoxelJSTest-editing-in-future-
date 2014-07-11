@@ -10,27 +10,47 @@ var Node = {
 	pathHandle: null,
 	
 	init: function() {
-		Node.childprocessHandle = require('child_process');
+		{
+			Node.childprocessHandle = require('child_process');
+		}
 		
-		Node.cryptoHandle = require('crypto');
+		{
+			Node.cryptoHandle = require('crypto');
+		}
 		
-		Node.fsHandle = require('fs');
+		{
+			Node.fsHandle = require('fs');
+		}
 
-		Node.httpHandle = require('http');
+		{
+			Node.httpHandle = require('http');
+		}
 
-		Node.pathHandle = require('path');
+		{
+			Node.pathHandle = require('path');
+		}
 	},
 	
 	dispel: function() {
-		Node.childprocessHandle = null;
+		{
+			Node.childprocessHandle = null;
+		}
 		
-		Node.cryptoHandle = null;
+		{
+			Node.cryptoHandle = null;
+		}
 		
-		Node.fsHandle = null;
+		{
+			Node.fsHandle = null;
+		}
 		
-		Node.httpHandle = null;
+		{
+			Node.httpHandle = null;
+		}
 		
-		Node.pathHandle = null;
+		{
+			Node.pathHandle = null;
+		}
 	}
 };
 
@@ -180,7 +200,7 @@ var Node = {
 				strSocket = socketHandle.id.substr(1, 8);
 			}
 			
-			Gameserver.objectPlayer[socketHandle.id] = {
+			Gameserver.playerHandle[socketHandle.id] = {
 				'strSocket': strSocket,
 				'strTeam': 'teamLogin',
 				'strName': '',
@@ -215,7 +235,7 @@ var Node = {
 				
 			}
 			
-			if (Gameserver.objectPlayer[socketHandle.id].strTeam !== 'teamLogin') {
+			if (Gameserver.playerHandle[socketHandle.id].strTeam !== 'teamLogin') {
 				return;
 			}
 			
@@ -261,16 +281,16 @@ var Node = {
 			
 			{
 				if (jsonHandle.strTeam === 'Red') {
-					Gameserver.objectPlayer[socketHandle.id].strTeam = 'teamRed';
+					Gameserver.playerHandle[socketHandle.id].strTeam = 'teamRed';
 					
 				} else if (jsonHandle.strTeam === 'Blue') {
-					Gameserver.objectPlayer[socketHandle.id].strTeam = 'teamBlue';
+					Gameserver.playerHandle[socketHandle.id].strTeam = 'teamBlue';
 					
 				}
 			}
 			
 			{
-				Gameserver.objectPlayer[socketHandle.id].strName = jsonHandle.strName;
+				Gameserver.playerHandle[socketHandle.id].strName = jsonHandle.strName;
 			}
 			
 			{
@@ -279,6 +299,10 @@ var Node = {
 					'strMessage': ''
 				});
 			}
+			
+			{
+				socketHandle.emit('playerHandle', {});
+			}
 		});
 		
 		socketHandle.on('chatHandle', function(jsonHandle) {
@@ -286,7 +310,7 @@ var Node = {
 				return;
 			}
 			
-			if (Gameserver.objectPlayer[socketHandle.id].strStatus === 'teamLogin') {
+			if (Gameserver.playerHandle[socketHandle.id].strStatus === 'teamLogin') {
 				return;
 				
 			} else if (jsonHandle.strMessage === '') {
@@ -308,21 +332,74 @@ var Node = {
 			
 			{
 				Socket.serverHandle.emit('chatHandle', {
-					'strName': Gameserver.objectPlayer[socketHandle.id].strName,
+					'strName': Gameserver.playerHandle[socketHandle.id].strName,
 					'strMessage': jsonHandle.strMessage
 				});
 			}
 		});
 		
+		socketHandle.on('playerHandle', function(jsonHandle) {
+			if (jsonHandle.dblPositionX === undefined) {
+				return;
+				
+			} else if (jsonHandle.dblPositionY === undefined) {
+				return;
+				
+			} else if (jsonHandle.dblPositionZ === undefined) {
+				return;
+				
+			} else if (jsonHandle.dblVerletX === undefined) {
+				return;
+				
+			} else if (jsonHandle.dblVerletY === undefined) {
+				return;
+				
+			} else if (jsonHandle.dblVerletZ === undefined) {
+				return;
+				
+			}
+			
+			if (Gameserver.playerHandle[socketHandle.id].strStatus === 'teamLogin') {
+				return;
+			} 
+			
+			{
+				Gameserver.playerHandle[socketHandle.id].dblPositionX = jsonHandle.dblPositionX;
+				Gameserver.playerHandle[socketHandle.id].dblPositionY = jsonHandle.dblPositionY;
+				Gameserver.playerHandle[socketHandle.id].dblPositionZ = jsonHandle.dblPositionZ;
+				Gameserver.playerHandle[socketHandle.id].dblVerletX = jsonHandle.dblVerletX;
+				Gameserver.playerHandle[socketHandle.id].dblVerletY = jsonHandle.dblVerletY;
+				Gameserver.playerHandle[socketHandle.id].dblVerletZ = jsonHandle.dblVerletZ;
+			}
+			
+			{
+				var jsonHandle = [];
+				
+			    for (var strSocket in Gameserver.playerHandle) {
+					var playerHandle = Gameserver.playerHandle[strSocket];
+					
+			    	if (playerHandle.strSocket === Gameserver.playerHandle[socketHandle.id].strSocket) {
+						continue;
+					}
+					
+					{
+						jsonHandle.push(playerHandle);
+					}
+			    }
+			    
+				socketHandle.emit('playerHandle', jsonHandle);
+			}
+		});
+		
 		socketHandle.on('disconnect', function() {
 			{
-				if (Gameserver.objectPlayer[socketHandle.id].strTeam !== 'teamLogin') {
+				if (Gameserver.playerHandle[socketHandle.id].strTeam !== 'teamLogin') {
 					Gameserver.intPlayerActive -= 1;
 				}
 			}
 			
 			{
-				delete Gameserver.objectPlayer[socketHandle.id];
+				delete Gameserver.playerHandle[socketHandle.id];
 			}
 		});
 	});
@@ -340,21 +417,34 @@ var Gameserver = {
 	intScoreRed: 0,
 	intScoreBlue: 0,
 	
-	objectPlayer: {},
+	playerHandle: {},
 	
 	init: function() {
-		Gameserver.strName = process.env.strName;
-		Gameserver.strLoginPassword = process.env.strLoginPassword;
-		Gameserver.intLoginPassword = 0;
-		Gameserver.strLoginMotd = process.env.strLoginMotd;
-		Gameserver.intPlayerCapacity = process.env.intPlayerCapacity;
-		Gameserver.intPlayerActive = 0;
-		Gameserver.strMapActive = '';
-		Gameserver.strMapAvailable = [];
-		Gameserver.intScoreRed = 0;
-		Gameserver.intScoreBlue = 0;
+		{
+			Gameserver.strName = process.env.strName;
+			
+			Gameserver.strLoginPassword = process.env.strLoginPassword;
+			
+			Gameserver.intLoginPassword = 0;
+			
+			Gameserver.strLoginMotd = process.env.strLoginMotd;
+			
+			Gameserver.intPlayerCapacity = process.env.intPlayerCapacity;
+			
+			Gameserver.intPlayerActive = 0;
+			
+			Gameserver.strMapActive = '';
+			
+			Gameserver.strMapAvailable = [];
+			
+			Gameserver.intScoreRed = 0;
+			
+			Gameserver.intScoreBlue = 0;
+		}
 		
-		Gameserver.objectPlayer = {};
+		{
+			Gameserver.playerHandle = {};
+		}
 		
 		{
 			if (process.env.strLoginPassword === '') {
@@ -381,21 +471,78 @@ var Gameserver = {
 				}
 			}
 		}
+		
+		{
+			var functionInterval = function() {
+				var jsonHandle = {
+					'serverHandle': {},
+					'playerHandle': []
+				};
+				
+				{
+					jsonHandle.serverHandle = {
+						'intPlayerCapacity': Gameserver.intPlayerCapacity,
+						'intPlayerActive': Gameserver.intPlayerActive,
+						'strMapActive': Gameserver.strMapActive,
+						'strMapAvailable': Gameserver.strMapAvailable,
+						'intScoreRed': Gameserver.intScoreRed,
+						'intScoreBlue': Gameserver.intScoreBlue
+					};
+				}
+				
+				{
+					for (var strSocket in Gameserver.playerHandle) {
+						var playerHandle = Gameserver.playerHandle[strSocket];
+						
+						if (playerHandle.strTeam === 'teamLogin') {
+							continue;
+						}
+						
+						{
+							jsonHandle.playerHandle.push({
+								'strTeam': playerHandle.strTeam,
+								'strName': playerHandle.strName,
+								'intScore': playerHandle.intScore,
+								'intKills': playerHandle.intKills,
+								'intDeaths': playerHandle.intDeaths
+							});
+						}
+					}
+				}
+				
+				Socket.serverHandle.emit('onlineHandle', jsonHandle);
+			};
+			
+			setInterval(functionInterval, 1000);
+		}
 	},
 	
 	dispel: function() {
-		Gameserver.strName = '';
-		Gameserver.strLoginPassword = '';
-		Gameserver.intLoginPassword = 0;
-		Gameserver.strLoginMotd = '';
-		Gameserver.intPlayerCapacity = 0
-		Gameserver.intPlayerActive = 0;
-		Gameserver.strMapActive = '';
-		Gameserver.strMapAvailable = [];
-		Gameserver.intScoreRed = 0;
-		Gameserver.intScoreBlue = 0;
+		{
+			Gameserver.strName = '';
+			
+			Gameserver.strLoginPassword = '';
+			
+			Gameserver.intLoginPassword = 0;
+			
+			Gameserver.strLoginMotd = '';
+			
+			Gameserver.intPlayerCapacity = 0
+			
+			Gameserver.intPlayerActive = 0;
+			
+			Gameserver.strMapActive = '';
+			
+			Gameserver.strMapAvailable = [];
+			
+			Gameserver.intScoreRed = 0;
+			
+			Gameserver.intScoreBlue = 0;
+		}
 		
-		Gameserver.objectPlayer = {};
+		{
+			Gameserver.playerHandle = {};
+		}
 	}
 };
 
@@ -403,100 +550,65 @@ var Gameserver = {
 	Gameserver.init();
 }
 
-setInterval(function() {
-	var jsonHandle = {
-		'serverHandle': {},
-		'playerHandle': []
-	};
-	
-	{
-		jsonHandle.serverHandle = {
-			'intPlayerCapacity': Gameserver.intPlayerCapacity,
-			'intPlayerActive': Gameserver.intPlayerActive,
-			'strMapActive': Gameserver.strMapActive,
-			'strMapAvailable': Gameserver.strMapAvailable,
-			'intScoreRed': Gameserver.intScoreRed,
-			'intScoreBlue': Gameserver.intScoreBlue
-		};
-	}
-	
-	{
-		for (var strSocket in Gameserver.objectPlayer) {
-			var playerHandle = Gameserver.objectPlayer[strSocket];
-			
-			if (playerHandle.strTeam === 'teamLogin') {
-				continue;
-			}
-			
-			{
-				jsonHandle.playerHandle.push({
-					'strTeam': playerHandle.strTeam,
-					'strName': playerHandle.strName,
-					'intScore': playerHandle.intScore,
-					'intKills': playerHandle.intKills,
-					'intDeaths': playerHandle.intDeaths
+{
+	var functionInterval = function() {
+		var functionRequest = function() {
+			var requestHttp = Node.httpHandle.request({
+				'host': '127.0.0.1', //TODO: insert domain
+				'port': 26866,
+				'path': '/host.xml?intPort=' + encodeURIComponent(process.env.intSocketPort) + '&strName=' + encodeURIComponent(Gameserver.strName) + '&intLoginPassword=' + encodeURIComponent(Gameserver.intLoginPassword) + '&intPlayerCapacity=' + encodeURIComponent(Gameserver.intPlayerCapacity) + '&intPlayerActive=' + encodeURIComponent(Gameserver.intPlayerActive) + '&strMapActive=' + encodeURIComponent(Gameserver.strMapActive),
+				'method': 'GET'
+			}, function(responseHttp) {
+				var strContent = '';
+				
+				responseHttp.setEncoding('UTF-8');
+				
+				responseHttp.on('data', function(strData) {
+					strContent += strData;
 				});
-			}
-		}
-	}
-	
-	Socket.serverHandle.emit('onlineHandle', jsonHandle);
-}, 1000);
-
-//TODO: insert domain / start immediately
-setInterval(function() {
-	var functionRequest = function() {
-		var requestHttp = Node.httpHandle.request({
-			'host': '127.0.0.1',
-			'port': 26866,
-			'path': '/host.xml?intPort=' + encodeURIComponent(process.env.intSocketPort) + '&strName=' + encodeURIComponent(Gameserver.strName) + '&intLoginPassword=' + encodeURIComponent(Gameserver.intLoginPassword) + '&intPlayerCapacity=' + encodeURIComponent(Gameserver.intPlayerCapacity) + '&intPlayerActive=' + encodeURIComponent(Gameserver.intPlayerActive) + '&strMapActive=' + encodeURIComponent(Gameserver.strMapActive),
-			'method': 'GET'
-		}, function(responseHttp) {
-			var strContent = '';
-			
-			responseHttp.setEncoding('UTF-8');
-			
-			responseHttp.on('data', function(strData) {
-				strContent += strData;
+				
+				responseHttp.on('end', function() {
+					functionSuccess();
+				});
 			});
 			
-			responseHttp.on('end', function() {
-				functionSuccess();
+			requestHttp.on('error', function(errorHandle) {
+				functionError();
 			});
-		});
+			
+			requestHttp.end();
+		};
 		
-		requestHttp.on('error', function(errorHandle) {
-			functionError();
-		});
+		var Errorsuccess_intTimestamp = new Date().getTime();
 		
-		requestHttp.end();
+		var functionError = function() {
+			var dateHandle = new Date();
+			
+			console.log('');
+			console.log('------------------------------------------------------------');
+			console.log('- Timestamp: ' + dateHandle.toISOString());
+			console.log('- Origin: VoxRect');
+			console.log('- Duration: ' + (dateHandle.getTime() - Errorsuccess_intTimestamp));
+			console.log('- Status: Error');
+			console.log('------------------------------------------------------------');
+		};
+		
+		var functionSuccess = function() {
+			var dateHandle = new Date();
+			
+			console.log('');
+			console.log('------------------------------------------------------------');
+			console.log('- Timestamp: ' + dateHandle.toISOString());
+			console.log('- Origin: VoxRect');
+			console.log('- Duration: ' + (dateHandle.getTime() - Errorsuccess_intTimestamp));
+			console.log('- Status: Success');
+			console.log('------------------------------------------------------------');
+		};
+		
+		functionRequest();
 	};
 	
-	var Errorsuccess_intTimestamp = new Date().getTime();
+	setInterval(functionInterval, 5 * 60 * 1000);
 	
-	var functionError = function() {
-		var dateHandle = new Date();
-		
-		console.log('');
-		console.log('------------------------------------------------------------');
-		console.log('- Timestamp: ' + dateHandle.toISOString());
-		console.log('- Origin: VoxRect');
-		console.log('- Duration: ' + (dateHandle.getTime() - Errorsuccess_intTimestamp));
-		console.log('- Status: Error');
-		console.log('------------------------------------------------------------');
-	};
-	
-	var functionSuccess = function() {
-		var dateHandle = new Date();
-		
-		console.log('');
-		console.log('------------------------------------------------------------');
-		console.log('- Timestamp: ' + dateHandle.toISOString());
-		console.log('- Origin: VoxRect');
-		console.log('- Duration: ' + (dateHandle.getTime() - Errorsuccess_intTimestamp));
-		console.log('- Status: Success');
-		console.log('------------------------------------------------------------');
-	};
-	
-	functionRequest();
-}, 5 * 60 * 1000);
+	functionInterval();
+}
