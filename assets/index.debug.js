@@ -379,26 +379,28 @@ var Socket = {
 				});
 				
 				Socket.socketHandle.on('chatHandle', function(jsonHandle) {
-					jQuery('#idMessagebox_Log')
-						.append(jQuery('<div></div>')
-							.css({
-								'margin': '0.8em 1.0em 0.8em 1em'
-							})
-							.append(jQuery('<a></a>')
+					{
+						jQuery('#idMessagebox_Log')
+							.append(jQuery('<div></div>')
 								.css({
-									'font-weight': 'bold'
+									'margin': '0.8em 1.0em 0.8em 1em'
 								})
-								.text(jsonHandle.strName + ':' + ' ')
+								.append(jQuery('<a></a>')
+									.css({
+										'font-weight': 'bold'
+									})
+									.text(jsonHandle.strName + ':' + ' ')
+								)
+								.append(jQuery('<a></a>')
+									.text(jsonHandle.strMessage)
+								)
 							)
-							.append(jQuery('<a></a>')
-								.text(jsonHandle.strMessage)
-							)
-						)
-					;
-					
-					jQuery('#idMessagebox_Log')
-						.scrollTop(jQuery('#idMessagebox_Log').get(0).scrollHeight - jQuery('#idMessagebox_Log').height())
-					;
+						;
+						
+						jQuery('#idMessagebox_Log')
+							.scrollTop(jQuery('#idMessagebox_Log').get(0).scrollHeight - jQuery('#idMessagebox_Log').height())
+						;
+					}
 				});
 				
 				Socket.socketHandle.on('playerHandle', function(jsonHandle) {
@@ -439,15 +441,6 @@ var Socket = {
 						}
 						
 						Socket.playerHandle = playerOverwrite;
-					}
-					
-					{
-						Socket.socketHandle.emit('playerHandle', {
-							'dblPosition': Player.dblPosition,
-							'dblVerlet': Player.dblVerlet,
-							'dblBodyyaw':Player.minecraftskinHandle.mesh.rotation.y,
-							'dblHeadpitch': Player.minecraftskinHandle.mesh.head.rotation.x
-						});
 					}
 				});
 				
@@ -534,7 +527,7 @@ var Player = {
 	
 	init: function() {
 		{
-			Player.minecraftskinHandle = Voxel.minecraftskinFunction('./skins/zombie.png');
+			Player.minecraftskinHandle = Voxel.minecraftskinFunction('./skins/blue.png');
 			
 			Player.physicsHandle = Voxel.voxelengineHandle.makePhysical(Player.minecraftskinHandle.mesh);
 
@@ -648,7 +641,7 @@ var Enemy = {
 		{
 			for (var intFor1 = 0; intFor1 < 32; intFor1 += 1) {
 				{
-					var minecraftskinHandle = Voxel.minecraftskinFunction('./skins/zombie.png');
+					var minecraftskinHandle = Voxel.minecraftskinFunction('./skins/blue.png');
 
 					{
 						Voxel.voxelengineHandle.scene.add(minecraftskinHandle.mesh);
@@ -782,11 +775,20 @@ jQuery(document).ready(function() {
 	
 	{
 		Voxel.voxelengineHandle.on('tick', function(intDelta) {
-			 {
-				 Player.update();
+			{
+				Player.update();
 				 
-				 Enemy.update();
-			 }
+				Enemy.update();
+			}
+			 
+			{
+				Socket.socketHandle.emit('playerHandle', {
+					'dblPosition': Player.dblPosition,
+					'dblVerlet': Player.dblVerlet,
+					'dblBodyyaw':Player.minecraftskinHandle.mesh.rotation.y,
+					'dblHeadpitch': Player.minecraftskinHandle.mesh.head.rotation.x
+				});
+			}
 		});
 	}
 });

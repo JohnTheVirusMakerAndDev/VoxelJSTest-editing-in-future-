@@ -220,43 +220,45 @@ var Node = {
 		}
 		
 		socketHandle.on('onlineHandle', function(jsonHandle) {
-			var jsonHandle = {
-				'serverHandle': {},
-				'playerHandle': []
-			};
-			
 			{
-				jsonHandle.serverHandle = {
-					'intPlayerCapacity': Gameserver.intPlayerCapacity,
-					'intPlayerActive': Gameserver.intPlayerActive,
-					'strMapActive': Gameserver.strMapActive,
-					'strMapAvailable': Gameserver.strMapAvailable,
-					'intScoreRed': Gameserver.intScoreRed,
-					'intScoreBlue': Gameserver.intScoreBlue
+				var jsonHandle = {
+					'serverHandle': {},
+					'playerHandle': []
 				};
-			}
-			
-			{
-				for (var strSocket in Gameserver.playerHandle) {
-					var playerHandle = Gameserver.playerHandle[strSocket];
-					
-					if (playerHandle.strTeam === 'teamLogin') {
-						continue;
-					}
-					
-					{
-						jsonHandle.playerHandle.push({
-							'strTeam': playerHandle.strTeam,
-							'strName': playerHandle.strName,
-							'intScore': playerHandle.intScore,
-							'intKills': playerHandle.intKills,
-							'intDeaths': playerHandle.intDeaths
-						});
+				
+				{
+					jsonHandle.serverHandle = {
+						'intPlayerCapacity': Gameserver.intPlayerCapacity,
+						'intPlayerActive': Gameserver.intPlayerActive,
+						'strMapActive': Gameserver.strMapActive,
+						'strMapAvailable': Gameserver.strMapAvailable,
+						'intScoreRed': Gameserver.intScoreRed,
+						'intScoreBlue': Gameserver.intScoreBlue
+					};
+				}
+				
+				{
+					for (var strSocket in Gameserver.playerHandle) {
+						var playerHandle = Gameserver.playerHandle[strSocket];
+						
+						if (playerHandle.strTeam === 'teamLogin') {
+							continue;
+						}
+						
+						{
+							jsonHandle.playerHandle.push({
+								'strTeam': playerHandle.strTeam,
+								'strName': playerHandle.strName,
+								'intScore': playerHandle.intScore,
+								'intKills': playerHandle.intKills,
+								'intDeaths': playerHandle.intDeaths
+							});
+						}
 					}
 				}
+				
+				socketHandle.emit('onlineHandle', jsonHandle);
 			}
-			
-			socketHandle.emit('onlineHandle', jsonHandle);
 		});
 		
 		socketHandle.on('loginHandle', function(jsonHandle) {
