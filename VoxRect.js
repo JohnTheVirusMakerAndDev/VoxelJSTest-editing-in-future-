@@ -347,16 +347,10 @@ var Node = {
 			} else if (jsonHandle.dblVerlet.length !== 3) {
 				return;
 				
-			} else if (jsonHandle.dblHead === undefined) {
+			} else if (jsonHandle.dblBodyyaw === undefined) {
 				return;
 				
-			} else if (jsonHandle.dblHead.length !== 3) {
-				return;
-				
-			} else if (jsonHandle.dblBody === undefined) {
-				return;
-				
-			} else if (jsonHandle.dblBody.length !== 3) {
+			} else if (jsonHandle.dblHeadpitch === undefined) {
 				return;
 				
 			}
@@ -368,8 +362,8 @@ var Node = {
 			{
 				Gameserver.playerHandle[socketHandle.id].dblPosition = jsonHandle.dblPosition;
 				Gameserver.playerHandle[socketHandle.id].dblVerlet = jsonHandle.dblVerlet;
-				Gameserver.playerHandle[socketHandle.id].dblHead = jsonHandle.dblHead;
-				Gameserver.playerHandle[socketHandle.id].dblBody = jsonHandle.dblBody;
+				Gameserver.playerHandle[socketHandle.id].dblBodyyaw = jsonHandle.dblBodyyaw;
+				Gameserver.playerHandle[socketHandle.id].dblHeadpitch = jsonHandle.dblHeadpitch;
 			}
 			
 			{

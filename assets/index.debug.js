@@ -184,7 +184,7 @@ var Voxel = {
 			Voxel.minecraftskinFunction = function(strSkin) {
 				return Voxel.minecraftskinHandle(Voxel.voxelengineHandle.THREE, strSkin, {
 					'scale': new Voxel.voxelengineHandle.THREE.Vector3(0.04, 0.04, 0.04)
-				}).mesh
+				});
 			};
 		}
 	},
@@ -421,8 +421,9 @@ var Socket = {
 									'strSocket': playerHandle.strSocket,
 									'dblPosition': [ dblPositionX, dblPositionY, dblPositionZ ],
 									'dblVerlet': [ dblVerletX, dblVerletY, dblVerletZ ],
-									'dblBody': playerHandle.dblBody,
-									'dblHead': playerHandle.dblHead
+									'dblBodyyaw': playerHandle.dblBodyyaw,
+									'dblHeadpitch': playerHandle.dblHeadpitch,
+									'intWalktime': 0
 								};
 							}
 						}
@@ -434,8 +435,8 @@ var Socket = {
 						Socket.socketHandle.emit('playerHandle', {
 							'dblPosition': Player.dblPosition,
 							'dblVerlet': Player.dblVerlet,
-							'dblBody': [ Player.meshHandle.rotation.x, Player.meshHandle.rotation.y, Player.meshHandle.rotation.z ],
-							'dblHead': [ Player.meshHandle.head.rotation.x, Player.meshHandle.head.rotation.y, Player.meshHandle.head.rotation.z ]
+							'dblBodyyaw':Player.minecraftskinHandle.mesh.rotation.y,
+							'dblHeadpitch': Player.minecraftskinHandle.mesh.head.rotation.x
 						});
 					}
 				});
@@ -499,35 +500,37 @@ var Input = {
 };
 
 var Player = {
-	meshHandle: null,
+	minecraftskinHandle: null,
 	physicsHandle: null,
 	
 	dblPosition: [ 0.0, 0.0, 0.0 ],
 	dblVerlet: [ 0.0, 0.0, 0.0 ],
 	
+	intWalktime: 0,
+	
 	init: function() {
 		{
-			Player.meshHandle = Voxel.minecraftskinFunction('./skins/logan.png');
+			Player.minecraftskinHandle = Voxel.minecraftskinFunction('./skins/zombie.png');
 			
-			Player.physicsHandle = Voxel.voxelengineHandle.makePhysical(Player.meshHandle);
+			Player.physicsHandle = Voxel.voxelengineHandle.makePhysical(Player.minecraftskinHandle.mesh);
 
 			{
-				Player.meshHandle.position.set(0, 10, 0); // TODO
+				Player.minecraftskinHandle.mesh.position.set(0, 10, 0); // TODO
 				
-				Player.meshHandle.cameraInside.add(Voxel.voxelengineHandle.camera);
+				Player.minecraftskinHandle.mesh.cameraInside.add(Voxel.voxelengineHandle.camera);
 			}
 			
 			{
 				Player.physicsHandle.blocksCreation = true;
-				
-				Player.physicsHandle.yaw = Player.meshHandle;
-				Player.physicsHandle.pitch = Player.meshHandle.head;
-				Player.physicsHandle.position = Player.meshHandle.position;
+
+				Player.physicsHandle.position = Player.minecraftskinHandle.mesh.position;
+				Player.physicsHandle.yaw = Player.minecraftskinHandle.mesh;
+				Player.physicsHandle.pitch = Player.minecraftskinHandle.mesh.head;
 				
 				Player.physicsHandle.subjectTo(Voxel.voxelengineHandle.gravity);
 			}
 			
-			Voxel.voxelengineHandle.scene.add(Player.meshHandle);
+			Voxel.voxelengineHandle.scene.add(Player.minecraftskinHandle.mesh);
 			
 			Voxel.voxelengineHandle.addItem(Player.physicsHandle);
 		}
@@ -543,13 +546,17 @@ var Player = {
 		}
 		
 		{
+			Player.intWalktime = 0; 
+		}
+		
+		{
 			Voxel.voxelengineHandle.control(Player.physicsHandle);
 		}
 	},
 	
 	dispel: function() {
 		{
-			Player.meshHandle = null;
+			Player.minecraftskinHandle = null;
 			
 			Player.physicsHandle = null;
 		}
@@ -563,6 +570,10 @@ var Player = {
 			Player.dblVerlet[1] = 0.0;
 			Player.dblVerlet[2] = 0.0;
 		}
+		
+		{
+			Player.intWalktime = 0; 
+		}
 	},
 	
 	update: function() {
@@ -571,27 +582,55 @@ var Player = {
 			Player.dblVerlet[1] = Player.dblPosition[1];
 			Player.dblVerlet[2] = Player.dblPosition[2];
 
-			Player.dblPosition[0] = Player.meshHandle.position.x;
-			Player.dblPosition[1] = Player.meshHandle.position.y;
-			Player.dblPosition[2] = Player.meshHandle.position.z;
+			Player.dblPosition[0] = Player.minecraftskinHandle.mesh.position.x;
+			Player.dblPosition[1] = Player.minecraftskinHandle.mesh.position.y;
+			Player.dblPosition[2] = Player.minecraftskinHandle.mesh.position.z;
+		}
+		
+		{
+			var intWalktime = new Date().getTime() / 1000;
+			
+			{
+				var dblVelocityX = Player.dblPosition[0] - Player.dblVerlet[0];
+				var dblVelocityY = Player.dblPosition[1] - Player.dblVerlet[1];
+				var dblVelocityZ = Player.dblPosition[2] - Player.dblVerlet[2];
+				
+				if (Math.abs(dblVelocityX) < 0.001) {
+					if (Math.abs(dblVelocityZ) < 0.001) {
+						Player.intWalktime = intWalktime;
+					}
+				}
+			}
+			
+			var intTimediff = Player.intWalktime - intWalktime;
+			
+			{
+				// http://djazz.mine.nu/lab/minecraft_items/
+	
+				Player.minecraftskinHandle.rightArm.rotation.z = 2 * Math.cos((0.6662 * intTimediff * 10) + (0.5 * Math.PI) + (Math.PI));
+				Player.minecraftskinHandle.leftArm.rotation.z = 2 * Math.cos((0.6662 * intTimediff * 10) + (0.5 * Math.PI));
+				
+				Player.minecraftskinHandle.rightLeg.rotation.z = 1.4 * Math.cos((0.6662 * intTimediff * 10) + (0.5 * Math.PI));
+				Player.minecraftskinHandle.leftLeg.rotation.z = 1.4 * Math.cos((0.6662 * intTimediff * 10) + (0.5 * Math.PI) + (Math.PI));
+			}
 		}
 	}
 };
 
 var Enemy = {
-	meshHandle: [],
+	minecraftskinHandle: [],
 	
 	init: function() {
 		{
 			for (var intFor1 = 0; intFor1 < 32; intFor1 += 1) {
 				{
-					var meshHandle = Voxel.minecraftskinFunction('./skins/logan.png');
+					var minecraftskinHandle = Voxel.minecraftskinFunction('./skins/zombie.png');
 
 					{
-						Voxel.voxelengineHandle.scene.add(meshHandle);
+						Voxel.voxelengineHandle.scene.add(minecraftskinHandle.mesh);
 					}
 					
-					Enemy.meshHandle.push(meshHandle);
+					Enemy.minecraftskinHandle.push(minecraftskinHandle);
 				}
 			}
 		}
@@ -599,17 +638,17 @@ var Enemy = {
 	
 	dispel: function() {
 		{
-			Enemy.meshHandle = [];
+			Enemy.minecraftskinHandle = [];
 		}
 	},
 	
 	update: function() {
 		{
-			for (var intFor1 = 0; intFor1 < Enemy.meshHandle.length; intFor1 += 1) {
-				var meshHandle = Enemy.meshHandle[intFor1];
+			for (var intFor1 = 0; intFor1 < Enemy.minecraftskinHandle.length; intFor1 += 1) {
+				var minecraftskinHandle = Enemy.minecraftskinHandle[intFor1];
 				
 				{
-					meshHandle.visible = false; // TODO: not working because of hierarchy
+					minecraftskinHandle.visible = false; // TODO: not working because of hierarchy
 				}
 			}
 		}
@@ -641,16 +680,16 @@ var Enemy = {
 				}
 
 				{
-					var meshHandle = null;
+					var minecraftskinHandle = null;
 					
 					{
-						for (var intFor1 = 0; intFor1 < Enemy.meshHandle.length; intFor1 += 1) {
-							if (Enemy.meshHandle[intFor1].visible === true) {
+						for (var intFor1 = 0; intFor1 < Enemy.minecraftskinHandle.length; intFor1 += 1) {
+							if (Enemy.minecraftskinHandle[intFor1].visible === true) {
 								continue;
 							}
 							
 							{
-								meshHandle = Enemy.meshHandle[intFor1];
+								minecraftskinHandle = Enemy.minecraftskinHandle[intFor1];
 							}
 							
 							{
@@ -660,19 +699,43 @@ var Enemy = {
 					}
 					
 					{
-						meshHandle.visible = true;
+						minecraftskinHandle.visible = true;
 	
-						meshHandle.position.x = playerHandle.dblPosition[0];
-						meshHandle.position.y = playerHandle.dblPosition[1];
-						meshHandle.position.z = playerHandle.dblPosition[2];
+						minecraftskinHandle.mesh.position.x = playerHandle.dblPosition[0];
+						minecraftskinHandle.mesh.position.y = playerHandle.dblPosition[1];
+						minecraftskinHandle.mesh.position.z = playerHandle.dblPosition[2];
 	
-						meshHandle.rotation.x = playerHandle.dblBody[0];
-						meshHandle.rotation.y = playerHandle.dblBody[1];
-						meshHandle.rotation.z = playerHandle.dblBody[2];
+						minecraftskinHandle.mesh.rotation.y = playerHandle.dblBodyyaw;
 	
-						meshHandle.head.rotation.x = playerHandle.dblHead[0];
-						meshHandle.head.rotation.y = playerHandle.dblHead[1];
-						meshHandle.head.rotation.z = playerHandle.dblHead[2];
+						minecraftskinHandle.mesh.head.rotation.x = playerHandle.dblHeadpitch;
+					}
+					
+					{
+						var intWalktime = new Date().getTime() / 1000;
+						
+						{
+							var dblVelocityX = playerHandle.dblPosition[0] - playerHandle.dblVerlet[0];
+							var dblVelocityY = playerHandle.dblPosition[1] - playerHandle.dblVerlet[1];
+							var dblVelocityZ = playerHandle.dblPosition[2] - playerHandle.dblVerlet[2];
+							
+							if (Math.abs(dblVelocityX) < 0.001) {
+								if (Math.abs(dblVelocityZ) < 0.001) {
+									playerHandle.intWalktime = intWalktime;
+								}
+							}
+						}
+						
+						var intTimediff = playerHandle.intWalktime - intWalktime;
+						
+						{
+							// http://djazz.mine.nu/lab/minecraft_items/
+				
+							minecraftskinHandle.rightArm.rotation.z = 2 * Math.cos((0.6662 * intTimediff * 10) + (0.5 * Math.PI) + (Math.PI));
+							minecraftskinHandle.leftArm.rotation.z = 2 * Math.cos((0.6662 * intTimediff * 10) + (0.5 * Math.PI));
+							
+							minecraftskinHandle.rightLeg.rotation.z = 1.4 * Math.cos((0.6662 * intTimediff * 10) + (0.5 * Math.PI));
+							minecraftskinHandle.leftLeg.rotation.z = 1.4 * Math.cos((0.6662 * intTimediff * 10) + (0.5 * Math.PI) + (Math.PI));
+						}
 					}
 				}
 			}
