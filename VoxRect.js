@@ -208,7 +208,9 @@ var Node = {
 				'intKills': 0,
 				'intDeaths': 0,
 				'dblPosition': [ 0.0, 0.0, 0.0 ],
-				'dblVerlet': [ 0.0, 0.0, 0.0 ]
+				'dblVerlet': [ 0.0, 0.0, 0.0 ],
+				'dblBodyyaw': 0.0,
+				'dblHeadpitch': 0.0
 			};
 		}
 		
@@ -247,6 +249,7 @@ var Node = {
 						
 						{
 							jsonHandle.playerHandle.push({
+								'strSocket': playerHandle.strSocket,
 								'strTeam': playerHandle.strTeam,
 								'strName': playerHandle.strName,
 								'intScore': playerHandle.intScore,
@@ -262,17 +265,6 @@ var Node = {
 		});
 		
 		socketHandle.on('loginHandle', function(jsonHandle) {
-			if (jsonHandle.strName === undefined) {
-				return;
-				
-			} else if (jsonHandle.strPassword === undefined) {
-				return;
-				
-			} else if (jsonHandle.strTeam === undefined) {
-				return;
-				
-			}
-			
 			if (Gameserver.playerHandle[socketHandle.id].strTeam !== 'teamLogin') {
 				return;
 			}
@@ -365,18 +357,24 @@ var Node = {
 					}
 				}
 				
-				jsonHandle.strMessage = strMessage;
-			}
-			
-			{
-				Socket.serverHandle.emit('chatHandle', {
-					'strName': Gameserver.playerHandle[socketHandle.id].strName,
-					'strMessage': jsonHandle.strMessage
-				});
+				{
+					Socket.serverHandle.emit('chatHandle', {
+						'strSocket': Gameserver.playerHandle[socketHandle.id].strSocket,
+						'strName': Gameserver.playerHandle[socketHandle.id].strName,
+						'strMessage': strMessage
+					});
+				}
 			}
 		});
 		
 		socketHandle.on('playerHandle', function(jsonHandle) {
+			{
+				jsonHandle.dblPosition = jsonHandle.a;
+				jsonHandle.dblVerlet = jsonHandle.b;
+				jsonHandle.dblBodyyaw = jsonHandle.c;
+				jsonHandle.dblHeadpitch = jsonHandle.d;
+			}
+			
 			if (jsonHandle.dblPosition === undefined) {
 				return;
 				
@@ -419,7 +417,13 @@ var Node = {
 					}
 					
 					{
-						jsonHandle.push(playerHandle);
+						jsonHandle.push({
+							'a': playerHandle.strSocket,
+							'b': playerHandle.dblPosition,
+							'c': playerHandle.dblVerlet,
+							'd': playerHandle.dblBodyyaw,
+							'e': playerHandle.dblHeadpitch
+						});
 					}
 			    }
 			    

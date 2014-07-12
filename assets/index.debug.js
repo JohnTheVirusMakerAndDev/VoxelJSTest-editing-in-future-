@@ -409,6 +409,14 @@ var Socket = {
 						
 						for (var intFor1 = 0; intFor1 < jsonHandle.length; intFor1 += 1) {
 							var playerHandle = jsonHandle[intFor1];
+
+							{
+								playerHandle.strSocket = playerHandle.a;
+								playerHandle.dblPosition = playerHandle.b;
+								playerHandle.dblVerlet = playerHandle.c;
+								playerHandle.dblBodyyaw = playerHandle.d;
+								playerHandle.dblHeadpitch = playerHandle.e;
+							}
 							
 							{
 								var dblPositionX = playerHandle.dblPosition[0];
@@ -434,8 +442,7 @@ var Socket = {
 									'dblPosition': [ dblPositionX, dblPositionY, dblPositionZ ],
 									'dblVerlet': [ dblVerletX, dblVerletY, dblVerletZ ],
 									'dblBodyyaw': playerHandle.dblBodyyaw,
-									'dblHeadpitch': playerHandle.dblHeadpitch,
-									'intWalktime': 0
+									'dblHeadpitch': playerHandle.dblHeadpitch
 								};
 							}
 						}
@@ -612,8 +619,8 @@ var Player = {
 				var dblVelocityY = Player.dblPosition[1] - Player.dblVerlet[1];
 				var dblVelocityZ = Player.dblPosition[2] - Player.dblVerlet[2];
 				
-				if (Math.abs(dblVelocityX) < 0.001) {
-					if (Math.abs(dblVelocityZ) < 0.001) {
+				if (Math.abs(dblVelocityX) < 0.0001) {
+					if (Math.abs(dblVelocityZ) < 0.0001) {
 						Player.intWalktime = intWalktime;
 					}
 				}
@@ -679,17 +686,54 @@ var Enemy = {
 					var dblVerletY = playerHandle.dblPosition[1];
 					var dblVerletZ = playerHandle.dblPosition[2];
 					
-					{
-						playerHandle.dblPosition[0] = playerHandle.dblPosition[0] + (playerHandle.dblPosition[0] - playerHandle.dblVerlet[0]) + Voxel.voxelengineHandle.gravity[0];
-						playerHandle.dblPosition[1] = playerHandle.dblPosition[1] + (playerHandle.dblPosition[1] - playerHandle.dblVerlet[1]) + Voxel.voxelengineHandle.gravity[1];
-						playerHandle.dblPosition[2] = playerHandle.dblPosition[2] + (playerHandle.dblPosition[2] - playerHandle.dblVerlet[2]) + Voxel.voxelengineHandle.gravity[2];
+					playerHandle.dblPosition[0] = playerHandle.dblPosition[0] + (playerHandle.dblPosition[0] - playerHandle.dblVerlet[0]) + Voxel.voxelengineHandle.gravity[0];
+					playerHandle.dblPosition[1] = playerHandle.dblPosition[1] + (playerHandle.dblPosition[1] - playerHandle.dblVerlet[1]) + Voxel.voxelengineHandle.gravity[1];
+					playerHandle.dblPosition[2] = playerHandle.dblPosition[2] + (playerHandle.dblPosition[2] - playerHandle.dblVerlet[2]) + Voxel.voxelengineHandle.gravity[2];
+					
+					playerHandle.dblVerlet[0] = dblVerletX;
+					playerHandle.dblVerlet[1] = dblVerletY;
+					playerHandle.dblVerlet[2] = dblVerletZ;
+				}
+				
+				{
+					var dblVelocityX = playerHandle.dblPosition[0] - playerHandle.dblVerlet[0];
+					var dblVelocityY = playerHandle.dblPosition[1] - playerHandle.dblVerlet[1];
+					
+					if (dblVelocityX > Voxel.voxelengineHandle.controls.max_speed) {
+						dblVelocityX = Voxel.voxelengineHandle.controls.max_speed;
+						
+					} else if (dblVelocityX < -Voxel.voxelengineHandle.controls.max_speed) {
+						dblVelocityX = -Voxel.voxelengineHandle.controls.max_speed;
+						
+					} else if (Math.abs(dblVelocityX) < 0.0001) {
+						dblVelocityX = 0.0;
+						
 					}
 					
-					{
-						playerHandle.dblVerlet[0] = dblVerletX;
-						playerHandle.dblVerlet[1] = dblVerletY;
-						playerHandle.dblVerlet[2] = dblVerletZ;
+					if (dblVelocityY > Voxel.voxelengineHandle.controls.jump_max_speed) {
+						dblVelocityY = Voxel.voxelengineHandle.controls.jump_max_speed;
+						
+					} else if (dblVelocityY < -Voxel.voxelengineHandle.controls.jump_max_speed) {
+						dblVelocityY = -Voxel.voxelengineHandle.controls.jump_max_speed;
+						
+					} else if (Math.abs(dblVelocityY) < 0.0001) {
+						dblVelocityY = 0.0;
+						
 					}
+					
+					if (dblVelocityZ > Voxel.voxelengineHandle.controls.max_speed) {
+						dblVelocityZ = Voxel.voxelengineHandle.controls.max_speed;
+						
+					} else if (dblVelocityZ < -Voxel.voxelengineHandle.controls.max_speed) {
+						dblVelocityZ = -Voxel.voxelengineHandle.controls.max_speed;
+						
+					} else if (Math.abs(dblVelocityZ) < 0.0001) {
+						dblVelocityZ = 0.0;
+						
+					}
+
+					playerHandle.dblPosition[0] = playerHandle.dblVerlet[0] + dblVelocityX;
+					playerHandle.dblPosition[1] = playerHandle.dblVerlet[1] + dblVelocityY;
 				}
 				
 				{
@@ -735,8 +779,8 @@ var Enemy = {
 							var dblVelocityY = playerHandle.dblPosition[1] - playerHandle.dblVerlet[1];
 							var dblVelocityZ = playerHandle.dblPosition[2] - playerHandle.dblVerlet[2];
 							
-							if (Math.abs(dblVelocityX) < 0.001) {
-								if (Math.abs(dblVelocityZ) < 0.001) {
+							if (Math.abs(dblVelocityX) < 0.0001) {
+								if (Math.abs(dblVelocityZ) < 0.0001) {
 									playerHandle.intWalktime = intWalktime;
 								}
 							}
@@ -782,12 +826,14 @@ jQuery(document).ready(function() {
 			}
 			 
 			{
-				Socket.socketHandle.emit('playerHandle', {
-					'dblPosition': Player.dblPosition,
-					'dblVerlet': Player.dblVerlet,
-					'dblBodyyaw':Player.minecraftskinHandle.mesh.rotation.y,
-					'dblHeadpitch': Player.minecraftskinHandle.mesh.head.rotation.x
-				});
+				if (Socket.socketHandle !== null) {
+					Socket.socketHandle.emit('playerHandle', {
+						'a': Player.dblPosition,
+						'b': Player.dblVerlet,
+						'c': Player.minecraftskinHandle.mesh.rotation.y,
+						'd': Player.minecraftskinHandle.mesh.head.rotation.x
+					});
+				}
 			}
 		});
 	}
