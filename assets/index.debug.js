@@ -94,7 +94,7 @@ jQuery(document).ready(function() {
 				'minWidth': 0,
 				'modal': false,
 				'resizable': false,
-				'width': 313
+				'width': 315
 			})
 		;
 	}
@@ -231,8 +231,6 @@ var Socket = {
 				});
 
 				Socket.socketHandle.on('loginHandle', function(jsonHandle) {
-					console.log('loginHandle');
-					console.log(jsonHandle);
 					{
 						if (jsonHandle.strType === 'typeReject') {
 							{
@@ -394,8 +392,6 @@ var Socket = {
 				});
 				
 				Socket.socketHandle.on('playerHandle', function(jsonHandle) {
-					console.log('playerHandle');
-					console.log(jsonHandle);
 					{
 						var playerOverwrite = {};
 						
@@ -403,30 +399,30 @@ var Socket = {
 							var playerHandle = jsonHandle[intFor1];
 							
 							{
-								dblPositionX = playerHandle.dblPositionX;
-								dblPositionY = playerHandle.dblPositionY;
-								dblPositionZ = playerHandle.dblPositionZ;
-								dblVerletX = playerHandle.dblVerletX;
-								dblVerletY = playerHandle.dblVerletY;
-								dblVerletZ = playerHandle.dblVerletZ;
+								var dblPositionX = playerHandle.dblPosition[0];
+								var dblPositionY = playerHandle.dblPosition[1];
+								var dblPositionZ = playerHandle.dblPosition[2];
+								
+								var dblVerletX = playerHandle.dblVerlet[0];
+								var dblVerletY = playerHandle.dblVerlet[1];
+								var dblVerletZ = playerHandle.dblVerlet[2];
 								
 								if (Socket.playerHandle.hasOwnProperty(playerHandle.strSocket) === true) {
-									dblPositionX = 0.5 * (playerHandle.dblPositionX + Socket.playerHandle[playerHandle.strSocket].dblPositionX);
-									dblPositionY = 0.5 * (playerHandle.dblPositionY + Socket.playerHandle[playerHandle.strSocket].dblPositionY);
-									dblPositionZ = 0.5 * (playerHandle.dblPositionZ + Socket.playerHandle[playerHandle.strSocket].dblPositionZ);
-									dblVerletX = dblPositionX - (playerHandle.dblPositionX - playerHandle.dblVerletX);
-									dblVerletY = dblPositionY - (playerHandle.dblPositionY - playerHandle.dblVerletY);
-									dblVerletZ = dblPositionZ - (playerHandle.dblPositionZ - playerHandle.dblVerletZ);
+									dblPositionX = 0.5 * (playerHandle.dblPosition[0] + Socket.playerHandle[playerHandle.strSocket].dblPosition[0]);
+									dblPositionY = 0.5 * (playerHandle.dblPosition[1] + Socket.playerHandle[playerHandle.strSocket].dblPosition[1]);
+									dblPositionZ = 0.5 * (playerHandle.dblPosition[2] + Socket.playerHandle[playerHandle.strSocket].dblPosition[2]);
+									
+									dblVerletX = dblPositionX - (playerHandle.dblPosition[0] - playerHandle.dblVerlet[0]);
+									dblVerletY = dblPositionY - (playerHandle.dblPosition[1] - playerHandle.dblVerlet[1]);
+									dblVerletZ = dblPositionZ - (playerHandle.dblPosition[2] - playerHandle.dblVerlet[2]);
 								}
 								
 								playerOverwrite[playerHandle.strSocket] = {
 									'strSocket': playerHandle.strSocket,
-									'dblPositionX': dblPositionX,
-									'dblPositionY': dblPositionY,
-									'dblPositionZ': dblPositionZ,
-									'dblVerletX': dblVerletX,
-									'dblVerletY': dblVerletY,
-									'dblVerletZ': dblVerletZ
+									'dblPosition': [ dblPositionX, dblPositionY, dblPositionZ ],
+									'dblVerlet': [ dblVerletX, dblVerletY, dblVerletZ ],
+									'dblBody': playerHandle.dblBody,
+									'dblHead': playerHandle.dblHead
 								};
 							}
 						}
@@ -436,12 +432,10 @@ var Socket = {
 					
 					{
 						Socket.socketHandle.emit('playerHandle', {
-							'dblPositionX': Player.dblPositionX,
-							'dblPositionY': Player.dblPositionY,
-							'dblPositionZ': Player.dblPositionZ,
-							'dblVerletX': Player.dblVerletX,
-							'dblVerletY': Player.dblVerletY,
-							'dblVerletZ': Player.dblVerletZ
+							'dblPosition': Player.dblPosition,
+							'dblVerlet': Player.dblVerlet,
+							'dblBody': [ Player.meshHandle.rotation.x, Player.meshHandle.rotation.y, Player.meshHandle.rotation.z ],
+							'dblHead': [ Player.meshHandle.head.rotation.x, Player.meshHandle.head.rotation.y, Player.meshHandle.head.rotation.z ]
 						});
 					}
 				});
@@ -508,55 +502,44 @@ var Player = {
 	meshHandle: null,
 	physicsHandle: null,
 	
-	dblPositionX: 0.0,
-	dblPositionY: 0.0,
-	dblPositionZ: 0.0,
-	
-	dblVerletX: 0.0,
-	dblVerletY: 0.0,
-	dblVerletZ: 0.0,
+	dblPosition: [ 0.0, 0.0, 0.0 ],
+	dblVerlet: [ 0.0, 0.0, 0.0 ],
 	
 	init: function() {
 		{
 			Player.meshHandle = Voxel.minecraftskinFunction('./skins/logan.png');
-
-			Player.meshHandle.position.set(0, 10, 0);
 			
-			Player.meshHandle.cameraInside.add(Voxel.voxelengineHandle.camera);
-		}
-		
-		{
 			Player.physicsHandle = Voxel.voxelengineHandle.makePhysical(Player.meshHandle);
+
+			{
+				Player.meshHandle.position.set(0, 10, 0); // TODO
+				
+				Player.meshHandle.cameraInside.add(Voxel.voxelengineHandle.camera);
+			}
 			
-			Player.physicsHandle.yaw = Player.meshHandle;
-			Player.physicsHandle.pitch = Player.meshHandle.head;
-			Player.physicsHandle.position = Player.meshHandle.position;
+			{
+				Player.physicsHandle.blocksCreation = true;
+				
+				Player.physicsHandle.yaw = Player.meshHandle;
+				Player.physicsHandle.pitch = Player.meshHandle.head;
+				Player.physicsHandle.position = Player.meshHandle.position;
+				
+				Player.physicsHandle.subjectTo(Voxel.voxelengineHandle.gravity);
+			}
 			
-			Player.physicsHandle.subjectTo(Voxel.voxelengineHandle.gravity);
-			
-			Player.physicsHandle.blocksCreation = true;
-		}
-		
-		{
-			Player.dblPositionX = 0.0;
-		
-			Player.dblPositionY = 0.0;
-		
-			Player.dblPositionZ = 0.0;
-		}
-		
-		{
-			Player.dblVerletX = 0.0;
-		
-			Player.dblVerletY = 0.0;
-		
-			Player.dblVerletZ = 0.0;
-		}
-		
-		{
 			Voxel.voxelengineHandle.scene.add(Player.meshHandle);
 			
 			Voxel.voxelengineHandle.addItem(Player.physicsHandle);
+		}
+		
+		{
+			Player.dblPosition[0] = 0.0;
+			Player.dblPosition[1] = 0.0;
+			Player.dblPosition[2] = 0.0;
+
+			Player.dblVerlet[0] = 0.0;
+			Player.dblVerlet[1] = 0.0;
+			Player.dblVerlet[2] = 0.0;
 		}
 		
 		{
@@ -572,57 +555,43 @@ var Player = {
 		}
 		
 		{
-			Player.dblPositionX = 0.0;
-		
-			Player.dblPositionY = 0.0;
-		
-			Player.dblPositionZ = 0.0;
-		}
-		
-		{
-			Player.dblVerletX = 0.0;
-		
-			Player.dblVerletY = 0.0;
-		
-			Player.dblVerletZ = 0.0;
+			Player.dblPosition[0] = 0.0;
+			Player.dblPosition[1] = 0.0;
+			Player.dblPosition[2] = 0.0;
+
+			Player.dblVerlet[0] = 0.0;
+			Player.dblVerlet[1] = 0.0;
+			Player.dblVerlet[2] = 0.0;
 		}
 	},
 	
 	update: function() {
 		{
-			Player.dblVerletX = Player.dblPositionX;
-			
-			Player.dblVerletY = Player.dblPositionY;
-			
-			Player.dblVerletZ = Player.dblPositionZ;
-		}
-		
-		{
-			Player.dblPositionX = Player.meshHandle.position.x;
-			
-			Player.dblPositionY = Player.meshHandle.position.y;
-			
-			Player.dblPositionZ = Player.meshHandle.position.z;
+			Player.dblVerlet[0] = Player.dblPosition[0];
+			Player.dblVerlet[1] = Player.dblPosition[1];
+			Player.dblVerlet[2] = Player.dblPosition[2];
+
+			Player.dblPosition[0] = Player.meshHandle.position.x;
+			Player.dblPosition[1] = Player.meshHandle.position.y;
+			Player.dblPosition[2] = Player.meshHandle.position.z;
 		}
 	}
 };
 
 var Enemy = {
-	intActive: 0,
-	
-	itemHandle: [],
+	meshHandle: [],
 	
 	init: function() {
 		{
-			Enemy.intActive = 0;
-		}
-		
-		{
 			for (var intFor1 = 0; intFor1 < 32; intFor1 += 1) {
 				{
-			        var itemHandle = Voxel.minecraftskinFunction('./skins/logan.png');
+					var meshHandle = Voxel.minecraftskinFunction('./skins/logan.png');
+
+					{
+						Voxel.voxelengineHandle.scene.add(meshHandle);
+					}
 					
-					Enemy.itemHandle.push(itemHandle);
+					Enemy.meshHandle.push(meshHandle);
 				}
 			}
 		}
@@ -630,25 +599,17 @@ var Enemy = {
 	
 	dispel: function() {
 		{
-			Enemy.intActive = 0;
-		}
-		
-		{
-			Enemy.itemHandle = [];
+			Enemy.meshHandle = [];
 		}
 	},
 	
 	update: function() {
 		{
-			Enemy.intActive = 0;
-		}
-		
-		{
-			for (var intFor1 = 0; intFor1 < Enemy.itemHandle.length; intFor1 += 1) {
-				var itemHandle = Enemy.itemHandle[intFor1];
+			for (var intFor1 = 0; intFor1 < Enemy.meshHandle.length; intFor1 += 1) {
+				var meshHandle = Enemy.meshHandle[intFor1];
 				
 				{
-					Voxel.voxelengineHandle.removeItem(itemHandle);
+					meshHandle.visible = false; // TODO: not working because of hierarchy
 				}
 			}
 		}
@@ -658,59 +619,61 @@ var Enemy = {
 				var playerHandle = Socket.playerHandle[strSocket];
 				
 				{
+					var dblVerletX = playerHandle.dblPosition[0];
+					var dblVerletY = playerHandle.dblPosition[1];
+					var dblVerletZ = playerHandle.dblPosition[2];
+					
 					{
-						var dblVerletX = playerHandle.dblPositionX;
-						var dblVerletY = playerHandle.dblPositionY;
-						var dblVerletZ = playerHandle.dblPositionZ;
-						
-						{
-							playerHandle.dblPositionX = playerHandle.dblPositionX + (playerHandle.dblPositionX - playerHandle.dblVerletX) + Voxel.voxelengineHandle[0];
-							playerHandle.dblPositionY = playerHandle.dblPositionY + (playerHandle.dblPositionY - playerHandle.dblVerletY) + Voxel.voxelengineHandle[1];
-							playerHandle.dblPositionZ = playerHandle.dblPositionZ + (playerHandle.dblPositionZ - playerHandle.dblVerletZ) + Voxel.voxelengineHandle[2];
-						}
-						
-						{
-							playerHandle.dblVerletX = dblVerletX;
-							playerHandle.dblVerletY = dblVerletY;
-							playerHandle.dblVerletZ = dblVerletZ;
-						}
+						playerHandle.dblPosition[0] = playerHandle.dblPosition[0] + (playerHandle.dblPosition[0] - playerHandle.dblVerlet[0]) + Voxel.voxelengineHandle.gravity[0];
+						playerHandle.dblPosition[1] = playerHandle.dblPosition[1] + (playerHandle.dblPosition[1] - playerHandle.dblVerlet[1]) + Voxel.voxelengineHandle.gravity[1];
+						playerHandle.dblPosition[2] = playerHandle.dblPosition[2] + (playerHandle.dblPosition[2] - playerHandle.dblVerlet[2]) + Voxel.voxelengineHandle.gravity[2];
 					}
 					
 					{
-						var dblVelocityX = playerHandle.dblPositionX - playerHandle.dblVerletX;
-						var dblVelocityY = playerHandle.dblPositionY - playerHandle.dblVerletY;
-						var dblVelocityZ = playerHandle.dblPositionZ - playerHandle.dblVerletZ;
-						
-						{
-							// TODO: maybe limit velocity
-						}
-						
-						{
-							playerHandle.dblPositionX = playerHandle.dblVerletX + dblVelocityX;
-							playerHandle.dblPositionY = playerHandle.dblVerletY + dblVelocityY;
-							playerHandle.dblPositionZ = playerHandle.dblVerletZ + dblVelocityZ;
-						}
+						playerHandle.dblVerlet[0] = dblVerletX;
+						playerHandle.dblVerlet[1] = dblVerletY;
+						playerHandle.dblVerlet[2] = dblVerletZ;
 					}
 				}
 				
 				{
 					// TODO: collision
 				}
-				
+
 				{
-					var itemHandle = Enemy.itemHandle[Enemy.intActive];
+					var meshHandle = null;
 					
 					{
-						itemHandle.position.x = playerHandle.dblPositionX;
-						itemHandle.position.y = playerHandle.dblPositionY;
-						itemHandle.position.z = playerHandle.dblPositionZ;
+						for (var intFor1 = 0; intFor1 < Enemy.meshHandle.length; intFor1 += 1) {
+							if (Enemy.meshHandle[intFor1].visible === true) {
+								continue;
+							}
+							
+							{
+								meshHandle = Enemy.meshHandle[intFor1];
+							}
+							
+							{
+								break;
+							}
+						}
 					}
 					
-					Voxel.voxelengineHandle.removeItem(itemHandle);
-				}
-				
-				{
-					Enemy.intActive += 1;
+					{
+						meshHandle.visible = true;
+	
+						meshHandle.position.x = playerHandle.dblPosition[0];
+						meshHandle.position.y = playerHandle.dblPosition[1];
+						meshHandle.position.z = playerHandle.dblPosition[2];
+	
+						meshHandle.rotation.x = playerHandle.dblBody[0];
+						meshHandle.rotation.y = playerHandle.dblBody[1];
+						meshHandle.rotation.z = playerHandle.dblBody[2];
+	
+						meshHandle.head.rotation.x = playerHandle.dblHead[0];
+						meshHandle.head.rotation.y = playerHandle.dblHead[1];
+						meshHandle.head.rotation.z = playerHandle.dblHead[2];
+					}
 				}
 			}
 		}

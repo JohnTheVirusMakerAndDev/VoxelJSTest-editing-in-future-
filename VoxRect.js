@@ -207,12 +207,8 @@ var Node = {
 				'intScore': 0,
 				'intKills': 0,
 				'intDeaths': 0,
-				'dblPositionX': 0.0,
-				'dblPositionY': 0.0,
-				'dblPositionZ': 0.0,
-				'dblVerletX': 0.0,
-				'dblVerletY': 0.0,
-				'dblVerletZ': 0.0
+				'dblPosition': [ 0.0, 0.0, 0.0 ],
+				'dblVerlet': [ 0.0, 0.0, 0.0 ]
 			};
 		}
 		
@@ -339,22 +335,28 @@ var Node = {
 		});
 		
 		socketHandle.on('playerHandle', function(jsonHandle) {
-			if (jsonHandle.dblPositionX === undefined) {
+			if (jsonHandle.dblPosition === undefined) {
 				return;
 				
-			} else if (jsonHandle.dblPositionY === undefined) {
+			} else if (jsonHandle.dblPosition.length !== 3) {
 				return;
 				
-			} else if (jsonHandle.dblPositionZ === undefined) {
+			} else if (jsonHandle.dblVerlet === undefined) {
 				return;
 				
-			} else if (jsonHandle.dblVerletX === undefined) {
+			} else if (jsonHandle.dblVerlet.length !== 3) {
 				return;
 				
-			} else if (jsonHandle.dblVerletY === undefined) {
+			} else if (jsonHandle.dblHead === undefined) {
 				return;
 				
-			} else if (jsonHandle.dblVerletZ === undefined) {
+			} else if (jsonHandle.dblHead.length !== 3) {
+				return;
+				
+			} else if (jsonHandle.dblBody === undefined) {
+				return;
+				
+			} else if (jsonHandle.dblBody.length !== 3) {
 				return;
 				
 			}
@@ -364,12 +366,10 @@ var Node = {
 			} 
 			
 			{
-				Gameserver.playerHandle[socketHandle.id].dblPositionX = jsonHandle.dblPositionX;
-				Gameserver.playerHandle[socketHandle.id].dblPositionY = jsonHandle.dblPositionY;
-				Gameserver.playerHandle[socketHandle.id].dblPositionZ = jsonHandle.dblPositionZ;
-				Gameserver.playerHandle[socketHandle.id].dblVerletX = jsonHandle.dblVerletX;
-				Gameserver.playerHandle[socketHandle.id].dblVerletY = jsonHandle.dblVerletY;
-				Gameserver.playerHandle[socketHandle.id].dblVerletZ = jsonHandle.dblVerletZ;
+				Gameserver.playerHandle[socketHandle.id].dblPosition = jsonHandle.dblPosition;
+				Gameserver.playerHandle[socketHandle.id].dblVerlet = jsonHandle.dblVerlet;
+				Gameserver.playerHandle[socketHandle.id].dblHead = jsonHandle.dblHead;
+				Gameserver.playerHandle[socketHandle.id].dblBody = jsonHandle.dblBody;
 			}
 			
 			{
