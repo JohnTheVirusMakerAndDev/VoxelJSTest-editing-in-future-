@@ -219,6 +219,46 @@ var Node = {
 			});
 		}
 		
+		socketHandle.on('onlineHandle', function(jsonHandle) {
+			var jsonHandle = {
+				'serverHandle': {},
+				'playerHandle': []
+			};
+			
+			{
+				jsonHandle.serverHandle = {
+					'intPlayerCapacity': Gameserver.intPlayerCapacity,
+					'intPlayerActive': Gameserver.intPlayerActive,
+					'strMapActive': Gameserver.strMapActive,
+					'strMapAvailable': Gameserver.strMapAvailable,
+					'intScoreRed': Gameserver.intScoreRed,
+					'intScoreBlue': Gameserver.intScoreBlue
+				};
+			}
+			
+			{
+				for (var strSocket in Gameserver.playerHandle) {
+					var playerHandle = Gameserver.playerHandle[strSocket];
+					
+					if (playerHandle.strTeam === 'teamLogin') {
+						continue;
+					}
+					
+					{
+						jsonHandle.playerHandle.push({
+							'strTeam': playerHandle.strTeam,
+							'strName': playerHandle.strName,
+							'intScore': playerHandle.intScore,
+							'intKills': playerHandle.intKills,
+							'intDeaths': playerHandle.intDeaths
+						});
+					}
+				}
+			}
+			
+			socketHandle.emit('onlineHandle', jsonHandle);
+		});
+		
 		socketHandle.on('loginHandle', function(jsonHandle) {
 			if (jsonHandle.strName === undefined) {
 				return;
@@ -464,50 +504,6 @@ var Gameserver = {
 					Gameserver.strMapAvailable.push(strMap);
 				}
 			}
-		}
-		
-		{
-			var functionInterval = function() {
-				var jsonHandle = {
-					'serverHandle': {},
-					'playerHandle': []
-				};
-				
-				{
-					jsonHandle.serverHandle = {
-						'intPlayerCapacity': Gameserver.intPlayerCapacity,
-						'intPlayerActive': Gameserver.intPlayerActive,
-						'strMapActive': Gameserver.strMapActive,
-						'strMapAvailable': Gameserver.strMapAvailable,
-						'intScoreRed': Gameserver.intScoreRed,
-						'intScoreBlue': Gameserver.intScoreBlue
-					};
-				}
-				
-				{
-					for (var strSocket in Gameserver.playerHandle) {
-						var playerHandle = Gameserver.playerHandle[strSocket];
-						
-						if (playerHandle.strTeam === 'teamLogin') {
-							continue;
-						}
-						
-						{
-							jsonHandle.playerHandle.push({
-								'strTeam': playerHandle.strTeam,
-								'strName': playerHandle.strName,
-								'intScore': playerHandle.intScore,
-								'intKills': playerHandle.intKills,
-								'intDeaths': playerHandle.intDeaths
-							});
-						}
-					}
-				}
-				
-				Socket.serverHandle.emit('onlineHandle', jsonHandle);
-			};
-			
-			setInterval(functionInterval, 1000);
 		}
 	},
 	

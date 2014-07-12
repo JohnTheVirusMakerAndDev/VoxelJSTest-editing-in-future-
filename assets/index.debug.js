@@ -211,6 +211,8 @@ var Socket = {
 
 	playerHandle: {},
 	
+	intPing: 0,
+	
 	init: function() {
 		{
 			Socket.socketHandle = null;
@@ -218,6 +220,10 @@ var Socket = {
 		
 		{
 			Socket.playerHandle = {};
+		}
+		
+		{
+			Socket.intPing = 0;
 		}
 		
 		{
@@ -229,61 +235,13 @@ var Socket = {
 					'timeout': 5000,
 					'transports': [ 'websocket' ]
 				});
-
-				Socket.socketHandle.on('loginHandle', function(jsonHandle) {
-					{
-						if (jsonHandle.strType === 'typeReject') {
-							{
-								jQuery('#idLoading')
-									.dialog('close')
-								;
-								
-								jQuery('#idLogin')
-									.dialog('open')
-								;
-							}
-							
-							{
-								jQuery('#idLogin_Message')
-									.text(jsonHandle.strMessage)
-								;
-							}
-							
-							{
-								if (jsonHandle.strMessage === '') {
-									jQuery('#idLogin').children().slice(0, 3)
-										.css({
-											'display': 'none'
-										})
-									;
-									
-								} else if (jsonHandle.strMessage !== '') {
-									jQuery('#idLogin').children().slice(0, 3)
-										.css({
-											'display': 'block'
-										})
-									;
-									
-								}
-							}
-							
-						} else if (jsonHandle.strType === 'typeAccept') {
-							{
-								jQuery('#idLoading')
-									.dialog('close')
-								;
-
-								jQuery('#idInformation')
-									.dialog('open')
-								;
-							}
-							
-						}
-					}
-				});
 				
 				Socket.socketHandle.on('onlineHandle', function(jsonHandle) {
 					{
+						jQuery('#idServer_Ping')
+							.val(new Date().getTime() - Socket.intPing)
+						;
+						
 						jQuery('#idServer_Players')
 							.val(jsonHandle.serverHandle.intPlayerActive + ' / ' + jsonHandle.serverHandle.intPlayerCapacity)
 						;
@@ -367,6 +325,58 @@ var Socket = {
 						;
 					}
 				});
+
+				Socket.socketHandle.on('loginHandle', function(jsonHandle) {
+					{
+						if (jsonHandle.strType === 'typeReject') {
+							{
+								jQuery('#idLoading')
+									.dialog('close')
+								;
+								
+								jQuery('#idLogin')
+									.dialog('open')
+								;
+							}
+							
+							{
+								jQuery('#idLogin_Message')
+									.text(jsonHandle.strMessage)
+								;
+							}
+							
+							{
+								if (jsonHandle.strMessage === '') {
+									jQuery('#idLogin').children().slice(0, 3)
+										.css({
+											'display': 'none'
+										})
+									;
+									
+								} else if (jsonHandle.strMessage !== '') {
+									jQuery('#idLogin').children().slice(0, 3)
+										.css({
+											'display': 'block'
+										})
+									;
+									
+								}
+							}
+							
+						} else if (jsonHandle.strType === 'typeAccept') {
+							{
+								jQuery('#idLoading')
+									.dialog('close')
+								;
+
+								jQuery('#idInformation')
+									.dialog('open')
+								;
+							}
+							
+						}
+					}
+				});
 				
 				Socket.socketHandle.on('chatHandle', function(jsonHandle) {
 					jQuery('#idMessagebox_Log')
@@ -440,6 +450,16 @@ var Socket = {
 						});
 					}
 				});
+				
+				setInterval(function() {
+					{
+						Socket.intPing = new Date().getTime();
+					}
+					
+					{
+						Socket.socketHandle.emit('onlineHandle', {});
+					}
+				}, 1000);
 			});
 		}
 	},
@@ -451,6 +471,10 @@ var Socket = {
 		
 		{
 			Socket.playerHandle = {};
+		}
+		
+		{
+			Socket.intPing = 0;
 		}
 	}
 };
