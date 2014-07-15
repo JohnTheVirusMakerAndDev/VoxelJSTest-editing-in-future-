@@ -104,7 +104,7 @@ jQuery(document).ready(function() {
 			.button({
 				'disabled': false,
 				'icons': {
-					'primary': 'ui-icon-arrowthick-2-e-w'
+					'primary': 'ui-icon-triangle-2-e-w'
 				}
 			})
 			.off('click')
@@ -122,7 +122,18 @@ jQuery(document).ready(function() {
 						}))
 					;
 				}
-			});
+			})
+		;
+	}
+	
+	{
+		jQuery('#idInformation_Esc')
+			.button({
+				'disabled': false,
+				'icons': {
+					'primary': 'ui-icon-close'
+				}
+			})
 		;
 	}
 	
@@ -158,6 +169,8 @@ var Voxel = {
 	minecraftskinHandle: null,
 	minecraftskinFunction: null,
 	
+	aabbHandle: null,
+	
 	init: function() {
 		{
 			Voxel.voxelengineHandle = require('voxel-engine')({
@@ -187,6 +200,10 @@ var Voxel = {
 				});
 			};
 		}
+		
+		{
+			Voxel.aabbHandle = require('aabb-3d');
+		}
 	},
 	
 	dispel: function() {
@@ -202,6 +219,10 @@ var Voxel = {
 			Voxel.minecraftskinHandle = null;
 			
 			Voxel.minecraftskinFunction = null;
+		}
+		
+		{
+			Voxel.aabbHandle = null;
 		}
 	}
 };
@@ -266,43 +287,32 @@ var Socket = {
 							var playerHandle = jsonHandle.playerHandle[intFor1];
 							
 							{
+								var strIdent = '';
+								
 								if (playerHandle.strTeam === 'teamRed') {
-									jQuery('#idTeamRed_Table')
-										.append(jQuery('<tr></tr>')
-											.append(jQuery('<td></td>')
-												.text(playerHandle.strName)
-											)
-											.append(jQuery('<td></td>')
-												.text(playerHandle.intScore)
-											)
-											.append(jQuery('<td></td>')
-												.text(playerHandle.intKills)
-											)
-											.append(jQuery('<td></td>')
-												.text(playerHandle.intDeaths)
-											)
-										)
-									;
+									strIdent = '#idTeamRed_Table';
 									
 								} else if (playerHandle.strTeam === 'teamBlue') {
-									jQuery('#idTeamBlue_Table')
-										.append(jQuery('<tr></tr>')
-											.append(jQuery('<td></td>')
-												.text(playerHandle.strName)
-											)
-											.append(jQuery('<td></td>')
-												.text(playerHandle.intScore)
-											)
-											.append(jQuery('<td></td>')
-												.text(playerHandle.intKills)
-											)
-											.append(jQuery('<td></td>')
-												.text(playerHandle.intDeaths)
-											)
-										)
-									;
+									strIdent = '#idTeamBlue_Table';
 									
-								}	
+								}
+								
+								jQuery(strIdent)
+									.append(jQuery('<tr></tr>')
+										.append(jQuery('<td></td>')
+											.text(playerHandle.strName)
+										)
+										.append(jQuery('<td></td>')
+											.text(playerHandle.intScore)
+										)
+										.append(jQuery('<td></td>')
+											.text(playerHandle.intKills)
+										)
+										.append(jQuery('<td></td>')
+											.text(playerHandle.intDeaths)
+										)
+									)
+								;
 							}
 						}
 					}
@@ -368,7 +378,9 @@ var Socket = {
 								jQuery('#idLoading')
 									.dialog('close')
 								;
-
+							}
+							
+							{
 								jQuery('#idInformation')
 									.dialog('open')
 								;
@@ -442,7 +454,8 @@ var Socket = {
 									'dblPosition': [ dblPositionX, dblPositionY, dblPositionZ ],
 									'dblVerlet': [ dblVerletX, dblVerletY, dblVerletZ ],
 									'dblBodyyaw': playerHandle.dblBodyyaw,
-									'dblHeadpitch': playerHandle.dblHeadpitch
+									'dblHeadpitch': playerHandle.dblHeadpitch,
+									'intWalktime': 0
 								};
 							}
 						}
@@ -480,46 +493,79 @@ var Socket = {
 };
 
 var Input = {
+	strStatus: '',
+	
 	init: function() {
+		{
+			Input.strStatus = 'statusMenu';
+		}
+		
 		{
 			jQuery(document.body)
 				.off('keydown')
 				.on('keydown', function(eventHandle) {
-					//if (jQuery('#idMessagebox_Chat').is(':focus') === true) {
-					//	return;
-					//}
-					//
-					//{
-					//	eventHandle.preventDefault();
-					//}
-					
-					if (eventHandle.keyCode === 9) {
-						jQuery('#idInformation')
-							.dialog('close')
-						;
+					if (Input.strStatus === 'statusMenu') {
+						if (eventHandle.keyCode === 9) {
+							{
+								Input.strStatus = 'statusGame';
+							}
+							
+							{
+								jQuery('#idInformation')
+									.dialog('close')
+								;
+							}
+							
+							{
+								jQuery('#idWestside')
+									.css({
+										'display': 'none'
+									})
+								;
+								
+								jQuery('#idEastside')
+									.css({
+										'display': 'none'
+									})
+								;
+							}
+						}
+						
+					} else if (Input.strStatus === 'statusGame') {
+						if (eventHandle.keyCode === 9) {
+							{
+								Input.strStatus = 'statusMenu';
+							}
+							
+							{
+								jQuery('#idWestside')
+									.css({
+										'display': 'block'
+									})
+								;
+								
+								jQuery('#idEastside')
+									.css({
+										'display': 'block'
+									})
+								;
+							}
+						}
+						
 					}
 				})
 				.off('keyup')
 				.on('keyup', function(eventHandle) {
-					//if (jQuery('#idMessagebox_Chat').is(':focus') === true) {
-					//	return;
-					//}
-					//
-					//{
-					//	eventHandle.preventDefault();
-					//}
-					
+
 				})
 			;
 		}
 	},
 	
 	dispel: function() {
-
-	},
-	
-	update: function() {
-
+		{
+			Input.strStatus = '';
+		}
 	}
 };
 
@@ -698,6 +744,7 @@ var Enemy = {
 				{
 					var dblVelocityX = playerHandle.dblPosition[0] - playerHandle.dblVerlet[0];
 					var dblVelocityY = playerHandle.dblPosition[1] - playerHandle.dblVerlet[1];
+					var dblVelocityZ = playerHandle.dblPosition[2] - playerHandle.dblVerlet[2];
 					
 					if (dblVelocityX > Voxel.voxelengineHandle.controls.max_speed) {
 						dblVelocityX = Voxel.voxelengineHandle.controls.max_speed;
@@ -734,10 +781,7 @@ var Enemy = {
 
 					playerHandle.dblPosition[0] = playerHandle.dblVerlet[0] + dblVelocityX;
 					playerHandle.dblPosition[1] = playerHandle.dblVerlet[1] + dblVelocityY;
-				}
-				
-				{
-					// TODO: collision
+					playerHandle.dblPosition[2] = playerHandle.dblVerlet[2] + dblVelocityZ;
 				}
 
 				{
@@ -757,6 +801,48 @@ var Enemy = {
 								break;
 							}
 						}
+					}
+					
+					{
+//						var pos = this.avatar.position
+//						var d = this.dimensions
+//												  return aabb(
+//												    [pos.x - (d[0]/2), pos.y, pos.z - (d[2]/2)],
+//												    this.dimensions
+//												  )
+//						var aabbHandle = aabb();
+//
+//						var vec = {
+//							'x': playerHandle.dblPosition[0] - playerHandle.dblVerlet[0],
+//							'y': playerHandle.dblPosition[1] - playerHandle.dblVerlet[1],
+//							'z': playerHandle.dblPosition[2] - playerHandle.dblVerlet[2]
+//						};
+//
+//						var resting = {
+//							'x': false,
+//							'y': false,
+//							'z': false
+//						};
+//
+//						var collisionHandle = Voxel.voxelengineHandle.potentialCollisionSet();
+//
+//						for (var intFor1 = 0; intFor1 < collisionHandle.length; intFor1 += 1) {
+//							{
+//								collisionHandle[intFor1].collide(minecraftskinHandle.mesh, bbox, world_desired, resting)
+//							}
+//						}
+//
+//						Voxel.voxelengineHandle.collideVoxels(bbox, vec3, function(intAxis, tile, coords, dir, edge) {
+//							if (Math.abs(vec[axes[axis]]) < Math.abs(edge)) {
+//								return;
+//							}
+//							
+//							vec[axes[axis]] = edge
+//						    resting[axes[axis]] = dir
+//							
+//							
+//							return true;
+//						});
 					}
 					
 					{

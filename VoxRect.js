@@ -265,6 +265,17 @@ var Node = {
 		});
 		
 		socketHandle.on('loginHandle', function(jsonHandle) {
+			if (jsonHandle.strName === undefined) {
+				return;
+				
+			} else if (jsonHandle.strPassword === undefined) {
+				return;
+				
+			} else if (jsonHandle.strTeam === undefined) {
+				return;
+				
+			}
+			
 			if (Gameserver.playerHandle[socketHandle.id].strTeam !== 'teamLogin') {
 				return;
 			}
@@ -328,10 +339,6 @@ var Node = {
 					'strType': 'typeAccept',
 					'strMessage': ''
 				});
-			}
-			
-			{
-				socketHandle.emit('playerHandle', {});
 			}
 		});
 		
