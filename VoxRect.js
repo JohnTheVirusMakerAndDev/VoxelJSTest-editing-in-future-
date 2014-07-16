@@ -404,7 +404,7 @@ var Node = {
 			
 			if (Gameserver.playerHandle[socketHandle.id].strStatus === 'teamLogin') {
 				return;
-			} 
+			}
 			
 			{
 				Gameserver.playerHandle[socketHandle.id].dblPosition = jsonHandle.dblPosition;
@@ -421,6 +421,10 @@ var Node = {
 					
 			    	if (playerHandle.strSocket === Gameserver.playerHandle[socketHandle.id].strSocket) {
 						continue;
+						
+					} else if (playerHandle.strStatus === 'teamLogin') {
+						continue;
+						
 					}
 					
 					{

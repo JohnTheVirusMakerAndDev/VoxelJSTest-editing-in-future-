@@ -94,7 +94,7 @@ jQuery(document).ready(function() {
 				'minWidth': 0,
 				'modal': false,
 				'resizable': false,
-				'width': 315
+				'width': 550
 			})
 		;
 	}
@@ -188,7 +188,31 @@ var Voxel = {
 		}
 		
 		{
-			Voxel.voxelhighlightHandle = require('voxel-highlight')(Voxel.voxelengineHandle);
+			Voxel.voxelhighlightHandle = require('voxel-highlight')(Voxel.voxelengineHandle, {
+				'distance': 8,
+				'wireframeLinewidth': 16,
+				'wireframeOpacity': 1.0,
+				'color': 0x0044CC
+			});
+			
+			Voxel.voxelhighlightHandle.positionCreate = null;
+			Voxel.voxelhighlightHandle.positionDestroy = null;
+			
+			Voxel.voxelhighlightHandle.on('highlight-adjacent', function(positionHandle) {
+				Voxel.voxelhighlightHandle.positionCreate = positionHandle;
+			});
+			
+			Voxel.voxelhighlightHandle.on('remove-adjacent', function(positionHandle) {
+				Voxel.voxelhighlightHandle.positionCreate = null;
+			});
+			
+			Voxel.voxelhighlightHandle.on('highlight', function(positionHandle) {
+				Voxel.voxelhighlightHandle.positionDestroy = positionHandle;
+			});
+			
+			Voxel.voxelhighlightHandle.on('remove', function(positionHandle) {
+				Voxel.voxelhighlightHandle.positionDestroy = null;
+			});
 		}
 		
 		{
@@ -695,10 +719,6 @@ var Enemy = {
 			for (var intFor1 = 0; intFor1 < 32; intFor1 += 1) {
 				{
 					var minecraftskinHandle = Voxel.minecraftskinFunction('./skins/blue.png');
-
-					{
-						Voxel.voxelengineHandle.scene.add(minecraftskinHandle.mesh);
-					}
 					
 					Enemy.minecraftskinHandle.push(minecraftskinHandle);
 				}
@@ -713,15 +733,7 @@ var Enemy = {
 	},
 	
 	update: function() {
-		{
-			for (var intFor1 = 0; intFor1 < Enemy.minecraftskinHandle.length; intFor1 += 1) {
-				var minecraftskinHandle = Enemy.minecraftskinHandle[intFor1];
-				
-				{
-					minecraftskinHandle.visible = false; // TODO: not working because of hierarchy
-				}
-			}
-		}
+		var intActive = 0;
 		
 		{
 			for (var strSocket in Socket.playerHandle) {
@@ -785,22 +797,10 @@ var Enemy = {
 				}
 
 				{
-					var minecraftskinHandle = null;
+					var minecraftskinHandle = Enemy.minecraftskinHandle[intActive];
 					
 					{
-						for (var intFor1 = 0; intFor1 < Enemy.minecraftskinHandle.length; intFor1 += 1) {
-							if (Enemy.minecraftskinHandle[intFor1].visible === true) {
-								continue;
-							}
-							
-							{
-								minecraftskinHandle = Enemy.minecraftskinHandle[intFor1];
-							}
-							
-							{
-								break;
-							}
-						}
+						intActive += 1;
 					}
 					
 					{
@@ -844,10 +844,8 @@ var Enemy = {
 //							return true;
 //						});
 					}
-					
+
 					{
-						minecraftskinHandle.visible = true;
-	
 						minecraftskinHandle.mesh.position.x = playerHandle.dblPosition[0];
 						minecraftskinHandle.mesh.position.y = playerHandle.dblPosition[1];
 						minecraftskinHandle.mesh.position.z = playerHandle.dblPosition[2];
@@ -887,6 +885,32 @@ var Enemy = {
 				}
 			}
 		}
+		
+		{
+			for (var intFor1 = 0; intFor1 < intActive; intFor1 += 1) {
+				var minecraftskinHandle = Enemy.minecraftskinHandle[intFor1];
+
+				if (minecraftskinHandle.mesh.parent !== undefined) {
+					continue;
+				}
+				
+				{
+					Voxel.voxelengineHandle.scene.add(minecraftskinHandle.mesh);
+				}
+			}
+			
+			for (var intFor1 = intActive; intFor1 < Enemy.minecraftskinHandle.length; intFor1 += 1) {
+				var minecraftskinHandle = Enemy.minecraftskinHandle[intFor1];
+
+				if (minecraftskinHandle.mesh.parent === undefined) {
+					continue;
+				}
+				
+				{
+					Voxel.voxelengineHandle.scene.remove(minecraftskinHandle.mesh);
+				}
+			}
+		}
 	}
 };
 
@@ -904,6 +928,16 @@ jQuery(document).ready(function() {
 	}
 	
 	{
+		Voxel.voxelengineHandle.on('fire', function(targetHandle, stateHandle) {
+			{
+				if (Voxel.voxelhighlightHandle.positionCreate !== null) {
+					Voxel.voxelengineHandle.createBlock(Voxel.voxelhighlightHandle.positionCreate, 1);
+				}
+				
+				// to erase: game.setBlock(position, 0)
+			}
+		});
+
 		Voxel.voxelengineHandle.on('tick', function(intDelta) {
 			{
 				Player.update();
