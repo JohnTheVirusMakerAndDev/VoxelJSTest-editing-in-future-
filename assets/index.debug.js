@@ -1,33 +1,223 @@
 jQuery(document).ready(function() {
 	{
+		jQuery('#idMessagebox_Chat')
+			.off('keyup')
+			.on('keyup', function(eventHandle) {
+				if (eventHandle.keyCode !== 13) {
+					return;
+				}
+				
+				{
+					Socket.socketHandle.emit('chatHandle', {
+						'strMessage': jQuery('#idMessagebox_Chat').val()
+					});
+				}
+				
+				{
+					jQuery('#idMessagebox_Chat')
+						.val('')
+					;
+				}
+			})
+			.off('update')
+			.on('update', function() {
+				jQuery(this)
+					.css({
+						'padding-left': (jQuery(this).prev().width() + 15) + 'px'
+					})
+					.val('')
+				;
+			})
+		;
+		
+		jQuery('#idMessagebox_Chat')
+			.trigger('update')
+		;
+	}
+	
+	{
+		jQuery('#idServer_Ping')
+			.off('update')
+			.on('update', function() {
+				jQuery(this)
+					.css({
+						'padding-left': (jQuery(this).prev().width() + 15) + 'px'
+					})
+					.val('')
+				;
+			})
+		;
+		
+		jQuery('#idServer_Ping')
+			.trigger('update')
+		;
+	}
+	
+	{
+		jQuery('#idServer_Players')
+			.off('update')
+			.on('update', function() {
+				jQuery(this)
+					.css({
+						'padding-left': (jQuery(this).prev().width() + 15) + 'px'
+					})
+					.val('')
+				;
+			})
+		;
+		
+		jQuery('#idServer_Players')
+			.trigger('update')
+		;
+	}
+	
+	{
+		jQuery('#idServer_Map')
+			.off('update')
+			.on('update', function() {
+				jQuery(this)
+					.css({
+						'padding-left': (jQuery(this).prev().width() + 15) + 'px'
+					})
+					.val('')
+				;
+			})
+		;
+		
+		jQuery('#idServer_Map')
+			.trigger('update')
+		;
+	}
+	
+	{
+		jQuery('#idTeamRed_Players')
+			.off('update')
+			.on('update', function() {
+				jQuery(this)
+					.css({
+						'padding-left': (jQuery(this).prev().width() + 15) + 'px'
+					})
+					.val('')
+				;
+			})
+		;
+		
+		jQuery('#idTeamRed_Players')
+			.trigger('update')
+		;
+	}
+	
+	{
+		jQuery('#idTeamRed_Score')
+			.off('update')
+			.on('update', function() {
+				jQuery(this)
+					.css({
+						'padding-left': (jQuery(this).prev().width() + 15) + 'px'
+					})
+					.val('')
+				;
+			})
+		;
+		
+		jQuery('#idTeamRed_Score')
+			.trigger('update')
+		;
+	}
+	
+	{
+		jQuery('#idTeamBlue_Players')
+			.off('update')
+			.on('update', function() {
+				jQuery(this)
+					.css({
+						'padding-left': (jQuery(this).prev().width() + 15) + 'px'
+					})
+					.val('')
+				;
+			})
+		;
+		
+		jQuery('#idTeamBlue_Players')
+			.trigger('update')
+		;
+	}
+	
+	{
+		jQuery('#idTeamBlue_Score')
+			.off('update')
+			.on('update', function() {
+				jQuery(this)
+					.css({
+						'padding-left': (jQuery(this).prev().width() + 15) + 'px'
+					})
+					.val('')
+				;
+			})
+		;
+		
+		jQuery('#idTeamBlue_Score')
+			.trigger('update')
+		;
+	}
+	
+	{
+		jQuery('#idModal')
+			.css({
+				'visibility': 'visible'
+			})
+		;
+	}
+	
+	{
 		jQuery('#idLoading')
-			.dialog({
-				'autoOpen': true,
-				'closeOnEscape': false,
-				'dialogClass': 'no-titlebar',
-				'height': 'auto',
-				'minHeight': 0,
-				'minWidth': 0,
-				'modal': true,
-				'resizable': false,
-				'width': 'auto'
+			.css({
+				'visibility': 'visible'
 			})
 		;
 	}
 	
 	{
 		jQuery('#idLogin')
-			.dialog({
-				'autoOpen': false,
-				'closeOnEscape': false,
-				'dialogClass': 'no-close',
-				'height': 'auto',
-				'minHeight': 0,
-				'minWidth': 0,
-				'modal': true,
-				'resizable': false,
-				'width': 422
+			.css({
+				'visibility': 'hidden'
 			})
+		;
+	}
+	
+	{
+		jQuery('#idLogin_Name')
+			.off('update')
+			.on('update', function() {
+				jQuery(this)
+					.css({
+						'padding-left': (jQuery(this).prev().width() + 15) + 'px'
+					})
+					.val('')
+				;
+			})
+		;
+		
+		jQuery('#idLogin_Name')
+			.trigger('update')
+		;
+	}
+	
+	{
+		jQuery('#idLogin_Password')
+			.off('update')
+			.on('update', function() {
+				jQuery(this)
+					.css({
+						'padding-left': (jQuery(this).prev().width() + 15) + 'px'
+					})
+					.val('')
+				;
+			})
+		;
+		
+		jQuery('#idLogin_Password')
+			.trigger('update')
 		;
 	}
 
@@ -40,15 +230,29 @@ jQuery(document).ready(function() {
 		
 		jQuery('#idLogin_Team')
 			.selectmenu({
-				'disabled': false,
-				'width': 300
+				'disabled': false
+			})
+			.off('update')
+			.on('update', function() {
+				jQuery(this).next()
+					.css({
+						'width': '100%',
+						'box-sizing': 'border-box',
+						'background': 'none'
+					})
+				;
+				
+				jQuery(this).next().find('.ui-selectmenu-text')
+					.css({
+						'padding': '0.4em 1em 0.4em 62px',
+						'padding-left': (jQuery(this).prev().width() + 15) + 'px'
+					})
+				;
 			})
 		;
 		
-		jQuery('#idLogin_Team').closest('.ui-dialog').find('.ui-selectmenu-button')
-			.css({
-				'background': 'none'
-			})
+		jQuery('#idLogin_Team')
+			.trigger('update')
 		;
 	}
 	
@@ -63,12 +267,18 @@ jQuery(document).ready(function() {
 			.off('click')
 			.on('click', function() {
 				{
-					jQuery('#idLogin')
-						.dialog('close')
-					;
-					
 					jQuery('#idLoading')
-						.dialog('open')
+						.css({
+							'visibility': 'visible'
+						})
+					;
+				}
+				
+				{
+					jQuery('#idLogin')
+						.css({
+							'visibility': 'hidden'
+						})
 					;
 				}
 				
@@ -85,16 +295,8 @@ jQuery(document).ready(function() {
 	
 	{
 		jQuery('#idInformation')
-			.dialog({
-				'autoOpen': false,
-				'closeOnEscape': false,
-				'dialogClass': 'no-close',
-				'height': 'auto',
-				'minHeight': 0,
-				'minWidth': 0,
-				'modal': false,
-				'resizable': false,
-				'width': 550
+			.css({
+				'visibility': 'hidden'
 			})
 		;
 	}
@@ -138,25 +340,8 @@ jQuery(document).ready(function() {
 	}
 	
 	{
-		jQuery('#idMessagebox_Chat')
-			.off('keyup')
-			.on('keyup', function(eventHandle) {
-				if (eventHandle.keyCode !== 13) {
-					return;
-				}
-				
-				{
-					Socket.socketHandle.emit('chatHandle', {
-						'strMessage': jQuery('#idMessagebox_Chat').val()
-					});
-				}
-				
-				{
-					jQuery('#idMessagebox_Chat')
-						.val('')
-					;
-				}
-			})
+		jQuery('#idToolbar_Buildphase')
+			.buttonset()
 		;
 	}
 });
@@ -192,7 +377,13 @@ var Voxel = {
 				'distance': 8,
 				'wireframeLinewidth': 16,
 				'wireframeOpacity': 1.0,
-				'color': 0x0044CC
+				'color': 0xFFFFFF,
+				'adjacentActive': function() {
+					
+				},
+				'selectActive': function() {
+					
+				}
 			});
 			
 			Voxel.voxelhighlightHandle.positionCreate = null;
@@ -365,11 +556,17 @@ var Socket = {
 						if (jsonHandle.strType === 'typeReject') {
 							{
 								jQuery('#idLoading')
-									.dialog('close')
+									.css({
+										'visibility': 'hidden'
+									})
 								;
-								
+							}
+							
+							{
 								jQuery('#idLogin')
-									.dialog('open')
+									.css({
+										'visibility': 'visible'
+									})
 								;
 							}
 							
@@ -381,14 +578,14 @@ var Socket = {
 							
 							{
 								if (jsonHandle.strMessage === '') {
-									jQuery('#idLogin').children().slice(0, 3)
+									jQuery('#idLogin').find('.ui-dialog-content').children().slice(0, 2)
 										.css({
 											'display': 'none'
 										})
 									;
 									
 								} else if (jsonHandle.strMessage !== '') {
-									jQuery('#idLogin').children().slice(0, 3)
+									jQuery('#idLogin').find('.ui-dialog-content').children().slice(0, 2)
 										.css({
 											'display': 'block'
 										})
@@ -399,14 +596,34 @@ var Socket = {
 							
 						} else if (jsonHandle.strType === 'typeAccept') {
 							{
+								jQuery('#idModal')
+									.css({
+										'visibility': 'hidden'
+									})
+								;
+							}
+							
+							{
 								jQuery('#idLoading')
-									.dialog('close')
+									.css({
+										'visibility': 'hidden'
+									})
+								;
+							}
+							
+							{
+								jQuery('#idLogin')
+									.css({
+										'visibility': 'hidden'
+									})
 								;
 							}
 							
 							{
 								jQuery('#idInformation')
-									.dialog('open')
+									.css({
+										'visibility': 'visible'
+									})
 								;
 							}
 							
@@ -536,7 +753,9 @@ var Input = {
 							
 							{
 								jQuery('#idInformation')
-									.dialog('close')
+									.css({
+										'visibility': 'hidden'
+									})
 								;
 							}
 							
