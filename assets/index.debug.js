@@ -1,5 +1,13 @@
 jQuery(document).ready(function() {
 	{
+		jQuery('#idWestside')
+			.css({
+				'display': 'block'
+			})
+		;
+	}
+	
+	{
 		jQuery('#idMessagebox_Chat')
 			.off('keyup')
 			.on('keyup', function(eventHandle) {
@@ -36,6 +44,14 @@ jQuery(document).ready(function() {
 	}
 	
 	{
+		jQuery('#idEastside')
+			.css({
+				'display': 'block'
+			})
+		;
+	}
+	
+	{
 		jQuery('#idServer_Ping')
 			.off('update')
 			.on('update', function() {
@@ -85,6 +101,24 @@ jQuery(document).ready(function() {
 		;
 		
 		jQuery('#idServer_Map')
+			.trigger('update')
+		;
+	}
+	
+	{
+		jQuery('#idServer_Phase')
+			.off('update')
+			.on('update', function() {
+				jQuery(this)
+					.css({
+						'padding-left': (jQuery(this).prev().width() + 15) + 'px'
+					})
+					.val('')
+				;
+			})
+		;
+		
+		jQuery('#idServer_Phase')
 			.trigger('update')
 		;
 	}
@@ -157,6 +191,102 @@ jQuery(document).ready(function() {
 		;
 		
 		jQuery('#idTeamBlue_Score')
+			.trigger('update')
+		;
+	}
+	
+	{
+		jQuery('#idToolbar')
+			.css({
+				'display': 'none'
+			})
+		;
+	}
+	
+	{
+		jQuery('#idPhaseBuild')
+			.css({
+				'display': 'none'
+			})
+		;
+	}
+	
+	{
+		jQuery('#idPhaseBuild_Chooser')
+			.off('update')
+			.on('update', function() {
+				jQuery(this).find('a')
+					.css({
+						'background': 'none',
+						'background-color': '#F2F2F2'
+					})
+				;
+				
+				if (Settings.strChooser == 'chooserCreate') {
+					jQuery(this).find('a').eq(0)
+						.css({
+							'background': 'none',
+							'background-color': '#FFFFFF'
+						})
+					;
+					
+				} else if (Settings.strChooser == 'chooserDestroy') {
+					jQuery(this).find('a').eq(1)
+						.css({
+							'background': 'none',
+							'background-color': '#FFFFFF'
+						})
+					;
+					
+				}
+			})
+		;
+	
+		jQuery('#idPhaseBuild_Chooser')
+			.trigger('update')
+		;
+	}
+	
+	{
+		jQuery('#idPhaseCombat')
+			.css({
+				'display': 'none'
+			})
+		;
+	}
+	
+	{
+		jQuery('#idPhaseCombat_Chooser')
+			.off('update')
+			.on('update', function() {
+				jQuery(this).find('a')
+					.css({
+						'background': 'none',
+						'background-color': '#F2F2F2'
+					})
+				;
+				
+				if (Settings.strChooser == 'chooserSword') {
+					jQuery(this).find('a').eq(0)
+						.css({
+							'background': 'none',
+							'background-color': '#FFFFFF'
+						})
+					;
+					
+				} else if (Settings.strChooser == 'chooserBow') {
+					jQuery(this).find('a').eq(1)
+						.css({
+							'background': 'none',
+							'background-color': '#FFFFFF'
+						})
+					;
+					
+				}
+			})
+		;
+
+		jQuery('#idPhaseCombat_Chooser')
 			.trigger('update')
 		;
 	}
@@ -338,13 +468,43 @@ jQuery(document).ready(function() {
 			})
 		;
 	}
-	
-	{
-		jQuery('#idToolbar_Buildphase')
-			.buttonset()
-		;
-	}
 });
+
+var Settings = {
+	strMode: '',
+	strChooser: '',
+	
+	strMapActive: '',
+	strPhaseActive: '',
+	
+	init: function() {
+		{
+			Settings.strMode = 'modeMenu';
+			
+			Settings.strChooser = '';
+		}
+		
+		{
+			Settings.strMapActive = '';
+			
+			Settings.strPhaseActive = '';
+		}
+	},
+	
+	dispel: function() {
+		{
+			Settings.strMode = '';
+			
+			Settings.strChooser = '';
+		}
+		
+		{
+			Settings.strMapActive = '';
+			
+			Settings.strPhaseActive = '';
+		}
+	}
+};
 
 var Voxel = {
 	voxelengineHandle: null,
@@ -373,16 +533,30 @@ var Voxel = {
 		}
 		
 		{
+			// TODO: only select one
+			
 			Voxel.voxelhighlightHandle = require('voxel-highlight')(Voxel.voxelengineHandle, {
 				'distance': 8,
 				'wireframeLinewidth': 16,
 				'wireframeOpacity': 1.0,
 				'color': 0xFFFFFF,
 				'adjacentActive': function() {
+					if (Settings.strChooser === 'chooserCreate') {
+						if (Settings.strPhaseActive === 'Build') {
+							return true;
+						}
+					}
 					
+					return false;
 				},
 				'selectActive': function() {
+					if (Settings.strChooser === 'chooserDestroy') {
+						if (Settings.strPhaseActive === 'Build') {
+							return true;
+						}
+					}
 					
+					return false;
 				}
 			});
 			
@@ -472,7 +646,7 @@ var Socket = {
 					'transports': [ 'websocket' ]
 				});
 				
-				Socket.socketHandle.on('onlineHandle', function(jsonHandle) {
+				Socket.socketHandle.on('pingHandle', function(jsonHandle) {
 					{
 						jQuery('#idServer_Ping')
 							.val(new Date().getTime() - Socket.intPing)
@@ -484,6 +658,10 @@ var Socket = {
 						
 						jQuery('#idServer_Map')
 							.val(jsonHandle.serverHandle.strMapActive)
+						;
+						
+						jQuery('#idServer_Phase')
+							.val(jsonHandle.serverHandle.strPhaseActive + ' - ' + jsonHandle.serverHandle.intPhaseRemaining + ' seconds remaining' + ' - ' + jsonHandle.serverHandle.intPhaseRound + ' rounds left')
 						;
 					}
 					
@@ -705,13 +883,65 @@ var Socket = {
 					}
 				});
 				
+				Socket.socketHandle.on('settingsHandle', function(jsonHandle) {
+					if ((jsonHandle.strChange === 'changeLogin') | (jsonHandle.strChange === 'changeMap')) {
+						{
+							Settings.strMapActive = jsonHandle.strMapActive;
+						}
+						
+						{
+							// TODO: load map
+						}
+					}
+					
+					if ((jsonHandle.strChange === 'changeLogin') | (jsonHandle.strChange === 'changePhase')) {
+						{
+							Settings.strPhaseActive = jsonHandle.strPhaseActive;
+						}
+						
+						{
+							if (jsonHandle.strPhaseActive === 'Build') {
+								{
+									jQuery('#idPhaseBuild')
+										.css({
+											'display': 'inline-block'
+										})
+									;
+									
+									jQuery('#idPhaseCombat')
+										.css({
+											'display': 'none'
+										})
+									;
+								}
+								
+							} else if (jsonHandle.strPhaseActive === 'Combat') {
+								{
+									jQuery('#idPhaseBuild')
+										.css({
+											'display': 'none'
+										})
+									;
+									
+									jQuery('#idPhaseCombat')
+										.css({
+											'display': 'inline-block'
+										})
+									;
+								}
+								
+							}
+						}
+					}
+				});
+				
 				setInterval(function() {
 					{
 						Socket.intPing = new Date().getTime();
 					}
 					
 					{
-						Socket.socketHandle.emit('onlineHandle', {});
+						Socket.socketHandle.emit('pingHandle', {});
 					}
 				}, 1000);
 			});
@@ -734,21 +964,15 @@ var Socket = {
 };
 
 var Input = {
-	strStatus: '',
-	
 	init: function() {
-		{
-			Input.strStatus = 'statusMenu';
-		}
-		
 		{
 			jQuery(document.body)
 				.off('keydown')
 				.on('keydown', function(eventHandle) {
-					if (Input.strStatus === 'statusMenu') {
+					if (Settings.strMode === 'modeMenu') {
 						if (eventHandle.keyCode === 9) {
 							{
-								Input.strStatus = 'statusGame';
+								Settings.strMode = 'modeGame';
 							}
 							
 							{
@@ -771,13 +995,19 @@ var Input = {
 										'display': 'none'
 									})
 								;
+								
+								jQuery('#idToolbar')
+									.css({
+										'display': 'block'
+									})
+								;
 							}
 						}
 						
-					} else if (Input.strStatus === 'statusGame') {
+					} else if (Settings.strMode === 'modeGame') {
 						if (eventHandle.keyCode === 9) {
 							{
-								Input.strStatus = 'statusMenu';
+								Settings.strMode = 'modeMenu';
 							}
 							
 							{
@@ -792,7 +1022,65 @@ var Input = {
 										'display': 'block'
 									})
 								;
+								
+								jQuery('#idToolbar')
+									.css({
+										'display': 'none'
+									})
+								;
 							}
+						}
+						
+						if (Settings.strPhaseActive === 'Build') {
+							if (eventHandle.keyCode === 49) {
+								{
+									Settings.strChooser = 'chooserCreate';
+								}
+								
+								{
+									jQuery('#idPhaseBuild_Chooser')
+										.trigger('update')
+									;
+								}
+								
+							} else if (eventHandle.keyCode === 50) {
+								{
+									Settings.strChooser = 'chooserDestroy';
+								}
+								
+								{
+									jQuery('#idPhaseBuild_Chooser')
+										.trigger('update')
+									;
+								}
+								
+							}
+							
+						} else if (Settings.strPhaseActive === 'Combat') {
+							if (eventHandle.keyCode === 49) {
+								{
+									Settings.strChooser = 'chooserSword';
+								}
+								
+								{
+									jQuery('#idPhaseCombat_Chooser')
+										.trigger('update')
+									;
+								}
+								
+							} else if (eventHandle.keyCode === 50) {
+								{
+									Settings.strChooser = 'chooserBow';
+								}
+								
+								{
+									jQuery('#idPhaseCombat_Chooser')
+										.trigger('update')
+									;
+								}
+								
+							}
+							
 						}
 						
 					}
@@ -806,9 +1094,7 @@ var Input = {
 	},
 	
 	dispel: function() {
-		{
-			Input.strStatus = '';
-		}
+		
 	}
 };
 
@@ -1135,6 +1421,8 @@ var Enemy = {
 
 jQuery(document).ready(function() {
 	{
+		Settings.init();
+		
 		Voxel.init();
 		
 		Socket.init();

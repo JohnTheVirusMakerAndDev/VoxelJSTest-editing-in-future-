@@ -221,7 +221,7 @@ var Node = {
 			});
 		}
 		
-		socketHandle.on('onlineHandle', function(jsonHandle) {
+		socketHandle.on('pingHandle', function(jsonHandle) {
 			{
 				var jsonHandle = {
 					'serverHandle': {},
@@ -234,6 +234,9 @@ var Node = {
 						'intPlayerActive': Gameserver.intPlayerActive,
 						'strMapActive': Gameserver.strMapActive,
 						'strMapAvailable': Gameserver.strMapAvailable,
+						'strPhaseActive': Gameserver.strPhaseActive,
+						'intPhaseRemaining': Gameserver.intPhaseRemaining,
+						'intPhaseRound': Gameserver.intPhaseRound,
 						'intScoreRed': Gameserver.intScoreRed,
 						'intScoreBlue': Gameserver.intScoreBlue
 					};
@@ -260,7 +263,7 @@ var Node = {
 					}
 				}
 				
-				socketHandle.emit('onlineHandle', jsonHandle);
+				socketHandle.emit('pingHandle', jsonHandle);
 			}
 		});
 		
@@ -338,6 +341,14 @@ var Node = {
 				socketHandle.emit('loginHandle', {
 					'strType': 'typeAccept',
 					'strMessage': ''
+				});
+			}
+			
+			{
+				Socket.serverHandle.emit('settingsHandle', {
+					'strChange': 'changeLogin',
+					'strMapActive': Gameserver.strMapActive,
+					'strPhaseActive': Gameserver.strPhaseActive
 				});
 			}
 		});
@@ -465,6 +476,9 @@ var Gameserver = {
 	intPlayerCapacity: 0,
 	strMapActive: '',
 	strMapAvailable: [],
+	strPhaseActive: '',
+	intPhaseRemaining: 0,
+	intPhaseRound: 0,
 	intScoreRed: 0,
 	intScoreBlue: 0,
 	
@@ -487,6 +501,12 @@ var Gameserver = {
 			Gameserver.strMapActive = '';
 			
 			Gameserver.strMapAvailable = [];
+
+			Gameserver.strPhaseActive = 'Build';
+			
+			Gameserver.intPhaseRemaining = 5 * 60; // TODO: put into settings
+			
+			Gameserver.intPhaseRound = 3; // TODO: put into settings
 			
 			Gameserver.intScoreRed = 0;
 			
@@ -522,6 +542,70 @@ var Gameserver = {
 				}
 			}
 		}
+		
+		{
+			var functionInterval = function() {
+				{
+					Gameserver.intPhaseRemaining -= 1;
+				}
+				
+				{
+					if (Gameserver.intPhaseRemaining === 0) {
+						{
+							if (Gameserver.strPhaseActive === 'Build') {
+								{
+									Gameserver.strPhaseActive = 'Combat';
+								}
+								
+								{
+									Gameserver.intPhaseRemaining = 5 * 60; // TODO: put into settings
+								}
+								
+							} else if (Gameserver.strPhaseActive === 'Combat') {
+								{
+									Gameserver.strPhaseActive = 'Build';
+								}
+								
+								{
+									Gameserver.intPhaseRemaining = 5 * 60; // TODO: put into settings
+								}
+								
+								{
+									Gameserver.intPhaseRound -= 1;
+								}
+								
+							}
+						}
+						
+						{
+							Socket.serverHandle.emit('settingsHandle', {
+								'strChange': 'changePhase',
+								'strMapActive': Gameserver.strMapActive,
+								'strPhaseActive': Gameserver.strPhaseActive
+							});
+						}
+					}
+				}
+				
+				{
+					if (Gameserver.intPhaseRound === 0) {
+						{
+							// TODO: change map
+						}
+						
+						{
+							Socket.serverHandle.emit('settingsHandle', {
+								'strChange': 'changeMap',
+								'strMapActive': Gameserver.strMapActive,
+								'strPhaseActive': Gameserver.strPhaseActive
+							});
+						}
+					}
+				}
+			};
+			
+			setInterval(functionInterval, 1000);
+		}
 	},
 	
 	dispel: function() {
@@ -541,6 +625,12 @@ var Gameserver = {
 			Gameserver.strMapActive = '';
 			
 			Gameserver.strMapAvailable = [];
+			
+			Gameserver.strPhaseActive = '';
+			
+			Gameserver.intPhaseRemaining = 0;
+			
+			Gameserver.intPhaseRound = 0;
 			
 			Gameserver.intScoreRed = 0;
 			

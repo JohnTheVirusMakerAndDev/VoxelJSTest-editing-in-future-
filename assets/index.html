@@ -154,6 +154,15 @@
 						</div>
 						<input class="ui-widget ui-state-default ui-corner-all" id="idServer_Map"  type="text" style="width:100%; box-sizing:border-box; padding:0.4em 1.0em 0.4em 1em; background:none;" />
 					</div>
+					
+					<div style="height:8px;"></div>
+					
+					<div style="position:relative;">
+						<div style="position:absolute; top:10px; left:10px; z-index:128; font-weight:bold;">
+							Phase:
+						</div>
+						<input class="ui-widget ui-state-default ui-corner-all" id="idServer_Phase" type="text" style="width:100%; box-sizing:border-box; padding:0.4em 1.0em 0.4em 1em; background:none;" />
+					</div>
 				</div>
 			</div>
 			
@@ -226,6 +235,38 @@
 							<th width="1%">Deaths</th>
 						</tr>
 					</table>
+				</div>
+			</div>
+		</div>
+		
+		<div id="idToolbar" style="position:fixed; left:0px; right:0px; bottom:0px; height:100px; text-align:center;">
+			<div id="idPhaseBuild" class="ui-dialog ui-widget ui-widget-content ui-corner-all" style="display:inline-block; position:static; padding:0.4em 1.0em 0.4em 1em;">
+				<div class="ui-dialog-content ui-widget-content">
+					<div id="idPhaseBuild_Chooser" class="ui-buttonset">
+						<a class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary">
+							<span class="ui-button-icon-primary ui-icon ui-icon-check"></span>
+							<span class="ui-button-text">Create</span>
+						</a>
+						<a class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary">
+							<span class="ui-button-icon-primary ui-icon ui-icon-check"></span>
+							<span class="ui-button-text">Destroy</span>
+						</a>
+					</div>
+				</div>
+			</div>
+			
+			<div id="idPhaseCombat" class="ui-dialog ui-widget ui-widget-content ui-corner-all" style="display:inline-block; position:static; padding:0.4em 1.0em 0.4em 1em;">
+				<div class="ui-dialog-content ui-widget-content">
+					<div id="idPhaseCombat_Chooser" class="ui-buttonset">
+						<a class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary">
+							<span class="ui-button-icon-primary ui-icon ui-icon-check"></span>
+							<span class="ui-button-text">Sword</span>
+						</a>
+						<a class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary">
+							<span class="ui-button-icon-primary ui-icon ui-icon-check"></span>
+							<span class="ui-button-text">Bow</span>
+						</a>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -303,23 +344,6 @@
 			<div class="ui-dialog-content ui-widget-content" style="padding:1em;">
 				<div style="text-align:justify; line-height:200%;">
 					Use the <button id="idInformation_Tab">tab</button> key in order to toggle between the game and the menu. In order to control your player, you have to click inside the world and let the game take control over your mouse. When your mouse is being locked inside the browser, use the <button id="idInformation_Esc">esc</button> key in order to release it again.
-				</div>
-			</div>
-		</div>
-		
-		<div style="position:fixed; left:0px; right:0px; bottom:0px; text-align:center;">
-			<div class="ui-dialog ui-widget ui-widget-content ui-corner-all" style="display:inline-block; padding:0.4em 1.0em 0.4em 1em;">
-				<div class="ui-dialog-content ui-widget-content">
-					<div id="idToolbar_Buildphase">
-						<label>
-							<input id="idToolbar_BuildphaseCreate" type="radio" name="radioToolbar_Buildphase">
-							Create
-						</label>
-						<label>
-							<input id="idToolbar_BuildphaseDestroy" type="radio" name="radioToolbar_Buildphase">
-							Destroy
-						</label>
-					</div>
 				</div>
 			</div>
 		</div>
