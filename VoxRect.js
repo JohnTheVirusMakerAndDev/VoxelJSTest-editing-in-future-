@@ -453,6 +453,34 @@ var Node = {
 			}
 		});
 		
+		socketHandle.on('voxelHandle', function(jsonHandle) {
+			if (jsonHandle.intType === undefined) {
+				return;
+				
+			} else if (jsonHandle.intCoordinate === undefined) {
+				return;
+				
+			} else if (jsonHandle.intCoordinate.length !== 3) {
+				return;
+				
+			}
+			
+			if (Gameserver.playerHandle[socketHandle.id].strStatus === 'teamLogin') {
+				return;
+			}
+			
+			{
+				Gameserver.intMapDatabase[jsonHandle.intCoordinate[0] + ':' + jsonHandle.intCoordinate[1] + ':' + jsonHandle.intCoordinate[2]] = jsonHandle.intType;
+			}
+			
+			{
+				Socket.serverHandle.emit('voxelHandle', {
+					'intType': jsonHandle.intType,
+					'intCoordinate': jsonHandle.intCoordinate
+				});
+			}
+		});
+		
 		socketHandle.on('disconnect', function() {
 			{
 				if (Gameserver.playerHandle[socketHandle.id].strTeam !== 'teamLogin') {
@@ -476,6 +504,7 @@ var Gameserver = {
 	intPlayerCapacity: 0,
 	strMapActive: '',
 	strMapAvailable: [],
+	intMapDatabase: {},
 	strPhaseActive: '',
 	intPhaseRemaining: 0,
 	intPhaseRound: 0,
@@ -501,12 +530,14 @@ var Gameserver = {
 			Gameserver.strMapActive = '';
 			
 			Gameserver.strMapAvailable = [];
+			
+			Gameserver.intMapDatabase = {};
 
 			Gameserver.strPhaseActive = 'Build';
 			
-			Gameserver.intPhaseRemaining = 5 * 60; // TODO: put into settings
+			Gameserver.intPhaseRemaining = process.env.intPhaseRemaining;
 			
-			Gameserver.intPhaseRound = 3; // TODO: put into settings
+			Gameserver.intPhaseRound = process.env.intPhaseRound;
 			
 			Gameserver.intScoreRed = 0;
 			
@@ -544,6 +575,18 @@ var Gameserver = {
 		}
 		
 		{
+			var objectMap = JSON.parse(Node.fsHandle.readFileSync(__dirname + '/maps' + Gameserver.strMapActive + '.json').toString());
+			
+			{
+				Gameserver.intMapDatabase = objectMap.intMapDatabase;
+			}
+			
+			{
+				// TODO: spawn / flag coordinates
+			}
+		}
+		
+		{
 			var functionInterval = function() {
 				{
 					Gameserver.intPhaseRemaining -= 1;
@@ -558,7 +601,7 @@ var Gameserver = {
 								}
 								
 								{
-									Gameserver.intPhaseRemaining = 5 * 60; // TODO: put into settings
+									Gameserver.intPhaseRemaining = process.env.intPhaseRemaining;
 								}
 								
 							} else if (Gameserver.strPhaseActive === 'Combat') {
@@ -567,7 +610,7 @@ var Gameserver = {
 								}
 								
 								{
-									Gameserver.intPhaseRemaining = 5 * 60; // TODO: put into settings
+									Gameserver.intPhaseRemaining = process.env.intPhaseRemaining;
 								}
 								
 								{
@@ -625,6 +668,8 @@ var Gameserver = {
 			Gameserver.strMapActive = '';
 			
 			Gameserver.strMapAvailable = [];
+			
+			Gameserver.intMapDatabase = {};
 			
 			Gameserver.strPhaseActive = '';
 			

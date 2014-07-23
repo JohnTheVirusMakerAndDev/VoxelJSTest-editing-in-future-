@@ -161,7 +161,9 @@
 						<div style="position:absolute; top:10px; left:10px; z-index:128; font-weight:bold;">
 							Phase:
 						</div>
-						<input class="ui-widget ui-state-default ui-corner-all" id="idServer_Phase" type="text" style="width:100%; box-sizing:border-box; padding:0.4em 1.0em 0.4em 1em; background:none;" />
+						<div class="ui-widget ui-state-default ui-corner-all" id="idServer_Phase" style="padding:0.8em 1.0em 0.8em 1em; background:none;">
+							
+						</div>
 					</div>
 				</div>
 			</div>
@@ -240,9 +242,9 @@
 		</div>
 		
 		<div id="idToolbar" style="position:fixed; left:0px; right:0px; bottom:0px; height:100px; text-align:center;">
-			<div id="idPhaseBuild" class="ui-dialog ui-widget ui-widget-content ui-corner-all" style="display:inline-block; position:static; padding:0.4em 1.0em 0.4em 1em;">
-				<div class="ui-dialog-content ui-widget-content">
-					<div id="idPhaseBuild_Chooser" class="ui-buttonset">
+			<div id="idPhaseBuild" class="ui-dialog ui-widget ui-widget-content ui-corner-all" style="display:inline-block; position:static;">
+				<div class="ui-dialog-content ui-widget-content" style="padding:1em;">
+					<div id="idPhaseBuild_Chooser">
 						<a class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary">
 							<span class="ui-button-icon-primary ui-icon ui-icon-check"></span>
 							<span class="ui-button-text">Create</span>
@@ -255,9 +257,9 @@
 				</div>
 			</div>
 			
-			<div id="idPhaseCombat" class="ui-dialog ui-widget ui-widget-content ui-corner-all" style="display:inline-block; position:static; padding:0.4em 1.0em 0.4em 1em;">
-				<div class="ui-dialog-content ui-widget-content">
-					<div id="idPhaseCombat_Chooser" class="ui-buttonset">
+			<div id="idPhaseCombat" class="ui-dialog ui-widget ui-widget-content ui-corner-all" style="display:inline-block; position:static;">
+				<div class="ui-dialog-content ui-widget-content" style="padding:1em;">
+					<div id="idPhaseCombat_Chooser">
 						<a class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary">
 							<span class="ui-button-icon-primary ui-icon ui-icon-check"></span>
 							<span class="ui-button-text">Sword</span>
@@ -297,7 +299,7 @@
 				<div style="height:8px;"></div>
 				
 				<div style="position:relative;">
-					<div style="position:absolute; top:11px; left:10px; z-index:128; font-weight:bold;">
+					<div style="position:absolute; top:10px; left:10px; z-index:128; font-weight:bold;">
 						Name:
 					</div>
 					<input class="ui-widget ui-state-default ui-corner-all" id="idLogin_Name" type="text" style="width:100%; box-sizing:border-box; padding:0.4em 1.0em 0.4em 1em; background:none;" />
@@ -306,7 +308,7 @@
 				<div style="height:8px;"></div>
 				
 				<div style="position:relative;">
-					<div style="position:absolute; top:11px; left:10px; z-index:128; font-weight:bold;">
+					<div style="position:absolute; top:10px; left:10px; z-index:128; font-weight:bold;">
 						Password:
 					</div>
 					{{#objectGameserver.intLoginPassword}}
@@ -320,7 +322,7 @@
 				<div style="height:8px;"></div>
 				
 				<div style="position:relative;">
-					<div style="position:absolute; top:9px; left:10px; z-index:128; font-weight:bold;">
+					<div style="position:absolute; top:10px; left:10px; z-index:128; font-weight:bold;">
 						Team:
 					</div>
 					<select id="idLogin_Team">

@@ -113,7 +113,7 @@ jQuery(document).ready(function() {
 					.css({
 						'padding-left': (jQuery(this).prev().width() + 15) + 'px'
 					})
-					.val('')
+					.html('')
 				;
 			})
 		;
@@ -285,7 +285,7 @@ jQuery(document).ready(function() {
 				}
 			})
 		;
-
+		
 		jQuery('#idPhaseCombat_Chooser')
 			.trigger('update')
 		;
@@ -520,8 +520,12 @@ var Voxel = {
 		{
 			Voxel.voxelengineHandle = require('voxel-engine')({
 				'texturePath': './textures/',
-				'generate': function(x, y, z) {
-						return y === -2 ? 1 : 0;
+				'generate': function(intX, intY, intZ) {
+					if (intY === 0) {
+						return 1;
+					}
+					
+					return 0;
 				},
 				'controls': {
 					'discreteFire': true
@@ -533,16 +537,28 @@ var Voxel = {
 		}
 		
 		{
-			// TODO: only select one
-			
+			// TODO: commit changes to voxel-highlight
 			Voxel.voxelhighlightHandle = require('voxel-highlight')(Voxel.voxelengineHandle, {
+				'enabled': function() {
+					if (Settings.strPhaseActive === 'Build') {
+						if (Settings.strChooser === 'chooserCreate') {
+							return true;
+							
+						} else if (Settings.strChooser === 'chooserDestroy') {
+							return true;
+							
+						}
+					}
+					
+					return false;
+				},
 				'distance': 8,
 				'wireframeLinewidth': 16,
 				'wireframeOpacity': 1.0,
 				'color': 0xFFFFFF,
 				'adjacentActive': function() {
-					if (Settings.strChooser === 'chooserCreate') {
-						if (Settings.strPhaseActive === 'Build') {
+					if (Settings.strPhaseActive === 'Build') {
+						if (Settings.strChooser === 'chooserCreate') {
 							return true;
 						}
 					}
@@ -550,12 +566,6 @@ var Voxel = {
 					return false;
 				},
 				'selectActive': function() {
-					if (Settings.strChooser === 'chooserDestroy') {
-						if (Settings.strPhaseActive === 'Build') {
-							return true;
-						}
-					}
-					
 					return false;
 				}
 			});
@@ -661,7 +671,7 @@ var Socket = {
 						;
 						
 						jQuery('#idServer_Phase')
-							.val(jsonHandle.serverHandle.strPhaseActive + ' - ' + jsonHandle.serverHandle.intPhaseRemaining + ' seconds remaining' + ' - ' + jsonHandle.serverHandle.intPhaseRound + ' rounds left')
+							.html(jsonHandle.serverHandle.strPhaseActive + '<div style="padding:0.8em 0.0em 0.0em 0.0em; font-size:10px;">with ' + jsonHandle.serverHandle.intPhaseRemaining + ' seconds remainin and ' + jsonHandle.serverHandle.intPhaseRound + ' rounds left</div>')
 						;
 					}
 					
@@ -868,6 +878,7 @@ var Socket = {
 									dblVerletZ = dblPositionZ - (playerHandle.dblPosition[2] - playerHandle.dblVerlet[2]);
 								}
 								
+								// TODO: why do we submit the walktime? (we have to manually set in for each player object on update arrival)
 								playerOverwrite[playerHandle.strSocket] = {
 									'strSocket': playerHandle.strSocket,
 									'dblPosition': [ dblPositionX, dblPositionY, dblPositionZ ],
@@ -880,6 +891,12 @@ var Socket = {
 						}
 						
 						Socket.playerHandle = playerOverwrite;
+					}
+				});
+				
+				Socket.socketHandle.on('voxelHandle', function(jsonHandle) {
+					{
+						Voxel.voxelengineHandle.setBlock(jsonHandle.intCoordinate, jsonHandle.intType);
 					}
 				});
 				
@@ -1114,7 +1131,8 @@ var Player = {
 			Player.physicsHandle = Voxel.voxelengineHandle.makePhysical(Player.minecraftskinHandle.mesh);
 
 			{
-				Player.minecraftskinHandle.mesh.position.set(0, 10, 0); // TODO
+				// TODO
+				Player.minecraftskinHandle.mesh.position.set(0, 10, 0);
 				
 				Player.minecraftskinHandle.mesh.cameraInside.add(Voxel.voxelengineHandle.camera);
 			}
@@ -1436,12 +1454,48 @@ jQuery(document).ready(function() {
 	
 	{
 		Voxel.voxelengineHandle.on('fire', function(targetHandle, stateHandle) {
-			{
-				if (Voxel.voxelhighlightHandle.positionCreate !== null) {
-					Voxel.voxelengineHandle.createBlock(Voxel.voxelhighlightHandle.positionCreate, 1);
+			if (Settings.strPhaseActive === 'Build') {
+				if (Settings.strChooser == 'chooserCreate') {
+					{
+						if (Voxel.voxelhighlightHandle.positionCreate !== null) {
+							{
+								Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('dirt'));
+							}
+							
+							{
+								Socket.socketHandle.emit('voxelHandle', {
+									'intType': Voxel.voxelengineHandle.materials.find('dirt'),
+									'intCoordinate': Voxel.voxelhighlightHandle.positionCreate
+								});
+							}
+						}
+					}
+					
+				} else if (Settings.strChooser == 'chooserDestroy') {
+					{
+						if (Voxel.voxelhighlightHandle.positionDestroy !== null) {
+							{
+								Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionDestroy, 0);
+							}
+							
+							{
+								Socket.socketHandle.emit('voxelHandle', {
+									'intType': 0,
+									'intCoordinate': Voxel.voxelhighlightHandle.positionDestroy
+								});
+							}
+						}
+					}
+					
 				}
 				
-				// to erase: game.setBlock(position, 0)
+			} else if (Settings.strPhaseActive === 'Build') {
+				if (Settings.strChooser == 'chooserSword') {
+					
+				} else if (Settings.strChooser == 'chooserBow') {
+					
+				}
+				
 			}
 		});
 
