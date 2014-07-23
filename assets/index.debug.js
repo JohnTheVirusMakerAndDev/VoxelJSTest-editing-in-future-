@@ -222,7 +222,7 @@ jQuery(document).ready(function() {
 					})
 				;
 				
-				if (Settings.strChooser == 'chooserCreate') {
+				if (Settings.strChooser === 'chooserCreate') {
 					jQuery(this).find('a').eq(0)
 						.css({
 							'background': 'none',
@@ -230,7 +230,7 @@ jQuery(document).ready(function() {
 						})
 					;
 					
-				} else if (Settings.strChooser == 'chooserDestroy') {
+				} else if (Settings.strChooser === 'chooserDestroy') {
 					jQuery(this).find('a').eq(1)
 						.css({
 							'background': 'none',
@@ -266,7 +266,7 @@ jQuery(document).ready(function() {
 					})
 				;
 				
-				if (Settings.strChooser == 'chooserSword') {
+				if (Settings.strChooser === 'chooserSword') {
 					jQuery(this).find('a').eq(0)
 						.css({
 							'background': 'none',
@@ -274,7 +274,7 @@ jQuery(document).ready(function() {
 						})
 					;
 					
-				} else if (Settings.strChooser == 'chooserBow') {
+				} else if (Settings.strChooser === 'chooserBow') {
 					jQuery(this).find('a').eq(1)
 						.css({
 							'background': 'none',
@@ -1455,7 +1455,7 @@ jQuery(document).ready(function() {
 	{
 		Voxel.voxelengineHandle.on('fire', function(targetHandle, stateHandle) {
 			if (Settings.strPhaseActive === 'Build') {
-				if (Settings.strChooser == 'chooserCreate') {
+				if (Settings.strChooser === 'chooserCreate') {
 					{
 						if (Voxel.voxelhighlightHandle.positionCreate !== null) {
 							{
@@ -1471,7 +1471,7 @@ jQuery(document).ready(function() {
 						}
 					}
 					
-				} else if (Settings.strChooser == 'chooserDestroy') {
+				} else if (Settings.strChooser === 'chooserDestroy') {
 					{
 						if (Voxel.voxelhighlightHandle.positionDestroy !== null) {
 							{
@@ -1490,9 +1490,9 @@ jQuery(document).ready(function() {
 				}
 				
 			} else if (Settings.strPhaseActive === 'Build') {
-				if (Settings.strChooser == 'chooserSword') {
+				if (Settings.strChooser === 'chooserSword') {
 					
-				} else if (Settings.strChooser == 'chooserBow') {
+				} else if (Settings.strChooser === 'chooserBow') {
 					
 				}
 				
