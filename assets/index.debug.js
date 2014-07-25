@@ -222,16 +222,16 @@ jQuery(document).ready(function() {
 					})
 				;
 
-				if (Settings.strChooserType === 'typeCreate') {
-					jQuery(this).find('button').eq(0)
+				if (Settings.strChooserCategory === 'categoryCreate') {
+					jQuery(this).find('button').eq(Settings.intChooserType + 0)
 						.css({
 							'background': 'none',
 							'background-color': '#FFFFFF'
 						})
 					;
 					
-				} else if (Settings.strChooserType === 'typeDestroy') {
-					jQuery(this).find('button').eq(1)
+				} else if (Settings.strChooserCategory === 'categoryDestroy') {
+					jQuery(this).find('button').eq(Settings.intChooserType + 1)
 						.css({
 							'background': 'none',
 							'background-color': '#FFFFFF'
@@ -266,22 +266,13 @@ jQuery(document).ready(function() {
 					})
 				;
 				
-				if (Settings.strChooserType === 'typeSword') {
-					jQuery(this).find('button').eq(0)
+				if (Settings.strChooserCategory === 'categoryWeapon') {
+					jQuery(this).find('button').eq(Settings.intChooserType + 0)
 						.css({
 							'background': 'none',
 							'background-color': '#FFFFFF'
 						})
 					;
-					
-				} else if (Settings.strChooserType === 'typeBow') {
-					jQuery(this).find('button').eq(1)
-						.css({
-							'background': 'none',
-							'background-color': '#FFFFFF'
-						})
-					;
-					
 				}
 			})
 		;
@@ -474,7 +465,7 @@ var Settings = {
 	strMode: '',
 
 	strChooserCategory: '',
-	strChooserType: '',
+	intChooserType: '',
 	
 	strMapActive: '',
 	
@@ -488,7 +479,7 @@ var Settings = {
 		{
 			Settings.strChooserCategory = '';
 			
-			Settings.strChooserType = '';
+			Settings.intChooserType = 0;
 		}
 		
 		{
@@ -508,7 +499,7 @@ var Settings = {
 		{
 			Settings.strChooserCategory = '';
 			
-			Settings.strChooserType = '';
+			Settings.intChooserType = 0;
 		}
 		
 		{
@@ -1065,7 +1056,7 @@ var Input = {
 								{
 									Settings.strChooserCategory = 'categoryCreate';
 									
-									Settings.strChooserType = 'typeCreate';
+									Settings.intChooserType = 0;
 								}
 								
 								{
@@ -1078,7 +1069,7 @@ var Input = {
 								{
 									Settings.strChooserCategory = 'categoryDestroy';
 									
-									Settings.strChooserType = 'typeDestroy';
+									Settings.intChooserType = 0;
 								}
 								
 								{
@@ -1094,7 +1085,7 @@ var Input = {
 								{
 									Settings.strChooserCategory = 'categoryWeapon';
 									
-									Settings.strChooserType = 'typeSword';
+									Settings.strChooserType = 0;
 								}
 								
 								{
@@ -1107,7 +1098,7 @@ var Input = {
 								{
 									Settings.strChooserCategory = 'categoryWeapon';
 									
-									Settings.strChooserType = 'typeBow';
+									Settings.strChooserType = 1;
 								}
 								
 								{
@@ -1476,7 +1467,7 @@ jQuery(document).ready(function() {
 		Voxel.voxelengineHandle.on('fire', function(targetHandle, stateHandle) {
 			if (Settings.strChooserCategory === 'categoryCreate') {
 				if (Voxel.voxelhighlightHandle.positionCreate !== null) {
-					if (Settings.strChooserType === 'typeBrick') {
+					if (Settings.intChooserType === 0) {
 						Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('dirt'));
 
 						Socket.socketHandle.emit('voxelHandle', {
@@ -1488,7 +1479,7 @@ jQuery(document).ready(function() {
 						
 			} else if (Settings.strChooserCategory === 'categoryDestroy') {
 				if (Voxel.voxelhighlightHandle.positionDestroy !== null) {
-					if (Settings.strChooserType === 'typeStone') {
+					if (Settings.intChooserType === 0) {
 						Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionDestroy, 0);
 						
 						Socket.socketHandle.emit('voxelHandle', {
@@ -1498,10 +1489,10 @@ jQuery(document).ready(function() {
 					}
 				}
 				
-			} else if (Settings.strChooserCategory === 'categoryCombat') {
-				if (Settings.strChooserType === 'typeSword') {
+			} else if (Settings.strChooserCategory === 'categoryWeapon') {
+				if (Settings.intChooserType === 0) {
 					
-				} else if (Settings.strChooserType === 'typeBow') {
+				} else if (Settings.intChooserType === 1) {
 					
 				}
 				

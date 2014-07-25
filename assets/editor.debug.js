@@ -33,98 +33,44 @@ jQuery(document).ready(function() {
 					})
 				;
 				
-				if (Settings.strChooserType === 'typeBrick') {
-					jQuery(this).find('select').next()
+				if (Settings.strChooserCategory === 'categoryCreate') {
+					jQuery(this).find('select').eq(0).next()
 						.css({
 							'background': 'none',
 							'background-color': '#FFFFFF'
 						})
 					;
 					
-					jQuery(this).find('select').find('option').eq(0)
+					jQuery(this).find('select').eq(0).find('option').eq(Settings.intChooserType + 0)
 					    .prop({
 					        'selected': true
 					    })
 					;
 					
-					jQuery(this).find('select')
+					jQuery(this).find('select').eq(0)
 						.selectmenu('refresh')
 					;
 					
-				} else if (Settings.strChooserType === 'typeDirt') {
-					jQuery(this).find('select').next()
+				} else if (Settings.strChooserCategory === 'categorySpecial') {
+					jQuery(this).find('select').eq(1).next()
 						.css({
 							'background': 'none',
 							'background-color': '#FFFFFF'
 						})
 					;
 					
-					jQuery(this).find('select').find('option').eq(1)
+					jQuery(this).find('select').eq(1).find('option').eq(Settings.intChooserType + 0)
 					    .prop({
 					        'selected': true
 					    })
 					;
 					
-					jQuery(this).find('select')
+					jQuery(this).find('select').eq(1)
 						.selectmenu('refresh')
 					;
 					
-				} else if (Settings.strChooserType === 'typeGrass') {
-					jQuery(this).find('select').next()
-						.css({
-							'background': 'none',
-							'background-color': '#FFFFFF'
-						})
-					;
-					
-					jQuery(this).find('select').find('option').eq(2)
-					    .prop({
-					        'selected': true
-					    })
-					;
-					
-					jQuery(this).find('select')
-						.selectmenu('refresh')
-					;
-					
-				} else if (Settings.strChooserType === 'typePlank') {
-					jQuery(this).find('select').next()
-						.css({
-							'background': 'none',
-							'background-color': '#FFFFFF'
-						})
-					;
-					
-					jQuery(this).find('select').find('option').eq(3)
-					    .prop({
-					        'selected': true
-					    })
-					;
-					
-					jQuery(this).find('select')
-						.selectmenu('refresh')
-					;
-					
-				} else if (Settings.strChooserType === 'typeStone') {
-					jQuery(this).find('select').next()
-						.css({
-							'background': 'none',
-							'background-color': '#FFFFFF'
-						})
-					;
-					
-					jQuery(this).find('select').find('option').eq(4)
-					    .prop({
-					        'selected': true
-					    })
-					;
-					
-					jQuery(this).find('select')
-						.selectmenu('refresh')
-					;
-					
-				} else if (Settings.strChooserType === 'typeDestroy') {
-					jQuery(this).find('button')
+				} else if (Settings.strChooserCategory === 'categoryDestroy') {
+					jQuery(this).find('button').eq(Settings.intChooserType + 0)
 						.css({
 							'background': 'none',
 							'background-color': '#FFFFFF'
@@ -150,7 +96,7 @@ jQuery(document).ready(function() {
 		jQuery('#idPhaseBuild_Chooser').find('select')
 			.selectmenu({
 				'disabled': false,
-				'width': 100
+				'width': 200
 			})
 		;
 
@@ -177,6 +123,11 @@ jQuery(document).ready(function() {
 				
 				{	
 					strJson = JSON.stringify({
+						'intMapRedSpawn': Settings.intMapRedSpawn,
+						'intMapRedFlag': Settings.intMapRedFlag,
+						'intMapBlueSpawn': Settings.intMapBlueSpawn,
+						'intMapBlueFlag': Settings.intMapBlueFlag,
+						'intMapSepearator': Settings.intMapSeparator,
 						'intMapDatabase': Settings.intMapDatabase
 					});
 				}
@@ -235,6 +186,10 @@ jQuery(document).ready(function() {
 					var objectMap = JSON.parse(jQuery('#idMap_Json').val());
 					
 					{
+						Settings.intMapRedSpawn = objectMap.intMapRedSpawn;
+						Settings.intMapRedFlag = objectMap.intMapRedFlag;
+						Settings.intMapBlueSpawn = objectMap.intMapBlueSpawn;
+						Settings.intMapBlueFlag = objectMap.intMapBlueFlag;
 						Settings.intMapDatabase = objectMap.intMapDatabase;
 					}
 				}
@@ -257,8 +212,13 @@ var Settings = {
 	strMode: '',
 	
 	strChooserCategory: '',
-	strChooserType: '',
+	intChooserType: 0,
 
+	intMapRedSpawn: [],
+	intMapRedFlag: [],
+	intMapBlueSpawn: [],
+	intMapBlueFlag: [],
+	intMapSepearator: [],
 	intMapDatabase: {},
 	
 	init: function() {
@@ -269,10 +229,20 @@ var Settings = {
 		{
 			Settings.strChooserCategory = '';
 			
-			Settings.strChooserType = '';
+			Settings.intChooserType = 0;
 		}
 		
 		{
+			Settings.intMapRedSpawn = [];
+			
+			Settings.intMapRedFlag = [];
+			
+			Settings.intMapBlueSpawn = [];
+			
+			Settings.intMapBlueFlag = [];
+			
+			Settings.intMapSeparator = [];
+			
 			Settings.intMapDatabase = {};
 		}
 	},
@@ -285,10 +255,20 @@ var Settings = {
 		{
 			Settings.strChooserCategory = '';
 			
-			Settings.strChooserType = '';
+			Settings.intChooserType = 0;
 		}
 		
 		{
+			Settings.intMapRedSpawn = [];
+			
+			Settings.intMapRedFlag = [];
+			
+			Settings.intMapBlueSpawn = [];
+			
+			Settings.intMapBlueFlag = [];
+			
+			Settings.intMapSeparator = [];
+			
 			Settings.intMapDatabase = {};
 		}
 	}
@@ -304,6 +284,7 @@ var Voxel = {
 	
 	init: function() {
 		{
+			// TODO: player flyable
 			Voxel.voxelengineHandle = require('voxel-engine')({
 				'texturePath': './textures/',
 				'generate': function(intX, intY, intZ) {
@@ -313,7 +294,7 @@ var Voxel = {
 					
 					return 0;
 				},
-				'materials': [ 'brick', 'dirt', 'grass', 'plank', 'stone' ],
+				'materials': [ 'brick', 'dirt', 'grass', 'plank', 'stone', 'red spawn', 'red flag', 'blue spawn', 'blue flag', 'separator' ],
 				'controls': {
 					'discreteFire': true
 				},
@@ -330,6 +311,9 @@ var Voxel = {
 					if (Settings.strChooserCategory === 'categoryCreate') {
 						return true;
 						
+					} else if (Settings.strChooserCategory === 'categorySpecial') {
+						return true;
+						
 					} else if (Settings.strChooserCategory === 'categoryDestroy') {
 						return true;
 						
@@ -344,6 +328,10 @@ var Voxel = {
 				'adjacentActive': function() {
 					if (Settings.strChooserCategory === 'categoryCreate') {
 						return true;
+						
+					} if (Settings.strChooserCategory === 'categorySpecial') {
+						return true;
+						
 					}
 					
 					return false;
@@ -456,9 +444,13 @@ var Input = {
 						{
 							if (eventHandle.keyCode === 49) {
 								{
+									if (Settings.strChooserCategory !== 'categoryCreate') {
+										Settings.intChooserType = -1;
+									}
+									
 									Settings.strChooserCategory = 'categoryCreate';
 									
-									Settings.strChooserType = 'typeBrick';
+									Settings.intChooserType = (Settings.intChooserType + 1) % 5;
 								}
 								
 								{
@@ -469,9 +461,13 @@ var Input = {
 								
 							} else if (eventHandle.keyCode === 50) {
 								{
-									Settings.strChooserCategory = 'categoryCreate';
+									if (Settings.strChooserCategory !== 'categorySpecial') {
+										Settings.intChooserType = -1;
+									}
 									
-									Settings.strChooserType = 'typeDirt';
+									Settings.strChooserCategory = 'categorySpecial';
+									
+									Settings.intChooserType = (Settings.intChooserType + 1) % 5;
 								}
 								
 								{
@@ -482,48 +478,9 @@ var Input = {
 								
 							} else if (eventHandle.keyCode === 51) {
 								{
-									Settings.strChooserCategory = 'categoryCreate';
-									
-									Settings.strChooserType = 'typeGrass';
-								}
-								
-								{
-									jQuery('#idPhaseBuild_Chooser')
-										.trigger('update')
-									;
-								}
-								
-							} else if (eventHandle.keyCode === 52) {
-								{
-									Settings.strChooserCategory = 'categoryCreate';
-									
-									Settings.strChooserType = 'typePlank';
-								}
-								
-								{
-									jQuery('#idPhaseBuild_Chooser')
-										.trigger('update')
-									;
-								}
-								
-							} else if (eventHandle.keyCode === 53) {
-								{
-									Settings.strChooserCategory = 'categoryCreate';
-									
-									Settings.strChooserType = 'typeStone';
-								}
-								
-								{
-									jQuery('#idPhaseBuild_Chooser')
-										.trigger('update')
-									;
-								}
-								
-							} else if (eventHandle.keyCode === 54) {
-								{
 									Settings.strChooserCategory = 'categoryDestroy';
 									
-									Settings.strChooserType = 'typeDestroy';
+									Settings.intChooserType = 0;
 								}
 								
 								{
@@ -611,27 +568,27 @@ jQuery(document).ready(function() {
 			if (Settings.strChooserCategory === 'categoryCreate') {
 				if (Voxel.voxelhighlightHandle.positionCreate !== null) {
 					if (Voxel.voxelhighlightHandle.positionCreate[1] !== 0) {
-						if (Settings.strChooserType === 'typeBrick') {
+						if (Settings.intChooserType === 0) {
 							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('brick'));
 							
 							Settings.intMapDatabase[Voxel.voxelhighlightHandle.positionCreate] = Voxel.voxelengineHandle.materials.find('brick');
 							
-						} else if (Settings.strChooserType === 'typeDirt') {
+						} else if (Settings.intChooserType === 1) {
 							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('dirt'));
 							
 							Settings.intMapDatabase[Voxel.voxelhighlightHandle.positionCreate] = Voxel.voxelengineHandle.materials.find('dirt');
 							
-						} else if (Settings.strChooserType === 'typeGrass') {
+						} else if (Settings.intChooserType === 2) {
 							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('grass'));
 							
 							Settings.intMapDatabase[Voxel.voxelhighlightHandle.positionCreate] = Voxel.voxelengineHandle.materials.find('grass');
 							
-						} else if (Settings.strChooserType === 'typePlank') {
+						} else if (Settings.intChooserType === 3) {
 							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('plank'));
 							
 							Settings.intMapDatabase[Voxel.voxelhighlightHandle.positionCreate] = Voxel.voxelengineHandle.materials.find('plank');
 							
-						} else if (Settings.strChooserType === 'typeStone') {
+						} else if (Settings.intChooserType === 4) {
 							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('stone'));
 							
 							Settings.intMapDatabase[Voxel.voxelhighlightHandle.positionCreate] = Voxel.voxelengineHandle.materials.find('stone');
@@ -640,15 +597,122 @@ jQuery(document).ready(function() {
 					}
 				}
 				
+			} else if (Settings.strChooserCategory === 'categorySpecial') {
+				if (Voxel.voxelhighlightHandle.positionCreate !== null) {
+					if (Voxel.voxelhighlightHandle.positionCreate[1] !== 0) {
+						if (Settings.intChooserType === 0) {
+							{
+								Settings.intMapRedSpawn.push(Voxel.voxelhighlightHandle.positionCreate);
+							}
+							
+							{
+								Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('red spawn'));
+								
+								Settings.intMapDatabase[Voxel.voxelhighlightHandle.positionCreate] = Voxel.voxelengineHandle.materials.find('red spawn');
+							}
+							
+						} else if (Settings.intChooserType === 1) {
+							{
+								Settings.intMapRedFlag.push(Voxel.voxelhighlightHandle.positionCreate);
+							}
+							
+							{
+								Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('red flag'));
+								
+								Settings.intMapDatabase[Voxel.voxelhighlightHandle.positionCreate] = Voxel.voxelengineHandle.materials.find('red flag');
+							}
+							
+						} else if (Settings.intChooserType === 2) {
+							{
+								Settings.intMapBlueSpawn.push(Voxel.voxelhighlightHandle.positionCreate);
+							}
+							
+							{
+								Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('blue spawn'));
+								
+								Settings.intMapDatabase[Voxel.voxelhighlightHandle.positionCreate] = Voxel.voxelengineHandle.materials.find('blue spawn');
+							}
+							
+						} else if (Settings.intChooserType === 3) {
+							{
+								Settings.intMapBlueFlag.push(Voxel.voxelhighlightHandle.positionCreate);
+							}
+							
+							{
+								Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('blue flag'));
+								
+								Settings.intMapDatabase[Voxel.voxelhighlightHandle.positionCreate] = Voxel.voxelengineHandle.materials.find('blue flag');
+							}
+							
+						} else if (Settings.intChooserType === 4) {
+							{
+								Settings.intMapSeparator.push(Voxel.voxelhighlightHandle.positionCreate);
+							}
+							
+							{
+								Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('separator'));
+								
+								Settings.intMapDatabase[Voxel.voxelhighlightHandle.positionCreate] = Voxel.voxelengineHandle.materials.find('separator');
+							}
+							
+						}
+					}
+				}
+				
 			} else if (Settings.strChooserCategory === 'categoryDestroy') {
 				if (Voxel.voxelhighlightHandle.positionDestroy !== null) {
 					if (Voxel.voxelhighlightHandle.positionDestroy[1] !== 0) {
-						if (Settings.strChooserType === 'typeDestroy') {
-							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionDestroy, 0);
+						if (Settings.intChooserType === 0) {
+							{
+								Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionDestroy, 0);
+								
+								delete Settings.intMapDatabase[Voxel.voxelhighlightHandle.positionDestroy];
+							}
 							
-							delete Settings.intMapDatabase[Voxel.voxelhighlightHandle.positionDestroy];
-							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionDestroy, 0);
-							delete Settings.intMapDatabase[Voxel.voxelhighlightHandle.positionDestroy];
+							{
+								for (var intFor1 = 0; intFor1 < 5; intFor1 += 1) {
+									var intCollection = [];
+									
+									{
+										if (intFor1 === 0) {
+											intCollection = Settings.intMapRedSpawn;
+											
+										} else if (intFor1 === 1) {
+											intCollection = Settings.intMapRedFlag;
+											
+										} else if (intFor1 === 2) {
+											intCollection = Settings.intMapBlueSpawn;
+											
+										} else if (intFor1 === 3) {
+											intCollection = Settings.intMapBlueFlag;
+											
+										} else if (intFor1 === 4) {
+											intCollection = Settings.intMapSeparator;
+											
+										}
+									}
+									
+									{
+										var intSearchCollection = -1;
+										
+										for (var intForSearchCollection = 0; intForSearchCollection < intCollection.length; intForSearchCollection += 1) {
+											if (intCollection[intForSearchCollection][0] === Voxel.voxelhighlightHandle.positionDestroy[0]) {
+												if (intCollection[intForSearchCollection][1] === Voxel.voxelhighlightHandle.positionDestroy[1]) {
+													if (intCollection[intForSearchCollection][2] === Voxel.voxelhighlightHandle.positionDestroy[2]) {
+														intSearchCollection = intForSearchCollection;
+														
+														break;
+													}
+												}
+											}
+										}
+										
+										if (intSearchCollection !== -1) {
+											intCollection.splice(intSearchCollection, 1);
+										}
+									}
+								}
+							}
 						}
 					}
 				}
