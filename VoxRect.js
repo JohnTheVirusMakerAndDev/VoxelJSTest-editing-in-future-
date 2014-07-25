@@ -470,7 +470,13 @@ var Node = {
 			}
 			
 			{
-				Gameserver.intMapDatabase[jsonHandle.intCoordinate[0] + ':' + jsonHandle.intCoordinate[1] + ':' + jsonHandle.intCoordinate[2]] = jsonHandle.intType;
+				if (jsonHandle.intType === 0) {
+					delete Gameserver.intMapDatabase[jsonHandle.intCoordinate];
+					
+				} else if (jsonHandle.intType !== 0) {
+					Gameserver.intMapDatabase[jsonHandle.intCoordinate] = jsonHandle.intType;
+					
+				}
 			}
 			
 			{

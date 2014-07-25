@@ -19,23 +19,112 @@ jQuery(document).ready(function() {
 		jQuery('#idPhaseBuild_Chooser')
 			.off('update')
 			.on('update', function() {
-				jQuery(this).find('a')
+				jQuery(this).find('select').next()
 					.css({
 						'background': 'none',
 						'background-color': '#F2F2F2'
 					})
 				;
 				
-				if (Settings.strChooser === 'chooserCreate') {
-					jQuery(this).find('a').eq(0)
+				jQuery(this).find('button')
+					.css({
+						'background': 'none',
+						'background-color': '#F2F2F2'
+					})
+				;
+				
+				if (Settings.strChooserType === 'typeBrick') {
+					jQuery(this).find('select').next()
 						.css({
 							'background': 'none',
 							'background-color': '#FFFFFF'
 						})
 					;
 					
-				} else if (Settings.strChooser === 'chooserDestroy') {
-					jQuery(this).find('a').eq(1)
+					jQuery(this).find('select').find('option').eq(0)
+					    .prop({
+					        'selected': true
+					    })
+					;
+					
+					jQuery(this).find('select')
+						.selectmenu('refresh')
+					;
+					
+				} else if (Settings.strChooserType === 'typeDirt') {
+					jQuery(this).find('select').next()
+						.css({
+							'background': 'none',
+							'background-color': '#FFFFFF'
+						})
+					;
+					
+					jQuery(this).find('select').find('option').eq(1)
+					    .prop({
+					        'selected': true
+					    })
+					;
+					
+					jQuery(this).find('select')
+						.selectmenu('refresh')
+					;
+					
+				} else if (Settings.strChooserType === 'typeGrass') {
+					jQuery(this).find('select').next()
+						.css({
+							'background': 'none',
+							'background-color': '#FFFFFF'
+						})
+					;
+					
+					jQuery(this).find('select').find('option').eq(2)
+					    .prop({
+					        'selected': true
+					    })
+					;
+					
+					jQuery(this).find('select')
+						.selectmenu('refresh')
+					;
+					
+				} else if (Settings.strChooserType === 'typePlank') {
+					jQuery(this).find('select').next()
+						.css({
+							'background': 'none',
+							'background-color': '#FFFFFF'
+						})
+					;
+					
+					jQuery(this).find('select').find('option').eq(3)
+					    .prop({
+					        'selected': true
+					    })
+					;
+					
+					jQuery(this).find('select')
+						.selectmenu('refresh')
+					;
+					
+				} else if (Settings.strChooserType === 'typeStone') {
+					jQuery(this).find('select').next()
+						.css({
+							'background': 'none',
+							'background-color': '#FFFFFF'
+						})
+					;
+					
+					jQuery(this).find('select').find('option').eq(4)
+					    .prop({
+					        'selected': true
+					    })
+					;
+					
+					jQuery(this).find('select')
+						.selectmenu('refresh')
+					;
+					
+				} else if (Settings.strChooserType === 'typeDestroy') {
+					jQuery(this).find('button')
 						.css({
 							'background': 'none',
 							'background-color': '#FFFFFF'
@@ -45,9 +134,30 @@ jQuery(document).ready(function() {
 				}
 			})
 		;
-	
+		
 		jQuery('#idPhaseBuild_Chooser')
 			.trigger('update')
+		;
+	}
+	
+	{
+		jQuery('#idPhaseBuild_Chooser').find('select').find('option').eq(0)
+		    .prop({
+		        'selected': true
+		    })
+		;
+		
+		jQuery('#idPhaseBuild_Chooser').find('select')
+			.selectmenu({
+				'disabled': false,
+				'width': 100
+			})
+		;
+
+		jQuery('#idPhaseBuild_Chooser').find('select').next()
+			.css({
+				'vertical-align': 'middle'
+			})
 		;
 	}
 	
@@ -65,38 +175,14 @@ jQuery(document).ready(function() {
 			.on('update', function() {
 				var strJson = '';
 				
-				{
-					var objectHandle = {
-						'intMapDatabase': {}
-					};
-					
-					if (Voxel.voxelengineHandle !== null) {
-						for (var intFor1 = -64; intFor1 < 64; intFor1 += 1) {
-							for (var intFor2 = -64; intFor2 < 64; intFor2 += 1) {
-								for (var intFor3 = -64; intFor3 < 64; intFor3 += 1) {
-									var intType = Voxel.voxelengineHandle.getBlock([intFor1, intFor2, intFor3]);
-									
-									if (intType === 0) {
-										continue;
-										
-									} else if (intType === 64) {
-										continue;
-										
-									}
-									
-									{
-										objectHandle.intMapDatabase[intFor1 + ':' + intFor2 + ':' + intFor3] = intType;
-									}
-								}
-							}
-						}
-					}
-					
-					strJson = JSON.stringify(objectHandle);
+				{	
+					strJson = JSON.stringify({
+						'intMapDatabase': Settings.intMapDatabase
+					});
 				}
 				
 				jQuery(this)
-					.text(strJson)
+					.val(strJson)
 				;
 			})
 		;
@@ -107,7 +193,7 @@ jQuery(document).ready(function() {
 	}
 	
 	{
-		jQuery('#idMap_Generate')
+		jQuery('#idMap_Save')
 			.button({
 				'disabled': false,
 				'icons': {
@@ -124,25 +210,86 @@ jQuery(document).ready(function() {
 			})
 		;
 	}
+	
+	{
+		jQuery('#idMap_Load')
+			.button({
+				'disabled': false,
+				'icons': {
+					'primary': 'ui-icon-check' // TODO: change icon
+				}
+			})
+			.off('click')
+			.on('click', function() {
+				{
+				    for (var intCoordinate in Settings.intMapDatabase) {
+						var intType = Settings.intMapDatabase[intCoordinate];
+						
+						{
+							Voxel.voxelengineHandle.setBlock(JSON.parse('[' + intCoordinate + ']'), 0);
+						}
+				    }
+				}
+				
+				{
+					var objectMap = JSON.parse(jQuery('#idMap_Json').val());
+					
+					{
+						Settings.intMapDatabase = objectMap.intMapDatabase;
+					}
+				}
+				
+				{
+				    for (var intCoordinate in Settings.intMapDatabase) {
+						var intType = Settings.intMapDatabase[intCoordinate];
+						
+						{
+							Voxel.voxelengineHandle.setBlock(JSON.parse('[' + intCoordinate + ']'), intType);
+						}
+				    }
+				}
+			})
+		;
+	}
 });
 
 var Settings = {
 	strMode: '',
-	strChooser: '',
+	
+	strChooserCategory: '',
+	strChooserType: '',
+
+	intMapDatabase: {},
 	
 	init: function() {
 		{
 			Settings.strMode = 'modeMenu';
+		}
+		
+		{
+			Settings.strChooserCategory = '';
 			
-			Settings.strChooser = '';
+			Settings.strChooserType = '';
+		}
+		
+		{
+			Settings.intMapDatabase = {};
 		}
 	},
 	
 	dispel: function() {
 		{
 			Settings.strMode = '';
+		}
+		
+		{
+			Settings.strChooserCategory = '';
 			
-			Settings.strChooser = '';
+			Settings.strChooserType = '';
+		}
+		
+		{
+			Settings.intMapDatabase = {};
 		}
 	}
 };
@@ -166,6 +313,7 @@ var Voxel = {
 					
 					return 0;
 				},
+				'materials': [ 'brick', 'dirt', 'grass', 'plank', 'stone' ],
 				'controls': {
 					'discreteFire': true
 				},
@@ -179,10 +327,10 @@ var Voxel = {
 			// TODO: commit changes to voxel-highlight
 			Voxel.voxelhighlightHandle = require('voxel-highlight')(Voxel.voxelengineHandle, {
 				'enabled': function() {
-					if (Settings.strChooser === 'chooserCreate') {
+					if (Settings.strChooserCategory === 'categoryCreate') {
 						return true;
 						
-					} else if (Settings.strChooser === 'chooserDestroy') {
+					} else if (Settings.strChooserCategory === 'categoryDestroy') {
 						return true;
 						
 					}
@@ -194,7 +342,7 @@ var Voxel = {
 				'wireframeOpacity': 1.0,
 				'color': 0xFFFFFF,
 				'adjacentActive': function() {
-					if (Settings.strChooser === 'chooserCreate') {
+					if (Settings.strChooserCategory === 'categoryCreate') {
 						return true;
 					}
 					
@@ -308,7 +456,9 @@ var Input = {
 						{
 							if (eventHandle.keyCode === 49) {
 								{
-									Settings.strChooser = 'chooserCreate';
+									Settings.strChooserCategory = 'categoryCreate';
+									
+									Settings.strChooserType = 'typeBrick';
 								}
 								
 								{
@@ -319,7 +469,61 @@ var Input = {
 								
 							} else if (eventHandle.keyCode === 50) {
 								{
-									Settings.strChooser = 'chooserDestroy';
+									Settings.strChooserCategory = 'categoryCreate';
+									
+									Settings.strChooserType = 'typeDirt';
+								}
+								
+								{
+									jQuery('#idPhaseBuild_Chooser')
+										.trigger('update')
+									;
+								}
+								
+							} else if (eventHandle.keyCode === 51) {
+								{
+									Settings.strChooserCategory = 'categoryCreate';
+									
+									Settings.strChooserType = 'typeGrass';
+								}
+								
+								{
+									jQuery('#idPhaseBuild_Chooser')
+										.trigger('update')
+									;
+								}
+								
+							} else if (eventHandle.keyCode === 52) {
+								{
+									Settings.strChooserCategory = 'categoryCreate';
+									
+									Settings.strChooserType = 'typePlank';
+								}
+								
+								{
+									jQuery('#idPhaseBuild_Chooser')
+										.trigger('update')
+									;
+								}
+								
+							} else if (eventHandle.keyCode === 53) {
+								{
+									Settings.strChooserCategory = 'categoryCreate';
+									
+									Settings.strChooserType = 'typeStone';
+								}
+								
+								{
+									jQuery('#idPhaseBuild_Chooser')
+										.trigger('update')
+									;
+								}
+								
+							} else if (eventHandle.keyCode === 54) {
+								{
+									Settings.strChooserCategory = 'categoryDestroy';
+									
+									Settings.strChooserType = 'typeDestroy';
 								}
 								
 								{
@@ -404,20 +608,47 @@ jQuery(document).ready(function() {
 	
 	{
 		Voxel.voxelengineHandle.on('fire', function(targetHandle, stateHandle) {
-			if (Settings.strChooser === 'chooserCreate') {
-				{
-					if (Voxel.voxelhighlightHandle.positionCreate !== null) {
-						{
+			if (Settings.strChooserCategory === 'categoryCreate') {
+				if (Voxel.voxelhighlightHandle.positionCreate !== null) {
+					if (Voxel.voxelhighlightHandle.positionCreate[1] !== 0) {
+						if (Settings.strChooserType === 'typeBrick') {
+							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('brick'));
+							
+							Settings.intMapDatabase[Voxel.voxelhighlightHandle.positionCreate] = Voxel.voxelengineHandle.materials.find('brick');
+							
+						} else if (Settings.strChooserType === 'typeDirt') {
 							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('dirt'));
+							
+							Settings.intMapDatabase[Voxel.voxelhighlightHandle.positionCreate] = Voxel.voxelengineHandle.materials.find('dirt');
+							
+						} else if (Settings.strChooserType === 'typeGrass') {
+							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('grass'));
+							
+							Settings.intMapDatabase[Voxel.voxelhighlightHandle.positionCreate] = Voxel.voxelengineHandle.materials.find('grass');
+							
+						} else if (Settings.strChooserType === 'typePlank') {
+							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('plank'));
+							
+							Settings.intMapDatabase[Voxel.voxelhighlightHandle.positionCreate] = Voxel.voxelengineHandle.materials.find('plank');
+							
+						} else if (Settings.strChooserType === 'typeStone') {
+							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('stone'));
+							
+							Settings.intMapDatabase[Voxel.voxelhighlightHandle.positionCreate] = Voxel.voxelengineHandle.materials.find('stone');
+							
 						}
 					}
 				}
 				
-			} else if (Settings.strChooser === 'chooserDestroy') {
-				{
-					if (Voxel.voxelhighlightHandle.positionDestroy !== null) {
-						{
+			} else if (Settings.strChooserCategory === 'categoryDestroy') {
+				if (Voxel.voxelhighlightHandle.positionDestroy !== null) {
+					if (Voxel.voxelhighlightHandle.positionDestroy[1] !== 0) {
+						if (Settings.strChooserType === 'typeDestroy') {
 							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionDestroy, 0);
+							
+							delete Settings.intMapDatabase[Voxel.voxelhighlightHandle.positionDestroy];
+							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionDestroy, 0);
+							delete Settings.intMapDatabase[Voxel.voxelhighlightHandle.positionDestroy];
 						}
 					}
 				}

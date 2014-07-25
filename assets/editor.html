@@ -89,14 +89,16 @@
 			<div id="idPhaseBuild" class="ui-dialog ui-widget ui-widget-content ui-corner-all" style="display:inline-block; position:static;">
 				<div class="ui-dialog-content ui-widget-content" style="padding:1em;">
 					<div id="idPhaseBuild_Chooser">
-						<a class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary">
-							<span class="ui-button-icon-primary ui-icon ui-icon-check"></span>
-							<span class="ui-button-text">Create</span>
-						</a>
-						<a class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary">
-							<span class="ui-button-icon-primary ui-icon ui-icon-check"></span>
+						<select>
+							<option>Brick</option>
+							<option>Dirt</option>
+							<option>Grass</option>
+							<option>Plank</option>
+							<option>Stone</option>
+						</select>
+						<button role="button" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
 							<span class="ui-button-text">Destroy</span>
-						</a>
+						</button>
 					</div>
 				</div>
 			</div>
@@ -104,13 +106,13 @@
 		
 		<div id="idMap" class="ui-dialog ui-widget ui-widget-content ui-corner-all" style="position:fixed;left:50%; top:50%; width:800px; margin:-275px 0px 0px -400px;">
 			<div class="ui-dialog-content ui-widget-content" style="padding:1em;">
-				<div id="idMap_Json" class="ui-widget ui-state-default ui-corner-all" style="height:500px; padding:0.8em 1.0em 0.8em 1em; background:none; overflow-y:scroll; font-family:Courier; word-wrap:break-word;">
-					
-				</div>
+				<textarea id="idMap_Json" class="ui-widget ui-state-default ui-corner-all" style="width:100%; box-sizing:border-box; height:500px; padding:0.8em 1.0em 0.8em 1em; background:none; overflow-y:scroll; font-family:Courier; word-wrap:break-word;"></textarea>
 				
 				<div style="height:8px;"></div>
 	
-				<button id="idMap_Generate">Generate</button>
+				<button id="idMap_Save">Save</button>
+	
+				<button id="idMap_Load">Load</button>
 			</div>
 		</div>
 	</body>

@@ -215,23 +215,23 @@ jQuery(document).ready(function() {
 		jQuery('#idPhaseBuild_Chooser')
 			.off('update')
 			.on('update', function() {
-				jQuery(this).find('a')
+				jQuery(this).find('button')
 					.css({
 						'background': 'none',
 						'background-color': '#F2F2F2'
 					})
 				;
-				
-				if (Settings.strChooser === 'chooserCreate') {
-					jQuery(this).find('a').eq(0)
+
+				if (Settings.strChooserType === 'typeCreate') {
+					jQuery(this).find('button').eq(0)
 						.css({
 							'background': 'none',
 							'background-color': '#FFFFFF'
 						})
 					;
 					
-				} else if (Settings.strChooser === 'chooserDestroy') {
-					jQuery(this).find('a').eq(1)
+				} else if (Settings.strChooserType === 'typeDestroy') {
+					jQuery(this).find('button').eq(1)
 						.css({
 							'background': 'none',
 							'background-color': '#FFFFFF'
@@ -259,23 +259,23 @@ jQuery(document).ready(function() {
 		jQuery('#idPhaseCombat_Chooser')
 			.off('update')
 			.on('update', function() {
-				jQuery(this).find('a')
+				jQuery(this).find('button')
 					.css({
 						'background': 'none',
 						'background-color': '#F2F2F2'
 					})
 				;
 				
-				if (Settings.strChooser === 'chooserSword') {
-					jQuery(this).find('a').eq(0)
+				if (Settings.strChooserType === 'typeSword') {
+					jQuery(this).find('button').eq(0)
 						.css({
 							'background': 'none',
 							'background-color': '#FFFFFF'
 						})
 					;
 					
-				} else if (Settings.strChooser === 'chooserBow') {
-					jQuery(this).find('a').eq(1)
+				} else if (Settings.strChooserType === 'typeBow') {
+					jQuery(this).find('button').eq(1)
 						.css({
 							'background': 'none',
 							'background-color': '#FFFFFF'
@@ -472,21 +472,30 @@ jQuery(document).ready(function() {
 
 var Settings = {
 	strMode: '',
-	strChooser: '',
+
+	strChooserCategory: '',
+	strChooserType: '',
 	
 	strMapActive: '',
+	
 	strPhaseActive: '',
 	
 	init: function() {
 		{
 			Settings.strMode = 'modeMenu';
+		}
+		
+		{
+			Settings.strChooserCategory = '';
 			
-			Settings.strChooser = '';
+			Settings.strChooserType = '';
 		}
 		
 		{
 			Settings.strMapActive = '';
-			
+		}
+		
+		{
 			Settings.strPhaseActive = '';
 		}
 	},
@@ -494,13 +503,19 @@ var Settings = {
 	dispel: function() {
 		{
 			Settings.strMode = '';
+		}
+		
+		{
+			Settings.strChooserCategory = '';
 			
-			Settings.strChooser = '';
+			Settings.strChooserType = '';
 		}
 		
 		{
 			Settings.strMapActive = '';
-			
+		}
+		
+		{
 			Settings.strPhaseActive = '';
 		}
 	}
@@ -522,11 +537,12 @@ var Voxel = {
 				'texturePath': './textures/',
 				'generate': function(intX, intY, intZ) {
 					if (intY === 0) {
-						return 1;
+						return 1; // TODO
 					}
 					
 					return 0;
 				},
+				'materials': [ 'brick', 'dirt', 'grass', 'plank', 'stone' ],
 				'controls': {
 					'discreteFire': true
 				},
@@ -540,27 +556,23 @@ var Voxel = {
 			// TODO: commit changes to voxel-highlight
 			Voxel.voxelhighlightHandle = require('voxel-highlight')(Voxel.voxelengineHandle, {
 				'enabled': function() {
-					if (Settings.strPhaseActive === 'Build') {
-						if (Settings.strChooser === 'chooserCreate') {
-							return true;
-							
-						} else if (Settings.strChooser === 'chooserDestroy') {
-							return true;
-							
-						}
+					if (Settings.strChooserCategory === 'categoryCreate') {
+						return true;
+						
+					} else if (Settings.strChooserCategory === 'categoryDestroy') {
+						return true;
+						
 					}
 					
-					return false;
+					return true;
 				},
 				'distance': 8,
 				'wireframeLinewidth': 16,
 				'wireframeOpacity': 1.0,
 				'color': 0xFFFFFF,
 				'adjacentActive': function() {
-					if (Settings.strPhaseActive === 'Build') {
-						if (Settings.strChooser === 'chooserCreate') {
-							return true;
-						}
+					if (Settings.strChooserCategory === 'categoryCreate') {
+						return true;
 					}
 					
 					return false;
@@ -1051,7 +1063,9 @@ var Input = {
 						if (Settings.strPhaseActive === 'Build') {
 							if (eventHandle.keyCode === 49) {
 								{
-									Settings.strChooser = 'chooserCreate';
+									Settings.strChooserCategory = 'categoryCreate';
+									
+									Settings.strChooserType = 'typeCreate';
 								}
 								
 								{
@@ -1062,7 +1076,9 @@ var Input = {
 								
 							} else if (eventHandle.keyCode === 50) {
 								{
-									Settings.strChooser = 'chooserDestroy';
+									Settings.strChooserCategory = 'categoryDestroy';
+									
+									Settings.strChooserType = 'typeDestroy';
 								}
 								
 								{
@@ -1076,7 +1092,9 @@ var Input = {
 						} else if (Settings.strPhaseActive === 'Combat') {
 							if (eventHandle.keyCode === 49) {
 								{
-									Settings.strChooser = 'chooserSword';
+									Settings.strChooserCategory = 'categoryWeapon';
+									
+									Settings.strChooserType = 'typeSword';
 								}
 								
 								{
@@ -1087,7 +1105,9 @@ var Input = {
 								
 							} else if (eventHandle.keyCode === 50) {
 								{
-									Settings.strChooser = 'chooserBow';
+									Settings.strChooserCategory = 'categoryWeapon';
+									
+									Settings.strChooserType = 'typeBow';
 								}
 								
 								{
@@ -1454,45 +1474,34 @@ jQuery(document).ready(function() {
 	
 	{
 		Voxel.voxelengineHandle.on('fire', function(targetHandle, stateHandle) {
-			if (Settings.strPhaseActive === 'Build') {
-				if (Settings.strChooser === 'chooserCreate') {
-					{
-						if (Voxel.voxelhighlightHandle.positionCreate !== null) {
-							{
-								Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('dirt'));
-							}
-							
-							{
-								Socket.socketHandle.emit('voxelHandle', {
-									'intType': Voxel.voxelengineHandle.materials.find('dirt'),
-									'intCoordinate': Voxel.voxelhighlightHandle.positionCreate
-								});
-							}
-						}
+			if (Settings.strChooserCategory === 'categoryCreate') {
+				if (Voxel.voxelhighlightHandle.positionCreate !== null) {
+					if (Settings.strChooserType === 'typeBrick') {
+						Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('dirt'));
+
+						Socket.socketHandle.emit('voxelHandle', {
+							'intType': Voxel.voxelengineHandle.materials.find('dirt'),
+							'intCoordinate': Voxel.voxelhighlightHandle.positionCreate
+						});
 					}
-					
-				} else if (Settings.strChooser === 'chooserDestroy') {
-					{
-						if (Voxel.voxelhighlightHandle.positionDestroy !== null) {
-							{
-								Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionDestroy, 0);
-							}
-							
-							{
-								Socket.socketHandle.emit('voxelHandle', {
-									'intType': 0,
-									'intCoordinate': Voxel.voxelhighlightHandle.positionDestroy
-								});
-							}
-						}
+				}
+						
+			} else if (Settings.strChooserCategory === 'categoryDestroy') {
+				if (Voxel.voxelhighlightHandle.positionDestroy !== null) {
+					if (Settings.strChooserType === 'typeStone') {
+						Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionDestroy, 0);
+						
+						Socket.socketHandle.emit('voxelHandle', {
+							'intType': 0,
+							'intCoordinate': Voxel.voxelhighlightHandle.positionDestroy
+						});
 					}
-					
 				}
 				
-			} else if (Settings.strPhaseActive === 'Build') {
-				if (Settings.strChooser === 'chooserSword') {
+			} else if (Settings.strChooserCategory === 'categoryCombat') {
+				if (Settings.strChooserType === 'typeSword') {
 					
-				} else if (Settings.strChooser === 'chooserBow') {
+				} else if (Settings.strChooserType === 'typeBow') {
 					
 				}
 				
