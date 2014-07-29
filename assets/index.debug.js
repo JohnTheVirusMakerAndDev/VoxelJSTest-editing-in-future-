@@ -466,9 +466,7 @@ var Settings = {
 
 	strChooserCategory: '',
 	intChooserType: '',
-	
-	strMapActive: '',
-	
+
 	strPhaseActive: '',
 	
 	init: function() {
@@ -480,10 +478,6 @@ var Settings = {
 			Settings.strChooserCategory = '';
 			
 			Settings.intChooserType = 0;
-		}
-		
-		{
-			Settings.strMapActive = '';
 		}
 		
 		{
@@ -500,10 +494,6 @@ var Settings = {
 			Settings.strChooserCategory = '';
 			
 			Settings.intChooserType = 0;
-		}
-		
-		{
-			Settings.strMapActive = '';
 		}
 		
 		{
@@ -525,15 +515,11 @@ var Voxel = {
 	init: function() {
 		{
 			Voxel.voxelengineHandle = require('voxel-engine')({
-				'texturePath': './textures/',
+				'texturePath': './images/',
 				'generate': function(intX, intY, intZ) {
-					if (intY === 0) {
-						return 1; // TODO
-					}
-					
 					return 0;
 				},
-				'materials': [ 'brick', 'dirt', 'grass', 'plank', 'stone' ],
+				'materials': [ 'voxelVoid', 'voxelBrick', 'voxelDirt', 'voxelGrass', 'voxelPlank', 'voxelStone', 'voxelRedSpawn', 'voxelRedFlag', 'voxelBlueSpawn', 'voxelBlueFlag', 'voxelSeparator' ],
 				'controls': {
 					'discreteFire': true
 				},
@@ -555,7 +541,7 @@ var Voxel = {
 						
 					}
 					
-					return true;
+					return false;
 				},
 				'distance': 8,
 				'wireframeLinewidth': 16,
@@ -881,7 +867,6 @@ var Socket = {
 									dblVerletZ = dblPositionZ - (playerHandle.dblPosition[2] - playerHandle.dblVerlet[2]);
 								}
 								
-								// TODO: why do we submit the walktime? (we have to manually set in for each player object on update arrival)
 								playerOverwrite[playerHandle.strSocket] = {
 									'strSocket': playerHandle.strSocket,
 									'dblPosition': [ dblPositionX, dblPositionY, dblPositionZ ],
@@ -899,59 +884,61 @@ var Socket = {
 				
 				Socket.socketHandle.on('voxelHandle', function(jsonHandle) {
 					{
-						Voxel.voxelengineHandle.setBlock(jsonHandle.intCoordinate, jsonHandle.intType);
+						Voxel.voxelengineHandle.setBlock(jsonHandle.intCoordinate, Voxel.voxelengineHandle.materials.find(jsonHandle.strType));
 					}
 				});
 				
-				Socket.socketHandle.on('settingsHandle', function(jsonHandle) {
-					if ((jsonHandle.strChange === 'changeLogin') | (jsonHandle.strChange === 'changeMap')) {
-						{
-							Settings.strMapActive = jsonHandle.strMapActive;
-						}
-						
-						{
-							// TODO: load map
+				Socket.socketHandle.on('resetHandle', function(jsonHandle) {
+					{
+						Settings.strPhaseActive = jsonHandle.strPhaseActive;
+					}
+					
+					{
+						if (jsonHandle.strPhaseActive === 'Build') {
+							{
+								jQuery('#idPhaseBuild')
+									.css({
+										'display': 'inline-block'
+									})
+								;
+								
+								jQuery('#idPhaseCombat')
+									.css({
+										'display': 'none'
+									})
+								;
+							}
+							
+						} else if (jsonHandle.strPhaseActive === 'Combat') {
+							{
+								jQuery('#idPhaseBuild')
+									.css({
+										'display': 'none'
+									})
+								;
+								
+								jQuery('#idPhaseCombat')
+									.css({
+										'display': 'inline-block'
+									})
+								;
+							}
+							
 						}
 					}
 					
-					if ((jsonHandle.strChange === 'changeLogin') | (jsonHandle.strChange === 'changePhase')) {
-						{
-							Settings.strPhaseActive = jsonHandle.strPhaseActive;
-						}
-						
-						{
-							if (jsonHandle.strPhaseActive === 'Build') {
-								{
-									jQuery('#idPhaseBuild')
-										.css({
-											'display': 'inline-block'
-										})
-									;
-									
-									jQuery('#idPhaseCombat')
-										.css({
-											'display': 'none'
-										})
-									;
-								}
-								
-							} else if (jsonHandle.strPhaseActive === 'Combat') {
-								{
-									jQuery('#idPhaseBuild')
-										.css({
-											'display': 'none'
-										})
-									;
-									
-									jQuery('#idPhaseCombat')
-										.css({
-											'display': 'inline-block'
-										})
-									;
-								}
-								
+					{
+					    for (var intCoordinate in jsonHandle.strMapType) {
+							var strType = jsonHandle.strMapType[intCoordinate];
+							
+							{
+								Voxel.voxelengineHandle.setBlock(JSON.parse('[' + intCoordinate + ']'), Voxel.voxelengineHandle.materials.find(strType));
 							}
-						}
+					    }
+					}
+					
+					{
+						Player.minecraftskinHandle.mesh.position.set(jsonHandle.intPlayerCoordinate[0], jsonHandle.intPlayerCoordinate[1], jsonHandle.intPlayerCoordinate[2]);
 					}
 				});
 				
@@ -1085,7 +1072,7 @@ var Input = {
 								{
 									Settings.strChooserCategory = 'categoryWeapon';
 									
-									Settings.strChooserType = 0;
+									Settings.intChooserType = 0;
 								}
 								
 								{
@@ -1098,7 +1085,7 @@ var Input = {
 								{
 									Settings.strChooserCategory = 'categoryWeapon';
 									
-									Settings.strChooserType = 1;
+									Settings.intChooserType = 1;
 								}
 								
 								{
@@ -1137,13 +1124,13 @@ var Player = {
 	
 	init: function() {
 		{
-			Player.minecraftskinHandle = Voxel.minecraftskinFunction('./skins/blue.png');
+			// TODO
+			Player.minecraftskinHandle = Voxel.minecraftskinFunction('./images/skinRed.png');
 			
 			Player.physicsHandle = Voxel.voxelengineHandle.makePhysical(Player.minecraftskinHandle.mesh);
 
 			{
-				// TODO
-				Player.minecraftskinHandle.mesh.position.set(0, 10, 0);
+				Player.minecraftskinHandle.mesh.position.set(0, 1, 0);
 				
 				Player.minecraftskinHandle.mesh.cameraInside.add(Voxel.voxelengineHandle.camera);
 			}
@@ -1252,7 +1239,8 @@ var Enemy = {
 		{
 			for (var intFor1 = 0; intFor1 < 32; intFor1 += 1) {
 				{
-					var minecraftskinHandle = Voxel.minecraftskinFunction('./skins/blue.png');
+					// TODO
+					var minecraftskinHandle = Voxel.minecraftskinFunction('./images/skinRed.png');
 					
 					Enemy.minecraftskinHandle.push(minecraftskinHandle);
 				}
@@ -1468,11 +1456,9 @@ jQuery(document).ready(function() {
 			if (Settings.strChooserCategory === 'categoryCreate') {
 				if (Voxel.voxelhighlightHandle.positionCreate !== null) {
 					if (Settings.intChooserType === 0) {
-						Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('dirt'));
-
 						Socket.socketHandle.emit('voxelHandle', {
-							'intType': Voxel.voxelengineHandle.materials.find('dirt'),
-							'intCoordinate': Voxel.voxelhighlightHandle.positionCreate
+							'intCoordinate': Voxel.voxelhighlightHandle.positionCreate,
+							'strType': 'voxelDirt'
 						});
 					}
 				}
@@ -1480,11 +1466,9 @@ jQuery(document).ready(function() {
 			} else if (Settings.strChooserCategory === 'categoryDestroy') {
 				if (Voxel.voxelhighlightHandle.positionDestroy !== null) {
 					if (Settings.intChooserType === 0) {
-						Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionDestroy, 0);
-						
 						Socket.socketHandle.emit('voxelHandle', {
-							'intType': 0,
-							'intCoordinate': Voxel.voxelhighlightHandle.positionDestroy
+							'intCoordinate': Voxel.voxelhighlightHandle.positionDestroy,
+							'strType': ''
 						});
 					}
 				}

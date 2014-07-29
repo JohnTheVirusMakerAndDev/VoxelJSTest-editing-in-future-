@@ -118,6 +118,7 @@ var Node = {
 		}
 		
 		{
+			// TODO: check whether this still makes sense
 			Mustache_objectHandle.objectGameserver.strName = Gameserver.strName;
 			Mustache_objectHandle.objectGameserver.strLoginPassword = Gameserver.strLoginPassword;
 			Mustache_objectHandle.objectGameserver.intLoginPassword = Gameserver.intLoginPassword;
@@ -194,14 +195,9 @@ var Node = {
 {
 	Socket.serverHandle.on('connection', function(socketHandle) {
 		{
-			var strSocket = '';
-			
-			{
-				strSocket = socketHandle.id.substr(1, 8);
-			}
-			
 			Gameserver.playerHandle[socketHandle.id] = {
-				'strSocket': strSocket,
+				'socketHandle': socketHandle,
+				'strSocket': socketHandle.id.substr(1, 8),
 				'strTeam': 'teamLogin',
 				'strName': '',
 				'intScore': 0,
@@ -345,10 +341,11 @@ var Node = {
 			}
 			
 			{
-				Socket.serverHandle.emit('settingsHandle', {
-					'strChange': 'changeLogin',
-					'strMapActive': Gameserver.strMapActive,
-					'strPhaseActive': Gameserver.strPhaseActive
+				// TODO: send correct coordinate
+				socketHandle.emit('resetHandle', {
+					'strMapType': Gameserver.strMapType,
+					'strPhaseActive': Gameserver.strPhaseActive,
+					'intPlayerCoordinate': [ 0, 10, 0 ]
 				});
 			}
 		});
@@ -376,11 +373,21 @@ var Node = {
 				}
 				
 				{
-					Socket.serverHandle.emit('chatHandle', {
-						'strSocket': Gameserver.playerHandle[socketHandle.id].strSocket,
-						'strName': Gameserver.playerHandle[socketHandle.id].strName,
-						'strMessage': strMessage
-					});
+					for (var strSocket in Gameserver.playerHandle) {
+						var playerHandle = Gameserver.playerHandle[strSocket];
+						
+						if (playerHandle.strTeam === 'teamLogin') {
+							continue;
+						}
+						
+						{
+							playerHandle.socketHandle.emit('chatHandle', {
+								'strSocket': Gameserver.playerHandle[socketHandle.id].strSocket,
+								'strName': Gameserver.playerHandle[socketHandle.id].strName,
+								'strMessage': strMessage
+							});
+						}
+					}
 				}
 			}
 		});
@@ -439,6 +446,7 @@ var Node = {
 					}
 					
 					{
+						// TODO: also send team and use it on the client in order to selct the correct skin
 						jsonHandle.push({
 							'a': playerHandle.strSocket,
 							'b': playerHandle.dblPosition,
@@ -452,15 +460,16 @@ var Node = {
 				socketHandle.emit('playerHandle', jsonHandle);
 			}
 		});
-		
+
+		// TODO: it should not be possible to change world blocks
 		socketHandle.on('voxelHandle', function(jsonHandle) {
-			if (jsonHandle.intType === undefined) {
-				return;
-				
-			} else if (jsonHandle.intCoordinate === undefined) {
+			if (jsonHandle.intCoordinate === undefined) {
 				return;
 				
 			} else if (jsonHandle.intCoordinate.length !== 3) {
+				return;
+				
+			} else if (jsonHandle.strType === undefined) {
 				return;
 				
 			}
@@ -470,20 +479,30 @@ var Node = {
 			}
 			
 			{
-				if (jsonHandle.intType === 0) {
-					delete Gameserver.intMapDatabase[jsonHandle.intCoordinate];
+				if (jsonHandle.strType === '') {
+					delete Gameserver.strMapType[jsonHandle.intCoordinate];
 					
-				} else if (jsonHandle.intType !== 0) {
-					Gameserver.intMapDatabase[jsonHandle.intCoordinate] = jsonHandle.intType;
+				} else if (jsonHandle.strType !== '') {
+					Gameserver.strMapType[jsonHandle.intCoordinate] = jsonHandle.strType;
 					
 				}
 			}
-			
+
 			{
-				Socket.serverHandle.emit('voxelHandle', {
-					'intType': jsonHandle.intType,
-					'intCoordinate': jsonHandle.intCoordinate
-				});
+				for (var strSocket in Gameserver.playerHandle) {
+					var playerHandle = Gameserver.playerHandle[strSocket];
+					
+					if (playerHandle.strTeam === 'teamLogin') {
+						continue;
+					}
+					
+					{
+						playerHandle.socketHandle.emit('voxelHandle', {
+							'intCoordinate': jsonHandle.intCoordinate,
+							'strType': jsonHandle.strType
+						});
+					}
+				}
 			}
 		});
 		
@@ -503,17 +522,27 @@ var Node = {
 
 var Gameserver = {
 	strName: '',
+	
 	strLoginPassword: '',
 	intLoginPassword: 0,
 	strLoginMotd: '',
+	
 	intPlayerActive: 0,
 	intPlayerCapacity: 0,
+	
 	strMapActive: '',
 	strMapAvailable: [],
-	intMapDatabase: {},
+	strMapType: {},
+	intMapRedSpawn: [],
+	intMapRedFlag: [],
+	intMapBlueSpawn: [],
+	intMapBlueFlag: [],
+	intMapSeparator: [],
+	
 	strPhaseActive: '',
 	intPhaseRemaining: 0,
 	intPhaseRound: 0,
+	
 	intScoreRed: 0,
 	intScoreBlue: 0,
 	
@@ -522,29 +551,49 @@ var Gameserver = {
 	init: function() {
 		{
 			Gameserver.strName = process.env.strName;
-			
+		}
+		
+		{
 			Gameserver.strLoginPassword = process.env.strLoginPassword;
 			
 			Gameserver.intLoginPassword = 0;
 			
 			Gameserver.strLoginMotd = process.env.strLoginMotd;
-			
+		}
+		
+		{
 			Gameserver.intPlayerCapacity = process.env.intPlayerCapacity;
 			
 			Gameserver.intPlayerActive = 0;
-			
-			Gameserver.strMapActive = '';
+		}
+		
+		{
+			Gameserver.strMapActive = process.env.strMapActive;
 			
 			Gameserver.strMapAvailable = [];
 			
-			Gameserver.intMapDatabase = {};
-
+			Gameserver.strMapType = {};
+			
+			Gameserver.intMapRedSpawn = [];
+			
+			Gameserver.intMapRedFlag = [];
+			
+			Gameserver.intMapBlueSpawn = [];
+			
+			Gameserver.intMapBlueFlag = [];
+			
+			Gameserver.intMapSeparator = [];
+		}
+		
+		{
 			Gameserver.strPhaseActive = 'Build';
 			
 			Gameserver.intPhaseRemaining = process.env.intPhaseRemaining;
 			
 			Gameserver.intPhaseRound = process.env.intPhaseRound;
-			
+		}
+		
+		{
 			Gameserver.intScoreRed = 0;
 			
 			Gameserver.intScoreBlue = 0;
@@ -581,72 +630,157 @@ var Gameserver = {
 		}
 		
 		{
-			var objectMap = JSON.parse(Node.fsHandle.readFileSync(__dirname + '/maps' + Gameserver.strMapActive + '.json').toString());
-			
-			{
-				Gameserver.intMapDatabase = objectMap.intMapDatabase;
-			}
-			
-			{
-				// TODO: spawn / flag coordinates
-			}
+			Gameserver.strMapType = JSON.parse(Node.fsHandle.readFileSync(__dirname + '/assets/maps/' + Gameserver.strMapActive + '.json').toString());
+			Gameserver.intMapRedSpawn = [];
+			Gameserver.intMapRedFlag = [];
+			Gameserver.intMapBlueSpawn = [];
+			Gameserver.intMapBlueFlag = [];
+			Gameserver.intMapSeparator = [];
+
+		    for (var intCoordinate in Gameserver.strMapType) {
+				var strType = Gameserver.strMapType[intCoordinate];
+				
+				{
+					if (strType === 'voxelRedSpawn') {
+						Gameserver.intMapRedSpawn.push(JSON.parse('[' + intCoordinate + ']'));
+						
+					} else if (strType === 'voxelRedFlag') {
+						Gameserver.intMapRedFlag.push(JSON.parse('[' + intCoordinate + ']'));
+						
+					} else if (strType === 'voxelBlueSpawn') {
+						Gameserver.intMapBlueSpawn.push(JSON.parse('[' + intCoordinate + ']'));
+						
+					} else if (strType === 'voxelBlueFlag') {
+						Gameserver.intMapBlueFlag.push(JSON.parse('[' + intCoordinate + ']'));
+						
+					} else if (strType === 'voxelSeparator') {
+						Gameserver.intMapSeparator.push(JSON.parse('[' + intCoordinate + ']'));
+						
+					}
+				}
+		    }
 		}
 		
 		{
 			var functionInterval = function() {
 				{
 					Gameserver.intPhaseRemaining -= 1;
+					
+					if (Gameserver.intPhaseRemaining > 0) {
+						return;
+					}
 				}
 				
 				{
-					if (Gameserver.intPhaseRemaining === 0) {
+					if (Gameserver.strPhaseActive === 'Build') {
 						{
-							if (Gameserver.strPhaseActive === 'Build') {
-								{
-									Gameserver.strPhaseActive = 'Combat';
-								}
-								
-								{
-									Gameserver.intPhaseRemaining = process.env.intPhaseRemaining;
-								}
-								
-							} else if (Gameserver.strPhaseActive === 'Combat') {
-								{
-									Gameserver.strPhaseActive = 'Build';
-								}
-								
-								{
-									Gameserver.intPhaseRemaining = process.env.intPhaseRemaining;
-								}
-								
-								{
-									Gameserver.intPhaseRound -= 1;
-								}
-								
-							}
+							Gameserver.strPhaseActive = 'Combat';
 						}
 						
 						{
-							Socket.serverHandle.emit('settingsHandle', {
-								'strChange': 'changePhase',
-								'strMapActive': Gameserver.strMapActive,
-								'strPhaseActive': Gameserver.strPhaseActive
-							});
+							Gameserver.intPhaseRemaining = process.env.intPhaseRemaining;
 						}
+						
+					} else if (Gameserver.strPhaseActive === 'Combat') {
+						{
+							Gameserver.strPhaseActive = 'Build';
+						}
+						
+						{
+							Gameserver.intPhaseRemaining = process.env.intPhaseRemaining;
+						}
+						
+						{
+							Gameserver.intPhaseRound -= 1;
+						}
+						
 					}
 				}
 				
 				{
 					if (Gameserver.intPhaseRound === 0) {
 						{
-							// TODO: change map
+							// TODO: set next active map
 						}
 						
 						{
-							Socket.serverHandle.emit('settingsHandle', {
-								'strChange': 'changeMap',
-								'strMapActive': Gameserver.strMapActive,
-								'strPhaseActive': Gameserver.strPhaseActive
+							Gameserver.strMapType = JSON.parse(Node.fsHandle.readFileSync(__dirname + '/assets/maps/' + Gameserver.strMapActive + '.json').toString());
+							Gameserver.intMapRedSpawn = [];
+							Gameserver.intMapRedFlag = [];
+							Gameserver.intMapBlueSpawn = [];
+							Gameserver.intMapBlueFlag = [];
+							Gameserver.intMapSeparator = [];
+
+						    for (var intCoordinate in Gameserver.strMapType) {
+								var strType = Gameserver.strMapType[intCoordinate];
+								
+								{
+									if (strType === 'voxelRedSpawn') {
+										Gameserver.intMapRedSpawn.push(JSON.parse('[' + intCoordinate + ']'));
+										
+									} else if (strType === 'voxelRedFlag') {
+										Gameserver.intMapRedFlag.push(JSON.parse('[' + intCoordinate + ']'));
+										
+									} else if (strType === 'voxelBlueSpawn') {
+										Gameserver.intMapBlueSpawn.push(JSON.parse('[' + intCoordinate + ']'));
+										
+									} else if (strType === 'voxelBlueFlag') {
+										Gameserver.intMapBlueFlag.push(JSON.parse('[' + intCoordinate + ']'));
+										
+									} else if (strType === 'voxelSeparator') {
+										Gameserver.intMapSeparator.push(JSON.parse('[' + intCoordinate + ']'));
+										
+									}
+								}
+						    }
+						}
+						
+						{
+							Gameserver.strPhaseActive = 'Build';
+							
+							Gameserver.intPhaseRemaining = process.env.intPhaseRemaining;
+							
+							Gameserver.intPhaseRound = process.env.intPhaseRound;
+						}
+					}
+				}
+				
+				{
+					if (Gameserver.strPhaseActive === 'Build') {
+					    for (var intFor1 = 0; intFor1 < Gameserver.intMapSeparator.length; intFor1 += 1) {
+							var intCoordinate = Gameserver.intMapSeparator[intFor1];
+							
+							{
+								Gameserver.strMapType[intCoordinate] = 'voxelSeparator';
+							}
+					    }
+						
+					} else if (Gameserver.strPhaseActive === 'Combat') {
+					    for (var intFor1 = 0; intFor1 < Gameserver.intMapSeparator.length; intFor1 += 1) {
+							var intCoordinate = Gameserver.intMapSeparator[intFor1];
+							
+							{
+								delete Gameserver.strMapType[intCoordinate];
+							}
+					    }
+						
+					}
+				}
+				
+				{
+					for (var strSocket in Gameserver.playerHandle) {
+						var playerHandle = Gameserver.playerHandle[strSocket];
+						
+						if (playerHandle.strTeam === 'teamLogin') {
+							continue;
+						}
+						
+						{
+							// TODO: send correct coordinate
+							playerHandle.socketHandle.emit('resetHandle', {
+								'strMapType': Gameserver.strMapType,
+								'strPhaseActive': Gameserver.strPhaseActive,
+								'intPlayerCoordinate': [ 0, 10, 0 ]
 							});
 						}
 					}
@@ -660,29 +794,49 @@ var Gameserver = {
 	dispel: function() {
 		{
 			Gameserver.strName = '';
-			
+		}
+		
+		{
 			Gameserver.strLoginPassword = '';
 			
 			Gameserver.intLoginPassword = 0;
 			
 			Gameserver.strLoginMotd = '';
-			
-			Gameserver.intPlayerCapacity = 0
+		}
+		
+		{
+			Gameserver.intPlayerCapacity = 0;
 			
 			Gameserver.intPlayerActive = 0;
-			
+		}
+		
+		{
 			Gameserver.strMapActive = '';
 			
 			Gameserver.strMapAvailable = [];
 			
-			Gameserver.intMapDatabase = {};
+			Gameserver.strMapType = {};
 			
+			Gameserver.intMapRedSpawn = [];
+			
+			Gameserver.intMapRedFlag = [];
+			
+			Gameserver.intMapBlueSpawn = [];
+			
+			Gameserver.intMapBlueFlag = [];
+			
+			Gameserver.intMapSeparator = [];
+		}
+		
+		{
 			Gameserver.strPhaseActive = '';
 			
 			Gameserver.intPhaseRemaining = 0;
 			
 			Gameserver.intPhaseRound = 0;
-			
+		}
+		
+		{
 			Gameserver.intScoreRed = 0;
 			
 			Gameserver.intScoreBlue = 0;
@@ -701,8 +855,9 @@ var Gameserver = {
 {
 	var functionInterval = function() {
 		var functionRequest = function() {
+			//TODO: insert domain
 			var requestHttp = Node.httpHandle.request({
-				'host': '127.0.0.1', //TODO: insert domain
+				'host': '127.0.0.1',
 				'port': 26866,
 				'path': '/host.xml?intPort=' + encodeURIComponent(process.env.intSocketPort) + '&strName=' + encodeURIComponent(Gameserver.strName) + '&intLoginPassword=' + encodeURIComponent(Gameserver.intLoginPassword) + '&intPlayerCapacity=' + encodeURIComponent(Gameserver.intPlayerCapacity) + '&intPlayerActive=' + encodeURIComponent(Gameserver.intPlayerActive) + '&strMapActive=' + encodeURIComponent(Gameserver.strMapActive),
 				'method': 'GET'

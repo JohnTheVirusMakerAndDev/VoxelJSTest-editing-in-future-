@@ -8,8 +8,8 @@ var Aws = {
 			Aws.awsHandle = require('aws-sdk');
 			
 			Aws.awsHandle.config.update({
-			'accessKeyId': process.env.strAwsIdent,
-			'secretAccessKey': process.env.strAwsKey
+				'accessKeyId': process.env.strAwsIdent,
+				'secretAccessKey': process.env.strAwsKey
 			});
 		}
 		

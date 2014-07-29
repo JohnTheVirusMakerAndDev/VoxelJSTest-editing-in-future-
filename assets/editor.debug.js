@@ -119,21 +119,8 @@ jQuery(document).ready(function() {
 		jQuery('#idMap_Json')
 			.off('update')
 			.on('update', function() {
-				var strJson = '';
-				
-				{	
-					strJson = JSON.stringify({
-						'intMapRedSpawn': Settings.intMapRedSpawn,
-						'intMapRedFlag': Settings.intMapRedFlag,
-						'intMapBlueSpawn': Settings.intMapBlueSpawn,
-						'intMapBlueFlag': Settings.intMapBlueFlag,
-						'intMapSepearator': Settings.intMapSeparator,
-						'intMapDatabase': Settings.intMapDatabase
-					});
-				}
-				
 				jQuery(this)
-					.val(strJson)
+					.val(JSON.stringify(Settings.strMapType))
 				;
 			})
 		;
@@ -148,7 +135,7 @@ jQuery(document).ready(function() {
 			.button({
 				'disabled': false,
 				'icons': {
-					'primary': 'ui-icon-check' // TODO: change icon
+					'primary': 'ui-icon-disk'
 				}
 			})
 			.off('click')
@@ -167,14 +154,14 @@ jQuery(document).ready(function() {
 			.button({
 				'disabled': false,
 				'icons': {
-					'primary': 'ui-icon-check' // TODO: change icon
+					'primary': 'ui-icon-folder-open'
 				}
 			})
 			.off('click')
 			.on('click', function() {
 				{
-				    for (var intCoordinate in Settings.intMapDatabase) {
-						var intType = Settings.intMapDatabase[intCoordinate];
+				    for (var intCoordinate in Settings.strMapType) {
+						var strType = Settings.strMapType[intCoordinate];
 						
 						{
 							Voxel.voxelengineHandle.setBlock(JSON.parse('[' + intCoordinate + ']'), 0);
@@ -186,20 +173,16 @@ jQuery(document).ready(function() {
 					var objectMap = JSON.parse(jQuery('#idMap_Json').val());
 					
 					{
-						Settings.intMapRedSpawn = objectMap.intMapRedSpawn;
-						Settings.intMapRedFlag = objectMap.intMapRedFlag;
-						Settings.intMapBlueSpawn = objectMap.intMapBlueSpawn;
-						Settings.intMapBlueFlag = objectMap.intMapBlueFlag;
-						Settings.intMapDatabase = objectMap.intMapDatabase;
+						Settings.strMapType = objectMap.strMapType;
 					}
 				}
 				
 				{
-				    for (var intCoordinate in Settings.intMapDatabase) {
-						var intType = Settings.intMapDatabase[intCoordinate];
+				    for (var intCoordinate in Settings.strMapType) {
+						var strType = Settings.strMapType[intCoordinate];
 						
 						{
-							Voxel.voxelengineHandle.setBlock(JSON.parse('[' + intCoordinate + ']'), intType);
+							Voxel.voxelengineHandle.setBlock(JSON.parse('[' + intCoordinate + ']'), Voxel.voxelengineHandle.materials.find(strType));
 						}
 				    }
 				}
@@ -214,12 +197,7 @@ var Settings = {
 	strChooserCategory: '',
 	intChooserType: 0,
 
-	intMapRedSpawn: [],
-	intMapRedFlag: [],
-	intMapBlueSpawn: [],
-	intMapBlueFlag: [],
-	intMapSepearator: [],
-	intMapDatabase: {},
+	strMapType: {},
 	
 	init: function() {
 		{
@@ -233,17 +211,7 @@ var Settings = {
 		}
 		
 		{
-			Settings.intMapRedSpawn = [];
-			
-			Settings.intMapRedFlag = [];
-			
-			Settings.intMapBlueSpawn = [];
-			
-			Settings.intMapBlueFlag = [];
-			
-			Settings.intMapSeparator = [];
-			
-			Settings.intMapDatabase = {};
+			Settings.strMapType = {};
 		}
 	},
 	
@@ -259,17 +227,7 @@ var Settings = {
 		}
 		
 		{
-			Settings.intMapRedSpawn = [];
-			
-			Settings.intMapRedFlag = [];
-			
-			Settings.intMapBlueSpawn = [];
-			
-			Settings.intMapBlueFlag = [];
-			
-			Settings.intMapSeparator = [];
-			
-			Settings.intMapDatabase = {};
+			Settings.strMapType = {};
 		}
 	}
 };
@@ -282,19 +240,20 @@ var Voxel = {
 	minecraftskinHandle: null,
 	minecraftskinFunction: null,
 	
+	voxelflyHandle: null,
+	
 	init: function() {
 		{
-			// TODO: player flyable
 			Voxel.voxelengineHandle = require('voxel-engine')({
-				'texturePath': './textures/',
+				'texturePath': './images/',
 				'generate': function(intX, intY, intZ) {
 					if (intY === 0) {
-						return 64;
+						return 1;
 					}
 					
 					return 0;
 				},
-				'materials': [ 'brick', 'dirt', 'grass', 'plank', 'stone', 'red spawn', 'red flag', 'blue spawn', 'blue flag', 'separator' ],
+				'materials': [ 'voxelVoid', 'voxelBrick', 'voxelDirt', 'voxelGrass', 'voxelPlank', 'voxelStone', 'voxelRedSpawn', 'voxelRedFlag', 'voxelBlueSpawn', 'voxelBlueFlag', 'voxelSeparator' ],
 				'controls': {
 					'discreteFire': true
 				},
@@ -370,6 +329,10 @@ var Voxel = {
 				});
 			};
 		}
+		
+		{
+			Voxel.voxelflyHandle = require('voxel-fly')(Voxel.voxelengineHandle);
+		}
 	},
 	
 	dispel: function() {
@@ -385,6 +348,10 @@ var Voxel = {
 			Voxel.minecraftskinHandle = null;
 			
 			Voxel.minecraftskinFunction = null;
+		}
+		
+		{
+			Voxel.voxelflyHandle = null;
 		}
 	}
 };
@@ -513,7 +480,7 @@ var Player = {
 	
 	init: function() {
 		{
-			Player.minecraftskinHandle = Voxel.minecraftskinFunction('./skins/blue.png');
+			Player.minecraftskinHandle = Voxel.minecraftskinFunction('./images/skinRed.png');
 			
 			Player.physicsHandle = Voxel.voxelengineHandle.makePhysical(Player.minecraftskinHandle.mesh);
 
@@ -540,6 +507,10 @@ var Player = {
 		
 		{
 			Voxel.voxelengineHandle.control(Player.physicsHandle);
+		}
+		
+		{
+			Voxel.voxelflyHandle(Voxel.voxelengineHandle.controls.target());
 		}
 	},
 	
@@ -569,29 +540,29 @@ jQuery(document).ready(function() {
 				if (Voxel.voxelhighlightHandle.positionCreate !== null) {
 					if (Voxel.voxelhighlightHandle.positionCreate[1] !== 0) {
 						if (Settings.intChooserType === 0) {
-							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('brick'));
+							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelBrick'));
 							
-							Settings.intMapDatabase[Voxel.voxelhighlightHandle.positionCreate] = Voxel.voxelengineHandle.materials.find('brick');
+							Settings.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelBrick';
 							
 						} else if (Settings.intChooserType === 1) {
-							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('dirt'));
+							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelDirt'));
 							
-							Settings.intMapDatabase[Voxel.voxelhighlightHandle.positionCreate] = Voxel.voxelengineHandle.materials.find('dirt');
+							Settings.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelDirt';
 							
 						} else if (Settings.intChooserType === 2) {
-							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('grass'));
+							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelGrass'));
 							
-							Settings.intMapDatabase[Voxel.voxelhighlightHandle.positionCreate] = Voxel.voxelengineHandle.materials.find('grass');
+							Settings.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelGrass';
 							
 						} else if (Settings.intChooserType === 3) {
-							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('plank'));
+							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelPlank'));
 							
-							Settings.intMapDatabase[Voxel.voxelhighlightHandle.positionCreate] = Voxel.voxelengineHandle.materials.find('plank');
+							Settings.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelPlank';
 							
 						} else if (Settings.intChooserType === 4) {
-							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('stone'));
+							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelStone'));
 							
-							Settings.intMapDatabase[Voxel.voxelhighlightHandle.positionCreate] = Voxel.voxelengineHandle.materials.find('stone');
+							Settings.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelStone';
 							
 						}
 					}
@@ -601,59 +572,29 @@ jQuery(document).ready(function() {
 				if (Voxel.voxelhighlightHandle.positionCreate !== null) {
 					if (Voxel.voxelhighlightHandle.positionCreate[1] !== 0) {
 						if (Settings.intChooserType === 0) {
-							{
-								Settings.intMapRedSpawn.push(Voxel.voxelhighlightHandle.positionCreate);
-							}
+							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelRedSpawn'));
 							
-							{
-								Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('red spawn'));
-								
-								Settings.intMapDatabase[Voxel.voxelhighlightHandle.positionCreate] = Voxel.voxelengineHandle.materials.find('red spawn');
-							}
+							Settings.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelRedSpawn';
 							
 						} else if (Settings.intChooserType === 1) {
-							{
-								Settings.intMapRedFlag.push(Voxel.voxelhighlightHandle.positionCreate);
-							}
+							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelRedFlag'));
 							
-							{
-								Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('red flag'));
-								
-								Settings.intMapDatabase[Voxel.voxelhighlightHandle.positionCreate] = Voxel.voxelengineHandle.materials.find('red flag');
-							}
+							Settings.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelRedFlag';
 							
 						} else if (Settings.intChooserType === 2) {
-							{
-								Settings.intMapBlueSpawn.push(Voxel.voxelhighlightHandle.positionCreate);
-							}
+							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelBlueSpawn'));
 							
-							{
-								Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('blue spawn'));
-								
-								Settings.intMapDatabase[Voxel.voxelhighlightHandle.positionCreate] = Voxel.voxelengineHandle.materials.find('blue spawn');
-							}
+							Settings.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelBlueSpawn';
 							
 						} else if (Settings.intChooserType === 3) {
-							{
-								Settings.intMapBlueFlag.push(Voxel.voxelhighlightHandle.positionCreate);
-							}
+							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelBlueFlag'));
 							
-							{
-								Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('blue flag'));
-								
-								Settings.intMapDatabase[Voxel.voxelhighlightHandle.positionCreate] = Voxel.voxelengineHandle.materials.find('blue flag');
-							}
+							Settings.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelBlueFlag';
 							
 						} else if (Settings.intChooserType === 4) {
-							{
-								Settings.intMapSeparator.push(Voxel.voxelhighlightHandle.positionCreate);
-							}
+							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelSeparator'));
 							
-							{
-								Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('separator'));
-								
-								Settings.intMapDatabase[Voxel.voxelhighlightHandle.positionCreate] = Voxel.voxelengineHandle.materials.find('separator');
-							}
+							Settings.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelSeparator';
 							
 						}
 					}
@@ -663,56 +604,9 @@ jQuery(document).ready(function() {
 				if (Voxel.voxelhighlightHandle.positionDestroy !== null) {
 					if (Voxel.voxelhighlightHandle.positionDestroy[1] !== 0) {
 						if (Settings.intChooserType === 0) {
-							{
-								Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionDestroy, 0);
-								
-								delete Settings.intMapDatabase[Voxel.voxelhighlightHandle.positionDestroy];
-							}
+							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionDestroy, 0);
 							
-							{
-								for (var intFor1 = 0; intFor1 < 5; intFor1 += 1) {
-									var intCollection = [];
-									
-									{
-										if (intFor1 === 0) {
-											intCollection = Settings.intMapRedSpawn;
-											
-										} else if (intFor1 === 1) {
-											intCollection = Settings.intMapRedFlag;
-											
-										} else if (intFor1 === 2) {
-											intCollection = Settings.intMapBlueSpawn;
-											
-										} else if (intFor1 === 3) {
-											intCollection = Settings.intMapBlueFlag;
-											
-										} else if (intFor1 === 4) {
-											intCollection = Settings.intMapSeparator;
-											
-										}
-									}
-									
-									{
-										var intSearchCollection = -1;
-										
-										for (var intForSearchCollection = 0; intForSearchCollection < intCollection.length; intForSearchCollection += 1) {
-											if (intCollection[intForSearchCollection][0] === Voxel.voxelhighlightHandle.positionDestroy[0]) {
-												if (intCollection[intForSearchCollection][1] === Voxel.voxelhighlightHandle.positionDestroy[1]) {
-													if (intCollection[intForSearchCollection][2] === Voxel.voxelhighlightHandle.positionDestroy[2]) {
-														intSearchCollection = intForSearchCollection;
-														
-														break;
-													}
-												}
-											}
-										}
-										
-										if (intSearchCollection !== -1) {
-											intCollection.splice(intSearchCollection, 1);
-										}
-									}
-								}
-							}
+							delete Settings.strMapType[Voxel.voxelhighlightHandle.positionDestroy];
 						}
 					}
 				}
