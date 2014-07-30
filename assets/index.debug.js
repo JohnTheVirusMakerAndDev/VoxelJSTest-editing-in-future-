@@ -509,6 +509,8 @@ var Voxel = {
 	
 	minecraftskinHandle: null,
 	minecraftskinFunction: null,
+	minecraftskinRed: null,
+	minecraftskinBlue: null,
 	
 	aabbHandle: null,
 	
@@ -587,6 +589,12 @@ var Voxel = {
 					'scale': new Voxel.voxelengineHandle.THREE.Vector3(0.04, 0.04, 0.04)
 				});
 			};
+			
+			Voxel.minecraftskinRed = new Image();
+			Voxel.minecraftskinRed.src = './images/skinRed.png';
+			
+			Voxel.minecraftskinBlue = new Image();
+			Voxel.minecraftskinBlue.src = './images/skinBlue.png';
 		}
 		
 		{
@@ -842,10 +850,11 @@ var Socket = {
 
 							{
 								playerHandle.strSocket = playerHandle.a;
-								playerHandle.dblPosition = playerHandle.b;
-								playerHandle.dblVerlet = playerHandle.c;
-								playerHandle.dblBodyyaw = playerHandle.d;
-								playerHandle.dblHeadpitch = playerHandle.e;
+								playerHandle.strTeam = playerHandle.b;
+								playerHandle.dblPosition = playerHandle.c;
+								playerHandle.dblVerlet = playerHandle.d;
+								playerHandle.dblBodyyaw = playerHandle.e;
+								playerHandle.dblHeadpitch = playerHandle.f;
 							}
 							
 							{
@@ -869,6 +878,7 @@ var Socket = {
 								
 								playerOverwrite[playerHandle.strSocket] = {
 									'strSocket': playerHandle.strSocket,
+									'strTeam': playerHandle.strTeam,
 									'dblPosition': [ dblPositionX, dblPositionY, dblPositionZ ],
 									'dblVerlet': [ dblVerletX, dblVerletY, dblVerletZ ],
 									'dblBodyyaw': playerHandle.dblBodyyaw,
@@ -889,6 +899,24 @@ var Socket = {
 				});
 				
 				Socket.socketHandle.on('resetHandle', function(jsonHandle) {
+					{
+						Player.strTeam = jsonHandle.strPlayerTeam;
+					}
+					
+					{
+						Player.minecraftskinHandle.mesh.position.set(jsonHandle.dblPlayerPosition[0], jsonHandle.dblPlayerPosition[1], jsonHandle.dblPlayerPosition[2]);
+					}
+					
+					{
+					    for (var intCoordinate in jsonHandle.strMapType) {
+							var strType = jsonHandle.strMapType[intCoordinate];
+							
+							{
+								Voxel.voxelengineHandle.setBlock(JSON.parse('[' + intCoordinate + ']'), Voxel.voxelengineHandle.materials.find(strType));
+							}
+					    }
+					}
+					
 					{
 						Settings.strPhaseActive = jsonHandle.strPhaseActive;
 					}
@@ -925,20 +953,6 @@ var Socket = {
 							}
 							
 						}
-					}
-					
-					{
-					    for (var intCoordinate in jsonHandle.strMapType) {
-							var strType = jsonHandle.strMapType[intCoordinate];
-							
-							{
-								Voxel.voxelengineHandle.setBlock(JSON.parse('[' + intCoordinate + ']'), Voxel.voxelengineHandle.materials.find(strType));
-							}
-					    }
-					}
-					
-					{
-						Player.minecraftskinHandle.mesh.position.set(jsonHandle.intPlayerCoordinate[0], jsonHandle.intPlayerCoordinate[1], jsonHandle.intPlayerCoordinate[2]);
 					}
 				});
 				
@@ -1117,6 +1131,8 @@ var Player = {
 	minecraftskinHandle: null,
 	physicsHandle: null,
 	
+	strTeam: '',
+	
 	dblPosition: [ 0.0, 0.0, 0.0 ],
 	dblVerlet: [ 0.0, 0.0, 0.0 ],
 	
@@ -1124,12 +1140,13 @@ var Player = {
 	
 	init: function() {
 		{
-			// TODO
-			Player.minecraftskinHandle = Voxel.minecraftskinFunction('./images/skinRed.png');
+			Player.minecraftskinHandle = Voxel.minecraftskinFunction();
 			
 			Player.physicsHandle = Voxel.voxelengineHandle.makePhysical(Player.minecraftskinHandle.mesh);
 
 			{
+				Player.minecraftskinHandle.strTeam = '';
+				
 				Player.minecraftskinHandle.mesh.position.set(0, 1, 0);
 				
 				Player.minecraftskinHandle.mesh.cameraInside.add(Voxel.voxelengineHandle.camera);
@@ -1148,6 +1165,10 @@ var Player = {
 			Voxel.voxelengineHandle.scene.add(Player.minecraftskinHandle.mesh);
 			
 			Voxel.voxelengineHandle.addItem(Player.physicsHandle);
+		}
+		
+		{
+			Player.strTeam = '';
 		}
 		
 		{
@@ -1177,6 +1198,10 @@ var Player = {
 		}
 		
 		{
+			Player.strTeam = '';
+		}
+		
+		{
 			Player.dblPosition[0] = 0.0;
 			Player.dblPosition[1] = 0.0;
 			Player.dblPosition[2] = 0.0;
@@ -1192,6 +1217,20 @@ var Player = {
 	},
 	
 	update: function() {
+		{
+			if (Player.minecraftskinHandle.strTeam !== Player.strTeam) {
+				if (Player.strTeam === 'teamRed') {
+					Player.minecraftskinHandle.setImage(Voxel.minecraftskinRed);
+					
+				} else if (Player.strTeam === 'teamBlue') {
+					Player.minecraftskinHandle.setImage(Voxel.minecraftskinBlue);
+					
+				}
+				
+				Player.minecraftskinHandle.strTeam = Player.strTeam;
+			}
+		}
+		
 		{
 			Player.dblVerlet[0] = Player.dblPosition[0];
 			Player.dblVerlet[1] = Player.dblPosition[1];
@@ -1239,8 +1278,11 @@ var Enemy = {
 		{
 			for (var intFor1 = 0; intFor1 < 32; intFor1 += 1) {
 				{
-					// TODO
-					var minecraftskinHandle = Voxel.minecraftskinFunction('./images/skinRed.png');
+					var minecraftskinHandle = Voxel.minecraftskinFunction();
+					
+					{
+						minecraftskinHandle.strTeam = '';
+					}
 					
 					Enemy.minecraftskinHandle.push(minecraftskinHandle);
 				}
@@ -1323,6 +1365,20 @@ var Enemy = {
 					
 					{
 						intActive += 1;
+					}
+					
+					{
+						if (minecraftskinHandle.strTeam !== playerHandle.strTeam) {
+							if (playerHandle.strTeam === 'teamRed') {
+								minecraftskinHandle.setImage(Voxel.minecraftskinRed);
+								
+							} else if (playerHandle.strTeam === 'teamBlue') {
+								minecraftskinHandle.setImage(Voxel.minecraftskinBlue);
+								
+							}
+							
+							minecraftskinHandle.strTeam = playerHandle.strTeam;
+						}
 					}
 					
 					{

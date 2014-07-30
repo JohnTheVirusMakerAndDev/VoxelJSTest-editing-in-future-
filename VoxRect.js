@@ -89,14 +89,8 @@ var Node = {
 				'strRandom': ''
 			},
 			'objectGameserver': {
-				strName: '',
-				strLoginPassword: '',
 				intLoginPassword: 0,
-				strLoginMotd: '',
-				intPlayerActive: 0,
-				intPlayerCapacity: 0,
-				strMapActive: '',
-				strMapAvailable: []
+				strLoginMotd: ''
 			}
 		};
 		
@@ -118,15 +112,8 @@ var Node = {
 		}
 		
 		{
-			// TODO: check whether this still makes sense
-			Mustache_objectHandle.objectGameserver.strName = Gameserver.strName;
-			Mustache_objectHandle.objectGameserver.strLoginPassword = Gameserver.strLoginPassword;
 			Mustache_objectHandle.objectGameserver.intLoginPassword = Gameserver.intLoginPassword;
 			Mustache_objectHandle.objectGameserver.strLoginMotd = Gameserver.strLoginMotd;
-			Mustache_objectHandle.objectGameserver.intPlayerActive = Gameserver.intPlayerActive;
-			Mustache_objectHandle.objectGameserver.intPlayerCapacity = Gameserver.intPlayerCapacity;
-			Mustache_objectHandle.objectGameserver.strMapActive = Gameserver.strMapActive;
-			Mustache_objectHandle.objectGameserver.strMapAvailable = Gameserver.strMapAvailable;
 		}
 		
 		var FilesystemRead_bufferHandle = null;
@@ -316,10 +303,6 @@ var Node = {
 			}
 			
 			{
-				Gameserver.intPlayerActive += 1;
-			}
-			
-			{
 				if (jsonHandle.strTeam === 'Red') {
 					Gameserver.playerHandle[socketHandle.id].strTeam = 'teamRed';
 					
@@ -334,6 +317,22 @@ var Node = {
 			}
 			
 			{
+				Gameserver.intPlayerActive = 0;
+				
+				for (var strSocket in Gameserver.playerHandle) {
+					var playerHandle = Gameserver.playerHandle[strSocket];
+					
+					if (playerHandle.strTeam === 'teamLogin') {
+						continue;
+					}
+					
+					{
+						Gameserver.intPlayerActive += 1;
+					}
+				}
+			}
+			
+			{
 				socketHandle.emit('loginHandle', {
 					'strType': 'typeAccept',
 					'strMessage': ''
@@ -341,11 +340,27 @@ var Node = {
 			}
 			
 			{
-				// TODO: send correct coordinate
+				var dblPlayerPosition = [];
+				
+				{
+					if (Gameserver.playerHandle[socketHandle.id].strTeam === 'teamRed') {
+						dblPlayerPosition = Gameserver.intMapRedSpawn[Math.floor(Math.random() * Gameserver.intMapRedSpawn.length)];
+						
+					} else if (Gameserver.playerHandle[socketHandle.id].strTeam === 'teamBlue') {
+						dblPlayerPosition = Gameserver.intMapBlueSpawn[Math.floor(Math.random() * Gameserver.intMapBlueSpawn.length)];
+						
+					}
+
+					dblPlayerPosition[0] += 0.5;
+					dblPlayerPosition[1] += 1.0;
+					dblPlayerPosition[2] += 0.5;
+				}
+				
 				socketHandle.emit('resetHandle', {
+					'strPlayerTeam': Gameserver.playerHandle[socketHandle.id].strTeam,
+					'dblPlayerPosition': dblPlayerPosition,
 					'strMapType': Gameserver.strMapType,
-					'strPhaseActive': Gameserver.strPhaseActive,
-					'intPlayerCoordinate': [ 0, 10, 0 ]
+					'strPhaseActive': Gameserver.strPhaseActive
 				});
 			}
 		});
@@ -446,13 +461,13 @@ var Node = {
 					}
 					
 					{
-						// TODO: also send team and use it on the client in order to selct the correct skin
 						jsonHandle.push({
 							'a': playerHandle.strSocket,
-							'b': playerHandle.dblPosition,
-							'c': playerHandle.dblVerlet,
-							'd': playerHandle.dblBodyyaw,
-							'e': playerHandle.dblHeadpitch
+							'b': playerHandle.strTeam,
+							'c': playerHandle.dblPosition,
+							'd': playerHandle.dblVerlet,
+							'e': playerHandle.dblBodyyaw,
+							'f': playerHandle.dblHeadpitch
 						});
 					}
 			    }
@@ -460,8 +475,7 @@ var Node = {
 				socketHandle.emit('playerHandle', jsonHandle);
 			}
 		});
-
-		// TODO: it should not be possible to change world blocks
+		
 		socketHandle.on('voxelHandle', function(jsonHandle) {
 			if (jsonHandle.intCoordinate === undefined) {
 				return;
@@ -476,6 +490,10 @@ var Node = {
 			
 			if (Gameserver.playerHandle[socketHandle.id].strStatus === 'teamLogin') {
 				return;
+				
+			} else if (Gameserver.strMapOrigtype[jsonHandle.intCoordinate] !== undefined) {
+				return;
+				
 			}
 			
 			{
@@ -506,15 +524,25 @@ var Node = {
 			}
 		});
 		
-		socketHandle.on('disconnect', function() {
+		socketHandle.on('disconnect', function() {			
 			{
-				if (Gameserver.playerHandle[socketHandle.id].strTeam !== 'teamLogin') {
-					Gameserver.intPlayerActive -= 1;
-				}
+				delete Gameserver.playerHandle[socketHandle.id];
 			}
 			
 			{
-				delete Gameserver.playerHandle[socketHandle.id];
+				Gameserver.intPlayerActive = 0;
+				
+				for (var strSocket in Gameserver.playerHandle) {
+					var playerHandle = Gameserver.playerHandle[strSocket];
+					
+					if (playerHandle.strTeam === 'teamLogin') {
+						continue;
+					}
+					
+					{
+						Gameserver.intPlayerActive += 1;
+					}
+				}
 			}
 		});
 	});
@@ -533,6 +561,7 @@ var Gameserver = {
 	strMapActive: '',
 	strMapAvailable: [],
 	strMapType: {},
+	strMapOrigtype: {},
 	intMapRedSpawn: [],
 	intMapRedFlag: [],
 	intMapBlueSpawn: [],
@@ -571,8 +600,10 @@ var Gameserver = {
 			Gameserver.strMapActive = process.env.strMapActive;
 			
 			Gameserver.strMapAvailable = [];
-			
+
 			Gameserver.strMapType = {};
+			
+			Gameserver.strMapOrigtype = {};
 			
 			Gameserver.intMapRedSpawn = [];
 			
@@ -631,6 +662,7 @@ var Gameserver = {
 		
 		{
 			Gameserver.strMapType = JSON.parse(Node.fsHandle.readFileSync(__dirname + '/assets/maps/' + Gameserver.strMapActive + '.json').toString());
+			Gameserver.strMapOrigtype = JSON.parse(Node.fsHandle.readFileSync(__dirname + '/assets/maps/' + Gameserver.strMapActive + '.json').toString());
 			Gameserver.intMapRedSpawn = [];
 			Gameserver.intMapRedFlag = [];
 			Gameserver.intMapBlueSpawn = [];
@@ -700,11 +732,12 @@ var Gameserver = {
 				{
 					if (Gameserver.intPhaseRound === 0) {
 						{
-							// TODO: set next active map
+							Gameserver.strMapActive = Gameserver.strMapAvailable[(Gameserver.strMapAvailable.indexOf(Gameserver.strMapActive) + 1) % Gameserver.strMapAvailable.length];
 						}
 						
 						{
 							Gameserver.strMapType = JSON.parse(Node.fsHandle.readFileSync(__dirname + '/assets/maps/' + Gameserver.strMapActive + '.json').toString());
+							Gameserver.strMapOrigtype = JSON.parse(Node.fsHandle.readFileSync(__dirname + '/assets/maps/' + Gameserver.strMapActive + '.json').toString());
 							Gameserver.intMapRedSpawn = [];
 							Gameserver.intMapRedFlag = [];
 							Gameserver.intMapBlueSpawn = [];
@@ -776,11 +809,27 @@ var Gameserver = {
 						}
 						
 						{
-							// TODO: send correct coordinate
+							var dblPlayerPosition = [];
+							
+							{
+								if (playerHandle.strTeam === 'teamRed') {
+									dblPlayerPosition = Gameserver.intMapRedSpawn[Math.floor(Math.random() * Gameserver.intMapRedSpawn.length)];
+									
+								} else if (playerHandle.strTeam === 'teamBlue') {
+									dblPlayerPosition = Gameserver.intMapBlueSpawn[Math.floor(Math.random() * Gameserver.intMapBlueSpawn.length)];
+									
+								}
+	
+								dblPlayerPosition[0] += 0.5;
+								dblPlayerPosition[1] += 1.0;
+								dblPlayerPosition[2] += 0.5;
+							}
+							
 							playerHandle.socketHandle.emit('resetHandle', {
+								'strPlayerTeam': playerHandle.strTeam,
+								'dblPlayerPosition': dblPlayerPosition,
 								'strMapType': Gameserver.strMapType,
-								'strPhaseActive': Gameserver.strPhaseActive,
-								'intPlayerCoordinate': [ 0, 10, 0 ]
+								'strPhaseActive': Gameserver.strPhaseActive
 							});
 						}
 					}
@@ -816,6 +865,8 @@ var Gameserver = {
 			Gameserver.strMapAvailable = [];
 			
 			Gameserver.strMapType = {};
+			
+			Gameserver.strMapOrigtype = {};
 			
 			Gameserver.intMapRedSpawn = [];
 			
