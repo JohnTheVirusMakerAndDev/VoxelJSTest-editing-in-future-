@@ -7,7 +7,11 @@ var Node = {
 	
 	httpHandle: null,
 	
+	httpsHandle: null,
+	
 	pathHandle: null,
+	
+	zlibHandle: null,
 	
 	init: function() {
 		{
@@ -27,7 +31,15 @@ var Node = {
 		}
 
 		{
+			Node.httpsHandle = require('https');
+		}
+
+		{
 			Node.pathHandle = require('path');
+		}
+
+		{
+			Node.zlibHandle = require('zlib');
 		}
 	},
 	
@@ -49,7 +61,15 @@ var Node = {
 		}
 		
 		{
+			Node.httpsHandle = null;
+		}
+		
+		{
 			Node.pathHandle = null;
+		}
+		
+		{
+			Node.zlibHandle = null;
 		}
 	}
 };

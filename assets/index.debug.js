@@ -508,7 +508,8 @@ var Voxel = {
 	voxelhighlightHandle: null,
 	
 	minecraftskinHandle: null,
-	minecraftskinFunction: null,
+	minecraftskinCreate: null,
+	minecraftskinTeam: null,
 	minecraftskinRed: null,
 	minecraftskinBlue: null,
 	
@@ -584,10 +585,42 @@ var Voxel = {
 		{
 			Voxel.minecraftskinHandle = require('minecraft-skin');
 			
-			Voxel.minecraftskinFunction = function(strSkin) {
-				return Voxel.minecraftskinHandle(Voxel.voxelengineHandle.THREE, strSkin, {
+			Voxel.minecraftskinCreate = function() {
+				var minecraftskinHandle = Voxel.minecraftskinHandle(Voxel.voxelengineHandle.THREE, '', {
 					'scale': new Voxel.voxelengineHandle.THREE.Vector3(0.04, 0.04, 0.04)
 				});
+				
+				{
+					minecraftskinHandle.strTeam = '';
+				}
+				
+				return minecraftskinHandle;
+			};
+			
+			Voxel.minecraftskinTeam = function(minecraftskinHandle, strTeam) {
+				if (minecraftskinHandle.strTeam === strTeam) {
+					return;
+				}
+				
+				if (strTeam === 'teamRed') {
+					minecraftskinHandle.setImage(Voxel.minecraftskinRed);
+					
+				} else if (strTeam === 'teamBlue') {
+					minecraftskinHandle.setImage(Voxel.minecraftskinBlue);
+					
+				}
+				
+				minecraftskinHandle.strTeam = strTeam;
+			};
+
+			Voxel.minecraftskinWalk = function(minecraftskinHandle, intTimediff) {
+				// http://djazz.mine.nu/lab/minecraft_items/
+				
+				minecraftskinHandle.rightArm.rotation.z = 2 * Math.cos((0.6662 * intTimediff * 10) + (0.5 * Math.PI) + (Math.PI));
+				minecraftskinHandle.leftArm.rotation.z = 2 * Math.cos((0.6662 * intTimediff * 10) + (0.5 * Math.PI));
+				
+				minecraftskinHandle.rightLeg.rotation.z = 1.4 * Math.cos((0.6662 * intTimediff * 10) + (0.5 * Math.PI));
+				minecraftskinHandle.leftLeg.rotation.z = 1.4 * Math.cos((0.6662 * intTimediff * 10) + (0.5 * Math.PI) + (Math.PI));
 			};
 			
 			Voxel.minecraftskinRed = new Image();
@@ -614,7 +647,13 @@ var Voxel = {
 		{
 			Voxel.minecraftskinHandle = null;
 			
-			Voxel.minecraftskinFunction = null;
+			Voxel.minecraftskinCreate = null;
+			
+			Voxel.minecraftskinTeam = null;
+			
+			Voxel.minecraftskinRed = null;
+			
+			Voxel.minecraftskinBlue = null;
 		}
 		
 		{
@@ -1140,13 +1179,11 @@ var Player = {
 	
 	init: function() {
 		{
-			Player.minecraftskinHandle = Voxel.minecraftskinFunction();
+			Player.minecraftskinHandle = Voxel.minecraftskinCreate();
 			
 			Player.physicsHandle = Voxel.voxelengineHandle.makePhysical(Player.minecraftskinHandle.mesh);
 
 			{
-				Player.minecraftskinHandle.strTeam = '';
-				
 				Player.minecraftskinHandle.mesh.position.set(0, 1, 0);
 				
 				Player.minecraftskinHandle.mesh.cameraInside.add(Voxel.voxelengineHandle.camera);
@@ -1218,17 +1255,7 @@ var Player = {
 	
 	update: function() {
 		{
-			if (Player.minecraftskinHandle.strTeam !== Player.strTeam) {
-				if (Player.strTeam === 'teamRed') {
-					Player.minecraftskinHandle.setImage(Voxel.minecraftskinRed);
-					
-				} else if (Player.strTeam === 'teamBlue') {
-					Player.minecraftskinHandle.setImage(Voxel.minecraftskinBlue);
-					
-				}
-				
-				Player.minecraftskinHandle.strTeam = Player.strTeam;
-			}
+			Voxel.minecraftskinTeam(Player.minecraftskinHandle, Player.strTeam);
 		}
 		
 		{
@@ -1259,13 +1286,7 @@ var Player = {
 			var intTimediff = Player.intWalktime - intWalktime;
 			
 			{
-				// http://djazz.mine.nu/lab/minecraft_items/
-	
-				Player.minecraftskinHandle.rightArm.rotation.z = 2 * Math.cos((0.6662 * intTimediff * 10) + (0.5 * Math.PI) + (Math.PI));
-				Player.minecraftskinHandle.leftArm.rotation.z = 2 * Math.cos((0.6662 * intTimediff * 10) + (0.5 * Math.PI));
-				
-				Player.minecraftskinHandle.rightLeg.rotation.z = 1.4 * Math.cos((0.6662 * intTimediff * 10) + (0.5 * Math.PI));
-				Player.minecraftskinHandle.leftLeg.rotation.z = 1.4 * Math.cos((0.6662 * intTimediff * 10) + (0.5 * Math.PI) + (Math.PI));
+				Voxel.minecraftskinWalk(Player.minecraftskinHandle, intTimediff);
 			}
 		}
 	}
@@ -1278,10 +1299,10 @@ var Enemy = {
 		{
 			for (var intFor1 = 0; intFor1 < 32; intFor1 += 1) {
 				{
-					var minecraftskinHandle = Voxel.minecraftskinFunction();
+					var minecraftskinHandle = Voxel.minecraftskinCreate();
 					
 					{
-						minecraftskinHandle.strTeam = '';
+						minecraftskinHandle.mesh.position.set(0, 1, 0);
 					}
 					
 					Enemy.minecraftskinHandle.push(minecraftskinHandle);
@@ -1366,61 +1387,9 @@ var Enemy = {
 					{
 						intActive += 1;
 					}
-					
+
 					{
-						if (minecraftskinHandle.strTeam !== playerHandle.strTeam) {
-							if (playerHandle.strTeam === 'teamRed') {
-								minecraftskinHandle.setImage(Voxel.minecraftskinRed);
-								
-							} else if (playerHandle.strTeam === 'teamBlue') {
-								minecraftskinHandle.setImage(Voxel.minecraftskinBlue);
-								
-							}
-							
-							minecraftskinHandle.strTeam = playerHandle.strTeam;
-						}
-					}
-					
-					{
-//						var pos = this.avatar.position
-//						var d = this.dimensions
-//												  return aabb(
-//												    [pos.x - (d[0]/2), pos.y, pos.z - (d[2]/2)],
-//												    this.dimensions
-//												  )
-//						var aabbHandle = aabb();
-//
-//						var vec = {
-//							'x': playerHandle.dblPosition[0] - playerHandle.dblVerlet[0],
-//							'y': playerHandle.dblPosition[1] - playerHandle.dblVerlet[1],
-//							'z': playerHandle.dblPosition[2] - playerHandle.dblVerlet[2]
-//						};
-//
-//						var resting = {
-//							'x': false,
-//							'y': false,
-//							'z': false
-//						};
-//
-//						var collisionHandle = Voxel.voxelengineHandle.potentialCollisionSet();
-//
-//						for (var intFor1 = 0; intFor1 < collisionHandle.length; intFor1 += 1) {
-//							{
-//								collisionHandle[intFor1].collide(minecraftskinHandle.mesh, bbox, world_desired, resting)
-//							}
-//						}
-//
-//						Voxel.voxelengineHandle.collideVoxels(bbox, vec3, function(intAxis, tile, coords, dir, edge) {
-//							if (Math.abs(vec[axes[axis]]) < Math.abs(edge)) {
-//								return;
-//							}
-//							
-//							vec[axes[axis]] = edge
-//						    resting[axes[axis]] = dir
-//							
-//							
-//							return true;
-//						});
+						Voxel.minecraftskinTeam(minecraftskinHandle, playerHandle.strTeam);
 					}
 
 					{
@@ -1451,13 +1420,7 @@ var Enemy = {
 						var intTimediff = playerHandle.intWalktime - intWalktime;
 						
 						{
-							// http://djazz.mine.nu/lab/minecraft_items/
-				
-							minecraftskinHandle.rightArm.rotation.z = 2 * Math.cos((0.6662 * intTimediff * 10) + (0.5 * Math.PI) + (Math.PI));
-							minecraftskinHandle.leftArm.rotation.z = 2 * Math.cos((0.6662 * intTimediff * 10) + (0.5 * Math.PI));
-							
-							minecraftskinHandle.rightLeg.rotation.z = 1.4 * Math.cos((0.6662 * intTimediff * 10) + (0.5 * Math.PI));
-							minecraftskinHandle.leftLeg.rotation.z = 1.4 * Math.cos((0.6662 * intTimediff * 10) + (0.5 * Math.PI) + (Math.PI));
+							Voxel.minecraftskinWalk(minecraftskinHandle, intTimediff);
 						}
 					}
 				}

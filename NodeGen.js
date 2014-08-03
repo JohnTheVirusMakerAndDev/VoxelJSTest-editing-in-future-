@@ -413,6 +413,7 @@ var Mustache = {
 };
 
 var Phantom = {
+	// INFO: muss bei mehr als einer instanz global installiert werden
 	// INFO: sudo apt-get install fontconfig
 	
 	phantomjsHandle: null,
@@ -551,6 +552,22 @@ var Sqlite = {
 	}
 };
 
+var Xml = {
+	xmldocHandle: null,
+	
+	init: function() {
+		{
+			Xml.xmldocHandle = require('xmldoc');
+		}
+	},
+	
+	dispel: function() {
+		{
+			Xml.xmldocHandle = null;
+		}
+	}
+};
+
 {
 	if (process.env.boolAws === 'true') {
 		Aws.init();
@@ -598,6 +615,10 @@ var Sqlite = {
 	
 	if (process.env.boolSqlite === 'true') {
 		Sqlite.init();
+	}
+	
+	if (process.env.boolXml === 'true') {
+		Xml.init();
 	}
 }
 
