@@ -236,14 +236,19 @@ var Voxel = {
 	voxelengineHandle: null,
 	
 	voxelhighlightHandle: null,
-	
+
 	minecraftskinHandle: null,
-	minecraftskinFunction: null,
+	minecraftskinCreate: null,
+	minecraftskinTeam: null,
+	minecraftskinWalk: null,
+	minecraftskinRed: null,
+	minecraftskinBlue: null,
 	
 	voxelflyHandle: null,
 	
 	init: function() {
 		{
+			// TODO: override dependencies
 			Voxel.voxelengineHandle = require('voxel-engine')({
 				'texturePath': './images/',
 				'generate': function(intX, intY, intZ) {
@@ -255,6 +260,13 @@ var Voxel = {
 				},
 				'materials': [ 'voxelVoid', 'voxelBrick', 'voxelDirt', 'voxelGrass', 'voxelPlank', 'voxelStone', 'voxelRedSpawn', 'voxelRedFlag', 'voxelBlueSpawn', 'voxelBlueFlag', 'voxelSeparator' ],
 				'controls': {
+					'walkMaxSpeed': 0.008,
+					'runMaxSpeed': 0.008,
+					'jumpMaxSpeed': 0.007,
+					'jumpMaxTimer': 1,
+					'jumpSpeed': 0.007,
+					'jumpSpeedMove': 0.1,
+					'accelTimer': 1,
 					'discreteFire': true
 				},
 				'statsDisabled': true
@@ -323,11 +335,49 @@ var Voxel = {
 		{
 			Voxel.minecraftskinHandle = require('minecraft-skin');
 			
-			Voxel.minecraftskinFunction = function(strSkin) {
-				return Voxel.minecraftskinHandle(Voxel.voxelengineHandle.THREE, strSkin, {
+			Voxel.minecraftskinCreate = function() {
+				var minecraftskinHandle = Voxel.minecraftskinHandle(Voxel.voxelengineHandle.THREE, '', {
 					'scale': new Voxel.voxelengineHandle.THREE.Vector3(0.04, 0.04, 0.04)
 				});
+				
+				{
+					minecraftskinHandle.strTeam = '';
+				}
+				
+				return minecraftskinHandle;
 			};
+			
+			Voxel.minecraftskinTeam = function(minecraftskinHandle, strTeam) {
+				if (minecraftskinHandle.strTeam === strTeam) {
+					return;
+				}
+				
+				if (strTeam === 'teamRed') {
+					minecraftskinHandle.setImage(Voxel.minecraftskinRed);
+					
+				} else if (strTeam === 'teamBlue') {
+					minecraftskinHandle.setImage(Voxel.minecraftskinBlue);
+					
+				}
+				
+				minecraftskinHandle.strTeam = strTeam;
+			};
+
+			Voxel.minecraftskinWalk = function(minecraftskinHandle, intTimediff) {
+				// http://djazz.mine.nu/lab/minecraft_items/
+				
+				minecraftskinHandle.rightArm.rotation.z = 2 * Math.cos((0.6662 * intTimediff * 10) + (0.5 * Math.PI) + (Math.PI));
+				minecraftskinHandle.leftArm.rotation.z = 2 * Math.cos((0.6662 * intTimediff * 10) + (0.5 * Math.PI));
+				
+				minecraftskinHandle.rightLeg.rotation.z = 1.4 * Math.cos((0.6662 * intTimediff * 10) + (0.5 * Math.PI));
+				minecraftskinHandle.leftLeg.rotation.z = 1.4 * Math.cos((0.6662 * intTimediff * 10) + (0.5 * Math.PI) + (Math.PI));
+			};
+			
+			Voxel.minecraftskinRed = new Image();
+			Voxel.minecraftskinRed.src = './images/skinRed.png';
+			
+			Voxel.minecraftskinBlue = new Image();
+			Voxel.minecraftskinBlue.src = './images/skinBlue.png';
 		}
 		
 		{
@@ -347,7 +397,15 @@ var Voxel = {
 		{
 			Voxel.minecraftskinHandle = null;
 			
-			Voxel.minecraftskinFunction = null;
+			Voxel.minecraftskinCreate = null;
+
+			Voxel.minecraftskinTeam = null;
+			
+			Voxel.minecraftskinWalk = null;
+			
+			Voxel.minecraftskinRed = null;
+			
+			Voxel.minecraftskinBlue = null;
 		}
 		
 		{
@@ -480,7 +538,7 @@ var Player = {
 	
 	init: function() {
 		{
-			Player.minecraftskinHandle = Voxel.minecraftskinFunction('./images/skinRed.png');
+			Player.minecraftskinHandle = Voxel.minecraftskinCreate();
 			
 			Player.physicsHandle = Voxel.voxelengineHandle.makePhysical(Player.minecraftskinHandle.mesh);
 

@@ -364,10 +364,10 @@ var Node = {
 				
 				{
 					if (Gameserver.playerHandle[socketHandle.id].strTeam === 'teamRed') {
-						dblPlayerPosition = Gameserver.intMapRedSpawn[Math.floor(Math.random() * Gameserver.intMapRedSpawn.length)];
+						dblPlayerPosition = Gameserver.intMapRedSpawn[Math.floor(Math.random() * Gameserver.intMapRedSpawn.length)].slice(0);
 						
 					} else if (Gameserver.playerHandle[socketHandle.id].strTeam === 'teamBlue') {
-						dblPlayerPosition = Gameserver.intMapBlueSpawn[Math.floor(Math.random() * Gameserver.intMapBlueSpawn.length)];
+						dblPlayerPosition = Gameserver.intMapBlueSpawn[Math.floor(Math.random() * Gameserver.intMapBlueSpawn.length)].slice(0);
 						
 					}
 
@@ -833,10 +833,10 @@ var Gameserver = {
 							
 							{
 								if (playerHandle.strTeam === 'teamRed') {
-									dblPlayerPosition = Gameserver.intMapRedSpawn[Math.floor(Math.random() * Gameserver.intMapRedSpawn.length)];
+									dblPlayerPosition = Gameserver.intMapRedSpawn[Math.floor(Math.random() * Gameserver.intMapRedSpawn.length)].slice(0);
 									
 								} else if (playerHandle.strTeam === 'teamBlue') {
-									dblPlayerPosition = Gameserver.intMapBlueSpawn[Math.floor(Math.random() * Gameserver.intMapBlueSpawn.length)];
+									dblPlayerPosition = Gameserver.intMapBlueSpawn[Math.floor(Math.random() * Gameserver.intMapBlueSpawn.length)].slice(0);
 									
 								}
 	
@@ -844,6 +844,10 @@ var Gameserver = {
 								dblPlayerPosition[1] += 1.0;
 								dblPlayerPosition[2] += 0.5;
 							}
+
+							console.log(Gameserver.intMapRedSpawn);
+							console.log(Gameserver.intMapBlueSpawn);
+							console.log(dblPlayerPosition);
 							
 							playerHandle.socketHandle.emit('resetHandle', {
 								'strPlayerTeam': playerHandle.strTeam,
@@ -926,10 +930,9 @@ var Gameserver = {
 {
 	var functionInterval = function() {
 		var functionRequest = function() {
-			//TODO: insert domain
 			var requestHttp = Node.httpHandle.request({
-				'host': '127.0.0.1',
-				'port': 26866,
+				'host': 'www.voxel-warriors.com',
+				'port': 80,
 				'path': '/host.xml?intPort=' + encodeURIComponent(process.env.intSocketPort) + '&strName=' + encodeURIComponent(Gameserver.strName) + '&intLoginPassword=' + encodeURIComponent(Gameserver.intLoginPassword) + '&intPlayerCapacity=' + encodeURIComponent(Gameserver.intPlayerCapacity) + '&intPlayerActive=' + encodeURIComponent(Gameserver.intPlayerActive) + '&strMapActive=' + encodeURIComponent(Gameserver.strMapActive),
 				'method': 'GET'
 			}, function(responseHttp) {
@@ -948,6 +951,10 @@ var Gameserver = {
 			
 			requestHttp.on('error', function(errorHandle) {
 				functionError();
+			});
+			
+			requestHttp.setTimeout(3 * 1000, function() {
+				requestHttp.abort();
 			});
 			
 			requestHttp.end();

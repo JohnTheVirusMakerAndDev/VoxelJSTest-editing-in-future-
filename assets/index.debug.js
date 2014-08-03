@@ -510,6 +510,7 @@ var Voxel = {
 	minecraftskinHandle: null,
 	minecraftskinCreate: null,
 	minecraftskinTeam: null,
+	minecraftskinWalk: null,
 	minecraftskinRed: null,
 	minecraftskinBlue: null,
 	
@@ -517,6 +518,7 @@ var Voxel = {
 	
 	init: function() {
 		{
+			// TODO: override dependencies
 			Voxel.voxelengineHandle = require('voxel-engine')({
 				'texturePath': './images/',
 				'generate': function(intX, intY, intZ) {
@@ -524,6 +526,13 @@ var Voxel = {
 				},
 				'materials': [ 'voxelVoid', 'voxelBrick', 'voxelDirt', 'voxelGrass', 'voxelPlank', 'voxelStone', 'voxelRedSpawn', 'voxelRedFlag', 'voxelBlueSpawn', 'voxelBlueFlag', 'voxelSeparator' ],
 				'controls': {
+					'walkMaxSpeed': 0.008,
+					'runMaxSpeed': 0.008,
+					'jumpMaxSpeed': 0.007,
+					'jumpMaxTimer': 1,
+					'jumpSpeed': 0.007,
+					'jumpSpeedMove': 0.1,
+					'accelTimer': 1,
 					'discreteFire': true
 				},
 				'statsDisabled': true
@@ -648,8 +657,10 @@ var Voxel = {
 			Voxel.minecraftskinHandle = null;
 			
 			Voxel.minecraftskinCreate = null;
-			
+
 			Voxel.minecraftskinTeam = null;
+			
+			Voxel.minecraftskinWalk = null;
 			
 			Voxel.minecraftskinRed = null;
 			
@@ -921,9 +932,10 @@ var Socket = {
 									'dblPosition': [ dblPositionX, dblPositionY, dblPositionZ ],
 									'dblVerlet': [ dblVerletX, dblVerletY, dblVerletZ ],
 									'dblBodyyaw': playerHandle.dblBodyyaw,
-									'dblHeadpitch': playerHandle.dblHeadpitch,
-									'intWalktime': 0
+									'dblHeadpitch': playerHandle.dblHeadpitch
 								};
+								
+								playerOverwrite[playerHandle.strSocket].intWalktime = 0;
 							}
 						}
 						
