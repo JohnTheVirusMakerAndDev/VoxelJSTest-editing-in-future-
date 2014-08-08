@@ -413,7 +413,6 @@ var Mustache = {
 };
 
 var Phantom = {
-	// INFO: muss bei mehr als einer instanz global installiert werden
 	// INFO: sudo apt-get install fontconfig
 	
 	phantomjsHandle: null,

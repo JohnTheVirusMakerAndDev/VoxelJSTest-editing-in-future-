@@ -8,6 +8,7 @@
 	"dependencies": {
 		"aabb-3d": "0.1.x",
 		"minecraft-skin": "0.1.x",
+		"voxel-clouds": "0.2.x",
 		"voxel-engine": "0.20.x",
 		"voxel-fly": "0.1.x",
 		"voxel-highlight": "0.0.x"

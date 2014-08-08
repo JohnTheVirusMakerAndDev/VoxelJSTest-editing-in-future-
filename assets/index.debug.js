@@ -514,6 +514,8 @@ var Voxel = {
 	minecraftskinRed: null,
 	minecraftskinBlue: null,
 	
+	voxelcloudsHandle: null,
+	
 	aabbHandle: null,
 	
 	init: function() {
@@ -1265,7 +1267,7 @@ var Player = {
 		}
 	},
 	
-	update: function() {
+	update: function(intDelta) {
 		{
 			Voxel.minecraftskinTeam(Player.minecraftskinHandle, Player.strTeam);
 		}
@@ -1329,7 +1331,7 @@ var Enemy = {
 		}
 	},
 	
-	update: function() {
+	update: function(intDelta) {
 		var intActive = 0;
 		
 		{
@@ -1394,12 +1396,14 @@ var Enemy = {
 				}
 
 				{
-					var minecraftskinHandle = Enemy.minecraftskinHandle[intActive];
+					var minecraftskinHandle = null;
 					
 					{
+						minecraftskinHandle = Enemy.minecraftskinHandle[intActive];
+						
 						intActive += 1;
 					}
-
+					
 					{
 						Voxel.minecraftskinTeam(minecraftskinHandle, playerHandle.strTeam);
 					}
@@ -1467,6 +1471,39 @@ var Enemy = {
 	}
 };
 
+var Clouds = {
+	voxelcloudsHandle: null,
+	
+	init: function() {
+		{
+			Clouds.voxelcloudsHandle = require('voxel-clouds')({
+				'game': Voxel.voxelengineHandle,
+				'high': 30,
+				'distance': 300,
+				'many': 100,
+				'speed': 0.003,
+				'material': new Voxel.voxelengineHandle.THREE.MeshBasicMaterial({
+					'emissive': 0xFFFFFF,
+					'shading': Voxel.voxelengineHandle.THREE.FlatShading,
+					'fog': false
+				})
+			});
+		}
+	},
+	
+	dispel: function() {
+		{
+			Clouds.voxelcloudsHandle = null;
+		}
+	},
+	
+	update: function(intDelta) {
+		{
+			Clouds.voxelcloudsHandle.tick(intDelta);
+		}
+	}
+};
+
 jQuery(document).ready(function() {
 	{
 		Settings.init();
@@ -1480,6 +1517,8 @@ jQuery(document).ready(function() {
 		Player.init();
 		
 		Enemy.init();
+		
+		Clouds.init();
 	}
 	
 	{
@@ -1516,9 +1555,11 @@ jQuery(document).ready(function() {
 
 		Voxel.voxelengineHandle.on('tick', function(intDelta) {
 			{
-				Player.update();
-				 
-				Enemy.update();
+				Player.update(intDelta);
+				
+				Enemy.update(intDelta);
+				
+				Clouds.update(intDelta);
 			}
 			 
 			{
