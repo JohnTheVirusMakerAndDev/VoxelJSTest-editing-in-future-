@@ -431,13 +431,17 @@ var Node = {
 		
 		socketHandle.on('playerHandle', function(jsonHandle) {
 			{
-				jsonHandle.dblPosition = jsonHandle.a;
-				jsonHandle.dblVerlet = jsonHandle.b;
-				jsonHandle.dblBodyyaw = jsonHandle.c;
-				jsonHandle.dblHeadpitch = jsonHandle.d;
+				jsonHandle.strItem = jsonHandle.a;
+				jsonHandle.dblPosition = jsonHandle.b;
+				jsonHandle.dblVerlet = jsonHandle.c;
+				jsonHandle.dblBodyyaw = jsonHandle.d;
+				jsonHandle.dblHeadpitch = jsonHandle.e;
 			}
 			
-			if (jsonHandle.dblPosition === undefined) {
+			if (jsonHandle.strItem === undefined) {
+				return;
+				
+			} else if (jsonHandle.dblPosition === undefined) {
 				return;
 				
 			} else if (jsonHandle.dblPosition.length !== 3) {
@@ -462,6 +466,7 @@ var Node = {
 			}
 			
 			{
+				Gameserver.playerHandle[socketHandle.id].strItem = jsonHandle.strItem;
 				Gameserver.playerHandle[socketHandle.id].dblPosition = jsonHandle.dblPosition;
 				Gameserver.playerHandle[socketHandle.id].dblVerlet = jsonHandle.dblVerlet;
 				Gameserver.playerHandle[socketHandle.id].dblBodyyaw = jsonHandle.dblBodyyaw;
@@ -486,10 +491,11 @@ var Node = {
 						jsonHandle.push({
 							'a': playerHandle.strSocket,
 							'b': playerHandle.strTeam,
-							'c': playerHandle.dblPosition,
-							'd': playerHandle.dblVerlet,
-							'e': playerHandle.dblBodyyaw,
-							'f': playerHandle.dblHeadpitch
+							'c': playerHandle.strItem,
+							'd': playerHandle.dblPosition,
+							'e': playerHandle.dblVerlet,
+							'f': playerHandle.dblBodyyaw,
+							'g': playerHandle.dblHeadpitch
 						});
 					}
 			    }
@@ -593,6 +599,7 @@ var Gameserver = {
 	intMapBlueFlag: [],
 	intMapSeparator: [],
 	strMapBlocked: [],
+	functionMapSwitch: null,
 	functionMapLoad: null,
 	
 	strPhaseActive: '',
@@ -643,6 +650,14 @@ var Gameserver = {
 			Gameserver.intMapSeparator = [];
 			
 			Gameserver.strMapBlocked = [];
+			
+			Gameserver.functionMapSwitch = function() {
+				{
+					var intIndex = (Gameserver.strMapAvailable.indexOf(Gameserver.strMapActive) + 1) % Gameserver.strMapAvailable.length;
+					
+					Gameserver.strMapActive = Gameserver.strMapAvailable[intIndex];
+				}
+			};
 			
 			Gameserver.functionMapLoad = function() {
 				{
@@ -843,10 +858,8 @@ var Gameserver = {
 				{
 					if (Gameserver.intPhaseRound === 0) {
 						{
-							Gameserver.strMapActive = Gameserver.strMapAvailable[(Gameserver.strMapAvailable.indexOf(Gameserver.strMapActive) + 1) % Gameserver.strMapAvailable.length];
-						}
-						
-						{
+							Gameserver.functionMapSwitch();
+							
 							Gameserver.functionMapLoad();
 						}
 						
@@ -963,6 +976,10 @@ var Gameserver = {
 			Gameserver.intMapSeparator = [];
 			
 			Gameserver.strMapBlocked = [];
+			
+			Gameserver.functionMapSwitch = null;
+			
+			Gameserver.functionMapLoad = null;
 		}
 		
 		{

@@ -350,22 +350,10 @@ jQuery(document).ready(function() {
 		;
 		
 		jQuery('#idLogin_Team')
-			.selectmenu({
-				'disabled': false
-			})
 			.off('update')
 			.on('update', function() {
-				jQuery(this).next()
+				jQuery(this)
 					.css({
-						'width': '100%',
-						'box-sizing': 'border-box',
-						'background': 'none'
-					})
-				;
-				
-				jQuery(this).next().find('.ui-selectmenu-text')
-					.css({
-						'padding': '0.4em 1em 0.4em 62px',
 						'padding-left': (jQuery(this).prev().width() + 15) + 'px'
 					})
 				;
@@ -509,14 +497,11 @@ var Voxel = {
 	
 	minecraftskinHandle: null,
 	minecraftskinCreate: null,
-	minecraftskinTeam: null,
-	minecraftskinWalk: null,
-	minecraftskinRed: null,
-	minecraftskinBlue: null,
+	minecraftskinUpdate: null,
 	
-	voxelcloudsHandle: null,
-	
-	aabbHandle: null,
+	itemCreate: null,
+	itemGeometry: {},
+	itemMaterial: null,
 	
 	init: function() {
 		{
@@ -603,46 +588,174 @@ var Voxel = {
 				
 				{
 					minecraftskinHandle.strTeam = '';
+					
+					minecraftskinHandle.strItem = '';
+				}
+				
+				{
+					minecraftskinHandle.meshPickaxe = Voxel.itemCreate('itemPickaxe');
+					
+					minecraftskinHandle.meshPickaxe.position.x = 6.0;
+					minecraftskinHandle.meshPickaxe.position.y = 0.0 - 21.0;
+					minecraftskinHandle.meshPickaxe.position.z = 0.0;
+					
+					minecraftskinHandle.meshPickaxe.rotation.x = 0.0;
+					minecraftskinHandle.meshPickaxe.rotation.y = 0.0;
+					minecraftskinHandle.meshPickaxe.rotation.z = 0.25 * Math.PI;
+				}
+				
+				{
+					minecraftskinHandle.meshSword = Voxel.itemCreate('itemSword');
+					
+					minecraftskinHandle.meshSword.position.x = 6.0;
+					minecraftskinHandle.meshSword.position.y = 0.0 - 21.0;
+					minecraftskinHandle.meshSword.position.z = 0.0;
+					
+					minecraftskinHandle.meshSword.rotation.x = 0.0;
+					minecraftskinHandle.meshSword.rotation.y = 0.0;
+					minecraftskinHandle.meshSword.rotation.z = 0.25 * Math.PI;
+				}
+				
+				{
+					minecraftskinHandle.meshBow = Voxel.itemCreate('itemBow');
+					
+					minecraftskinHandle.meshBow.position.x = 0.0;
+					minecraftskinHandle.meshBow.position.y = 0.0 - 18.0;
+					minecraftskinHandle.meshBow.position.z = 0.0;
+					
+					minecraftskinHandle.meshBow.rotation.x = 0.0;
+					minecraftskinHandle.meshBow.rotation.y = 0.0;
+					minecraftskinHandle.meshBow.rotation.z = 0.25 * Math.PI;
 				}
 				
 				return minecraftskinHandle;
 			};
 			
-			Voxel.minecraftskinTeam = function(minecraftskinHandle, strTeam) {
-				if (minecraftskinHandle.strTeam === strTeam) {
-					return;
+			Voxel.minecraftskinUpdate = function(minecraftskinHandle, strTeam, strItem, intAnimtime) {
+				{
+					if (minecraftskinHandle.strTeam !== strTeam) {
+						if (strTeam === 'teamRed') {
+							minecraftskinHandle.setImage(jQuery('#idSkinRed').get(0));
+							
+						} else if (strTeam === 'teamBlue') {
+							minecraftskinHandle.setImage(jQuery('#idSkinBlue').get(0));
+							
+						}
+						
+						minecraftskinHandle.strTeam = strTeam;
+					}
 				}
 				
-				if (strTeam === 'teamRed') {
-					minecraftskinHandle.setImage(Voxel.minecraftskinRed);
-					
-				} else if (strTeam === 'teamBlue') {
-					minecraftskinHandle.setImage(Voxel.minecraftskinBlue);
-					
+				{
+					if (minecraftskinHandle.strItem !== strItem) {
+						minecraftskinHandle.rightArm.remove(minecraftskinHandle.meshPickaxe);
+						minecraftskinHandle.rightArm.remove(minecraftskinHandle.meshSword);
+						minecraftskinHandle.rightArm.remove(minecraftskinHandle.meshBow);
+						
+						if (strItem === 'itemPickaxe') {
+							minecraftskinHandle.rightArm.add(minecraftskinHandle.meshPickaxe);
+							
+						} else if (strItem === 'itemSword') {
+							minecraftskinHandle.rightArm.add(minecraftskinHandle.meshSword);
+							
+						} else if (strItem === 'itemBow') {
+							minecraftskinHandle.rightArm.add(minecraftskinHandle.meshBow);
+							
+						}
+						
+						minecraftskinHandle.strItem = strItem;
+					}
 				}
 				
-				minecraftskinHandle.strTeam = strTeam;
+				{
+					var dblItem = 0.0;
+					
+					if (strItem !== '') {
+						dblItem = 0.1 * Math.PI;
+					}
+					
+					minecraftskinHandle.rightArm.rotation.z = 2 * Math.cos((6.666 * intAnimtime) + (0.5 * Math.PI) + Math.PI + dblItem);
+					minecraftskinHandle.leftArm.rotation.z = 2 * Math.cos((6.666 * intAnimtime) + (0.5 * Math.PI));
+					
+					minecraftskinHandle.rightLeg.rotation.z = 1.4 * Math.cos((6.666 * intAnimtime) + (0.5 * Math.PI));
+					minecraftskinHandle.leftLeg.rotation.z = 1.4 * Math.cos((6.666 * intAnimtime) + (0.5 * Math.PI) + Math.PI);
+				}
 			};
-
-			Voxel.minecraftskinWalk = function(minecraftskinHandle, intTimediff) {
-				// http://djazz.mine.nu/lab/minecraft_items/
-				
-				minecraftskinHandle.rightArm.rotation.z = 2 * Math.cos((0.6662 * intTimediff * 10) + (0.5 * Math.PI) + (Math.PI));
-				minecraftskinHandle.leftArm.rotation.z = 2 * Math.cos((0.6662 * intTimediff * 10) + (0.5 * Math.PI));
-				
-				minecraftskinHandle.rightLeg.rotation.z = 1.4 * Math.cos((0.6662 * intTimediff * 10) + (0.5 * Math.PI));
-				minecraftskinHandle.leftLeg.rotation.z = 1.4 * Math.cos((0.6662 * intTimediff * 10) + (0.5 * Math.PI) + (Math.PI));
-			};
-			
-			Voxel.minecraftskinRed = new Image();
-			Voxel.minecraftskinRed.src = './images/skinRed.png';
-			
-			Voxel.minecraftskinBlue = new Image();
-			Voxel.minecraftskinBlue.src = './images/skinBlue.png';
 		}
 		
 		{
-			Voxel.aabbHandle = require('aabb-3d');
+			Voxel.itemCreate = function(strItem) {
+				if (Voxel.itemGeometry[strItem] === undefined) {
+					var contextHandle = document.createElement('canvas').getContext('2d');
+					
+					{
+						if (strItem === 'itemPickaxe') {
+							contextHandle.drawImage(jQuery('#idItemPickaxe').get(0), 0, 0);
+							
+						} else if (strItem === 'itemSword') {
+							contextHandle.drawImage(jQuery('#idItemSword').get(0), 0, 0);
+							
+						} else if (strItem === 'itemBow') {
+							contextHandle.drawImage(jQuery('#idItemBow').get(0), 0, 0);
+							
+						}
+					}
+					
+					var geometryHandle = new Voxel.voxelengineHandle.THREE.Geometry();
+					
+					{
+						for (var intFor1 = 0; intFor1 < 16; intFor1 += 1) {
+							for (var intFor2 = 0; intFor2 < 16; intFor2 += 1) {
+								var intColor = contextHandle.getImageData(intFor1, intFor2, intFor1 + 1, intFor2 + 1).data
+	
+								if (intColor[3] === 0) {
+									continue;
+								}
+								
+								{
+									var cubegeometryHandle = new Voxel.voxelengineHandle.THREE.CubeGeometry(1, 1, 1);
+									
+									for (var intFor3 = 0; intFor3 < cubegeometryHandle.faces.length; intFor3 += 1) {
+										if (cubegeometryHandle.faces[intFor3] === undefined) {
+											continue;
+										}
+										
+										{
+											cubegeometryHandle.faces[intFor3].color = new Voxel.voxelengineHandle.THREE.Color((intColor[0] << 16) + (intColor[1] << 8) + (intColor[2] << 0));
+										}
+									}
+									
+									for (var intFor3 = 0; intFor3 < cubegeometryHandle.vertices.length; intFor3 += 1) {
+										if (cubegeometryHandle.vertices[intFor3] === undefined) {
+											continue;
+										}
+										
+										{
+											cubegeometryHandle.vertices[intFor3].x += intFor1;
+											cubegeometryHandle.vertices[intFor3].y += intFor2;
+											cubegeometryHandle.vertices[intFor3].z += 0.0;
+										}
+									}
+									
+									Voxel.voxelengineHandle.THREE.GeometryUtils.merge(geometryHandle, cubegeometryHandle);
+								}
+							}
+						}
+					}
+					
+					{
+						Voxel.itemGeometry[strItem] = geometryHandle;
+					}
+				}
+				
+				return new Voxel.voxelengineHandle.THREE.Mesh(Voxel.itemGeometry[strItem], Voxel.itemMaterial);
+			};
+			
+			Voxel.itemGeometry = {};
+			
+			Voxel.itemMaterial = new Voxel.voxelengineHandle.THREE.MeshBasicMaterial({
+				'vertexColors': Voxel.voxelengineHandle.THREE.FaceColors
+			});
 		}
 	},
 	
@@ -660,17 +773,15 @@ var Voxel = {
 			
 			Voxel.minecraftskinCreate = null;
 
-			Voxel.minecraftskinTeam = null;
-			
-			Voxel.minecraftskinWalk = null;
-			
-			Voxel.minecraftskinRed = null;
-			
-			Voxel.minecraftskinBlue = null;
+			Voxel.minecraftskinUpdate = null;
 		}
 		
 		{
-			Voxel.aabbHandle = null;
+			Voxel.itemCreate = null;
+			
+			Voxel.itemGeometry = {};
+			
+			Voxel.itemMaterial = null;
 		}
 	}
 };
@@ -903,10 +1014,11 @@ var Socket = {
 							{
 								playerHandle.strSocket = playerHandle.a;
 								playerHandle.strTeam = playerHandle.b;
-								playerHandle.dblPosition = playerHandle.c;
-								playerHandle.dblVerlet = playerHandle.d;
-								playerHandle.dblBodyyaw = playerHandle.e;
-								playerHandle.dblHeadpitch = playerHandle.f;
+								playerHandle.strItem = playerHandle.c;
+								playerHandle.dblPosition = playerHandle.d;
+								playerHandle.dblVerlet = playerHandle.e;
+								playerHandle.dblBodyyaw = playerHandle.f;
+								playerHandle.dblHeadpitch = playerHandle.g;
 							}
 							
 							{
@@ -931,6 +1043,7 @@ var Socket = {
 								playerOverwrite[playerHandle.strSocket] = {
 									'strSocket': playerHandle.strSocket,
 									'strTeam': playerHandle.strTeam,
+									'strItem': playerHandle.strItem,
 									'dblPosition': [ dblPositionX, dblPositionY, dblPositionZ ],
 									'dblVerlet': [ dblVerletX, dblVerletY, dblVerletZ ],
 									'dblBodyyaw': playerHandle.dblBodyyaw,
@@ -1114,6 +1227,10 @@ var Input = {
 								}
 								
 								{
+									Player.strItem = 'itemPickaxe';
+								}
+								
+								{
 									jQuery('#idPhaseBuild_Chooser')
 										.trigger('update')
 									;
@@ -1124,6 +1241,10 @@ var Input = {
 									Settings.strChooserCategory = 'categoryDestroy';
 									
 									Settings.intChooserType = 0;
+								}
+								
+								{
+									Player.strItem = 'itemPickaxe';
 								}
 								
 								{
@@ -1143,6 +1264,10 @@ var Input = {
 								}
 								
 								{
+									Player.strItem = 'itemSword';
+								}
+								
+								{
 									jQuery('#idPhaseCombat_Chooser')
 										.trigger('update')
 									;
@@ -1153,6 +1278,10 @@ var Input = {
 									Settings.strChooserCategory = 'categoryWeapon';
 									
 									Settings.intChooserType = 1;
+								}
+								
+								{
+									Player.strItem = 'itemBow';
 								}
 								
 								{
@@ -1185,6 +1314,7 @@ var Player = {
 	physicsHandle: null,
 	
 	strTeam: '',
+	strItem: '',
 	
 	dblPosition: [ 0.0, 0.0, 0.0 ],
 	dblVerlet: [ 0.0, 0.0, 0.0 ],
@@ -1220,6 +1350,8 @@ var Player = {
 		
 		{
 			Player.strTeam = '';
+			
+			Player.strItem = '';
 		}
 		
 		{
@@ -1250,6 +1382,8 @@ var Player = {
 		
 		{
 			Player.strTeam = '';
+			
+			Player.strItem = '';
 		}
 		
 		{
@@ -1268,10 +1402,6 @@ var Player = {
 	},
 	
 	update: function(intDelta) {
-		{
-			Voxel.minecraftskinTeam(Player.minecraftskinHandle, Player.strTeam);
-		}
-		
 		{
 			Player.dblVerlet[0] = Player.dblPosition[0];
 			Player.dblVerlet[1] = Player.dblPosition[1];
@@ -1297,10 +1427,10 @@ var Player = {
 				}
 			}
 			
-			var intTimediff = Player.intWalktime - intWalktime;
+			var intAnimtime = Player.intWalktime - intWalktime;
 			
 			{
-				Voxel.minecraftskinWalk(Player.minecraftskinHandle, intTimediff);
+				Voxel.minecraftskinUpdate(Player.minecraftskinHandle, Player.strTeam, Player.strItem, intAnimtime);
 			}
 		}
 	}
@@ -1403,10 +1533,6 @@ var Enemy = {
 						
 						intActive += 1;
 					}
-					
-					{
-						Voxel.minecraftskinTeam(minecraftskinHandle, playerHandle.strTeam);
-					}
 
 					{
 						minecraftskinHandle.mesh.position.x = playerHandle.dblPosition[0];
@@ -1433,10 +1559,10 @@ var Enemy = {
 							}
 						}
 						
-						var intTimediff = playerHandle.intWalktime - intWalktime;
+						var intAnimtime = playerHandle.intWalktime - intWalktime;
 						
 						{
-							Voxel.minecraftskinWalk(minecraftskinHandle, intTimediff);
+							Voxel.minecraftskinUpdate(minecraftskinHandle, playerHandle.strTeam, playerHandle.strItem, intAnimtime);
 						}
 					}
 				}
@@ -1565,10 +1691,11 @@ jQuery(document).ready(function() {
 			{
 				if (Socket.socketHandle !== null) {
 					Socket.socketHandle.emit('playerHandle', {
-						'a': Player.dblPosition,
-						'b': Player.dblVerlet,
-						'c': Player.minecraftskinHandle.mesh.rotation.y,
-						'd': Player.minecraftskinHandle.mesh.head.rotation.x
+						'a': Player.strItem,
+						'b': Player.dblPosition,
+						'c': Player.dblVerlet,
+						'd': Player.minecraftskinHandle.mesh.rotation.y,
+						'e': Player.minecraftskinHandle.mesh.head.rotation.x
 					});
 				}
 			}

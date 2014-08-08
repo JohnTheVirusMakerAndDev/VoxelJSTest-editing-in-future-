@@ -81,6 +81,15 @@
 		<script type="text/javascript" src="/index.js"></script>
 	</head>
 	<body style="overflow:hidden;">
+		<div style="display:none;">
+			<img id="idItemPickaxe" src="/images/itemPickaxe.png" />
+			<img id="idItemSword" src="/images/itemSword.png" />
+			<img id="idItemBow" src="/images/itemBow.png" />
+			
+			<img id="idSkinRed" src="/images/skinRed.png" />
+			<img id="idSkinBlue" src="/images/skinBlue.png" />
+		</div>
+		
 		<div style="position:fixed; left:50%; top:50%; width:32px; height:32px; margin:-16px 0px 0px -16px;">
 			<img src="/images/guiCrosshair.png" />
 		</div>
@@ -269,11 +278,11 @@
 			</div>
 		</div>
 		
-		<div id="idModal" style="position:fixed; left:0px; right:0px; top:0px; bottom:0px; background-color:#000000; opacity:0.5;">
+		<div id="idModal" style="position:fixed; left:0px; right:0px; top:0px; bottom:0px; background-color:#000000; opacity:0.5; z-index:128;">
 		
 		</div>
 		
-		<div id="idLoading" class="ui-dialog ui-widget ui-widget-content ui-corner-all" style="position:fixed; left:50%; top:50%; width:123px; margin:-61px 0px 0px -61px;">
+		<div id="idLoading" class="ui-dialog ui-widget ui-widget-content ui-corner-all" style="position:fixed; left:50%; top:50%; width:123px; margin:-61px 0px 0px -61px; z-index:128;">
 			<div class="ui-dialog-content ui-widget-content" style="padding:1em;">
 				<div style="margin:32px;">
 					<img width="31" height="31" border="0" src="http://dhiont4yb3hlc.cloudfront.net/WebsiteRect/bodyLoading.gif">
@@ -281,7 +290,7 @@
 			</div>
 		</div>
 		
-		<div id="idLogin" class="ui-dialog ui-widget ui-widget-content ui-corner-all" style="position:fixed;left:50%; top:50%; width:400px; margin:-76px 0px 0px -200px;">
+		<div id="idLogin" class="ui-dialog ui-widget ui-widget-content ui-corner-all" style="position:fixed; left:50%; top:50%; width:400px; margin:-76px 0px 0px -200px; z-index:128;">
 			<div class="ui-dialog-titlebar ui-widget-header ui-corner-all ui-helper-clearfix">
 				<div class="ui-dialog-title">
 					Login
@@ -321,7 +330,7 @@
 					<div style="position:absolute; top:10px; left:10px; z-index:128; font-weight:bold;">
 						Team:
 					</div>
-					<select id="idLogin_Team">
+					<select class="ui-widget ui-state-default ui-corner-all" id="idLogin_Team" style="width:100%; box-sizing:border-box; padding:0.4em 1.0em 0.4em 1em; background:none;">
 						<option>Red</option>
 						<option>Blue</option>
 					</select>
@@ -333,7 +342,7 @@
 			</div>
 		</div>
 		
-		<div id="idInformation" class="ui-dialog ui-widget ui-widget-content ui-corner-all" style="position:fixed;left:50%; top:50%; width:500px; margin:-100px 0px 0px -250px;">
+		<div id="idInformation" class="ui-dialog ui-widget ui-widget-content ui-corner-all" style="position:fixed; left:50%; top:50%; width:500px; margin:-100px 0px 0px -250px; z-index:128;">
 			<div class="ui-dialog-titlebar ui-widget-header ui-corner-all ui-helper-clearfix">
 				<div class="ui-dialog-title">
 					Information
