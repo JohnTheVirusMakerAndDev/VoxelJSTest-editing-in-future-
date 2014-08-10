@@ -1,473 +1,7 @@
-jQuery(document).ready(function() {
-	{
-		jQuery('#idWestside')
-			.css({
-				'display': 'block'
-			})
-		;
-	}
-	
-	{
-		jQuery('#idMessagebox_Chat')
-			.off('keyup')
-			.on('keyup', function(eventHandle) {
-				if (eventHandle.keyCode !== 13) {
-					return;
-				}
-				
-				{
-					Socket.socketHandle.emit('chatHandle', {
-						'strMessage': jQuery('#idMessagebox_Chat').val()
-					});
-				}
-				
-				{
-					jQuery('#idMessagebox_Chat')
-						.val('')
-					;
-				}
-			})
-			.off('update')
-			.on('update', function() {
-				jQuery(this)
-					.css({
-						'padding-left': (jQuery(this).prev().width() + 15) + 'px'
-					})
-					.val('')
-				;
-			})
-		;
-		
-		jQuery('#idMessagebox_Chat')
-			.trigger('update')
-		;
-	}
-	
-	{
-		jQuery('#idEastside')
-			.css({
-				'display': 'block'
-			})
-		;
-	}
-	
-	{
-		jQuery('#idServer_Ping')
-			.off('update')
-			.on('update', function() {
-				jQuery(this)
-					.css({
-						'padding-left': (jQuery(this).prev().width() + 15) + 'px'
-					})
-					.val('')
-				;
-			})
-		;
-		
-		jQuery('#idServer_Ping')
-			.trigger('update')
-		;
-	}
-	
-	{
-		jQuery('#idServer_Players')
-			.off('update')
-			.on('update', function() {
-				jQuery(this)
-					.css({
-						'padding-left': (jQuery(this).prev().width() + 15) + 'px'
-					})
-					.val('')
-				;
-			})
-		;
-		
-		jQuery('#idServer_Players')
-			.trigger('update')
-		;
-	}
-	
-	{
-		jQuery('#idServer_Map')
-			.off('update')
-			.on('update', function() {
-				jQuery(this)
-					.css({
-						'padding-left': (jQuery(this).prev().width() + 15) + 'px'
-					})
-					.val('')
-				;
-			})
-		;
-		
-		jQuery('#idServer_Map')
-			.trigger('update')
-		;
-	}
-	
-	{
-		jQuery('#idServer_Phase')
-			.off('update')
-			.on('update', function() {
-				jQuery(this)
-					.css({
-						'padding-left': (jQuery(this).prev().width() + 15) + 'px'
-					})
-					.html('')
-				;
-			})
-		;
-		
-		jQuery('#idServer_Phase')
-			.trigger('update')
-		;
-	}
-	
-	{
-		jQuery('#idTeamRed_Players')
-			.off('update')
-			.on('update', function() {
-				jQuery(this)
-					.css({
-						'padding-left': (jQuery(this).prev().width() + 15) + 'px'
-					})
-					.val('')
-				;
-			})
-		;
-		
-		jQuery('#idTeamRed_Players')
-			.trigger('update')
-		;
-	}
-	
-	{
-		jQuery('#idTeamRed_Score')
-			.off('update')
-			.on('update', function() {
-				jQuery(this)
-					.css({
-						'padding-left': (jQuery(this).prev().width() + 15) + 'px'
-					})
-					.val('')
-				;
-			})
-		;
-		
-		jQuery('#idTeamRed_Score')
-			.trigger('update')
-		;
-	}
-	
-	{
-		jQuery('#idTeamBlue_Players')
-			.off('update')
-			.on('update', function() {
-				jQuery(this)
-					.css({
-						'padding-left': (jQuery(this).prev().width() + 15) + 'px'
-					})
-					.val('')
-				;
-			})
-		;
-		
-		jQuery('#idTeamBlue_Players')
-			.trigger('update')
-		;
-	}
-	
-	{
-		jQuery('#idTeamBlue_Score')
-			.off('update')
-			.on('update', function() {
-				jQuery(this)
-					.css({
-						'padding-left': (jQuery(this).prev().width() + 15) + 'px'
-					})
-					.val('')
-				;
-			})
-		;
-		
-		jQuery('#idTeamBlue_Score')
-			.trigger('update')
-		;
-	}
-	
-	{
-		jQuery('#idToolbar')
-			.css({
-				'display': 'none'
-			})
-		;
-	}
-	
-	{
-		jQuery('#idPhaseBuild')
-			.css({
-				'display': 'none'
-			})
-		;
-	}
-	
-	{
-		jQuery('#idPhaseBuild_Chooser')
-			.off('update')
-			.on('update', function() {
-				jQuery(this).find('button')
-					.css({
-						'background': 'none',
-						'background-color': '#F2F2F2'
-					})
-				;
-
-				if (Settings.strChooserCategory === 'categoryCreate') {
-					jQuery(this).find('button').eq(Settings.intChooserType + 0)
-						.css({
-							'background': 'none',
-							'background-color': '#FFFFFF'
-						})
-					;
-					
-				} else if (Settings.strChooserCategory === 'categoryDestroy') {
-					jQuery(this).find('button').eq(Settings.intChooserType + 1)
-						.css({
-							'background': 'none',
-							'background-color': '#FFFFFF'
-						})
-					;
-					
-				}
-			})
-		;
-	
-		jQuery('#idPhaseBuild_Chooser')
-			.trigger('update')
-		;
-	}
-	
-	{
-		jQuery('#idPhaseCombat')
-			.css({
-				'display': 'none'
-			})
-		;
-	}
-	
-	{
-		jQuery('#idPhaseCombat_Chooser')
-			.off('update')
-			.on('update', function() {
-				jQuery(this).find('button')
-					.css({
-						'background': 'none',
-						'background-color': '#F2F2F2'
-					})
-				;
-				
-				if (Settings.strChooserCategory === 'categoryWeapon') {
-					jQuery(this).find('button').eq(Settings.intChooserType + 0)
-						.css({
-							'background': 'none',
-							'background-color': '#FFFFFF'
-						})
-					;
-				}
-			})
-		;
-		
-		jQuery('#idPhaseCombat_Chooser')
-			.trigger('update')
-		;
-	}
-	
-	{
-		jQuery('#idModal')
-			.css({
-				'visibility': 'visible'
-			})
-		;
-	}
-	
-	{
-		jQuery('#idLoading')
-			.css({
-				'visibility': 'visible'
-			})
-		;
-	}
-	
-	{
-		jQuery('#idLogin')
-			.css({
-				'visibility': 'hidden'
-			})
-		;
-	}
-	
-	{
-		jQuery('#idLogin_Name')
-			.off('update')
-			.on('update', function() {
-				jQuery(this)
-					.css({
-						'padding-left': (jQuery(this).prev().width() + 15) + 'px'
-					})
-					.val('')
-				;
-			})
-		;
-		
-		jQuery('#idLogin_Name')
-			.trigger('update')
-		;
-	}
-	
-	{
-		jQuery('#idLogin_Password')
-			.off('update')
-			.on('update', function() {
-				jQuery(this)
-					.css({
-						'padding-left': (jQuery(this).prev().width() + 15) + 'px'
-					})
-					.val('')
-				;
-			})
-		;
-		
-		jQuery('#idLogin_Password')
-			.trigger('update')
-		;
-	}
-
-	{
-		jQuery('#idLogin_Team').find('option').eq(Math.round(Math.random()))
-		    .prop({
-		        'selected': true
-		    })
-		;
-		
-		jQuery('#idLogin_Team')
-			.off('update')
-			.on('update', function() {
-				jQuery(this)
-					.css({
-						'padding-left': (jQuery(this).prev().width() + 15) + 'px'
-					})
-				;
-			})
-		;
-		
-		jQuery('#idLogin_Team')
-			.trigger('update')
-		;
-	}
-	
-	{
-		jQuery('#idLogin_Login')
-			.button({
-				'disabled': false,
-				'icons': {
-					'primary': 'ui-icon-check'
-				}
-			})
-			.off('click')
-			.on('click', function() {
-				{
-					jQuery('#idLoading')
-						.css({
-							'visibility': 'visible'
-						})
-					;
-				}
-				
-				{
-					jQuery('#idLogin')
-						.css({
-							'visibility': 'hidden'
-						})
-					;
-				}
-				
-				{
-					Socket.socketHandle.emit('loginHandle', {
-						'strName': jQuery('#idLogin_Name').val(),
-						'strPassword': jQuery('#idLogin_Password').val(),
-						'strTeam': jQuery('#idLogin_Team').val()
-					});
-				}
-			});
-		;
-	}
-	
-	{
-		jQuery('#idInformation')
-			.css({
-				'visibility': 'hidden'
-			})
-		;
-	}
-	
-	{
-		jQuery('#idInformation_Tab')
-			.button({
-				'disabled': false,
-				'icons': {
-					'primary': 'ui-icon-triangle-2-e-w'
-				}
-			})
-			.off('click')
-			.on('click', function() {
-				{
-					jQuery(document.body)
-						.trigger(jQuery.Event('keydown', {
-							'keyCode': 9
-						}))
-					;
-					
-					jQuery(document.body)
-						.trigger(jQuery.Event('keyup', {
-							'keyCode': 9
-						}))
-					;
-				}
-			})
-		;
-	}
-	
-	{
-		jQuery('#idInformation_Esc')
-			.button({
-				'disabled': false,
-				'icons': {
-					'primary': 'ui-icon-close'
-				}
-			})
-		;
-	}
-});
-
 var Settings = {
-	strMode: '',
-
-	strChooserCategory: '',
-	intChooserType: '',
-
-	strPhaseActive: '',
+		strPhaseActive: '',
 	
 	init: function() {
-		{
-			Settings.strMode = 'modeMenu';
-		}
-		
-		{
-			Settings.strChooserCategory = '';
-			
-			Settings.intChooserType = 0;
-		}
-		
 		{
 			Settings.strPhaseActive = '';
 		}
@@ -475,17 +9,514 @@ var Settings = {
 	
 	dispel: function() {
 		{
-			Settings.strMode = '';
-		}
-		
-		{
-			Settings.strChooserCategory = '';
-			
-			Settings.intChooserType = 0;
-		}
-		
-		{
 			Settings.strPhaseActive = '';
+		}
+	}
+};
+
+var Gui = {
+	strMode: '',
+	
+	strChooserCategory: '',
+	intChooserType: '',
+	
+	init: function() {
+		{
+			Gui.strMode = 'modeLogin';
+		}
+		
+		{
+			Gui.strChooserCategory = '';
+			
+			Gui.intChooserType = 0;
+		}
+		
+		{
+			jQuery('#idMessagebox_Chat')
+				.off('keyup')
+				.on('keyup', function(eventHandle) {
+					if (eventHandle.keyCode !== 13) {
+						return;
+					}
+					
+					{
+						Socket.socketHandle.emit('chatHandle', {
+							'strMessage': jQuery('#idMessagebox_Chat').val()
+						});
+					}
+					
+					{
+						jQuery('#idMessagebox_Chat')
+							.val('')
+						;
+					}
+				})
+				.off('update')
+				.on('update', function() {
+					jQuery(this)
+						.css({
+							'padding-left': (jQuery(this).prev().width() + 15) + 'px'
+						})
+						.val('')
+					;
+				})
+			;
+			
+			jQuery('#idMessagebox_Chat')
+				.trigger('update')
+			;
+		}
+		
+		{
+			jQuery('#idServer_Ping')
+				.off('update')
+				.on('update', function() {
+					jQuery(this)
+						.css({
+							'padding-left': (jQuery(this).prev().width() + 15) + 'px'
+						})
+						.val('')
+					;
+				})
+			;
+			
+			jQuery('#idServer_Ping')
+				.trigger('update')
+			;
+		}
+		
+		{
+			jQuery('#idServer_Players')
+				.off('update')
+				.on('update', function() {
+					jQuery(this)
+						.css({
+							'padding-left': (jQuery(this).prev().width() + 15) + 'px'
+						})
+						.val('')
+					;
+				})
+			;
+			
+			jQuery('#idServer_Players')
+				.trigger('update')
+			;
+		}
+		
+		{
+			jQuery('#idServer_Map')
+				.off('update')
+				.on('update', function() {
+					jQuery(this)
+						.css({
+							'padding-left': (jQuery(this).prev().width() + 15) + 'px'
+						})
+						.val('')
+					;
+				})
+			;
+			
+			jQuery('#idServer_Map')
+				.trigger('update')
+			;
+		}
+		
+		{
+			jQuery('#idServer_Phase')
+				.off('update')
+				.on('update', function() {
+					jQuery(this)
+						.css({
+							'padding-left': (jQuery(this).prev().width() + 15) + 'px'
+						})
+						.html('')
+					;
+				})
+			;
+			
+			jQuery('#idServer_Phase')
+				.trigger('update')
+			;
+		}
+		
+		{
+			jQuery('#idTeamRed_Players')
+				.off('update')
+				.on('update', function() {
+					jQuery(this)
+						.css({
+							'padding-left': (jQuery(this).prev().width() + 15) + 'px'
+						})
+						.val('')
+					;
+				})
+			;
+			
+			jQuery('#idTeamRed_Players')
+				.trigger('update')
+			;
+		}
+		
+		{
+			jQuery('#idTeamRed_Score')
+				.off('update')
+				.on('update', function() {
+					jQuery(this)
+						.css({
+							'padding-left': (jQuery(this).prev().width() + 15) + 'px'
+						})
+						.val('')
+					;
+				})
+			;
+			
+			jQuery('#idTeamRed_Score')
+				.trigger('update')
+			;
+		}
+		
+		{
+			jQuery('#idTeamBlue_Players')
+				.off('update')
+				.on('update', function() {
+					jQuery(this)
+						.css({
+							'padding-left': (jQuery(this).prev().width() + 15) + 'px'
+						})
+						.val('')
+					;
+				})
+			;
+			
+			jQuery('#idTeamBlue_Players')
+				.trigger('update')
+			;
+		}
+		
+		{
+			jQuery('#idTeamBlue_Score')
+				.off('update')
+				.on('update', function() {
+					jQuery(this)
+						.css({
+							'padding-left': (jQuery(this).prev().width() + 15) + 'px'
+						})
+						.val('')
+					;
+				})
+			;
+			
+			jQuery('#idTeamBlue_Score')
+				.trigger('update')
+			;
+		}
+		
+		{
+			jQuery('#idLogin_Name')
+				.off('update')
+				.on('update', function() {
+					jQuery(this)
+						.css({
+							'padding-left': (jQuery(this).prev().width() + 15) + 'px'
+						})
+						.val('')
+					;
+				})
+			;
+			
+			jQuery('#idLogin_Name')
+				.trigger('update')
+			;
+		}
+		
+		{
+			jQuery('#idLogin_Password')
+				.off('update')
+				.on('update', function() {
+					jQuery(this)
+						.css({
+							'padding-left': (jQuery(this).prev().width() + 15) + 'px'
+						})
+						.val('')
+					;
+				})
+			;
+			
+			jQuery('#idLogin_Password')
+				.trigger('update')
+			;
+		}
+
+		{
+			jQuery('#idLogin_Team').find('option').eq(Math.round(Math.random()))
+			    .prop({
+			        'selected': true
+			    })
+			;
+			
+			jQuery('#idLogin_Team')
+				.off('update')
+				.on('update', function() {
+					jQuery(this)
+						.css({
+							'padding-left': (jQuery(this).prev().width() + 15) + 'px'
+						})
+					;
+				})
+			;
+			
+			jQuery('#idLogin_Team')
+				.trigger('update')
+			;
+		}
+		
+		{
+			jQuery('#idLogin_Login')
+				.button({
+					'disabled': false,
+					'icons': {
+						'primary': 'ui-icon-check'
+					}
+				})
+				.off('click')
+				.on('click', function() {
+					{
+						Gui.strMode = 'modeLoading';
+					}
+					
+					{
+						Gui.update();
+					}
+					
+					{
+						Socket.socketHandle.emit('loginHandle', {
+							'strName': jQuery('#idLogin_Name').val(),
+							'strPassword': jQuery('#idLogin_Password').val(),
+							'strTeam': jQuery('#idLogin_Team').val()
+						});
+					}
+				});
+			;
+		}
+		
+		{
+			jQuery('#idLogin_Tab')
+				.button({
+					'disabled': false,
+					'icons': {
+						'primary': 'ui-icon-triangle-2-e-w'
+					}
+				})
+				.off('click')
+				.on('click', function() {
+					{
+						jQuery(document.body)
+							.trigger(jQuery.Event('keydown', {
+								'keyCode': 9
+							}))
+						;
+						
+						jQuery(document.body)
+							.trigger(jQuery.Event('keyup', {
+								'keyCode': 9
+							}))
+						;
+					}
+				})
+			;
+		}
+		
+		{
+			jQuery('#idLogin_Esc')
+				.button({
+					'disabled': false,
+					'icons': {
+						'primary': 'ui-icon-close'
+					}
+				})
+			;
+		}
+	},
+	
+	dispel: function() {
+		{
+			Gui.strMode = '';
+		}
+		
+		{
+			Gui.strChooserCategory = '';
+			
+			Gui.intChooserType = 0;
+		}
+	},
+	
+	update: function() {
+		{
+			{
+				jQuery('#idCrosshair')
+					.css({
+						'display': 'none'
+					})
+				;
+				
+				jQuery('#idWestside')
+					.css({
+						'display': 'none'
+					})
+				;
+				
+				jQuery('#idEastside')
+					.css({
+						'display': 'none'
+					})
+				;
+				
+				jQuery('#idToolbar')
+					.css({
+						'display': 'none'
+					})
+				;
+				
+				jQuery('#idLoading')
+					.css({
+						'visibility': 'hidden'
+					})
+				;
+				
+				jQuery('#idLogin')
+					.css({
+						'visibility': 'hidden'
+					})
+				;
+			}
+			
+			{
+				if (Gui.strMode === 'modeLogin') {
+					jQuery('#idLogin')
+						.css({
+							'visibility': 'visible'
+						})
+					;
+					
+				} else if (Gui.strMode === 'modeLoading') {
+					jQuery('#idLoading')
+						.css({
+							'visibility': 'visible'
+						})
+					;
+					
+				} else if (Gui.strMode === 'modeMenu') {
+					jQuery('#idWestside')
+						.css({
+							'display': 'block'
+						})
+					;
+					
+					jQuery('#idEastside')
+						.css({
+							'display': 'block'
+						})
+					;
+					
+				} else if (Gui.strMode === 'modeGame') {
+					jQuery('#idCrosshair')
+						.css({
+							'display': 'block'
+						})
+					;
+					
+					jQuery('#idToolbar')
+						.css({
+							'display': 'block'
+						})
+					;
+					
+				}
+			}
+		}
+		
+		{
+			{
+				jQuery('#idPhaseBuild')
+					.css({
+						'display': 'none'
+					})
+				;
+				
+				jQuery('#idPhaseCombat')
+					.css({
+						'display': 'none'
+					})
+				;
+			}
+			
+			{
+				if (Settings.strPhaseActive === 'Build') {
+					{
+						jQuery('#idPhaseBuild')
+							.css({
+								'display': 'inline-block'
+							})
+						;
+					}
+					
+				} else if (Settings.strPhaseActive === 'Combat') {
+					{
+						jQuery('#idPhaseCombat')
+							.css({
+								'display': 'inline-block'
+							})
+						;
+					}
+					
+				}
+			}
+		}
+		
+		{
+			{
+				jQuery('#idPhaseBuild_Chooser').find('button')
+					.css({
+						'background': 'none',
+						'background-color': '#F2F2F2'
+					})
+				;
+				
+				jQuery('#idPhaseCombat_Chooser').find('button')
+					.css({
+						'background': 'none',
+						'background-color': '#F2F2F2'
+					})
+				;
+			}
+			
+			{
+				if (Gui.strChooserCategory === 'categoryCreate') {
+					jQuery('#idPhaseBuild_Chooser').find('button').eq(Gui.intChooserType + 0)
+						.css({
+							'background': 'none',
+							'background-color': '#FFFFFF'
+						})
+					;
+					
+				} else if (Gui.strChooserCategory === 'categoryDestroy') {
+					jQuery('#idPhaseBuild_Chooser').find('button').eq(Gui.intChooserType + 1)
+						.css({
+							'background': 'none',
+							'background-color': '#FFFFFF'
+						})
+					;
+					
+				} else if (Gui.strChooserCategory === 'categoryWeapon') {
+					jQuery('#idPhaseCombat_Chooser').find('button').eq(Gui.intChooserType + 0)
+						.css({
+							'background': 'none',
+							'background-color': '#FFFFFF'
+						})
+					;
+					
+				}
+			}
 		}
 	}
 };
@@ -532,10 +563,10 @@ var Voxel = {
 			// TODO: commit changes to voxel-highlight
 			Voxel.voxelhighlightHandle = require('voxel-highlight')(Voxel.voxelengineHandle, {
 				'enabled': function() {
-					if (Settings.strChooserCategory === 'categoryCreate') {
+					if (Gui.strChooserCategory === 'categoryCreate') {
 						return true;
 						
-					} else if (Settings.strChooserCategory === 'categoryDestroy') {
+					} else if (Gui.strChooserCategory === 'categoryDestroy') {
 						return true;
 						
 					}
@@ -547,7 +578,7 @@ var Voxel = {
 				'wireframeOpacity': 1.0,
 				'color': 0xFFFFFF,
 				'adjacentActive': function() {
-					if (Settings.strChooserCategory === 'categoryCreate') {
+					if (Gui.strChooserCategory === 'categoryCreate') {
 						return true;
 					}
 					
@@ -631,7 +662,7 @@ var Voxel = {
 				return minecraftskinHandle;
 			};
 			
-			Voxel.minecraftskinUpdate = function(minecraftskinHandle, strTeam, strItem, intAnimtime) {
+			Voxel.minecraftskinUpdate = function(minecraftskinHandle, strTeam, strItem, intWalktime) {
 				{
 					if (minecraftskinHandle.strTeam !== strTeam) {
 						if (strTeam === 'teamRed') {
@@ -674,11 +705,11 @@ var Voxel = {
 						dblItem = 0.1 * Math.PI;
 					}
 					
-					minecraftskinHandle.rightArm.rotation.z = 2 * Math.cos((6.666 * intAnimtime) + (0.5 * Math.PI) + Math.PI + dblItem);
-					minecraftskinHandle.leftArm.rotation.z = 2 * Math.cos((6.666 * intAnimtime) + (0.5 * Math.PI));
+					minecraftskinHandle.rightArm.rotation.z = 2 * Math.cos((6.666 * intWalktime) + (0.5 * Math.PI) + Math.PI + dblItem);
+					minecraftskinHandle.leftArm.rotation.z = 2 * Math.cos((6.666 * intWalktime) + (0.5 * Math.PI));
 					
-					minecraftskinHandle.rightLeg.rotation.z = 1.4 * Math.cos((6.666 * intAnimtime) + (0.5 * Math.PI));
-					minecraftskinHandle.leftLeg.rotation.z = 1.4 * Math.cos((6.666 * intAnimtime) + (0.5 * Math.PI) + Math.PI);
+					minecraftskinHandle.rightLeg.rotation.z = 1.4 * Math.cos((6.666 * intWalktime) + (0.5 * Math.PI));
+					minecraftskinHandle.leftLeg.rotation.z = 1.4 * Math.cos((6.666 * intWalktime) + (0.5 * Math.PI) + Math.PI);
 				}
 			};
 		}
@@ -694,9 +725,15 @@ var Voxel = {
 							
 						} else if (strItem === 'itemSword') {
 							contextHandle.drawImage(jQuery('#idItemSword').get(0), 0, 0);
-							
+
 						} else if (strItem === 'itemBow') {
 							contextHandle.drawImage(jQuery('#idItemBow').get(0), 0, 0);
+
+						} else if (strItem === 'itemRedFlag') {
+							contextHandle.drawImage(jQuery('#idItemRedFlag').get(0), 0, 0);
+
+						} else if (strItem === 'itemBlueFlag') {
+							contextHandle.drawImage(jQuery('#idItemBlueFlag').get(0), 0, 0);
 							
 						}
 					}
@@ -788,10 +825,12 @@ var Voxel = {
 
 var Socket = {
 	socketHandle: null,
+	
+	intPing: 0,
 
 	playerHandle: {},
 	
-	intPing: 0,
+	itemHandle: {},
 	
 	init: function() {
 		{
@@ -799,11 +838,15 @@ var Socket = {
 		}
 		
 		{
+			Socket.intPing = 0;
+		}
+		
+		{
 			Socket.playerHandle = {};
 		}
 		
 		{
-			Socket.intPing = 0;
+			Socket.itemHandle = {};
 		}
 		
 		{
@@ -903,19 +946,7 @@ var Socket = {
 					{
 						if (jsonHandle.strType === 'typeReject') {
 							{
-								jQuery('#idLoading')
-									.css({
-										'visibility': 'hidden'
-									})
-								;
-							}
-							
-							{
-								jQuery('#idLogin')
-									.css({
-										'visibility': 'visible'
-									})
-								;
+								Gui.strMode = 'modeLogin';
 							}
 							
 							{
@@ -944,35 +975,7 @@ var Socket = {
 							
 						} else if (jsonHandle.strType === 'typeAccept') {
 							{
-								jQuery('#idModal')
-									.css({
-										'visibility': 'hidden'
-									})
-								;
-							}
-							
-							{
-								jQuery('#idLoading')
-									.css({
-										'visibility': 'hidden'
-									})
-								;
-							}
-							
-							{
-								jQuery('#idLogin')
-									.css({
-										'visibility': 'hidden'
-									})
-								;
-							}
-							
-							{
-								jQuery('#idInformation')
-									.css({
-										'visibility': 'visible'
-									})
-								;
+								Gui.strMode = 'modeMenu';
 							}
 							
 						}
@@ -1017,37 +1020,23 @@ var Socket = {
 								playerHandle.strItem = playerHandle.c;
 								playerHandle.dblPosition = playerHandle.d;
 								playerHandle.dblVerlet = playerHandle.e;
-								playerHandle.dblBodyyaw = playerHandle.f;
-								playerHandle.dblHeadpitch = playerHandle.g;
+								playerHandle.dblRotation = playerHandle.f;
 							}
 							
 							{
-								var dblPositionX = playerHandle.dblPosition[0];
-								var dblPositionY = playerHandle.dblPosition[1];
-								var dblPositionZ = playerHandle.dblPosition[2];
-								
-								var dblVerletX = playerHandle.dblVerlet[0];
-								var dblVerletY = playerHandle.dblVerlet[1];
-								var dblVerletZ = playerHandle.dblVerlet[2];
-								
 								if (Socket.playerHandle.hasOwnProperty(playerHandle.strSocket) === true) {
-									dblPositionX = 0.5 * (playerHandle.dblPosition[0] + Socket.playerHandle[playerHandle.strSocket].dblPosition[0]);
-									dblPositionY = 0.5 * (playerHandle.dblPosition[1] + Socket.playerHandle[playerHandle.strSocket].dblPosition[1]);
-									dblPositionZ = 0.5 * (playerHandle.dblPosition[2] + Socket.playerHandle[playerHandle.strSocket].dblPosition[2]);
-									
-									dblVerletX = dblPositionX - (playerHandle.dblPosition[0] - playerHandle.dblVerlet[0]);
-									dblVerletY = dblPositionY - (playerHandle.dblPosition[1] - playerHandle.dblVerlet[1]);
-									dblVerletZ = dblPositionZ - (playerHandle.dblPosition[2] - playerHandle.dblVerlet[2]);
+									Physics.updateOverwrite(playerHandle, Socket.playerHandle[playerHandle.strSocket]);
 								}
-								
+							}
+							
+							{
 								playerOverwrite[playerHandle.strSocket] = {
 									'strSocket': playerHandle.strSocket,
 									'strTeam': playerHandle.strTeam,
 									'strItem': playerHandle.strItem,
-									'dblPosition': [ dblPositionX, dblPositionY, dblPositionZ ],
-									'dblVerlet': [ dblVerletX, dblVerletY, dblVerletZ ],
-									'dblBodyyaw': playerHandle.dblBodyyaw,
-									'dblHeadpitch': playerHandle.dblHeadpitch
+									'dblPosition': playerHandle.dblPosition,
+									'dblVerlet': playerHandle.dblVerlet,
+									'dblRotation': playerHandle.dblRotation
 								};
 								
 								playerOverwrite[playerHandle.strSocket].intWalktime = 0;
@@ -1055,6 +1044,43 @@ var Socket = {
 						}
 						
 						Socket.playerHandle = playerOverwrite;
+					}
+				});
+
+				
+				Socket.socketHandle.on('itemHandle', function(jsonHandle) {
+					{
+						var itemOverwrite = {};
+						
+						/*for (var intFor1 = 0; intFor1 < jsonHandle.length; intFor1 += 1) {
+							var itemHandle = jsonHandle[intFor1];
+
+							{
+								itemHandle.strItem = itemHandle.a;
+								itemHandle.dblPosition = itemHandle.b;
+								itemHandle.dblVerlet = itemHandle.c;
+								itemHandle.dblRotation = itemHandle.d;
+							}
+							
+							{
+								if (Socket.itemHandle.hasOwnProperty(itemHandle.strSocket) === true) {
+									Physics.updateOverwrite(itemHandle, Socket.itemHandle[itemHandle.strSocket]);
+								}
+							}
+							
+							{
+								itemOverwrite[itemHandle.strSocket] = {
+									'strSocket': itemHandle.strSocket,
+									'strTeam': itemHandle.strTeam,
+									'strItem': itemHandle.strItem,
+									'dblPosition': itemHandle.dblPosition,
+									'dblVerlet': itemHandle.dblVerlet,
+									'dblRotation': itemHandle.dblRotation,
+								};
+							}
+						}*/
+						
+						Socket.itemHandle = itemOverwrite;
 					}
 				});
 				
@@ -1088,37 +1114,7 @@ var Socket = {
 					}
 					
 					{
-						if (jsonHandle.strPhaseActive === 'Build') {
-							{
-								jQuery('#idPhaseBuild')
-									.css({
-										'display': 'inline-block'
-									})
-								;
-								
-								jQuery('#idPhaseCombat')
-									.css({
-										'display': 'none'
-									})
-								;
-							}
-							
-						} else if (jsonHandle.strPhaseActive === 'Combat') {
-							{
-								jQuery('#idPhaseBuild')
-									.css({
-										'display': 'none'
-									})
-								;
-								
-								jQuery('#idPhaseCombat')
-									.css({
-										'display': 'inline-block'
-									})
-								;
-							}
-							
-						}
+						Gui.update();
 					}
 				});
 				
@@ -1141,11 +1137,15 @@ var Socket = {
 		}
 		
 		{
+			Socket.intPing = 0;
+		}
+		
+		{
 			Socket.playerHandle = {};
 		}
 		
 		{
-			Socket.intPing = 0;
+			Socket.itemHandle = {};
 		}
 	}
 };
@@ -1156,101 +1156,57 @@ var Input = {
 			jQuery(document.body)
 				.off('keydown')
 				.on('keydown', function(eventHandle) {
-					if (Settings.strMode === 'modeMenu') {
+					if (Gui.strMode === 'modeMenu') {
 						if (eventHandle.keyCode === 9) {
 							{
-								Settings.strMode = 'modeGame';
+								Gui.strMode = 'modeGame';
 							}
 							
 							{
-								jQuery('#idInformation')
-									.css({
-										'visibility': 'hidden'
-									})
-								;
-							}
-							
-							{
-								jQuery('#idWestside')
-									.css({
-										'display': 'none'
-									})
-								;
-								
-								jQuery('#idEastside')
-									.css({
-										'display': 'none'
-									})
-								;
-								
-								jQuery('#idToolbar')
-									.css({
-										'display': 'block'
-									})
-								;
+								Gui.update();
 							}
 						}
 						
-					} else if (Settings.strMode === 'modeGame') {
+					} else if (Gui.strMode === 'modeGame') {
 						if (eventHandle.keyCode === 9) {
 							{
-								Settings.strMode = 'modeMenu';
+								Gui.strMode = 'modeMenu';
 							}
 							
 							{
-								jQuery('#idWestside')
-									.css({
-										'display': 'block'
-									})
-								;
-								
-								jQuery('#idEastside')
-									.css({
-										'display': 'block'
-									})
-								;
-								
-								jQuery('#idToolbar')
-									.css({
-										'display': 'none'
-									})
-								;
+								Gui.update();
 							}
 						}
 						
 						if (Settings.strPhaseActive === 'Build') {
 							if (eventHandle.keyCode === 49) {
 								{
-									Settings.strChooserCategory = 'categoryCreate';
+									Gui.strChooserCategory = 'categoryCreate';
 									
-									Settings.intChooserType = 0;
+									Gui.intChooserType = 0;
+								}
+								
+								{
+									Gui.update();
 								}
 								
 								{
 									Player.strItem = 'itemPickaxe';
-								}
-								
-								{
-									jQuery('#idPhaseBuild_Chooser')
-										.trigger('update')
-									;
 								}
 								
 							} else if (eventHandle.keyCode === 50) {
 								{
-									Settings.strChooserCategory = 'categoryDestroy';
+									Gui.strChooserCategory = 'categoryDestroy';
 									
-									Settings.intChooserType = 0;
+									Gui.intChooserType = 0;
+								}
+								
+								{
+									Gui.update();
 								}
 								
 								{
 									Player.strItem = 'itemPickaxe';
-								}
-								
-								{
-									jQuery('#idPhaseBuild_Chooser')
-										.trigger('update')
-									;
 								}
 								
 							}
@@ -1258,36 +1214,32 @@ var Input = {
 						} else if (Settings.strPhaseActive === 'Combat') {
 							if (eventHandle.keyCode === 49) {
 								{
-									Settings.strChooserCategory = 'categoryWeapon';
+									Gui.strChooserCategory = 'categoryWeapon';
 									
-									Settings.intChooserType = 0;
+									Gui.intChooserType = 0;
+								}
+								
+								{
+									Gui.update();
 								}
 								
 								{
 									Player.strItem = 'itemSword';
 								}
 								
-								{
-									jQuery('#idPhaseCombat_Chooser')
-										.trigger('update')
-									;
-								}
-								
 							} else if (eventHandle.keyCode === 50) {
 								{
-									Settings.strChooserCategory = 'categoryWeapon';
+									Gui.strChooserCategory = 'categoryWeapon';
 									
-									Settings.intChooserType = 1;
+									Gui.intChooserType = 1;
+								}
+								
+								{
+									Gui.update();
 								}
 								
 								{
 									Player.strItem = 'itemBow';
-								}
-								
-								{
-									jQuery('#idPhaseCombat_Chooser')
-										.trigger('update')
-									;
 								}
 								
 							}
@@ -1413,25 +1365,19 @@ var Player = {
 		}
 		
 		{
-			var intWalktime = new Date().getTime() / 1000;
+			var dblVelocityX = Player.dblPosition[0] - Player.dblVerlet[0];
+			var dblVelocityY = Player.dblPosition[1] - Player.dblVerlet[1];
+			var dblVelocityZ = Player.dblPosition[2] - Player.dblVerlet[2];
 			
-			{
-				var dblVelocityX = Player.dblPosition[0] - Player.dblVerlet[0];
-				var dblVelocityY = Player.dblPosition[1] - Player.dblVerlet[1];
-				var dblVelocityZ = Player.dblPosition[2] - Player.dblVerlet[2];
-				
-				if (Math.abs(dblVelocityX) < 0.0001) {
-					if (Math.abs(dblVelocityZ) < 0.0001) {
-						Player.intWalktime = intWalktime;
-					}
+			if (Math.abs(dblVelocityX) < 0.0001) {
+				if (Math.abs(dblVelocityZ) < 0.0001) {
+					Player.intWalktime = new Date().getTime() / 1000;
 				}
 			}
-			
-			var intAnimtime = Player.intWalktime - intWalktime;
-			
-			{
-				Voxel.minecraftskinUpdate(Player.minecraftskinHandle, Player.strTeam, Player.strItem, intAnimtime);
-			}
+		}
+		
+		{
+			Voxel.minecraftskinUpdate(Player.minecraftskinHandle, Player.strTeam, Player.strItem, Player.intWalktime - new Date().getTime() / 1000);
 		}
 	}
 };
@@ -1462,127 +1408,8 @@ var Enemy = {
 	},
 	
 	update: function(intDelta) {
-		var intActive = 0;
-		
 		{
-			for (var strSocket in Socket.playerHandle) {
-				var playerHandle = Socket.playerHandle[strSocket];
-				
-				{
-					var dblVerletX = playerHandle.dblPosition[0];
-					var dblVerletY = playerHandle.dblPosition[1];
-					var dblVerletZ = playerHandle.dblPosition[2];
-					
-					playerHandle.dblPosition[0] = playerHandle.dblPosition[0] + (playerHandle.dblPosition[0] - playerHandle.dblVerlet[0]) + Voxel.voxelengineHandle.gravity[0];
-					playerHandle.dblPosition[1] = playerHandle.dblPosition[1] + (playerHandle.dblPosition[1] - playerHandle.dblVerlet[1]) + Voxel.voxelengineHandle.gravity[1];
-					playerHandle.dblPosition[2] = playerHandle.dblPosition[2] + (playerHandle.dblPosition[2] - playerHandle.dblVerlet[2]) + Voxel.voxelengineHandle.gravity[2];
-					
-					playerHandle.dblVerlet[0] = dblVerletX;
-					playerHandle.dblVerlet[1] = dblVerletY;
-					playerHandle.dblVerlet[2] = dblVerletZ;
-				}
-				
-				{
-					var dblVelocityX = playerHandle.dblPosition[0] - playerHandle.dblVerlet[0];
-					var dblVelocityY = playerHandle.dblPosition[1] - playerHandle.dblVerlet[1];
-					var dblVelocityZ = playerHandle.dblPosition[2] - playerHandle.dblVerlet[2];
-					
-					if (dblVelocityX > Voxel.voxelengineHandle.controls.max_speed) {
-						dblVelocityX = Voxel.voxelengineHandle.controls.max_speed;
-						
-					} else if (dblVelocityX < -Voxel.voxelengineHandle.controls.max_speed) {
-						dblVelocityX = -Voxel.voxelengineHandle.controls.max_speed;
-						
-					} else if (Math.abs(dblVelocityX) < 0.0001) {
-						dblVelocityX = 0.0;
-						
-					}
-					
-					if (dblVelocityY > Voxel.voxelengineHandle.controls.jump_max_speed) {
-						dblVelocityY = Voxel.voxelengineHandle.controls.jump_max_speed;
-						
-					} else if (dblVelocityY < -Voxel.voxelengineHandle.controls.jump_max_speed) {
-						dblVelocityY = -Voxel.voxelengineHandle.controls.jump_max_speed;
-						
-					} else if (Math.abs(dblVelocityY) < 0.0001) {
-						dblVelocityY = 0.0;
-						
-					}
-					
-					if (dblVelocityZ > Voxel.voxelengineHandle.controls.max_speed) {
-						dblVelocityZ = Voxel.voxelengineHandle.controls.max_speed;
-						
-					} else if (dblVelocityZ < -Voxel.voxelengineHandle.controls.max_speed) {
-						dblVelocityZ = -Voxel.voxelengineHandle.controls.max_speed;
-						
-					} else if (Math.abs(dblVelocityZ) < 0.0001) {
-						dblVelocityZ = 0.0;
-						
-					}
-
-					playerHandle.dblPosition[0] = playerHandle.dblVerlet[0] + dblVelocityX;
-					playerHandle.dblPosition[1] = playerHandle.dblVerlet[1] + dblVelocityY;
-					playerHandle.dblPosition[2] = playerHandle.dblVerlet[2] + dblVelocityZ;
-				}
-
-				{
-					var minecraftskinHandle = null;
-					
-					{
-						minecraftskinHandle = Enemy.minecraftskinHandle[intActive];
-						
-						intActive += 1;
-					}
-
-					{
-						minecraftskinHandle.mesh.position.x = playerHandle.dblPosition[0];
-						minecraftskinHandle.mesh.position.y = playerHandle.dblPosition[1];
-						minecraftskinHandle.mesh.position.z = playerHandle.dblPosition[2];
-	
-						minecraftskinHandle.mesh.rotation.y = playerHandle.dblBodyyaw;
-	
-						minecraftskinHandle.mesh.head.rotation.x = playerHandle.dblHeadpitch;
-					}
-					
-					{
-						var intWalktime = new Date().getTime() / 1000;
-						
-						{
-							var dblVelocityX = playerHandle.dblPosition[0] - playerHandle.dblVerlet[0];
-							var dblVelocityY = playerHandle.dblPosition[1] - playerHandle.dblVerlet[1];
-							var dblVelocityZ = playerHandle.dblPosition[2] - playerHandle.dblVerlet[2];
-							
-							if (Math.abs(dblVelocityX) < 0.0001) {
-								if (Math.abs(dblVelocityZ) < 0.0001) {
-									playerHandle.intWalktime = intWalktime;
-								}
-							}
-						}
-						
-						var intAnimtime = playerHandle.intWalktime - intWalktime;
-						
-						{
-							Voxel.minecraftskinUpdate(minecraftskinHandle, playerHandle.strTeam, playerHandle.strItem, intAnimtime);
-						}
-					}
-				}
-			}
-		}
-		
-		{
-			for (var intFor1 = 0; intFor1 < intActive; intFor1 += 1) {
-				var minecraftskinHandle = Enemy.minecraftskinHandle[intFor1];
-
-				if (minecraftskinHandle.mesh.parent !== undefined) {
-					continue;
-				}
-				
-				{
-					Voxel.voxelengineHandle.scene.add(minecraftskinHandle.mesh);
-				}
-			}
-			
-			for (var intFor1 = intActive; intFor1 < Enemy.minecraftskinHandle.length; intFor1 += 1) {
+			for (var intFor1 = 0; intFor1 < Enemy.minecraftskinHandle.length; intFor1 += 1) {
 				var minecraftskinHandle = Enemy.minecraftskinHandle[intFor1];
 
 				if (minecraftskinHandle.mesh.parent === undefined) {
@@ -1594,38 +1421,154 @@ var Enemy = {
 				}
 			}
 		}
+		
+		{
+			for (var strSocket in Socket.playerHandle) {
+				var playerHandle = Socket.playerHandle[strSocket];
+				
+				{
+					Physics.update(playerHandle);
+				}
+
+				{
+					var minecraftskinHandle = null;
+					
+					{
+						for (var intFor1 = 0; intFor1 < Enemy.minecraftskinHandle.length; intFor1 += 1) {
+							if (Enemy.minecraftskinHandle[intFor1].mesh.parent !== undefined) {
+								continue;
+							}
+							
+							{
+								minecraftskinHandle = Enemy.minecraftskinHandle[intFor1];
+							}
+							
+							{
+								break;
+							}
+						}
+					}
+					
+					{
+						Voxel.voxelengineHandle.scene.add(minecraftskinHandle.mesh);
+					}
+
+					{
+						minecraftskinHandle.mesh.position.x = playerHandle.dblPosition[0];
+						minecraftskinHandle.mesh.position.y = playerHandle.dblPosition[1];
+						minecraftskinHandle.mesh.position.z = playerHandle.dblPosition[2];
+
+						minecraftskinHandle.mesh.head.rotation.x = playerHandle.dblRotation[0];
+						
+						minecraftskinHandle.mesh.rotation.y = playerHandle.dblRotation[1];
+					}
+					
+					{
+						var dblVelocityX = playerHandle.dblPosition[0] - playerHandle.dblVerlet[0];
+						var dblVelocityY = playerHandle.dblPosition[1] - playerHandle.dblVerlet[1];
+						var dblVelocityZ = playerHandle.dblPosition[2] - playerHandle.dblVerlet[2];
+						
+						if (Math.abs(dblVelocityX) < 0.0001) {
+							if (Math.abs(dblVelocityZ) < 0.0001) {
+								playerHandle.intWalktime = new Date().getTime() / 1000;
+							}
+						}
+					}
+					
+					{
+						Voxel.minecraftskinUpdate(minecraftskinHandle, playerHandle.strTeam, playerHandle.strItem, playerHandle.intWalktime - new Date().getTime() / 1000);
+					}
+				}
+			}
+		}
 	}
 };
 
-var Clouds = {
-	voxelcloudsHandle: null,
-	
+var Physics = {
 	init: function() {
-		{
-			Clouds.voxelcloudsHandle = require('voxel-clouds')({
-				'game': Voxel.voxelengineHandle,
-				'high': 30,
-				'distance': 300,
-				'many': 100,
-				'speed': 0.003,
-				'material': new Voxel.voxelengineHandle.THREE.MeshBasicMaterial({
-					'emissive': 0xFFFFFF,
-					'shading': Voxel.voxelengineHandle.THREE.FlatShading,
-					'fog': false
-				})
-			});
-		}
+		
 	},
 	
 	dispel: function() {
+		
+	},
+	
+	update: function(physicsHandle) {
 		{
-			Clouds.voxelcloudsHandle = null;
+			var dblVerletX = physicsHandle.dblPosition[0];
+			var dblVerletY = physicsHandle.dblPosition[1];
+			var dblVerletZ = physicsHandle.dblPosition[2];
+			
+			physicsHandle.dblPosition[0] = physicsHandle.dblPosition[0] + (physicsHandle.dblPosition[0] - physicsHandle.dblVerlet[0]) + Voxel.voxelengineHandle.gravity[0];
+			physicsHandle.dblPosition[1] = physicsHandle.dblPosition[1] + (physicsHandle.dblPosition[1] - physicsHandle.dblVerlet[1]) + Voxel.voxelengineHandle.gravity[1];
+			physicsHandle.dblPosition[2] = physicsHandle.dblPosition[2] + (physicsHandle.dblPosition[2] - physicsHandle.dblVerlet[2]) + Voxel.voxelengineHandle.gravity[2];
+			
+			physicsHandle.dblVerlet[0] = dblVerletX;
+			physicsHandle.dblVerlet[1] = dblVerletY;
+			physicsHandle.dblVerlet[2] = dblVerletZ;
+		}
+		
+		{
+			var dblVelocityX = physicsHandle.dblPosition[0] - physicsHandle.dblVerlet[0];
+			var dblVelocityY = physicsHandle.dblPosition[1] - physicsHandle.dblVerlet[1];
+			var dblVelocityZ = physicsHandle.dblPosition[2] - physicsHandle.dblVerlet[2];
+			
+			if (dblVelocityX > Voxel.voxelengineHandle.controls.max_speed) {
+				dblVelocityX = Voxel.voxelengineHandle.controls.max_speed;
+				
+			} else if (dblVelocityX < -Voxel.voxelengineHandle.controls.max_speed) {
+				dblVelocityX = -Voxel.voxelengineHandle.controls.max_speed;
+				
+			} else if (Math.abs(dblVelocityX) < 0.0001) {
+				dblVelocityX = 0.0;
+				
+			}
+			
+			if (dblVelocityY > Voxel.voxelengineHandle.controls.jump_max_speed) {
+				dblVelocityY = Voxel.voxelengineHandle.controls.jump_max_speed;
+				
+			} else if (dblVelocityY < -Voxel.voxelengineHandle.controls.jump_max_speed) {
+				dblVelocityY = -Voxel.voxelengineHandle.controls.jump_max_speed;
+				
+			} else if (Math.abs(dblVelocityY) < 0.0001) {
+				dblVelocityY = 0.0;
+				
+			}
+			
+			if (dblVelocityZ > Voxel.voxelengineHandle.controls.max_speed) {
+				dblVelocityZ = Voxel.voxelengineHandle.controls.max_speed;
+				
+			} else if (dblVelocityZ < -Voxel.voxelengineHandle.controls.max_speed) {
+				dblVelocityZ = -Voxel.voxelengineHandle.controls.max_speed;
+				
+			} else if (Math.abs(dblVelocityZ) < 0.0001) {
+				dblVelocityZ = 0.0;
+				
+			}
+			
+			physicsHandle.dblPosition[0] = physicsHandle.dblVerlet[0] + dblVelocityX;
+			physicsHandle.dblPosition[1] = physicsHandle.dblVerlet[1] + dblVelocityY;
+			physicsHandle.dblPosition[2] = physicsHandle.dblVerlet[2] + dblVelocityZ;
 		}
 	},
 	
-	update: function(intDelta) {
+	updateOverwrite: function(physicsHandle, physicsOverwrite) {
 		{
-			Clouds.voxelcloudsHandle.tick(intDelta);
+			var dblPositionX = 0.5 * (physicsHandle.dblPosition[0] + physicsOverwrite.dblPosition[0]);
+			var dblPositionY = 0.5 * (physicsHandle.dblPosition[1] + physicsOverwrite.dblPosition[1]);
+			var dblPositionZ = 0.5 * (physicsHandle.dblPosition[2] + physicsOverwrite.dblPosition[2]);
+			
+			var dblVerletX = dblPositionX - (physicsHandle.dblPosition[0] - physicsHandle.dblVerlet[0]);
+			var dblVerletY = dblPositionY - (physicsHandle.dblPosition[1] - physicsHandle.dblVerlet[1]);
+			var dblVerletZ = dblPositionZ - (physicsHandle.dblPosition[2] - physicsHandle.dblVerlet[2]);
+			
+			physicsHandle.dblPositionX = dblPositionX;
+			physicsHandle.dblPositionY = dblPositionY;
+			physicsHandle.dblPositionZ = dblPositionZ;
+			
+			physicsHandle.dblVerletX = dblVerletX;
+			physicsHandle.dblVerletY = dblVerletY;
+			physicsHandle.dblVerletZ = dblVerletZ;
 		}
 	}
 };
@@ -1633,6 +1576,8 @@ var Clouds = {
 jQuery(document).ready(function() {
 	{
 		Settings.init();
+		
+		Gui.init();
 		
 		Voxel.init();
 		
@@ -1644,14 +1589,18 @@ jQuery(document).ready(function() {
 		
 		Enemy.init();
 		
-		Clouds.init();
+		Physics.init();
+	}
+	
+	{
+		Gui.update();
 	}
 	
 	{
 		Voxel.voxelengineHandle.on('fire', function(targetHandle, stateHandle) {
-			if (Settings.strChooserCategory === 'categoryCreate') {
+			if (Gui.strChooserCategory === 'categoryCreate') {
 				if (Voxel.voxelhighlightHandle.positionCreate !== null) {
-					if (Settings.intChooserType === 0) {
+					if (Gui.intChooserType === 0) {
 						Socket.socketHandle.emit('voxelHandle', {
 							'intCoordinate': Voxel.voxelhighlightHandle.positionCreate,
 							'strType': 'voxelDirt'
@@ -1659,9 +1608,9 @@ jQuery(document).ready(function() {
 					}
 				}
 						
-			} else if (Settings.strChooserCategory === 'categoryDestroy') {
+			} else if (Gui.strChooserCategory === 'categoryDestroy') {
 				if (Voxel.voxelhighlightHandle.positionDestroy !== null) {
-					if (Settings.intChooserType === 0) {
+					if (Gui.intChooserType === 0) {
 						Socket.socketHandle.emit('voxelHandle', {
 							'intCoordinate': Voxel.voxelhighlightHandle.positionDestroy,
 							'strType': ''
@@ -1669,10 +1618,10 @@ jQuery(document).ready(function() {
 					}
 				}
 				
-			} else if (Settings.strChooserCategory === 'categoryWeapon') {
-				if (Settings.intChooserType === 0) {
+			} else if (Gui.strChooserCategory === 'categoryWeapon') {
+				if (Gui.intChooserType === 0) {
 					
-				} else if (Settings.intChooserType === 1) {
+				} else if (Gui.intChooserType === 1) {
 					
 				}
 				
@@ -1684,8 +1633,6 @@ jQuery(document).ready(function() {
 				Player.update(intDelta);
 				
 				Enemy.update(intDelta);
-				
-				Clouds.update(intDelta);
 			}
 			 
 			{
@@ -1694,8 +1641,7 @@ jQuery(document).ready(function() {
 						'a': Player.strItem,
 						'b': Player.dblPosition,
 						'c': Player.dblVerlet,
-						'd': Player.minecraftskinHandle.mesh.rotation.y,
-						'e': Player.minecraftskinHandle.mesh.head.rotation.x
+						'd': [ Player.minecraftskinHandle.mesh.head.rotation.x, Player.minecraftskinHandle.mesh.rotation.y, 0.0 ]
 					});
 				}
 			}

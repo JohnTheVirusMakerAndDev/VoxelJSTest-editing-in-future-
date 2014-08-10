@@ -212,8 +212,7 @@ var Node = {
 				'intDeaths': 0,
 				'dblPosition': [ 0.0, 0.0, 0.0 ],
 				'dblVerlet': [ 0.0, 0.0, 0.0 ],
-				'dblBodyyaw': 0.0,
-				'dblHeadpitch': 0.0
+				'dblRotation': [ 0.0, 0.0, 0.0 ]
 			};
 		}
 		
@@ -434,8 +433,7 @@ var Node = {
 				jsonHandle.strItem = jsonHandle.a;
 				jsonHandle.dblPosition = jsonHandle.b;
 				jsonHandle.dblVerlet = jsonHandle.c;
-				jsonHandle.dblBodyyaw = jsonHandle.d;
-				jsonHandle.dblHeadpitch = jsonHandle.e;
+				jsonHandle.dblRotation = jsonHandle.d;
 			}
 			
 			if (jsonHandle.strItem === undefined) {
@@ -453,10 +451,7 @@ var Node = {
 			} else if (jsonHandle.dblVerlet.length !== 3) {
 				return;
 				
-			} else if (jsonHandle.dblBodyyaw === undefined) {
-				return;
-				
-			} else if (jsonHandle.dblHeadpitch === undefined) {
+			} else if (jsonHandle.dblRotation === undefined) {
 				return;
 				
 			}
@@ -469,8 +464,7 @@ var Node = {
 				Gameserver.playerHandle[socketHandle.id].strItem = jsonHandle.strItem;
 				Gameserver.playerHandle[socketHandle.id].dblPosition = jsonHandle.dblPosition;
 				Gameserver.playerHandle[socketHandle.id].dblVerlet = jsonHandle.dblVerlet;
-				Gameserver.playerHandle[socketHandle.id].dblBodyyaw = jsonHandle.dblBodyyaw;
-				Gameserver.playerHandle[socketHandle.id].dblHeadpitch = jsonHandle.dblHeadpitch;
+				Gameserver.playerHandle[socketHandle.id].dblRotation = jsonHandle.dblRotation;
 			}
 			
 			{
@@ -494,8 +488,7 @@ var Node = {
 							'c': playerHandle.strItem,
 							'd': playerHandle.dblPosition,
 							'e': playerHandle.dblVerlet,
-							'f': playerHandle.dblBodyyaw,
-							'g': playerHandle.dblHeadpitch
+							'f': playerHandle.dblRotation
 						});
 					}
 			    }
@@ -689,11 +682,15 @@ var Gameserver = {
 							} else if (strType === 'voxelRedFlag') {
 								Gameserver.intMapRedFlag.push(JSON.parse('[' + intCoordinate + ']'));
 								
+								delete Gameserver.strMapType[intCoordinate];
+								
 							} else if (strType === 'voxelBlueSpawn') {
 								Gameserver.intMapBlueSpawn.push(JSON.parse('[' + intCoordinate + ']'));
 								
 							} else if (strType === 'voxelBlueFlag') {
 								Gameserver.intMapBlueFlag.push(JSON.parse('[' + intCoordinate + ']'));
+
+								delete Gameserver.strMapType[intCoordinate];
 								
 							} else if (strType === 'voxelSeparator') {
 								Gameserver.intMapSeparator.push(JSON.parse('[' + intCoordinate + ']'));

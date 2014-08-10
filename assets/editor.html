@@ -81,7 +81,7 @@
 		<script type="text/javascript" src="/editor.js"></script>
 	</head>
 	<body style="overflow:hidden;">
-		<div style="position:fixed; left:50%; top:50%; width:32px; height:32px; margin:-16px 0px 0px -16px;">
+		<div id="idCrosshair" style="position:fixed; left:50%; top:50%; width:32px; height:32px; margin:-16px 0px 0px -16px;">
 			<img src="/images/guiCrosshair.png" />
 		</div>
 		
@@ -89,14 +89,14 @@
 			<div id="idPhaseBuild" class="ui-dialog ui-widget ui-widget-content ui-corner-all" style="display:inline-block; position:static;">
 				<div class="ui-dialog-content ui-widget-content" style="padding:1em;">
 					<div id="idPhaseBuild_Chooser">
-						<select>
+						<select class="ui-widget ui-state-default ui-corner-all" style="width:200px; padding:0.4em 1.0em 0.4em 1em; background:none;">
 							<option>Brick</option>
 							<option>Dirt</option>
 							<option>Grass</option>
 							<option>Plank</option>
 							<option>Stone</option>
 						</select>
-						<select>
+						<select class="ui-widget ui-state-default ui-corner-all" style="width:200px; padding:0.4em 1.0em 0.4em 1em; background:none;">
 							<option>Red Spawn</option>
 							<option>Red Flag</option>
 							<option>Blue Spawn</option>

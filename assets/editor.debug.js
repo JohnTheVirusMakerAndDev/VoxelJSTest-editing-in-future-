@@ -1,215 +1,7 @@
-jQuery(document).ready(function() {
-	{
-		jQuery('#idToolbar')
-			.css({
-				'display': 'none'
-			})
-		;
-	}
-	
-	{
-		jQuery('#idPhaseBuild')
-			.css({
-				'display': 'inline-block'
-			})
-		;
-	}
-	
-	{
-		jQuery('#idPhaseBuild_Chooser')
-			.off('update')
-			.on('update', function() {
-				jQuery(this).find('select').next()
-					.css({
-						'background': 'none',
-						'background-color': '#F2F2F2'
-					})
-				;
-				
-				jQuery(this).find('button')
-					.css({
-						'background': 'none',
-						'background-color': '#F2F2F2'
-					})
-				;
-				
-				if (Settings.strChooserCategory === 'categoryCreate') {
-					jQuery(this).find('select').eq(0).next()
-						.css({
-							'background': 'none',
-							'background-color': '#FFFFFF'
-						})
-					;
-					
-					jQuery(this).find('select').eq(0).find('option').eq(Settings.intChooserType + 0)
-					    .prop({
-					        'selected': true
-					    })
-					;
-					
-					jQuery(this).find('select').eq(0)
-						.selectmenu('refresh')
-					;
-					
-				} else if (Settings.strChooserCategory === 'categorySpecial') {
-					jQuery(this).find('select').eq(1).next()
-						.css({
-							'background': 'none',
-							'background-color': '#FFFFFF'
-						})
-					;
-					
-					jQuery(this).find('select').eq(1).find('option').eq(Settings.intChooserType + 0)
-					    .prop({
-					        'selected': true
-					    })
-					;
-					
-					jQuery(this).find('select').eq(1)
-						.selectmenu('refresh')
-					;
-					
-				} else if (Settings.strChooserCategory === 'categoryDestroy') {
-					jQuery(this).find('button').eq(Settings.intChooserType + 0)
-						.css({
-							'background': 'none',
-							'background-color': '#FFFFFF'
-						})
-					;
-					
-				}
-			})
-		;
-		
-		jQuery('#idPhaseBuild_Chooser')
-			.trigger('update')
-		;
-	}
-	
-	{
-		jQuery('#idPhaseBuild_Chooser').find('select').find('option').eq(0)
-		    .prop({
-		        'selected': true
-		    })
-		;
-		
-		jQuery('#idPhaseBuild_Chooser').find('select')
-			.selectmenu({
-				'disabled': false,
-				'width': 200
-			})
-		;
-
-		jQuery('#idPhaseBuild_Chooser').find('select').next()
-			.css({
-				'vertical-align': 'middle'
-			})
-		;
-	}
-	
-	{
-		jQuery('#idMap')
-			.css({
-				'visibility': 'visible'
-			})
-		;
-	}
-	
-	{
-		jQuery('#idMap_Json')
-			.off('update')
-			.on('update', function() {
-				jQuery(this)
-					.val(JSON.stringify(Settings.strMapType))
-				;
-			})
-		;
-
-		jQuery('#idMap_Json')
-			.trigger('update')
-		;
-	}
-	
-	{
-		jQuery('#idMap_Save')
-			.button({
-				'disabled': false,
-				'icons': {
-					'primary': 'ui-icon-disk'
-				}
-			})
-			.off('click')
-			.on('click', function() {
-				{
-					jQuery('#idMap_Json')
-						.trigger('update')
-					;
-				}
-			})
-		;
-	}
-	
-	{
-		jQuery('#idMap_Load')
-			.button({
-				'disabled': false,
-				'icons': {
-					'primary': 'ui-icon-folder-open'
-				}
-			})
-			.off('click')
-			.on('click', function() {
-				{
-				    for (var intCoordinate in Settings.strMapType) {
-						var strType = Settings.strMapType[intCoordinate];
-						
-						{
-							Voxel.voxelengineHandle.setBlock(JSON.parse('[' + intCoordinate + ']'), 0);
-						}
-				    }
-				}
-				
-				{
-					var objectMap = JSON.parse(jQuery('#idMap_Json').val());
-					
-					{
-						Settings.strMapType = objectMap.strMapType;
-					}
-				}
-				
-				{
-				    for (var intCoordinate in Settings.strMapType) {
-						var strType = Settings.strMapType[intCoordinate];
-						
-						{
-							Voxel.voxelengineHandle.setBlock(JSON.parse('[' + intCoordinate + ']'), Voxel.voxelengineHandle.materials.find(strType));
-						}
-				    }
-				}
-			})
-		;
-	}
-});
-
 var Settings = {
-	strMode: '',
-	
-	strChooserCategory: '',
-	intChooserType: 0,
-
 	strMapType: {},
 	
 	init: function() {
-		{
-			Settings.strMode = 'modeMenu';
-		}
-		
-		{
-			Settings.strChooserCategory = '';
-			
-			Settings.intChooserType = 0;
-		}
-		
 		{
 			Settings.strMapType = {};
 		}
@@ -217,17 +9,242 @@ var Settings = {
 	
 	dispel: function() {
 		{
-			Settings.strMode = '';
-		}
-		
-		{
-			Settings.strChooserCategory = '';
-			
-			Settings.intChooserType = 0;
-		}
-		
-		{
 			Settings.strMapType = {};
+		}
+	}
+};
+
+var Gui = {
+	strMode: '',
+	
+	strChooserCategory: '',
+	intChooserType: '',
+	
+	init: function() {
+		{
+			Gui.strMode = 'modeMenu';
+		}
+		
+		{
+			Gui.strChooserCategory = '';
+			
+			Gui.intChooserType = 0;
+		}
+		
+		/*{
+			jQuery('#idPhaseBuild_Chooser').find('select').find('option').eq(0)
+			    .prop({
+			        'selected': true
+			    })
+			;
+			
+			jQuery('#idPhaseBuild_Chooser').find('select')
+				.selectmenu({
+					'disabled': false,
+					'width': 200
+				})
+			;
+
+			jQuery('#idPhaseBuild_Chooser').find('select').next()
+				.css({
+					'vertical-align': 'middle'
+				})
+			;
+		}*/
+		
+		{
+			jQuery('#idMap_Json')
+				.off('update')
+				.on('update', function() {
+					{
+						jQuery(this)
+							.val(JSON.stringify(Settings.strMapType))
+						;
+					}
+				})
+			;
+
+			jQuery('#idMap_Json')
+				.trigger('update')
+			;
+		}
+		
+		{
+			jQuery('#idMap_Save')
+				.button({
+					'disabled': false,
+					'icons': {
+						'primary': 'ui-icon-disk'
+					}
+				})
+				.off('click')
+				.on('click', function() {
+					{
+						jQuery('#idMap_Json')
+							.trigger('update')
+						;
+					}
+				})
+			;
+		}
+		
+		{
+			jQuery('#idMap_Load')
+				.button({
+					'disabled': false,
+					'icons': {
+						'primary': 'ui-icon-folder-open'
+					}
+				})
+				.off('click')
+				.on('click', function() {
+					{
+					    for (var intCoordinate in Settings.strMapType) {
+							var strType = Settings.strMapType[intCoordinate];
+							
+							{
+								Voxel.voxelengineHandle.setBlock(JSON.parse('[' + intCoordinate + ']'), 0);
+							}
+					    }
+					}
+					
+					{
+						var objectMap = JSON.parse(jQuery('#idMap_Json').val());
+						
+						{
+							Settings.strMapType = objectMap.strMapType;
+						}
+					}
+					
+					{
+					    for (var intCoordinate in Settings.strMapType) {
+							var strType = Settings.strMapType[intCoordinate];
+							
+							{
+								Voxel.voxelengineHandle.setBlock(JSON.parse('[' + intCoordinate + ']'), Voxel.voxelengineHandle.materials.find(strType));
+							}
+					    }
+					}
+				})
+			;
+		}
+	},
+	
+	dispel: function() {
+		{
+			Gui.strMode = '';
+		}
+		
+		{
+			Gui.strChooserCategory = '';
+			
+			Gui.intChooserType = 0;
+		}
+	},
+	
+	update: function() {
+		{
+			{
+				jQuery('#idCrosshair')
+					.css({
+						'display': 'none'
+					})
+				;
+				
+				jQuery('#idToolbar')
+					.css({
+						'display': 'none'
+					})
+				;
+				
+				jQuery('#idMap')
+					.css({
+						'display': 'none'
+					})
+				;
+			}
+			
+			{
+				if (Gui.strMode === 'modeMenu') {
+					jQuery('#idMap')
+						.css({
+							'display': 'block'
+						})
+					;
+					
+				} else if (Gui.strMode === 'modeGame') {
+					jQuery('#idCrosshair')
+						.css({
+							'display': 'block'
+						})
+					;
+					
+					jQuery('#idToolbar')
+						.css({
+							'display': 'block'
+						})
+					;
+					
+				}
+			}
+		}
+		
+		{
+			{
+				jQuery('#idPhaseBuild_Chooser').find('select')
+					.css({
+						'background': 'none',
+						'background-color': '#F2F2F2'
+					})
+				;
+				
+				jQuery('#idPhaseBuild_Chooser').find('button')
+					.css({
+						'background': 'none',
+						'background-color': '#F2F2F2'
+					})
+				;
+			}
+			
+			{
+				if (Gui.strChooserCategory === 'categoryCreate') {
+					jQuery('#idPhaseBuild_Chooser').find('select').eq(0)
+						.css({
+							'background': 'none',
+							'background-color': '#FFFFFF'
+						})
+					;
+					
+					jQuery('#idPhaseBuild_Chooser').find('select').eq(0).find('option').eq(Gui.intChooserType + 0)
+					    .prop({
+					        'selected': true
+					    })
+					;
+					
+				} else if (Gui.strChooserCategory === 'categorySpecial') {
+					jQuery('#idPhaseBuild_Chooser').find('select').eq(1)
+						.css({
+							'background': 'none',
+							'background-color': '#FFFFFF'
+						})
+					;
+					
+					jQuery('#idPhaseBuild_Chooser').find('select').eq(1).find('option').eq(Gui.intChooserType + 0)
+					    .prop({
+					        'selected': true
+					    })
+					;
+					
+				} else if (Gui.strChooserCategory === 'categoryDestroy') {
+					jQuery('#idPhaseBuild_Chooser').find('button').eq(Gui.intChooserType + 0)
+						.css({
+							'background': 'none',
+							'background-color': '#FFFFFF'
+						})
+					;
+					
+				}
+			}
 		}
 	}
 };
@@ -276,13 +293,13 @@ var Voxel = {
 			// TODO: commit changes to voxel-highlight
 			Voxel.voxelhighlightHandle = require('voxel-highlight')(Voxel.voxelengineHandle, {
 				'enabled': function() {
-					if (Settings.strChooserCategory === 'categoryCreate') {
+					if (Gui.strChooserCategory === 'categoryCreate') {
 						return true;
 						
-					} else if (Settings.strChooserCategory === 'categorySpecial') {
+					} else if (Gui.strChooserCategory === 'categorySpecial') {
 						return true;
 						
-					} else if (Settings.strChooserCategory === 'categoryDestroy') {
+					} else if (Gui.strChooserCategory === 'categoryDestroy') {
 						return true;
 						
 					}
@@ -294,10 +311,10 @@ var Voxel = {
 				'wireframeOpacity': 1.0,
 				'color': 0xFFFFFF,
 				'adjacentActive': function() {
-					if (Settings.strChooserCategory === 'categoryCreate') {
+					if (Gui.strChooserCategory === 'categoryCreate') {
 						return true;
 						
-					} if (Settings.strChooserCategory === 'categorySpecial') {
+					} if (Gui.strChooserCategory === 'categorySpecial') {
 						return true;
 						
 					}
@@ -336,48 +353,6 @@ var Voxel = {
 				var minecraftskinHandle = Voxel.minecraftskinHandle(Voxel.voxelengineHandle.THREE, '', {
 					'scale': new Voxel.voxelengineHandle.THREE.Vector3(0.04, 0.04, 0.04)
 				});
-				
-				{
-					minecraftskinHandle.strTeam = '';
-					
-					minecraftskinHandle.strItem = '';
-				}
-				
-				{
-					minecraftskinHandle.meshPickaxe = Voxel.itemCreate('itemPickaxe');
-					
-					minecraftskinHandle.meshPickaxe.position.x = 6.0;
-					minecraftskinHandle.meshPickaxe.position.y = 0.0 - 21.0;
-					minecraftskinHandle.meshPickaxe.position.z = 0.0;
-					
-					minecraftskinHandle.meshPickaxe.rotation.x = 0.0;
-					minecraftskinHandle.meshPickaxe.rotation.y = 0.0;
-					minecraftskinHandle.meshPickaxe.rotation.z = 0.25 * Math.PI;
-				}
-				
-				{
-					minecraftskinHandle.meshSword = Voxel.itemCreate('itemSword');
-					
-					minecraftskinHandle.meshSword.position.x = 6.0;
-					minecraftskinHandle.meshSword.position.y = 0.0 - 21.0;
-					minecraftskinHandle.meshSword.position.z = 0.0;
-					
-					minecraftskinHandle.meshSword.rotation.x = 0.0;
-					minecraftskinHandle.meshSword.rotation.y = 0.0;
-					minecraftskinHandle.meshSword.rotation.z = 0.25 * Math.PI;
-				}
-				
-				{
-					minecraftskinHandle.meshBow = Voxel.itemCreate('itemBow');
-					
-					minecraftskinHandle.meshBow.position.x = 0.0;
-					minecraftskinHandle.meshBow.position.y = 0.0 - 18.0;
-					minecraftskinHandle.meshBow.position.z = 0.0;
-					
-					minecraftskinHandle.meshBow.rotation.x = 0.0;
-					minecraftskinHandle.meshBow.rotation.y = 0.0;
-					minecraftskinHandle.meshBow.rotation.z = 0.25 * Math.PI;
-				}
 				
 				return minecraftskinHandle;
 			};
@@ -468,98 +443,60 @@ var Input = {
 			jQuery(document.body)
 				.off('keydown')
 				.on('keydown', function(eventHandle) {
-					if (Settings.strMode === 'modeMenu') {
+					if (Gui.strMode === 'modeMenu') {
 						if (eventHandle.keyCode === 9) {
 							{
-								Settings.strMode = 'modeGame';
+								Gui.strMode = 'modeGame';
 							}
 							
 							{
-								jQuery('#idMap')
-									.css({
-										'visibility': 'hidden'
-									})
-								;
-							}
-							
-							{
-								jQuery('#idToolbar')
-									.css({
-										'display': 'block'
-									})
-								;
+								Gui.update();
 							}
 						}
 						
-					} else if (Settings.strMode === 'modeGame') {
+					} else if (Gui.strMode === 'modeGame') {
 						if (eventHandle.keyCode === 9) {
 							{
-								Settings.strMode = 'modeMenu';
+								Gui.strMode = 'modeMenu';
 							}
 							
 							{
-								jQuery('#idMap')
-									.css({
-										'visibility': 'visible'
-									})
-								;
-							}
-							
-							{
-								jQuery('#idToolbar')
-									.css({
-										'display': 'none'
-									})
-								;
+								Gui.update();
 							}
 						}
 						
 						{
 							if (eventHandle.keyCode === 49) {
 								{
-									if (Settings.strChooserCategory !== 'categoryCreate') {
-										Settings.intChooserType = -1;
-									}
+									Gui.strChooserCategory = 'categoryCreate';
 									
-									Settings.strChooserCategory = 'categoryCreate';
-									
-									Settings.intChooserType = (Settings.intChooserType + 1) % 5;
+									Gui.intChooserType = (Gui.intChooserType + 1) % 5;
 								}
 								
 								{
-									jQuery('#idPhaseBuild_Chooser')
-										.trigger('update')
-									;
+									Gui.update();
 								}
 								
 							} else if (eventHandle.keyCode === 50) {
 								{
-									if (Settings.strChooserCategory !== 'categorySpecial') {
-										Settings.intChooserType = -1;
-									}
+									Gui.strChooserCategory = 'categorySpecial';
 									
-									Settings.strChooserCategory = 'categorySpecial';
-									
-									Settings.intChooserType = (Settings.intChooserType + 1) % 5;
+									Gui.intChooserType = (Gui.intChooserType + 1) % 5;
 								}
 								
 								{
-									jQuery('#idPhaseBuild_Chooser')
-										.trigger('update')
-									;
+									Gui.update();
 								}
 								
 							} else if (eventHandle.keyCode === 51) {
 								{
-									Settings.strChooserCategory = 'categoryDestroy';
+									Gui.strChooserCategory = 'categoryDestroy';
 									
-									Settings.intChooserType = 0;
+									Gui.intChooserType = 0;
 								}
 								
 								{
-									jQuery('#idPhaseBuild_Chooser')
-										.trigger('update')
-									;
+									Gui.update();
 								}
 								
 							}
@@ -633,6 +570,8 @@ jQuery(document).ready(function() {
 	{
 		Settings.init();
 		
+		Gui.init();
+		
 		Voxel.init();
 		
 		Input.init();
@@ -641,31 +580,35 @@ jQuery(document).ready(function() {
 	}
 	
 	{
+		Gui.update();
+	}
+	
+	{
 		Voxel.voxelengineHandle.on('fire', function(targetHandle, stateHandle) {
-			if (Settings.strChooserCategory === 'categoryCreate') {
+			if (Gui.strChooserCategory === 'categoryCreate') {
 				if (Voxel.voxelhighlightHandle.positionCreate !== null) {
 					if (Voxel.voxelhighlightHandle.positionCreate[1] !== 0) {
-						if (Settings.intChooserType === 0) {
+						if (Gui.intChooserType === 0) {
 							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelBrick'));
 							
 							Settings.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelBrick';
 							
-						} else if (Settings.intChooserType === 1) {
+						} else if (Gui.intChooserType === 1) {
 							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelDirt'));
 							
 							Settings.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelDirt';
 							
-						} else if (Settings.intChooserType === 2) {
+						} else if (Gui.intChooserType === 2) {
 							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelGrass'));
 							
 							Settings.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelGrass';
 							
-						} else if (Settings.intChooserType === 3) {
+						} else if (Gui.intChooserType === 3) {
 							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelPlank'));
 							
 							Settings.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelPlank';
 							
-						} else if (Settings.intChooserType === 4) {
+						} else if (Gui.intChooserType === 4) {
 							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelStone'));
 							
 							Settings.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelStone';
@@ -674,30 +617,30 @@ jQuery(document).ready(function() {
 					}
 				}
 				
-			} else if (Settings.strChooserCategory === 'categorySpecial') {
+			} else if (Gui.strChooserCategory === 'categorySpecial') {
 				if (Voxel.voxelhighlightHandle.positionCreate !== null) {
 					if (Voxel.voxelhighlightHandle.positionCreate[1] !== 0) {
-						if (Settings.intChooserType === 0) {
+						if (Gui.intChooserType === 0) {
 							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelRedSpawn'));
 							
 							Settings.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelRedSpawn';
 							
-						} else if (Settings.intChooserType === 1) {
+						} else if (Gui.intChooserType === 1) {
 							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelRedFlag'));
 							
 							Settings.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelRedFlag';
 							
-						} else if (Settings.intChooserType === 2) {
+						} else if (Gui.intChooserType === 2) {
 							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelBlueSpawn'));
 							
 							Settings.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelBlueSpawn';
 							
-						} else if (Settings.intChooserType === 3) {
+						} else if (Gui.intChooserType === 3) {
 							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelBlueFlag'));
 							
 							Settings.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelBlueFlag';
 							
-						} else if (Settings.intChooserType === 4) {
+						} else if (Gui.intChooserType === 4) {
 							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelSeparator'));
 							
 							Settings.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelSeparator';
@@ -706,10 +649,10 @@ jQuery(document).ready(function() {
 					}
 				}
 				
-			} else if (Settings.strChooserCategory === 'categoryDestroy') {
+			} else if (Gui.strChooserCategory === 'categoryDestroy') {
 				if (Voxel.voxelhighlightHandle.positionDestroy !== null) {
 					if (Voxel.voxelhighlightHandle.positionDestroy[1] !== 0) {
-						if (Settings.intChooserType === 0) {
+						if (Gui.intChooserType === 0) {
 							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionDestroy, 0);
 							
 							delete Settings.strMapType[Voxel.voxelhighlightHandle.positionDestroy];

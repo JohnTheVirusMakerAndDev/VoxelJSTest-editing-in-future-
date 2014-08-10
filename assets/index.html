@@ -85,12 +85,14 @@
 			<img id="idItemPickaxe" src="/images/itemPickaxe.png" />
 			<img id="idItemSword" src="/images/itemSword.png" />
 			<img id="idItemBow" src="/images/itemBow.png" />
+			<img id="idItemRedFlag" src="/images/itemRedFlag.png" />
+			<img id="idItemBlueFlag" src="/images/itemBlueFlag.png" />
 			
 			<img id="idSkinRed" src="/images/skinRed.png" />
 			<img id="idSkinBlue" src="/images/skinBlue.png" />
 		</div>
 		
-		<div style="position:fixed; left:50%; top:50%; width:32px; height:32px; margin:-16px 0px 0px -16px;">
+		<div id="idCrosshair" style="position:fixed; left:50%; top:50%; width:32px; height:32px; margin:-16px 0px 0px -16px;">
 			<img src="/images/guiCrosshair.png" />
 		</div>
 		
@@ -278,11 +280,7 @@
 			</div>
 		</div>
 		
-		<div id="idModal" style="position:fixed; left:0px; right:0px; top:0px; bottom:0px; background-color:#000000; opacity:0.5; z-index:128;">
-		
-		</div>
-		
-		<div id="idLoading" class="ui-dialog ui-widget ui-widget-content ui-corner-all" style="position:fixed; left:50%; top:50%; width:123px; margin:-61px 0px 0px -61px; z-index:128;">
+		<div id="idLoading" class="ui-dialog ui-widget ui-widget-content ui-corner-all" style="position:fixed; left:50%; top:50%; width:123px; margin:-61px 0px 0px -61px;">
 			<div class="ui-dialog-content ui-widget-content" style="padding:1em;">
 				<div style="margin:32px;">
 					<img width="31" height="31" border="0" src="http://dhiont4yb3hlc.cloudfront.net/WebsiteRect/bodyLoading.gif">
@@ -290,67 +288,69 @@
 			</div>
 		</div>
 		
-		<div id="idLogin" class="ui-dialog ui-widget ui-widget-content ui-corner-all" style="position:fixed; left:50%; top:50%; width:400px; margin:-76px 0px 0px -200px; z-index:128;">
-			<div class="ui-dialog-titlebar ui-widget-header ui-corner-all ui-helper-clearfix">
-				<div class="ui-dialog-title">
-					Login
+		<div id="idLogin"  style="position:fixed; left:50%; top:50%; width:490px; margin:-236px 0px 0px -235px;">
+			<div class="ui-dialog ui-widget ui-widget-content ui-corner-all" style="position:static; margin:16px;">
+				<div class="ui-dialog-titlebar ui-widget-header ui-corner-all ui-helper-clearfix">
+					<div class="ui-dialog-title">
+						Login
+					</div>
 				</div>
-			</div>
-			<div class="ui-dialog-content ui-widget-content" style="padding:1em;">
-				<div id="idLogin_Message" class="ui-state-highlight ui-corner-all" style="padding:0.4em 1.0em 0.4em 1em;">
+				<div class="ui-dialog-content ui-widget-content" style="padding:1em;">
+					<div id="idLogin_Message" class="ui-state-highlight ui-corner-all" style="padding:0.4em 1.0em 0.4em 1em;">
+						
+					</div>
 					
-				</div>
-				
-				<div style="height:8px;"></div>
-				
-				<div style="position:relative;">
-					<div style="position:absolute; top:10px; left:10px; z-index:128; font-weight:bold;">
-						Name:
+					<div style="height:8px;"></div>
+					
+					<div style="position:relative;">
+						<div style="position:absolute; top:10px; left:10px; z-index:128; font-weight:bold;">
+							Name:
+						</div>
+						<input class="ui-widget ui-state-default ui-corner-all" id="idLogin_Name" type="text" style="width:100%; box-sizing:border-box; padding:0.4em 1.0em 0.4em 1em; background:none;" />
 					</div>
-					<input class="ui-widget ui-state-default ui-corner-all" id="idLogin_Name" type="text" style="width:100%; box-sizing:border-box; padding:0.4em 1.0em 0.4em 1em; background:none;" />
-				</div>
-				
-				<div style="height:8px;"></div>
-				
-				<div style="position:relative;">
-					<div style="position:absolute; top:10px; left:10px; z-index:128; font-weight:bold;">
-						Password:
+					
+					<div style="height:8px;"></div>
+					
+					<div style="position:relative;">
+						<div style="position:absolute; top:10px; left:10px; z-index:128; font-weight:bold;">
+							Password:
+						</div>
+						{{#objectGameserver.intLoginPassword}}
+							<input class="ui-widget ui-state-default ui-corner-all" id="idLogin_Password" type="password" style="width:100%; box-sizing:border-box; padding:0.4em 1.0em 0.4em 1em; background:none;" />
+						{{/objectGameserver.intLoginPassword}}
+						{{^objectGameserver.intLoginPassword}}
+							<input class="ui-widget ui-state-default ui-corner-all" id="idLogin_Password" type="password" disabled="disabled" style="width:100%; box-sizing:border-box; padding:0.4em 1.0em 0.4em 1em; background:none; background-color:#F2F2F2;" />
+						{{/objectGameserver.intLoginPassword}}
 					</div>
-					{{#objectGameserver.intLoginPassword}}
-						<input class="ui-widget ui-state-default ui-corner-all" id="idLogin_Password" type="password" style="width:100%; box-sizing:border-box; padding:0.4em 1.0em 0.4em 1em; background:none;" />
-					{{/objectGameserver.intLoginPassword}}
-					{{^objectGameserver.intLoginPassword}}
-						<input class="ui-widget ui-state-default ui-corner-all" id="idLogin_Password" type="password" disabled="disabled" style="width:100%; box-sizing:border-box; padding:0.4em 1.0em 0.4em 1em; background:none; background-color:#F2F2F2;" />
-					{{/objectGameserver.intLoginPassword}}
-				</div>
-				
-				<div style="height:8px;"></div>
-				
-				<div style="position:relative;">
-					<div style="position:absolute; top:10px; left:10px; z-index:128; font-weight:bold;">
-						Team:
+					
+					<div style="height:8px;"></div>
+					
+					<div style="position:relative;">
+						<div style="position:absolute; top:10px; left:10px; z-index:128; font-weight:bold;">
+							Team:
+						</div>
+						<select class="ui-widget ui-state-default ui-corner-all" id="idLogin_Team" style="width:100%; box-sizing:border-box; padding:0.4em 1.0em 0.4em 1em; background:none;">
+							<option>Red</option>
+							<option>Blue</option>
+						</select>
 					</div>
-					<select class="ui-widget ui-state-default ui-corner-all" id="idLogin_Team" style="width:100%; box-sizing:border-box; padding:0.4em 1.0em 0.4em 1em; background:none;">
-						<option>Red</option>
-						<option>Blue</option>
-					</select>
-				</div>
-				
-				<div style="height:8px;"></div>
-	
-				<button id="idLogin_Login">Login</button>
-			</div>
-		</div>
+					
+					<div style="height:8px;"></div>
 		
-		<div id="idInformation" class="ui-dialog ui-widget ui-widget-content ui-corner-all" style="position:fixed; left:50%; top:50%; width:500px; margin:-100px 0px 0px -250px; z-index:128;">
-			<div class="ui-dialog-titlebar ui-widget-header ui-corner-all ui-helper-clearfix">
-				<div class="ui-dialog-title">
-					Information
+					<button id="idLogin_Login">Login</button>
 				</div>
 			</div>
-			<div class="ui-dialog-content ui-widget-content" style="padding:1em;">
-				<div style="text-align:justify; line-height:200%;">
-					Use the <button id="idInformation_Tab">tab</button> key in order to toggle between the game and the menu. In order to control your player, you have to click inside the world and let the game take control over your mouse. When your mouse is being locked inside the browser, use the <button id="idInformation_Esc">esc</button> key in order to release it again.
+			
+			<div class="ui-dialog ui-widget ui-widget-content ui-corner-all" style="position:static; margin:16px;">
+				<div class="ui-dialog-titlebar ui-widget-header ui-corner-all ui-helper-clearfix">
+					<div class="ui-dialog-title">
+						Information
+					</div>
+				</div>
+				<div class="ui-dialog-content ui-widget-content" style="padding:1em;">
+					<div style="text-align:justify; line-height:200%;">
+						Use the <button id="idLogin_Tab">tab</button> key in order to toggle between the game and the menu. In order to control your player, you have to click inside the world and let the game take control over your mouse. When your mouse is being locked inside the browser, use the <button id="idLogin_Esc">esc</button> key in order to release it again.
+					</div>
 				</div>
 			</div>
 		</div>
