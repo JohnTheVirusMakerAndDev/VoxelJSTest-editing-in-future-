@@ -1,0 +1,1 @@
+sorry, but there isn't a readme yet - i am going to replace it, as soon as the project reaches a first major milestone
