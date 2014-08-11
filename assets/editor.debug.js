@@ -109,11 +109,7 @@ var Gui = {
 					}
 					
 					{
-						var objectMap = JSON.parse(jQuery('#idMap_Json').val());
-						
-						{
-							Settings.strMapType = objectMap.strMapType;
-						}
+						Settings.strMapType = JSON.parse(jQuery('#idMap_Json').val());
 					}
 					
 					{
@@ -258,8 +254,6 @@ var Voxel = {
 	minecraftskinCreate: null,
 	minecraftskinUpdate: null,
 	
-	voxelflyHandle: null,
-	
 	init: function() {
 		{
 			// TODO: override dependencies
@@ -304,7 +298,7 @@ var Voxel = {
 						
 					}
 					
-					return true;
+					return false;
 				},
 				'distance': 8,
 				'wireframeLinewidth': 16,
@@ -357,7 +351,7 @@ var Voxel = {
 				return minecraftskinHandle;
 			};
 			
-			Voxel.minecraftskinUpdate = function(minecraftskinHandle, strTeam, strItem, intAnimtime) {
+			Voxel.minecraftskinUpdate = function(minecraftskinHandle, strTeam, strItem, intWalktime) {
 				{
 					if (minecraftskinHandle.strTeam !== strTeam) {
 						if (strTeam === 'teamRed') {
@@ -400,17 +394,13 @@ var Voxel = {
 						dblItem = 0.1 * Math.PI;
 					}
 					
-					minecraftskinHandle.rightArm.rotation.z = 2 * Math.cos((6.666 * intAnimtime) + (0.5 * Math.PI) + Math.PI + dblItem);
-					minecraftskinHandle.leftArm.rotation.z = 2 * Math.cos((6.666 * intAnimtime) + (0.5 * Math.PI));
+					minecraftskinHandle.rightArm.rotation.z = 2 * Math.cos((6.666 * intWalktime) + (0.5 * Math.PI) + Math.PI + dblItem);
+					minecraftskinHandle.leftArm.rotation.z = 2 * Math.cos((6.666 * intWalktime) + (0.5 * Math.PI));
 					
-					minecraftskinHandle.rightLeg.rotation.z = 1.4 * Math.cos((6.666 * intAnimtime) + (0.5 * Math.PI));
-					minecraftskinHandle.leftLeg.rotation.z = 1.4 * Math.cos((6.666 * intAnimtime) + (0.5 * Math.PI) + Math.PI);
+					minecraftskinHandle.rightLeg.rotation.z = 1.4 * Math.cos((6.666 * intWalktime) + (0.5 * Math.PI));
+					minecraftskinHandle.leftLeg.rotation.z = 1.4 * Math.cos((6.666 * intWalktime) + (0.5 * Math.PI) + Math.PI);
 				}
 			};
-		}
-		
-		{
-			Voxel.voxelflyHandle = require('voxel-fly')(Voxel.voxelengineHandle);
 		}
 	},
 	
@@ -430,138 +420,696 @@ var Voxel = {
 
 			Voxel.minecraftskinUpdate = null;
 		}
-		
-		{
-			Voxel.voxelflyHandle = null;
-		}
 	}
 };
 
 var Input = {
+	boolUp: false,
+	boolPressedUp: false,
+	boolPreviousUp: false,
+
+	boolLeft: false,
+	boolPressedLeft: false,
+	boolPreviousLeft: false,
+
+	boolDown: false,
+	boolPressedDown: false,
+	boolPreviousDown: false,
+
+	boolRight: false,
+	boolPressedRight: false,
+	boolPreviousRight: false,
+
+	boolSpace: false,
+	boolPressedSpace: false,
+	boolPreviousSpace: false,
+
+	boolShift: false,
+	boolPressedShift: false,
+	boolPreviousShift: false,
+	
 	init: function() {
+		{
+			Input.boolUp = false;
+			
+			Input.boolPressedUp = false;
+			
+			Input.boolPreviousUp = false;
+		}
+		
+		{
+			Input.boolLeft = false;
+			
+			Input.boolPressedLeft = false;
+			
+			Input.boolPreviousLeft = false;
+		}
+		
+		{
+			Input.boolDown = false;
+			
+			Input.boolPressedDown = false;
+			
+			Input.boolPreviousDown = false;
+		}
+		
+		{
+			Input.boolRight = false;
+			
+			Input.boolPressedRight = false;
+			
+			Input.boolPreviousRight = false;
+		}
+		
+		{
+			Input.boolSpace = false;
+			
+			Input.boolPressedSpace = false;
+			
+			Input.boolPreviousSpace = false;
+		}
+		
+		{
+			Input.boolShift = false;
+			
+			Input.boolPressedShift = false;
+			
+			Input.boolPreviousShift = false;
+		}
+		
 		{
 			jQuery(document.body)
 				.off('keydown')
 				.on('keydown', function(eventHandle) {
-					if (Gui.strMode === 'modeMenu') {
-						if (eventHandle.keyCode === 9) {
-							{
-								Gui.strMode = 'modeGame';
+					if (jQuery('#idMap_Json').is(':focus') === true) {
+						return;
+					}
+					
+					{
+						eventHandle.preventDefault();
+					}
+					
+					{
+						if ((eventHandle.keyCode === 38) | (eventHandle.keyCode === 87)) {
+							Input.boolUp = true;
+							
+						} else if ((eventHandle.keyCode === 37) | (eventHandle.keyCode === 65)) {
+							Input.boolLeft = true;
+							
+						} else if ((eventHandle.keyCode === 40) | (eventHandle.keyCode === 83)) {
+							Input.boolDown = true;
+							
+						} else if ((eventHandle.keyCode === 39) | (eventHandle.keyCode === 68)) {
+							Input.boolRight = true;
+							
+						} else if (eventHandle.keyCode === 32) {
+							Input.boolSpace = true;
+							
+						} else if (eventHandle.keyCode === 16) {
+							Input.boolShift = true;
+							
+						}
+					}
+					
+					{
+						if (Gui.strMode === 'modeMenu') {
+							if (eventHandle.keyCode === 69) {
+								{
+									Gui.strMode = 'modeGame';
+								}
+								
+								{
+									Gui.update();
+								}
+							}
+							
+						} else if (Gui.strMode === 'modeGame') {
+							if (eventHandle.keyCode === 69) {
+								{
+									Gui.strMode = 'modeMenu';
+								}
+								
+								{
+									Gui.update();
+								}
 							}
 							
 							{
-								Gui.update();
-							}
-						}
-						
-					} else if (Gui.strMode === 'modeGame') {
-						if (eventHandle.keyCode === 9) {
-							{
-								Gui.strMode = 'modeMenu';
+								if (eventHandle.keyCode === 49) {
+									{
+										Gui.strChooserCategory = 'categoryCreate';
+										
+										Gui.intChooserType = (Gui.intChooserType + 1) % 5;
+									}
+									
+									{
+										Gui.update();
+									}
+									
+								} else if (eventHandle.keyCode === 50) {
+									{
+										Gui.strChooserCategory = 'categorySpecial';
+										
+										Gui.intChooserType = (Gui.intChooserType + 1) % 5;
+									}
+									
+									{
+										Gui.update();
+									}
+									
+								} else if (eventHandle.keyCode === 51) {
+									{
+										Gui.strChooserCategory = 'categoryDestroy';
+										
+										Gui.intChooserType = 0;
+									}
+									
+									{
+										Gui.update();
+									}
+									
+								}
 							}
 							
-							{
-								Gui.update();
-							}
 						}
-						
-						{
-							if (eventHandle.keyCode === 49) {
-								{
-									Gui.strChooserCategory = 'categoryCreate';
-									
-									Gui.intChooserType = (Gui.intChooserType + 1) % 5;
-								}
-								
-								{
-									Gui.update();
-								}
-								
-							} else if (eventHandle.keyCode === 50) {
-								{
-									Gui.strChooserCategory = 'categorySpecial';
-									
-									Gui.intChooserType = (Gui.intChooserType + 1) % 5;
-								}
-								
-								{
-									Gui.update();
-								}
-								
-							} else if (eventHandle.keyCode === 51) {
-								{
-									Gui.strChooserCategory = 'categoryDestroy';
-									
-									Gui.intChooserType = 0;
-								}
-								
-								{
-									Gui.update();
-								}
-								
-							}
-						}
-						
 					}
 				})
 				.off('keyup')
 				.on('keyup', function(eventHandle) {
-
+					if (jQuery('#idMap_Json').is(':focus') === true) {
+						return;
+					}
+					
+					{
+						eventHandle.preventDefault();
+					}
+	
+					{
+						if ((eventHandle.keyCode === 38) | (eventHandle.keyCode === 87)) {
+							Input.boolUp = false;
+	
+						} else if ((eventHandle.keyCode === 37) | (eventHandle.keyCode === 65)) {
+							Input.boolLeft = false;
+	
+						} else if ((eventHandle.keyCode === 40) | (eventHandle.keyCode === 83)) {
+							Input.boolDown = false;
+	
+						} else if ((eventHandle.keyCode === 39) | (eventHandle.keyCode === 68)) {
+							Input.boolRight = false;
+							
+						} else if (eventHandle.keyCode === 32) {
+							Input.boolSpace = false;
+							
+						} else if (eventHandle.keyCode === 16) {
+							Input.boolShift = false;
+							
+						}
+					}
 				})
 			;
 		}
 	},
 	
 	dispel: function() {
+		{
+			Input.boolUp = false;
+			
+			Input.boolPressedUp = false;
+			
+			Input.boolPreviousUp = false;
+		}
 		
+		{
+			Input.boolLeft = false;
+			
+			Input.boolPressedLeft = false;
+			
+			Input.boolPreviousLeft = false;
+		}
+		
+		{
+			Input.boolDown = false;
+			
+			Input.boolPressedDown = false;
+			
+			Input.boolPreviousDown = false;
+		}
+		
+		{
+			Input.boolRight = false;
+			
+			Input.boolPressedRight = false;
+			
+			Input.boolPreviousRight = false;
+		}
+		
+		{
+			Input.boolSpace = false;
+			
+			Input.boolPressedSpace = false;
+			
+			Input.boolPreviousSpace = false;
+		}
+		
+		{
+			Input.boolShift = false;
+			
+			Input.boolPressedShift = false;
+			
+			Input.boolPreviousShift = false;
+		}
+	},
+	
+	update: function() {
+		{
+			Input.boolPressedUp = false;
+			
+			if (Input.boolUp === true) {
+				if (Input.boolPreviousUp === false) {
+					Input.boolPressedUp = true;
+				}
+			}
+			
+			Input.boolPreviousUp = Input.boolUp;
+		}
+		
+		{
+			Input.boolPressedLeft = false;
+			
+			if (Input.boolLeft === true) {
+				if (Input.boolPreviousLeft === false) {
+					Input.boolPressedLeft = true;
+				}
+			}
+			
+			Input.boolPreviousLeft = Input.boolLeft;
+		}
+		
+		{
+			Input.boolPressedDown = false;
+			
+			if (Input.boolDown === true) {
+				if (Input.boolPreviousDown === false) {
+					Input.boolPressedDown = true;
+				}
+			}
+			
+			Input.boolPreviousDown = Input.boolDown;
+		}
+		
+		{
+			Input.boolPressedRight = false;
+			
+			if (Input.boolRight === true) {
+				if (Input.boolPreviousRight === false) {
+					Input.boolPressedRight = true;
+				}
+			}
+			
+			Input.boolPreviousRight = Input.boolRight;
+		}
+		
+		{
+			Input.boolPressedSpace = false;
+			
+			if (Input.boolSpace === true) {
+				if (Input.boolPreviousSpace === false) {
+					Input.boolPressedSpace = true;
+				}
+			}
+			
+			Input.boolPreviousSpace = Input.boolSpace;
+		}
+		
+		{
+			Input.boolPressedShift = false;
+			
+			if (Input.boolShift === true) {
+				if (Input.boolPreviousShift === false) {
+					Input.boolPressedShift = true;
+				}
+			}
+			
+			Input.boolPreviousShift = Input.boolShift;
+		}
 	}
 };
 
 var Player = {
 	minecraftskinHandle: null,
+	
 	physicsHandle: null,
+	
+	dblPosition: [ 0.0, 0.0, 0.0 ],
+	dblVerlet: [ 0.0, 0.0, 0.0 ],
+	dblAcceleration: [ 0.0, 0.0, 0.0 ],
+	
+	boolCollisionTop: false,
+	boolCollisionSide: false,
+	boolCollisionBottom: false,
 	
 	init: function() {
 		{
 			Player.minecraftskinHandle = Voxel.minecraftskinCreate();
 			
-			Player.physicsHandle = Voxel.voxelengineHandle.makePhysical(Player.minecraftskinHandle.mesh);
-
 			{
-				Player.minecraftskinHandle.mesh.position.set(0, 1, 0);
+				Player.minecraftskinHandle.mesh.position.set(0, 0, 0);
 				
 				Player.minecraftskinHandle.mesh.cameraInside.add(Voxel.voxelengineHandle.camera);
 			}
 			
-			{
-				Player.physicsHandle.blocksCreation = true;
-
-				Player.physicsHandle.position = Player.minecraftskinHandle.mesh.position;
-				Player.physicsHandle.yaw = Player.minecraftskinHandle.mesh;
-				Player.physicsHandle.pitch = Player.minecraftskinHandle.mesh.head;
-				
-				Player.physicsHandle.subjectTo(Voxel.voxelengineHandle.gravity);
-			}
-			
 			Voxel.voxelengineHandle.scene.add(Player.minecraftskinHandle.mesh);
-			
-			Voxel.voxelengineHandle.addItem(Player.physicsHandle);
 		}
 		
 		{
+			Player.physicsHandle = Voxel.voxelengineHandle.makePhysical(Player.minecraftskinHandle.mesh);
+			
+			{
+				Player.physicsHandle.blocksCreation = true;
+				
+				Player.physicsHandle.position = Player.minecraftskinHandle.mesh.position;
+				Player.physicsHandle.yaw = Player.minecraftskinHandle.mesh;
+				Player.physicsHandle.pitch = Player.minecraftskinHandle.mesh.head;
+			}
+			
 			Voxel.voxelengineHandle.control(Player.physicsHandle);
 		}
 		
 		{
-			Voxel.voxelflyHandle(Voxel.voxelengineHandle.controls.target());
+			Player.dblPosition[0] = 0.0;
+			Player.dblPosition[1] = 1.0;
+			Player.dblPosition[2] = 0.0;
+
+			Player.dblVerlet[0] = Player.dblPosition[0];
+			Player.dblVerlet[1] = Player.dblPosition[1];
+			Player.dblVerlet[2] = Player.dblPosition[2];
+
+			Player.dblAcceleration[0] = 0.0;
+			Player.dblAcceleration[1] = 0.0;
+			Player.dblAcceleration[2] = 0.0;
+		}
+		
+		{
+			Player.boolCollisionTop = false;
+			
+			Player.boolCollisionSide = false;
+			
+			Player.boolCollisionBottom = false;
+		}
+		
+		{
+			Player.intJumpcount = 0;
 		}
 	},
 	
 	dispel: function() {
 		{
 			Player.minecraftskinHandle = null;
-			
+		}
+		
+		{
 			Player.physicsHandle = null;
+		}
+		
+		{
+			Player.dblPosition[0] = 0.0;
+			Player.dblPosition[1] = 0.0;
+			Player.dblPosition[2] = 0.0;
+
+			Player.dblVerlet[0] = 0.0;
+			Player.dblVerlet[1] = 0.0;
+			Player.dblVerlet[2] = 0.0;
+
+			Player.dblAcceleration[0] = 0.0;
+			Player.dblAcceleration[1] = 0.0;
+			Player.dblAcceleration[2] = 0.0;
+		}
+		
+		{
+			Player.boolCollisionTop = false;
+			
+			Player.boolCollisionSide = false;
+			
+			Player.boolCollisionBottom = false;
+		}
+		
+		{
+			Player.intJumpcount = 0;
+		}
+	},
+	
+	update: function() {
+		{
+			if (Input.boolUp === true) {
+				var dblRotationX = Math.sin(Player.minecraftskinHandle.mesh.rotation.y);
+				var dblRotationZ = Math.cos(Player.minecraftskinHandle.mesh.rotation.y);
+
+				Player.dblAcceleration[0] -= 0.03 * dblRotationX;
+				Player.dblAcceleration[2] -= 0.03 * dblRotationZ;
+			}
+			
+			if (Input.boolDown === true) {
+				var dblRotationX = Math.sin(Player.minecraftskinHandle.mesh.rotation.y);
+				var dblRotationZ = Math.cos(Player.minecraftskinHandle.mesh.rotation.y);
+
+				Player.dblAcceleration[0] += 0.03 * dblRotationX;
+				Player.dblAcceleration[2] += 0.03 * dblRotationZ;
+			}
+			
+			if (Input.boolLeft === true) {
+				var dblRotationX = Math.sin(Player.minecraftskinHandle.mesh.rotation.y + (0.5 * Math.PI));
+				var dblRotationZ = Math.cos(Player.minecraftskinHandle.mesh.rotation.y + (0.5 * Math.PI));
+
+				Player.dblAcceleration[0] -= 0.03 * dblRotationX;
+				Player.dblAcceleration[2] -= 0.03 * dblRotationZ;
+			}
+			
+			if (Input.boolRight === true) {
+				var dblRotationX = Math.sin(Player.minecraftskinHandle.mesh.rotation.y + (0.5 * Math.PI));
+				var dblRotationZ = Math.cos(Player.minecraftskinHandle.mesh.rotation.y + (0.5 * Math.PI));
+
+				Player.dblAcceleration[0] += 0.03 * dblRotationX;
+				Player.dblAcceleration[2] += 0.03 * dblRotationZ;
+			}
+			
+			if (Input.boolSpace === true) {
+				Player.dblAcceleration[1] += 0.02;
+			}
+			
+			if (Input.boolShift === true) {
+				Player.dblAcceleration[1] -= 0.02;
+			}
+		}
+		
+		{
+			var dblVelocityX = Player.dblPosition[0] - Player.dblVerlet[0];
+			var dblVelocityY = Player.dblPosition[1] - Player.dblVerlet[1];
+			var dblVelocityZ = Player.dblPosition[2] - Player.dblVerlet[2];
+
+			dblVelocityX *= 0.8;
+			dblVelocityY *= 0.8;
+			dblVelocityZ *= 0.8;
+			
+			Player.dblPosition[0] = Player.dblVerlet[0] + dblVelocityX;
+			Player.dblPosition[1] = Player.dblVerlet[1] + dblVelocityY;
+			Player.dblPosition[2] = Player.dblVerlet[2] + dblVelocityZ;
+		}
+		
+		{
+			Physics.update(Player);
+		}
+		
+		{
+			Player.minecraftskinHandle.mesh.position.x = Player.dblPosition[0];
+			Player.minecraftskinHandle.mesh.position.y = Player.dblPosition[1] - 0.5;
+			Player.minecraftskinHandle.mesh.position.z = Player.dblPosition[2];
+		}
+	}
+};
+
+var Physics = {
+	init: function() {
+		
+	},
+	
+	dispel: function() {
+		
+	},
+	
+	update: function(physicsHandle) {
+		{
+			var dblVerletX = physicsHandle.dblPosition[0];
+			var dblVerletY = physicsHandle.dblPosition[1];
+			var dblVerletZ = physicsHandle.dblPosition[2];
+
+			physicsHandle.dblPosition[0] = physicsHandle.dblPosition[0] + (physicsHandle.dblPosition[0] - physicsHandle.dblVerlet[0]) + physicsHandle.dblAcceleration[0];
+			physicsHandle.dblPosition[1] = physicsHandle.dblPosition[1] + (physicsHandle.dblPosition[1] - physicsHandle.dblVerlet[1]) + physicsHandle.dblAcceleration[1];
+			physicsHandle.dblPosition[2] = physicsHandle.dblPosition[2] + (physicsHandle.dblPosition[2] - physicsHandle.dblVerlet[2]) + physicsHandle.dblAcceleration[2];
+			
+			physicsHandle.dblVerlet[0] = dblVerletX;
+			physicsHandle.dblVerlet[1] = dblVerletY;
+			physicsHandle.dblVerlet[2] = dblVerletZ;
+			
+			physicsHandle.dblAcceleration[0] = 0.0;
+			physicsHandle.dblAcceleration[1] = 0.0;
+			physicsHandle.dblAcceleration[2] = 0.0;
+		}
+		
+		{
+			var dblVelocityX = physicsHandle.dblPosition[0] - physicsHandle.dblVerlet[0];
+			var dblVelocityY = physicsHandle.dblPosition[1] - physicsHandle.dblVerlet[1];
+			var dblVelocityZ = physicsHandle.dblPosition[2] - physicsHandle.dblVerlet[2];
+			
+			if (dblVelocityX > 0.12) {
+				dblVelocityX = 0.12;
+				
+			} else if (dblVelocityX < -0.12) {
+				dblVelocityX = -0.12;
+				
+			} else if (Math.abs(dblVelocityX) < 0.0001) {
+				dblVelocityX = 0.0;
+				
+			}
+			
+			if (dblVelocityY > 0.18) {
+				dblVelocityY = 0.18;
+				
+			} else if (dblVelocityY < -0.18) {
+				dblVelocityY = -0.18;
+				
+			} else if (Math.abs(dblVelocityY) < 0.0001) {
+				dblVelocityY = 0.0;
+				
+			}
+			
+			if (dblVelocityZ > 0.12) {
+				dblVelocityZ = 0.12;
+				
+			} else if (dblVelocityZ < -0.12) {
+				dblVelocityZ = -0.12;
+				
+			} else if (Math.abs(dblVelocityZ) < 0.0001) {
+				dblVelocityZ = 0.0;
+				
+			}
+			
+			physicsHandle.dblPosition[0] = physicsHandle.dblVerlet[0] + dblVelocityX;
+			physicsHandle.dblPosition[1] = physicsHandle.dblVerlet[1] + dblVelocityY;
+			physicsHandle.dblPosition[2] = physicsHandle.dblVerlet[2] + dblVelocityZ;
+		}
+		
+		{
+			physicsHandle.boolCollisionTop = false;
+			physicsHandle.boolCollisionSide = false;
+			physicsHandle.boolCollisionBottom = false;
+			
+			for (var intFor1 = -1; intFor1 < 2; intFor1 += 1) {
+				for (var intFor2 = -1; intFor2 < 2; intFor2 += 1) {
+					for (var intFor3 = -1; intFor3 < 2; intFor3 += 1) {
+						var intX = Math.floor(physicsHandle.dblPosition[0]) + intFor1;
+						var intY = Math.floor(physicsHandle.dblPosition[1]) + intFor2;
+						var intZ = Math.floor(physicsHandle.dblPosition[2]) + intFor3;
+						
+						if (intY !== 0) {
+							if (Settings.strMapType[[intX, intY, intZ ]] === undefined) {
+								continue;
+								
+							} else if (Settings.strMapType[[intX, intY, intZ ]] === '') {
+								continue;
+	
+							}
+						}
+						
+						{
+							var dblVoxelX = intX + 0.5;
+							var dblVoxelY = intY + 0.5;
+							var dblVoxelZ = intZ + 0.5;
+							
+							var dblIntersectX = 0.0;
+							var dblIntersectY = 0.0;
+							var dblIntersectZ = 0.0;
+		
+							{
+								dblIntersectX = Math.abs(physicsHandle.dblPosition[0] - dblVoxelX) - 1.0;
+								dblIntersectY = Math.abs(physicsHandle.dblPosition[1] - dblVoxelY) - 1.0;
+								dblIntersectZ = Math.abs(physicsHandle.dblPosition[2] - dblVoxelZ) - 1.0;
+								
+								if (dblIntersectX >= 0.0) {
+									continue;
+		
+								} else if (dblIntersectY >= 0.0) {
+									continue;
+		
+								} else if (dblIntersectZ >= 0.0) {
+									continue;
+		
+								}
+							}
+							
+							if (Math.max(dblIntersectX, dblIntersectY, dblIntersectZ) === dblIntersectX) {
+								if ((physicsHandle.dblPosition[0] - dblVoxelX) > 0.0) {
+									physicsHandle.dblPosition[0] -= dblIntersectX;
+									
+									physicsHandle.boolCollisionSide = true;
+									
+								} else if ((physicsHandle.dblPosition[0] - dblVoxelX) < 0.0) {
+									physicsHandle.dblPosition[0] += dblIntersectX;
+									
+									physicsHandle.boolCollisionSide = true;
+									
+								}
+		
+							} else if (Math.max(dblIntersectX, dblIntersectY, dblIntersectZ) === dblIntersectY) {
+								if ((physicsHandle.dblPosition[1] - dblVoxelY) > 0.0) {
+									physicsHandle.dblPosition[1] -= dblIntersectY;
+									
+									physicsHandle.boolCollisionBottom = true;
+									
+								} else if ((physicsHandle.dblPosition[1] - dblVoxelY) < 0.0) {
+									physicsHandle.dblPosition[1] += dblIntersectY;
+									
+									physicsHandle.boolCollisionTop = true;
+									
+								}
+		
+							} else if (Math.max(dblIntersectX, dblIntersectY, dblIntersectZ) === dblIntersectZ) {
+								if ((physicsHandle.dblPosition[2] - dblVoxelZ) > 0.0) {
+									physicsHandle.dblPosition[2] -= dblIntersectZ;
+									
+									physicsHandle.boolCollisionSide = true;
+									
+								} else if ((physicsHandle.dblPosition[2] - dblVoxelZ) < 0.0) {
+									physicsHandle.dblPosition[2] += dblIntersectZ;
+									
+									physicsHandle.boolCollisionSide = true;
+									
+								}
+		
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	
+	updateOverwrite: function(physicsHandle, physicsOverwrite) {
+		{
+			var dblPositionX = 0.5 * (physicsHandle.dblPosition[0] + physicsOverwrite.dblPosition[0]);
+			var dblPositionY = 0.5 * (physicsHandle.dblPosition[1] + physicsOverwrite.dblPosition[1]);
+			var dblPositionZ = 0.5 * (physicsHandle.dblPosition[2] + physicsOverwrite.dblPosition[2]);
+			
+			var dblVerletX = dblPositionX - (physicsHandle.dblPosition[0] - physicsHandle.dblVerlet[0]);
+			var dblVerletY = dblPositionY - (physicsHandle.dblPosition[1] - physicsHandle.dblVerlet[1]);
+			var dblVerletZ = dblPositionZ - (physicsHandle.dblPosition[2] - physicsHandle.dblVerlet[2]);
+			
+			physicsHandle.dblPositionX = dblPositionX;
+			physicsHandle.dblPositionY = dblPositionY;
+			physicsHandle.dblPositionZ = dblPositionZ;
+			
+			physicsHandle.dblVerletX = dblVerletX;
+			physicsHandle.dblVerletY = dblVerletY;
+			physicsHandle.dblVerletZ = dblVerletZ;
 		}
 	}
 };
@@ -577,6 +1125,8 @@ jQuery(document).ready(function() {
 		Input.init();
 		
 		Player.init();
+		
+		Physics.init();
 	}
 	
 	{
@@ -660,6 +1210,14 @@ jQuery(document).ready(function() {
 					}
 				}
 				
+			}
+		});
+
+		Voxel.voxelengineHandle.on('tick', function(intDelta) {
+			{
+				Input.update();
+				
+				Player.update();
 			}
 		});
 	}

@@ -373,7 +373,7 @@ var Node = {
 					}
 
 					dblPlayerPosition[0] = intMapSpawn[0] + 0.5;
-					dblPlayerPosition[1] = intMapSpawn[1] + 1.0;
+					dblPlayerPosition[1] = intMapSpawn[1] + 1.5;
 					dblPlayerPosition[2] = intMapSpawn[2] + 0.5;
 				}
 				
@@ -452,6 +452,9 @@ var Node = {
 				return;
 				
 			} else if (jsonHandle.dblRotation === undefined) {
+				return;
+				
+			} else if (jsonHandle.dblRotation.length !== 3) {
 				return;
 				
 			}
@@ -915,7 +918,7 @@ var Gameserver = {
 								}
 	
 								dblPlayerPosition[0] = intMapSpawn[0] + 0.5;
-								dblPlayerPosition[1] = intMapSpawn[1] + 1.0;
+								dblPlayerPosition[1] = intMapSpawn[1] + 1.5;
 								dblPlayerPosition[2] = intMapSpawn[2] + 0.5;
 							}
 
