@@ -614,39 +614,39 @@ var Voxel = {
 				}
 				
 				{
-					minecraftskinHandle.meshPickaxe = Voxel.itemCreate('itemPickaxe');
+					minecraftskinHandle.meshPickaxe = Voxel.itemCreate('itemPickaxe', 1.0);
 					
 					minecraftskinHandle.meshPickaxe.position.x = 6.0;
-					minecraftskinHandle.meshPickaxe.position.y = 0.0 - 21.0;
+					minecraftskinHandle.meshPickaxe.position.y = 0.0 - 9.5;
 					minecraftskinHandle.meshPickaxe.position.z = 0.0;
 					
 					minecraftskinHandle.meshPickaxe.rotation.x = 0.0;
 					minecraftskinHandle.meshPickaxe.rotation.y = 0.0;
-					minecraftskinHandle.meshPickaxe.rotation.z = 0.25 * Math.PI;
+					minecraftskinHandle.meshPickaxe.rotation.z = 1.25 * Math.PI;
 				}
 				
 				{
-					minecraftskinHandle.meshSword = Voxel.itemCreate('itemSword');
+					minecraftskinHandle.meshSword = Voxel.itemCreate('itemSword', 1.0);
 					
-					minecraftskinHandle.meshSword.position.x = 6.0;
-					minecraftskinHandle.meshSword.position.y = 0.0 - 21.0;
+					minecraftskinHandle.meshSword.position.x = 7.0;
+					minecraftskinHandle.meshSword.position.y = 0.0 - 9.5;
 					minecraftskinHandle.meshSword.position.z = 0.0;
 					
 					minecraftskinHandle.meshSword.rotation.x = 0.0;
 					minecraftskinHandle.meshSword.rotation.y = 0.0;
-					minecraftskinHandle.meshSword.rotation.z = 0.25 * Math.PI;
+					minecraftskinHandle.meshSword.rotation.z = 1.25 * Math.PI;
 				}
 				
 				{
-					minecraftskinHandle.meshBow = Voxel.itemCreate('itemBow');
+					minecraftskinHandle.meshBow = Voxel.itemCreate('itemBow', 1.0);
 					
 					minecraftskinHandle.meshBow.position.x = 0.0;
-					minecraftskinHandle.meshBow.position.y = 0.0 - 18.0;
+					minecraftskinHandle.meshBow.position.y = 0.0 - 6.0;
 					minecraftskinHandle.meshBow.position.z = 0.0;
 					
 					minecraftskinHandle.meshBow.rotation.x = 0.0;
 					minecraftskinHandle.meshBow.rotation.y = 0.0;
-					minecraftskinHandle.meshBow.rotation.z = 0.25 * Math.PI;
+					minecraftskinHandle.meshBow.rotation.z = 1.25 * Math.PI;
 				}
 				
 				return minecraftskinHandle;
@@ -691,8 +691,12 @@ var Voxel = {
 				{
 					var dblItem = 0.0;
 					
-					if (strItem !== '') {
+					if (strItem === '') {
+						dblItem = 0.0 * Math.PI;
+						
+					} else if (strItem !== '') {
 						dblItem = 0.1 * Math.PI;
+						
 					}
 					
 					minecraftskinHandle.rightArm.rotation.z = 2 * Math.cos((6.666 * intWalktime) + (0.5 * Math.PI) + Math.PI + dblItem);
@@ -705,8 +709,8 @@ var Voxel = {
 		}
 		
 		{
-			Voxel.itemCreate = function(strItem) {
-				if (Voxel.itemGeometry[strItem] === undefined) {
+			Voxel.itemCreate = function(strItem, dblScale) {
+				if (Voxel.itemGeometry[strItem + ' - ' + dblScale] === undefined) {
 					var contextHandle = document.createElement('canvas').getContext('2d');
 					
 					{
@@ -740,7 +744,7 @@ var Voxel = {
 								}
 								
 								{
-									var cubegeometryHandle = new Voxel.voxelengineHandle.THREE.CubeGeometry(1, 1, 1);
+									var cubegeometryHandle = new Voxel.voxelengineHandle.THREE.CubeGeometry(dblScale, dblScale, dblScale);
 									
 									for (var intFor3 = 0; intFor3 < cubegeometryHandle.faces.length; intFor3 += 1) {
 										if (cubegeometryHandle.faces[intFor3] === undefined) {
@@ -758,9 +762,9 @@ var Voxel = {
 										}
 										
 										{
-											cubegeometryHandle.vertices[intFor3].x += intFor1;
-											cubegeometryHandle.vertices[intFor3].y += intFor2;
-											cubegeometryHandle.vertices[intFor3].z += 0.0;
+											cubegeometryHandle.vertices[intFor3].x += dblScale * (8.0 - intFor1);
+											cubegeometryHandle.vertices[intFor3].y += dblScale * (8.0 - intFor2);
+											cubegeometryHandle.vertices[intFor3].z += dblScale * (0.0);
 										}
 									}
 									
@@ -771,11 +775,11 @@ var Voxel = {
 					}
 					
 					{
-						Voxel.itemGeometry[strItem] = geometryHandle;
+						Voxel.itemGeometry[strItem + ' - ' + dblScale] = geometryHandle;
 					}
 				}
 				
-				return new Voxel.voxelengineHandle.THREE.Mesh(Voxel.itemGeometry[strItem], Voxel.itemMaterial);
+				return new Voxel.voxelengineHandle.THREE.Mesh(Voxel.itemGeometry[strItem + ' - ' + dblScale], Voxel.itemMaterial);
 			};
 			
 			Voxel.itemGeometry = {};
@@ -818,7 +822,7 @@ var Socket = {
 	
 	intPing: 0,
 
-	playerHandle: {},
+	enemyHandle: {},
 	
 	itemHandle: {},
 	
@@ -832,7 +836,7 @@ var Socket = {
 		}
 		
 		{
-			Socket.playerHandle = {};
+			Socket.enemyHandle = {};
 		}
 		
 		{
@@ -849,14 +853,75 @@ var Socket = {
 					'transports': [ 'websocket' ]
 				});
 				
+				Socket.socketHandle.on('loginHandle', function(jsonHandle) {
+					{
+						if (jsonHandle.strType === 'typeReject') {
+							{
+								Gui.strMode = 'modeLogin';
+							}
+							
+							{
+								jQuery('#idLogin_Message')
+									.text(jsonHandle.strMessage)
+								;
+							}
+							
+							{
+								if (jsonHandle.strMessage === '') {
+									jQuery('#idLogin').find('.ui-dialog-content').children().slice(0, 2)
+										.css({
+											'display': 'none'
+										})
+									;
+									
+								} else if (jsonHandle.strMessage !== '') {
+									jQuery('#idLogin').find('.ui-dialog-content').children().slice(0, 2)
+										.css({
+											'display': 'block'
+										})
+									;
+									
+								}
+							}
+							
+						} else if (jsonHandle.strType === 'typeAccept') {
+							{
+								Gui.strMode = 'modeMenu';
+							}
+							
+						}
+					}
+				});
+				
+				Socket.socketHandle.on('chatHandle', function(jsonHandle) {
+					{
+						jQuery('#idMessagebox_Log')
+							.append(jQuery('<div></div>')
+								.css({
+									'margin': '0.8em 1.0em 0.8em 1em'
+								})
+								.append(jQuery('<a></a>')
+									.css({
+										'font-weight': 'bold'
+									})
+									.text(jsonHandle.strName + ':' + ' ')
+								)
+								.append(jQuery('<a></a>')
+									.text(jsonHandle.strMessage)
+								)
+							)
+						;
+						
+						jQuery('#idMessagebox_Log')
+							.scrollTop(jQuery('#idMessagebox_Log').get(0).scrollHeight - jQuery('#idMessagebox_Log').height())
+						;
+					}
+				});
+				
 				Socket.socketHandle.on('pingHandle', function(jsonHandle) {
 					{
 						jQuery('#idServer_Ping')
 							.val(new Date().getTime() - Socket.intPing)
-						;
-						
-						jQuery('#idServer_Players')
-							.val(jsonHandle.serverHandle.intPlayerActive + ' / ' + jsonHandle.serverHandle.intPlayerCapacity)
 						;
 						
 						jQuery('#idServer_Map')
@@ -865,6 +930,10 @@ var Socket = {
 						
 						jQuery('#idServer_Phase')
 							.html(jsonHandle.serverHandle.strPhaseActive + '<div style="padding:0.8em 0.0em 0.0em 0.0em; font-size:10px;">with ' + jsonHandle.serverHandle.intPhaseRemaining + ' seconds remainin and ' + jsonHandle.serverHandle.intPhaseRound + ' rounds left</div>')
+						;
+						
+						jQuery('#idServer_Players')
+							.val(jsonHandle.serverHandle.intPlayerActive + ' / ' + jsonHandle.serverHandle.intPlayerCapacity)
 						;
 					}
 					
@@ -931,150 +1000,155 @@ var Socket = {
 						;
 					}
 				});
-
-				Socket.socketHandle.on('loginHandle', function(jsonHandle) {
-					{
-						if (jsonHandle.strType === 'typeReject') {
-							{
-								Gui.strMode = 'modeLogin';
-							}
-							
-							{
-								jQuery('#idLogin_Message')
-									.text(jsonHandle.strMessage)
-								;
-							}
-							
-							{
-								if (jsonHandle.strMessage === '') {
-									jQuery('#idLogin').find('.ui-dialog-content').children().slice(0, 2)
-										.css({
-											'display': 'none'
-										})
-									;
-									
-								} else if (jsonHandle.strMessage !== '') {
-									jQuery('#idLogin').find('.ui-dialog-content').children().slice(0, 2)
-										.css({
-											'display': 'block'
-										})
-									;
-									
-								}
-							}
-							
-						} else if (jsonHandle.strType === 'typeAccept') {
-							{
-								Gui.strMode = 'modeMenu';
-							}
-							
-						}
-					}
-				});
 				
-				Socket.socketHandle.on('chatHandle', function(jsonHandle) {
+				Socket.socketHandle.on('settingsHandle', function(jsonHandle) {
 					{
-						jQuery('#idMessagebox_Log')
-							.append(jQuery('<div></div>')
-								.css({
-									'margin': '0.8em 1.0em 0.8em 1em'
-								})
-								.append(jQuery('<a></a>')
-									.css({
-										'font-weight': 'bold'
-									})
-									.text(jsonHandle.strName + ':' + ' ')
-								)
-								.append(jQuery('<a></a>')
-									.text(jsonHandle.strMessage)
-								)
-							)
-						;
+					    for (var intCoordinate in Settings.strMapType) {
+							var strType = Settings.strMapType[intCoordinate];
+							
+							{
+								Voxel.voxelengineHandle.setBlock(JSON.parse('[' + intCoordinate + ']'), 0);
+							}
+					    }
+					}
+					
+					{
+						Settings.strMapType = jsonHandle.strMapType;
+					}
+					
+					{
+					    for (var intCoordinate in Settings.strMapType) {
+							var strType = Settings.strMapType[intCoordinate];
+							
+							{
+								Voxel.voxelengineHandle.setBlock(JSON.parse('[' + intCoordinate + ']'), Voxel.voxelengineHandle.materials.find(strType));
+							}
+					    }
+					}
+					
+					{
+						Settings.strPhaseActive = jsonHandle.strPhaseActive;
+					}
+					
+					{
+						Gui.strChooserCategory = '';
 						
-						jQuery('#idMessagebox_Log')
-							.scrollTop(jQuery('#idMessagebox_Log').get(0).scrollHeight - jQuery('#idMessagebox_Log').height())
-						;
+						Gui.intChooserType = 0;
+					}
+					
+					{
+						Gui.update();
+					}
+					
+					{
+						Player.strItem = '';
 					}
 				});
 				
 				Socket.socketHandle.on('playerHandle', function(jsonHandle) {
 					{
-						var playerOverwrite = {};
+						Player.strTeam = jsonHandle.strTeam;
+					}
+					
+					{
+						Player.dblPosition[0] = jsonHandle.dblPosition[0];
+						Player.dblPosition[1] = jsonHandle.dblPosition[1];
+						Player.dblPosition[2] = jsonHandle.dblPosition[2];
+
+						Player.dblVerlet[0] = Player.dblPosition[0];
+						Player.dblVerlet[1] = Player.dblPosition[1];
+						Player.dblVerlet[2] = Player.dblPosition[2];
+
+						Player.dblAcceleration[0] = 0.0;
+						Player.dblAcceleration[1] = 0.0;
+						Player.dblAcceleration[2] = 0.0;
+					}
+				});
+				
+				Socket.socketHandle.on('enemyHandle', function(jsonHandle) {
+					{
+						var enemyOverwrite = {};
 						
 						for (var intFor1 = 0; intFor1 < jsonHandle.length; intFor1 += 1) {
-							var playerHandle = jsonHandle[intFor1];
+							var enemyHandle = jsonHandle[intFor1];
 
 							{
-								playerHandle.strSocket = playerHandle.a;
-								playerHandle.strTeam = playerHandle.b;
-								playerHandle.strItem = playerHandle.c;
-								playerHandle.dblPosition = playerHandle.d;
-								playerHandle.dblVerlet = playerHandle.e;
-								playerHandle.dblRotation = playerHandle.f;
+								enemyHandle.strIdent = enemyHandle.a;
+								enemyHandle.strTeam = enemyHandle.b;
+								enemyHandle.strItem = enemyHandle.c;
+								enemyHandle.dblPosition = enemyHandle.d;
+								enemyHandle.dblVerlet = enemyHandle.e;
+								enemyHandle.dblRotation = enemyHandle.f;
 							}
 							
 							{
-								if (Socket.playerHandle.hasOwnProperty(playerHandle.strSocket) === true) {
-									Physics.updateOverwrite(playerHandle, Socket.playerHandle[playerHandle.strSocket]);
+								if (Socket.enemyHandle.hasOwnProperty(enemyHandle.strIdent) === true) {
+									Physics.updateOverwrite(enemyHandle, Socket.enemyHandle[enemyHandle.strIdent]);
 								}
 							}
 							
 							{
-								playerOverwrite[playerHandle.strSocket] = {
-									'strSocket': playerHandle.strSocket,
-									'strTeam': playerHandle.strTeam,
-									'strItem': playerHandle.strItem,
-									'dblPosition': playerHandle.dblPosition,
-									'dblVerlet': playerHandle.dblVerlet,
-									'dblRotation': playerHandle.dblRotation
+								enemyOverwrite[enemyHandle.strIdent] = {
+									'strIdent': enemyHandle.strIdent,
+									'strTeam': enemyHandle.strTeam,
+									'strItem': enemyHandle.strItem,
+									'dblPosition': enemyHandle.dblPosition,
+									'dblVerlet': enemyHandle.dblVerlet,
+									'dblRotation': enemyHandle.dblRotation
 								};
 								
-								playerOverwrite[playerHandle.strSocket].dblAcceleration = [ 0.0, 0.0, 0.0 ];
+								enemyOverwrite[enemyHandle.strIdent].dblAcceleration = [ 0.0, 0.0, 0.0 ];
 
-								playerOverwrite[playerHandle.strSocket].boolCollisionTop = false;
-								playerOverwrite[playerHandle.strSocket].boolCollisionSide = false;
-								playerOverwrite[playerHandle.strSocket].boolCollisionBottom = false;
+								enemyOverwrite[enemyHandle.strIdent].boolCollisionTop = false;
+								enemyOverwrite[enemyHandle.strIdent].boolCollisionSide = false;
+								enemyOverwrite[enemyHandle.strIdent].boolCollisionBottom = false;
 								
-								playerOverwrite[playerHandle.strSocket].intWalktime = 0;
+								enemyOverwrite[enemyHandle.strIdent].intWalktime = 0;
 							}
 						}
 						
-						Socket.playerHandle = playerOverwrite;
+						Socket.enemyHandle = enemyOverwrite;
 					}
 				});
-
 				
 				Socket.socketHandle.on('itemHandle', function(jsonHandle) {
 					{
 						var itemOverwrite = {};
 						
-						/*for (var intFor1 = 0; intFor1 < jsonHandle.length; intFor1 += 1) {
+						for (var intFor1 = 0; intFor1 < jsonHandle.length; intFor1 += 1) {
 							var itemHandle = jsonHandle[intFor1];
 
 							{
-								itemHandle.strItem = itemHandle.a;
-								itemHandle.dblPosition = itemHandle.b;
-								itemHandle.dblVerlet = itemHandle.c;
-								itemHandle.dblRotation = itemHandle.d;
+								itemHandle.strIdent = itemHandle.a;
+								itemHandle.strItem = itemHandle.b;
+								itemHandle.dblPosition = itemHandle.c;
+								itemHandle.dblVerlet = itemHandle.d;
+								itemHandle.dblRotation = itemHandle.e;
 							}
 							
 							{
-								if (Socket.itemHandle.hasOwnProperty(itemHandle.strSocket) === true) {
-									Physics.updateOverwrite(itemHandle, Socket.itemHandle[itemHandle.strSocket]);
+								if (Socket.itemHandle.hasOwnProperty(itemHandle.strIdent) === true) {
+									Physics.updateOverwrite(itemHandle, Socket.itemHandle[itemHandle.strIdent]);
 								}
 							}
 							
 							{
-								itemOverwrite[itemHandle.strSocket] = {
-									'strSocket': itemHandle.strSocket,
+								itemOverwrite[itemHandle.strIdent] = {
+									'strIdent': itemHandle.strIdent,
 									'strTeam': itemHandle.strTeam,
 									'strItem': itemHandle.strItem,
 									'dblPosition': itemHandle.dblPosition,
 									'dblVerlet': itemHandle.dblVerlet,
 									'dblRotation': itemHandle.dblRotation,
 								};
+								
+								itemOverwrite[itemHandle.strIdent].dblAcceleration = [ 0.0, 0.0, 0.0 ];
+
+								itemOverwrite[itemHandle.strIdent].boolCollisionTop = false;
+								itemOverwrite[itemHandle.strIdent].boolCollisionSide = false;
+								itemOverwrite[itemHandle.strIdent].boolCollisionBottom = false;
 							}
-						}*/
+						}
 						
 						Socket.itemHandle = itemOverwrite;
 					}
@@ -1096,53 +1170,15 @@ var Socket = {
 					}
 				});
 				
-				Socket.socketHandle.on('resetHandle', function(jsonHandle) {
-					{
-						Player.strTeam = jsonHandle.strPlayerTeam;
-					}
-					
-					{
-						Player.dblPosition[0] = jsonHandle.dblPlayerPosition[0];
-						Player.dblPosition[1] = jsonHandle.dblPlayerPosition[1];
-						Player.dblPosition[2] = jsonHandle.dblPlayerPosition[2];
-
-						Player.dblVerlet[0] = Player.dblPosition[0];
-						Player.dblVerlet[1] = Player.dblPosition[1];
-						Player.dblVerlet[2] = Player.dblPosition[2];
-
-						Player.dblAcceleration[0] = 0.0;
-						Player.dblAcceleration[1] = 0.0;
-						Player.dblAcceleration[2] = 0.0;
-					}
-					
-					{
-						Settings.strMapType = jsonHandle.strMapType;
-						
-					    for (var intCoordinate in Settings.strMapType) {
-							var strType = Settings.strMapType[intCoordinate];
-							
-							{
-								Voxel.voxelengineHandle.setBlock(JSON.parse('[' + intCoordinate + ']'), Voxel.voxelengineHandle.materials.find(strType));
-							}
-					    }
-					}
-					
-					{
-						Settings.strPhaseActive = jsonHandle.strPhaseActive;
-					}
-					
-					{
-						Gui.update();
-					}
-				});
-				
 				setInterval(function() {
 					{
 						Socket.intPing = new Date().getTime();
 					}
 					
 					{
-						Socket.socketHandle.emit('pingHandle', {});
+						Socket.socketHandle.emit('pingHandle', {
+							'intTimestamp': new Date().getTime()
+						});
 					}
 				}, 1000);
 			});
@@ -1159,7 +1195,7 @@ var Socket = {
 		}
 		
 		{
-			Socket.playerHandle = {};
+			Socket.enemyHandle = {};
 		}
 		
 		{
@@ -1815,15 +1851,15 @@ var Enemy = {
 		}
 		
 		{
-			for (var strSocket in Socket.playerHandle) {
-				var playerHandle = Socket.playerHandle[strSocket];
+			for (var strIdent in Socket.enemyHandle) {
+				var enemyHandle = Socket.enemyHandle[strIdent];
 
 				{
-					playerHandle.dblAcceleration[1] -= 0.01;
+					enemyHandle.dblAcceleration[1] -= 0.01;
 				}
 				
 				{
-					Physics.update(playerHandle);
+					Physics.update(enemyHandle);
 				}
 
 				{
@@ -1850,32 +1886,116 @@ var Enemy = {
 					}
 
 					{
-						minecraftskinHandle.mesh.position.x = playerHandle.dblPosition[0];
-						minecraftskinHandle.mesh.position.y = playerHandle.dblPosition[1] - 0.5;
-						minecraftskinHandle.mesh.position.z = playerHandle.dblPosition[2];
+						minecraftskinHandle.mesh.position.x = enemyHandle.dblPosition[0];
+						minecraftskinHandle.mesh.position.y = enemyHandle.dblPosition[1] - 0.5;
+						minecraftskinHandle.mesh.position.z = enemyHandle.dblPosition[2];
 
-						minecraftskinHandle.mesh.head.rotation.x = playerHandle.dblRotation[0];
+						minecraftskinHandle.mesh.head.rotation.x = enemyHandle.dblRotation[0];
 						
-						minecraftskinHandle.mesh.rotation.y = playerHandle.dblRotation[1];
+						minecraftskinHandle.mesh.rotation.y = enemyHandle.dblRotation[1];
 					}
 					
 					{
-						var dblVelocityX = playerHandle.dblPosition[0] - playerHandle.dblVerlet[0];
-						var dblVelocityY = playerHandle.dblPosition[1] - playerHandle.dblVerlet[1];
-						var dblVelocityZ = playerHandle.dblPosition[2] - playerHandle.dblVerlet[2];
+						var dblVelocityX = enemyHandle.dblPosition[0] - enemyHandle.dblVerlet[0];
+						var dblVelocityY = enemyHandle.dblPosition[1] - enemyHandle.dblVerlet[1];
+						var dblVelocityZ = enemyHandle.dblPosition[2] - enemyHandle.dblVerlet[2];
 						
 						if (Math.abs(dblVelocityX) < 0.0001) {
 							if (Math.abs(dblVelocityZ) < 0.0001) {
-								playerHandle.intWalktime = new Date().getTime() / 1000;
+								enemyHandle.intWalktime = new Date().getTime() / 1000;
 							}
 						}
 					}
 					
 					{
-						Voxel.minecraftskinUpdate(minecraftskinHandle, playerHandle.strTeam, playerHandle.strItem, playerHandle.intWalktime - new Date().getTime() / 1000);
+						Voxel.minecraftskinUpdate(minecraftskinHandle, enemyHandle.strTeam, enemyHandle.strItem, enemyHandle.intWalktime - new Date().getTime() / 1000);
 					}
 				}
 			}
+		}
+	}
+};
+
+var Item = {
+	meshRedFlag: null,
+	
+	meshBlueFlag: null,
+	
+	meshArrow: [],
+	
+	init: function() {
+		{
+			Item.meshRedFlag = Voxel.itemCreate('itemRedFlag', 0.04);
+			
+			Voxel.voxelengineHandle.scene.add(Item.meshRedFlag);
+		}
+		
+		{
+			Item.meshBlueFlag = Voxel.itemCreate('itemBlueFlag', 0.04);
+			
+			Voxel.voxelengineHandle.scene.add(Item.meshBlueFlag);
+		}
+		
+		{
+			Item.meshArrow = [];
+		}
+	},
+	
+	dispel: function() {
+		{
+			Item.meshRedFlag = null;
+		}
+		
+		{
+			Item.meshBlueFlag = null;
+		}
+		
+		{
+			Item.meshArrow = [];
+		}
+	},
+	
+	update: function() {
+		{
+			if (Socket.itemHandle.hasOwnProperty('itemRedFlag') === true) {
+				var itemHandle = Socket.itemHandle['itemRedFlag'];
+				
+				{
+					Physics.update(itemHandle);
+				}
+				
+				{
+					Item.meshRedFlag.position.x = itemHandle.dblPosition[0];
+					Item.meshRedFlag.position.y = itemHandle.dblPosition[1];
+					Item.meshRedFlag.position.z = itemHandle.dblPosition[2];
+					
+					Item.meshRedFlag.rotation.x = itemHandle.dblRotation[0];
+					Item.meshRedFlag.rotation.y = itemHandle.dblRotation[1];
+					Item.meshRedFlag.rotation.z = itemHandle.dblRotation[2];
+				}
+			}
+			
+			if (Socket.itemHandle.hasOwnProperty('itemBlueFlag') === true) {
+				var itemHandle = Socket.itemHandle['itemBlueFlag'];
+				
+				{
+					Physics.update(itemHandle);
+				}
+				
+				{
+					Item.meshBlueFlag.position.x = itemHandle.dblPosition[0];
+					Item.meshBlueFlag.position.y = itemHandle.dblPosition[1];
+					Item.meshBlueFlag.position.z = itemHandle.dblPosition[2];
+					
+					Item.meshBlueFlag.rotation.x = itemHandle.dblRotation[0];
+					Item.meshBlueFlag.rotation.y = itemHandle.dblRotation[1];
+					Item.meshBlueFlag.rotation.z = itemHandle.dblRotation[2];
+				}
+			}
+		}
+		
+		{
+			
 		}
 	}
 };
@@ -2083,6 +2203,8 @@ jQuery(document).ready(function() {
 		
 		Enemy.init();
 		
+		Item.init();
+		
 		Physics.init();
 	}
 	
@@ -2129,6 +2251,8 @@ jQuery(document).ready(function() {
 				Player.update();
 				
 				Enemy.update();
+				
+				Item.update();
 			}
 			 
 			{
