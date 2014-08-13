@@ -861,43 +861,31 @@ var Player = {
 	update: function() {
 		{
 			if (Input.boolUp === true) {
-				var dblRotationX = Math.sin(Player.minecraftskinHandle.mesh.rotation.y);
-				var dblRotationZ = Math.cos(Player.minecraftskinHandle.mesh.rotation.y);
-
-				Player.dblAcceleration[0] -= 0.03 * dblRotationX;
-				Player.dblAcceleration[2] -= 0.03 * dblRotationZ;
+				Player.dblAcceleration[0] -= 0.03 * Math.sin(Player.minecraftskinHandle.mesh.rotation.y);
+				Player.dblAcceleration[2] -= 0.03 * Math.cos(Player.minecraftskinHandle.mesh.rotation.y);
 			}
 			
 			if (Input.boolDown === true) {
-				var dblRotationX = Math.sin(Player.minecraftskinHandle.mesh.rotation.y);
-				var dblRotationZ = Math.cos(Player.minecraftskinHandle.mesh.rotation.y);
-
-				Player.dblAcceleration[0] += 0.03 * dblRotationX;
-				Player.dblAcceleration[2] += 0.03 * dblRotationZ;
+				Player.dblAcceleration[0] += 0.03 * Math.sin(Player.minecraftskinHandle.mesh.rotation.y);
+				Player.dblAcceleration[2] += 0.03 * Math.cos(Player.minecraftskinHandle.mesh.rotation.y);
 			}
 			
 			if (Input.boolLeft === true) {
-				var dblRotationX = Math.sin(Player.minecraftskinHandle.mesh.rotation.y + (0.5 * Math.PI));
-				var dblRotationZ = Math.cos(Player.minecraftskinHandle.mesh.rotation.y + (0.5 * Math.PI));
-
-				Player.dblAcceleration[0] -= 0.03 * dblRotationX;
-				Player.dblAcceleration[2] -= 0.03 * dblRotationZ;
+				Player.dblAcceleration[0] -= 0.03 * Math.sin(Player.minecraftskinHandle.mesh.rotation.y + (0.5 * Math.PI));
+				Player.dblAcceleration[2] -= 0.03 * Math.cos(Player.minecraftskinHandle.mesh.rotation.y + (0.5 * Math.PI));
 			}
 			
 			if (Input.boolRight === true) {
-				var dblRotationX = Math.sin(Player.minecraftskinHandle.mesh.rotation.y + (0.5 * Math.PI));
-				var dblRotationZ = Math.cos(Player.minecraftskinHandle.mesh.rotation.y + (0.5 * Math.PI));
-
-				Player.dblAcceleration[0] += 0.03 * dblRotationX;
-				Player.dblAcceleration[2] += 0.03 * dblRotationZ;
+				Player.dblAcceleration[0] += 0.03 * Math.sin(Player.minecraftskinHandle.mesh.rotation.y + (0.5 * Math.PI));
+				Player.dblAcceleration[2] += 0.03 * Math.cos(Player.minecraftskinHandle.mesh.rotation.y + (0.5 * Math.PI));
 			}
 			
 			if (Input.boolSpace === true) {
-				Player.dblAcceleration[1] += 0.02;
+				Player.dblAcceleration[1] += 0.03;
 			}
 			
 			if (Input.boolShift === true) {
-				Player.dblAcceleration[1] -= 0.02;
+				Player.dblAcceleration[1] -= 0.03;
 			}
 		}
 		
@@ -916,6 +904,9 @@ var Player = {
 		}
 		
 		{
+			Player.dblSize = [ 1.0, 1.6, 1.0 ];
+			Player.dblMaxvel = [ 0.12, 0.12, 0.12 ];
+			
 			Physics.update(Player);
 		}
 		
@@ -960,36 +951,53 @@ var Physics = {
 			var dblVelocityY = physicsHandle.dblPosition[1] - physicsHandle.dblVerlet[1];
 			var dblVelocityZ = physicsHandle.dblPosition[2] - physicsHandle.dblVerlet[2];
 			
-			if (dblVelocityX > 0.12) {
-				dblVelocityX = 0.12;
+			if (physicsHandle.dblMaxvel.length === 1) {
+				{
+					var dblLength = Math.sqrt((dblVelocityX * dblVelocityX) + (dblVelocityY * dblVelocityY) + (dblVelocityZ * dblVelocityZ));
+					
+					if (Math.abs(dblLength) > physicsHandle.dblMaxvel[0]) {
+						dblVelocityX *= physicsHandle.dblMaxvel[0] / dblLength;
+						dblVelocityY *= physicsHandle.dblMaxvel[0] / dblLength;
+						dblVelocityZ *= physicsHandle.dblMaxvel[0] / dblLength;
+						
+					} else if (Math.abs(dblLength) < 0.0001) {
+						dblVelocityX = 0.0;
+						dblVelocityY = 0.0;
+						dblVelocityZ = 0.0;
+						
+					}
+				}
 				
-			} else if (dblVelocityX < -0.12) {
-				dblVelocityX = -0.12;
+			} else if (physicsHandle.dblMaxvel.length === 3) {
+				{
+					if (Math.abs(dblVelocityX) > physicsHandle.dblMaxvel[0]) {
+						dblVelocityX = (dblVelocityX > 0.0 ? 1.0 : -1.0) * physicsHandle.dblMaxvel[0];
+						
+					} else if (Math.abs(dblVelocityX) < 0.0001) {
+						dblVelocityX = 0.0;
+						
+					}
+				}
 				
-			} else if (Math.abs(dblVelocityX) < 0.0001) {
-				dblVelocityX = 0.0;
+				{
+					if (Math.abs(dblVelocityY) > physicsHandle.dblMaxvel[1]) {
+						dblVelocityY = (dblVelocityY > 0.0 ? 1.0 : -1.0) * physicsHandle.dblMaxvel[1];
+						
+					} else if (Math.abs(dblVelocityY) < 0.0001) {
+						dblVelocityY = 0.0;
+						
+					}
+				}
 				
-			}
-			
-			if (dblVelocityY > 0.18) {
-				dblVelocityY = 0.18;
-				
-			} else if (dblVelocityY < -0.18) {
-				dblVelocityY = -0.18;
-				
-			} else if (Math.abs(dblVelocityY) < 0.0001) {
-				dblVelocityY = 0.0;
-				
-			}
-			
-			if (dblVelocityZ > 0.12) {
-				dblVelocityZ = 0.12;
-				
-			} else if (dblVelocityZ < -0.12) {
-				dblVelocityZ = -0.12;
-				
-			} else if (Math.abs(dblVelocityZ) < 0.0001) {
-				dblVelocityZ = 0.0;
+				{
+					if (Math.abs(dblVelocityZ) > physicsHandle.dblMaxvel[2]) {
+						dblVelocityZ = (dblVelocityZ > 0.0 ? 1.0 : -1.0) * physicsHandle.dblMaxvel[2];
+						
+					} else if (Math.abs(dblVelocityZ) < 0.0001) {
+						dblVelocityZ = 0.0;
+						
+					}
+				}
 				
 			}
 			
@@ -1002,10 +1010,10 @@ var Physics = {
 			physicsHandle.boolCollisionTop = false;
 			physicsHandle.boolCollisionSide = false;
 			physicsHandle.boolCollisionBottom = false;
-			
-			for (var intFor1 = -1; intFor1 < 2; intFor1 += 1) {
-				for (var intFor2 = -1; intFor2 < 2; intFor2 += 1) {
-					for (var intFor3 = -1; intFor3 < 2; intFor3 += 1) {
+
+			for (var intFor1 = 1; intFor1 > -2; intFor1 -= 1) {
+				for (var intFor2 = 1; intFor2 > -2; intFor2 -= 1) {
+					for (var intFor3 = 1; intFor3 > -2; intFor3 -= 1) {
 						var intX = Math.floor(physicsHandle.dblPosition[0]) + intFor1;
 						var intY = Math.floor(physicsHandle.dblPosition[1]) + intFor2;
 						var intZ = Math.floor(physicsHandle.dblPosition[2]) + intFor3;
@@ -1028,11 +1036,11 @@ var Physics = {
 							var dblIntersectX = 0.0;
 							var dblIntersectY = 0.0;
 							var dblIntersectZ = 0.0;
-		
+							
 							{
-								dblIntersectX = Math.abs(physicsHandle.dblPosition[0] - dblVoxelX) - 1.0;
-								dblIntersectY = Math.abs(physicsHandle.dblPosition[1] - dblVoxelY) - 1.0;
-								dblIntersectZ = Math.abs(physicsHandle.dblPosition[2] - dblVoxelZ) - 1.0;
+								dblIntersectX = Math.abs(physicsHandle.dblPosition[0] - dblVoxelX) - (0.5 * physicsHandle.dblSize[0]) - (0.5 * 1.0);
+								dblIntersectY = Math.abs(physicsHandle.dblPosition[1] - dblVoxelY) - (0.5 * physicsHandle.dblSize[1]) - (0.5 * 1.0);
+								dblIntersectZ = Math.abs(physicsHandle.dblPosition[2] - dblVoxelZ) - (0.5 * physicsHandle.dblSize[2]) - (0.5 * 1.0);
 								
 								if (dblIntersectX >= 0.0) {
 									continue;

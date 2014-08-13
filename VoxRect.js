@@ -547,6 +547,58 @@ var Node = {
 			}
 		});
 		
+		socketHandle.on('weaponHandle', function(jsonHandle) {
+			if (jsonHandle.strWeapon === undefined) {
+				return;
+				
+			} else if (jsonHandle.dblRotation === undefined) {
+				return;
+				
+			} else if (jsonHandle.dblRotation.length !== 3) {
+				return;
+				
+			}
+			
+			{
+				if (jsonHandle.strWeapon === 'weaponSword') {
+					
+					
+				} else if (jsonHandle.strWeapon === 'weaponBow') {
+					// TODO: lock to only one arrow
+					
+					var dblPosition = [ 0.0, 0.0, 0.0 ];
+					var dblVerlet = [ 0.0, 0.0, 0.0 ];
+					var dblAcceleration = [ 0.0, 0.0, 0.0 ];
+					
+					{
+						dblPosition[0] = Gameserver.playerHandle[socketHandle.id].dblPosition[0] + (0.3 * Math.sin(jsonHandle.dblRotation[1] + (0.5 * Math.PI)));
+						dblPosition[1] = Gameserver.playerHandle[socketHandle.id].dblPosition[1] + 0.1;
+						dblPosition[2] = Gameserver.playerHandle[socketHandle.id].dblPosition[2] + (0.3 * Math.cos(jsonHandle.dblRotation[1] + (0.5 * Math.PI)));
+						
+						dblVerlet[0] = dblPosition[0];
+						dblVerlet[1] = dblPosition[1];
+						dblVerlet[2] = dblPosition[2];
+						
+						dblAcceleration[0] = -1.0 * Math.sin(jsonHandle.dblRotation[1]) * Math.cos(jsonHandle.dblRotation[0]);
+						dblAcceleration[1] = 1.0 * Math.sin(jsonHandle.dblRotation[0]);
+						dblAcceleration[2] = -1.0 * Math.cos(jsonHandle.dblRotation[1]) * Math.cos(jsonHandle.dblRotation[0]);
+					}
+					
+					Gameserver.itemHandle['itemArrow' + ' - ' + socketHandle.id] = {
+						'strIdent': 'itemArrow' + ' - ' + socketHandle.id,
+						'strItem': 'itemArrow',
+						'dblSize': [ 0.3, 0.3, 0.3 ],
+						'dblMaxvel': [ 0.26 ],
+						'dblPosition': dblPosition,
+						'dblVerlet': dblVerlet,
+						'dblAcceleration': dblAcceleration,
+						'dblRotation': jsonHandle.dblRotation
+					};
+					
+				}
+			}
+		});
+		
 		socketHandle.on('disconnect', function() {
 			{
 				delete Gameserver.playerHandle[socketHandle.id];
@@ -774,7 +826,7 @@ var Gameserver = {
 		}
 		
 		{
-			Gameserver.strPhaseActive = 'Build';
+			Gameserver.strPhaseActive = 'Combat'; // TODO: change backto 'Build'
 			
 			Gameserver.intPhaseRemaining = process.env.intPhaseRemaining;
 			
@@ -922,7 +974,7 @@ var Gameserver = {
 					}
 
 					dblPosition[0] = intMapSpawn[0] + 0.5;
-					dblPosition[1] = intMapSpawn[1] + 1.5;
+					dblPosition[1] = intMapSpawn[1] + 2.0;
 					dblPosition[2] = intMapSpawn[2] + 0.5;
 				}
 				
@@ -948,21 +1000,23 @@ var Gameserver = {
 						dblPosition[0] = intMapRedFlag[0] + 0.5;
 						dblPosition[1] = intMapRedFlag[1] + 1.5;
 						dblPosition[2] = intMapRedFlag[2] + 0.5;
-						
+
 						dblVerlet[0] = dblPosition[0];
 						dblVerlet[1] = dblPosition[1];
 						dblVerlet[2] = dblPosition[2];
 						
-						dblRotation[1] = (new Date().getTime() * 0.0008) % (2 * Math.PI);
+						dblRotation[1] = (new Date().getTime() * 0.0008) % (2.0 * Math.PI);
 					}
 					
 					Gameserver.itemHandle['itemRedFlag'] = {
 						'strIdent': 'itemRedFlag',
 						'strItem': 'itemFlag',
+						'dblSize': [ 1.0, 1.0, 1.0 ],
+						'dblMaxvel': [ 0.12, 0.26, 0.12 ],
 						'dblPosition': dblPosition,
 						'dblVerlet': dblVerlet,
-						'dblRotation': dblRotation,
-						'dblAcceleration': [ 0.0, 0.0, 0.0 ]
+						'dblAcceleration': [ 0.0, 0.0, 0.0 ],
+						'dblRotation': dblRotation
 					};
 				}
 				
@@ -977,21 +1031,23 @@ var Gameserver = {
 						dblPosition[0] = intMapBlueFlag[0] + 0.5;
 						dblPosition[1] = intMapBlueFlag[1] + 1.5;
 						dblPosition[2] = intMapBlueFlag[2] + 0.5;
-						
+
 						dblVerlet[0] = dblPosition[0];
 						dblVerlet[1] = dblPosition[1];
 						dblVerlet[2] = dblPosition[2];
 						
-						dblRotation[1] = (new Date().getTime() * 0.0008) % (2 * Math.PI);
+						dblRotation[1] = (new Date().getTime() * 0.0008) % (2.0 * Math.PI);
 					}
 					
 					Gameserver.itemHandle['itemBlueFlag'] = {
 						'strIdent': 'itemBlueFlag',
 						'strItem': 'itemFlag',
+						'dblSize': [ 1.0, 1.0, 1.0 ],
+						'dblMaxvel': [ 0.12, 0.26, 0.12 ],
 						'dblPosition': dblPosition,
 						'dblVerlet': dblVerlet,
-						'dblRotation': dblRotation,
-						'dblAcceleration': [ 0.0, 0.0, 0.0 ]
+						'dblAcceleration': [ 0.0, 0.0, 0.0 ],
+						'dblRotation': dblRotation
 					};
 				}
 			};
@@ -1004,7 +1060,7 @@ var Gameserver = {
 						{
 							if (itemHandle.strItem === 'itemFlag') {
 								{
-									itemHandle.dblRotation[1] = (new Date().getTime() * 0.0008) % (2 * Math.PI);
+									itemHandle.dblRotation[1] = (new Date().getTime() * 0.0008) % (2.0 * Math.PI);
 								}
 								
 								{
@@ -1013,15 +1069,52 @@ var Gameserver = {
 								
 								{
 									Physics.update(itemHandle);
+								}
+								
+								{
+									var dblVelocityX = itemHandle.dblPosition[0] - itemHandle.dblVerlet[0];
+									var dblVelocityY = itemHandle.dblPosition[1] - itemHandle.dblVerlet[1];
+									var dblVelocityZ = itemHandle.dblPosition[2] - itemHandle.dblVerlet[2];
+
+									dblVelocityX *= 0.8;
+									dblVelocityY *= 1.0;
+									dblVelocityZ *= 0.8;
+									
+									itemHandle.dblPosition[0] = itemHandle.dblVerlet[0] + dblVelocityX;
+									itemHandle.dblPosition[1] = itemHandle.dblVerlet[1] + dblVelocityY;
+									itemHandle.dblPosition[2] = itemHandle.dblVerlet[2] + dblVelocityZ;
 								}
 								
 							} else if (itemHandle.strItem === 'itemArrow') {
 								{
-									itemHandle.dblAcceleration[1] -= 0.01;
+									itemHandle.dblAcceleration[1] -= 0.001;
 								}
 								
 								{
 									Physics.update(itemHandle);
+								}
+								
+								{
+									var dblVelocityX = itemHandle.dblPosition[0] - itemHandle.dblVerlet[0];
+									var dblVelocityY = itemHandle.dblPosition[1] - itemHandle.dblVerlet[1];
+									var dblVelocityZ = itemHandle.dblPosition[2] - itemHandle.dblVerlet[2];
+
+									itemHandle.dblRotation[0] = 0.0;
+									itemHandle.dblRotation[1] = Math.atan2(dblVelocityX, dblVelocityZ);
+									itemHandle.dblRotation[2] = Math.atan2(dblVelocityY, dblVelocityX);
+								}
+								
+								{
+									if (itemHandle.boolCollisionTop === true) {
+										// delete Gameserver.itemHandle[strIdent]
+										
+									} else if (itemHandle.boolCollisionSide === true) {
+										// delete Gameserver.itemHandle[strIdent]
+										
+									} else if (itemHandle.boolCollisionBottom === true) {
+										// delete Gameserver.itemHandle[strIdent]
+										
+									}
 								}
 								
 							}
@@ -1039,9 +1132,11 @@ var Gameserver = {
 							jsonHandle.push({
 								'a': itemHandle.strIdent,
 								'b': itemHandle.strItem,
-								'c': itemHandle.dblPosition,
-								'd': itemHandle.dblVerlet,
-								'e': itemHandle.dblRotation
+								'c': itemHandle.dblSize,
+								'd': itemHandle.dblMaxvel,
+								'e': itemHandle.dblPosition,
+								'f': itemHandle.dblVerlet,
+								'g': itemHandle.dblRotation
 							});
 						}
 				    }
@@ -1220,36 +1315,53 @@ var Physics = {
 			var dblVelocityY = physicsHandle.dblPosition[1] - physicsHandle.dblVerlet[1];
 			var dblVelocityZ = physicsHandle.dblPosition[2] - physicsHandle.dblVerlet[2];
 			
-			if (dblVelocityX > 0.12) {
-				dblVelocityX = 0.12;
+			if (physicsHandle.dblMaxvel.length === 1) {
+				{
+					var dblLength = Math.sqrt((dblVelocityX * dblVelocityX) + (dblVelocityY * dblVelocityY) + (dblVelocityZ * dblVelocityZ));
+					
+					if (Math.abs(dblLength) > physicsHandle.dblMaxvel[0]) {
+						dblVelocityX *= physicsHandle.dblMaxvel[0] / dblLength;
+						dblVelocityY *= physicsHandle.dblMaxvel[0] / dblLength;
+						dblVelocityZ *= physicsHandle.dblMaxvel[0] / dblLength;
+						
+					} else if (Math.abs(dblLength) < 0.0001) {
+						dblVelocityX = 0.0;
+						dblVelocityY = 0.0;
+						dblVelocityZ = 0.0;
+						
+					}
+				}
 				
-			} else if (dblVelocityX < -0.12) {
-				dblVelocityX = -0.12;
+			} else if (physicsHandle.dblMaxvel.length === 3) {
+				{
+					if (Math.abs(dblVelocityX) > physicsHandle.dblMaxvel[0]) {
+						dblVelocityX = (dblVelocityX > 0.0 ? 1.0 : -1.0) * physicsHandle.dblMaxvel[0];
+						
+					} else if (Math.abs(dblVelocityX) < 0.0001) {
+						dblVelocityX = 0.0;
+						
+					}
+				}
 				
-			} else if (Math.abs(dblVelocityX) < 0.0001) {
-				dblVelocityX = 0.0;
+				{
+					if (Math.abs(dblVelocityY) > physicsHandle.dblMaxvel[1]) {
+						dblVelocityY = (dblVelocityY > 0.0 ? 1.0 : -1.0) * physicsHandle.dblMaxvel[1];
+						
+					} else if (Math.abs(dblVelocityY) < 0.0001) {
+						dblVelocityY = 0.0;
+						
+					}
+				}
 				
-			}
-			
-			if (dblVelocityY > 0.18) {
-				dblVelocityY = 0.18;
-				
-			} else if (dblVelocityY < -0.18) {
-				dblVelocityY = -0.18;
-				
-			} else if (Math.abs(dblVelocityY) < 0.0001) {
-				dblVelocityY = 0.0;
-				
-			}
-			
-			if (dblVelocityZ > 0.12) {
-				dblVelocityZ = 0.12;
-				
-			} else if (dblVelocityZ < -0.12) {
-				dblVelocityZ = -0.12;
-				
-			} else if (Math.abs(dblVelocityZ) < 0.0001) {
-				dblVelocityZ = 0.0;
+				{
+					if (Math.abs(dblVelocityZ) > physicsHandle.dblMaxvel[2]) {
+						dblVelocityZ = (dblVelocityZ > 0.0 ? 1.0 : -1.0) * physicsHandle.dblMaxvel[2];
+						
+					} else if (Math.abs(dblVelocityZ) < 0.0001) {
+						dblVelocityZ = 0.0;
+						
+					}
+				}
 				
 			}
 			
@@ -1262,10 +1374,10 @@ var Physics = {
 			physicsHandle.boolCollisionTop = false;
 			physicsHandle.boolCollisionSide = false;
 			physicsHandle.boolCollisionBottom = false;
-			
-			for (var intFor1 = -1; intFor1 < 2; intFor1 += 1) {
-				for (var intFor2 = -1; intFor2 < 2; intFor2 += 1) {
-					for (var intFor3 = -1; intFor3 < 2; intFor3 += 1) {
+
+			for (var intFor1 = 1; intFor1 > -2; intFor1 -= 1) {
+				for (var intFor2 = 1; intFor2 > -2; intFor2 -= 1) {
+					for (var intFor3 = 1; intFor3 > -2; intFor3 -= 1) {
 						var intX = Math.floor(physicsHandle.dblPosition[0]) + intFor1;
 						var intY = Math.floor(physicsHandle.dblPosition[1]) + intFor2;
 						var intZ = Math.floor(physicsHandle.dblPosition[2]) + intFor3;
@@ -1276,7 +1388,7 @@ var Physics = {
 								
 							} else if (Gameserver.strMapType[[intX, intY, intZ ]] === '') {
 								continue;
-	
+								
 							}
 						}
 						
@@ -1288,11 +1400,11 @@ var Physics = {
 							var dblIntersectX = 0.0;
 							var dblIntersectY = 0.0;
 							var dblIntersectZ = 0.0;
-		
+							
 							{
-								dblIntersectX = Math.abs(physicsHandle.dblPosition[0] - dblVoxelX) - 1.0;
-								dblIntersectY = Math.abs(physicsHandle.dblPosition[1] - dblVoxelY) - 1.0;
-								dblIntersectZ = Math.abs(physicsHandle.dblPosition[2] - dblVoxelZ) - 1.0;
+								dblIntersectX = Math.abs(physicsHandle.dblPosition[0] - dblVoxelX) - (0.5 * physicsHandle.dblSize[0]) - (0.5 * 1.0);
+								dblIntersectY = Math.abs(physicsHandle.dblPosition[1] - dblVoxelY) - (0.5 * physicsHandle.dblSize[1]) - (0.5 * 1.0);
+								dblIntersectZ = Math.abs(physicsHandle.dblPosition[2] - dblVoxelZ) - (0.5 * physicsHandle.dblSize[2]) - (0.5 * 1.0);
 								
 								if (dblIntersectX >= 0.0) {
 									continue;

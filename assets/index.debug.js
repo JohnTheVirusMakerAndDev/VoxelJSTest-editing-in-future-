@@ -689,21 +689,21 @@ var Voxel = {
 				}
 				
 				{
-					var dblItem = 0.0;
-					
 					if (strItem === '') {
-						dblItem = 0.0 * Math.PI;
+						minecraftskinHandle.rightArm.rotation.z = 2 * Math.cos((6.666 * intWalktime) + (0.5 * Math.PI) + Math.PI);
+						minecraftskinHandle.leftArm.rotation.z = 2 * Math.cos((6.666 * intWalktime) + (0.5 * Math.PI));
+						
+						minecraftskinHandle.rightLeg.rotation.z = 1.4 * Math.cos((6.666 * intWalktime) + (0.5 * Math.PI));
+						minecraftskinHandle.leftLeg.rotation.z = 1.4 * Math.cos((6.666 * intWalktime) + (0.5 * Math.PI) + Math.PI);
 						
 					} else if (strItem !== '') {
-						dblItem = 0.1 * Math.PI;
+						minecraftskinHandle.rightArm.rotation.z = 2 * Math.cos((6.666 * intWalktime) + (0.5 * Math.PI) + Math.PI + (0.1 * Math.PI));
+						minecraftskinHandle.leftArm.rotation.z = 2 * Math.cos((6.666 * intWalktime) + (0.5 * Math.PI));
+						
+						minecraftskinHandle.rightLeg.rotation.z = 1.4 * Math.cos((6.666 * intWalktime) + (0.5 * Math.PI));
+						minecraftskinHandle.leftLeg.rotation.z = 1.4 * Math.cos((6.666 * intWalktime) + (0.5 * Math.PI) + Math.PI);
 						
 					}
-					
-					minecraftskinHandle.rightArm.rotation.z = 2 * Math.cos((6.666 * intWalktime) + (0.5 * Math.PI) + Math.PI + dblItem);
-					minecraftskinHandle.leftArm.rotation.z = 2 * Math.cos((6.666 * intWalktime) + (0.5 * Math.PI));
-					
-					minecraftskinHandle.rightLeg.rotation.z = 1.4 * Math.cos((6.666 * intWalktime) + (0.5 * Math.PI));
-					minecraftskinHandle.leftLeg.rotation.z = 1.4 * Math.cos((6.666 * intWalktime) + (0.5 * Math.PI) + Math.PI);
 				}
 			};
 		}
@@ -722,6 +722,9 @@ var Voxel = {
 
 						} else if (strItem === 'itemBow') {
 							contextHandle.drawImage(jQuery('#idItemBow').get(0), 0, 0);
+
+						} else if (strItem === 'itemArrow') {
+							contextHandle.drawImage(jQuery('#idItemArrow').get(0), 0, 0);
 
 						} else if (strItem === 'itemRedFlag') {
 							contextHandle.drawImage(jQuery('#idItemRedFlag').get(0), 0, 0);
@@ -764,7 +767,7 @@ var Voxel = {
 										{
 											cubegeometryHandle.vertices[intFor3].x += dblScale * (8.0 - intFor1);
 											cubegeometryHandle.vertices[intFor3].y += dblScale * (8.0 - intFor2);
-											cubegeometryHandle.vertices[intFor3].z += dblScale * (0.0);
+											cubegeometryHandle.vertices[intFor3].z += 0.0;
 										}
 									}
 									
@@ -861,6 +864,10 @@ var Socket = {
 							}
 							
 							{
+								Gui.update();
+							}
+							
+							{
 								jQuery('#idLogin_Message')
 									.text(jsonHandle.strMessage)
 								;
@@ -887,6 +894,10 @@ var Socket = {
 						} else if (jsonHandle.strType === 'typeAccept') {
 							{
 								Gui.strMode = 'modeMenu';
+							}
+							
+							{
+								Gui.update();
 							}
 							
 						}
@@ -1121,9 +1132,11 @@ var Socket = {
 							{
 								itemHandle.strIdent = itemHandle.a;
 								itemHandle.strItem = itemHandle.b;
-								itemHandle.dblPosition = itemHandle.c;
-								itemHandle.dblVerlet = itemHandle.d;
-								itemHandle.dblRotation = itemHandle.e;
+								itemHandle.dblSize = itemHandle.c;
+								itemHandle.dblMaxvel = itemHandle.d;
+								itemHandle.dblPosition = itemHandle.e;
+								itemHandle.dblVerlet = itemHandle.f;
+								itemHandle.dblRotation = itemHandle.g;
 							}
 							
 							{
@@ -1137,6 +1150,8 @@ var Socket = {
 									'strIdent': itemHandle.strIdent,
 									'strTeam': itemHandle.strTeam,
 									'strItem': itemHandle.strItem,
+									'dblSize': itemHandle.dblSize,
+									'dblMaxvel': itemHandle.dblMaxvel,
 									'dblPosition': itemHandle.dblPosition,
 									'dblVerlet': itemHandle.dblVerlet,
 									'dblRotation': itemHandle.dblRotation,
@@ -1714,35 +1729,23 @@ var Player = {
 	update: function() {
 		{
 			if (Input.boolUp === true) {
-				var dblRotationX = Math.sin(Player.minecraftskinHandle.mesh.rotation.y);
-				var dblRotationZ = Math.cos(Player.minecraftskinHandle.mesh.rotation.y);
-
-				Player.dblAcceleration[0] -= 0.03 * dblRotationX;
-				Player.dblAcceleration[2] -= 0.03 * dblRotationZ;
+				Player.dblAcceleration[0] -= 0.03 * Math.sin(Player.minecraftskinHandle.mesh.rotation.y);
+				Player.dblAcceleration[2] -= 0.03 * Math.cos(Player.minecraftskinHandle.mesh.rotation.y);
 			}
 			
 			if (Input.boolDown === true) {
-				var dblRotationX = Math.sin(Player.minecraftskinHandle.mesh.rotation.y);
-				var dblRotationZ = Math.cos(Player.minecraftskinHandle.mesh.rotation.y);
-
-				Player.dblAcceleration[0] += 0.03 * dblRotationX;
-				Player.dblAcceleration[2] += 0.03 * dblRotationZ;
+				Player.dblAcceleration[0] += 0.03 * Math.sin(Player.minecraftskinHandle.mesh.rotation.y);
+				Player.dblAcceleration[2] += 0.03 * Math.cos(Player.minecraftskinHandle.mesh.rotation.y);
 			}
 			
 			if (Input.boolLeft === true) {
-				var dblRotationX = Math.sin(Player.minecraftskinHandle.mesh.rotation.y + (0.5 * Math.PI));
-				var dblRotationZ = Math.cos(Player.minecraftskinHandle.mesh.rotation.y + (0.5 * Math.PI));
-
-				Player.dblAcceleration[0] -= 0.03 * dblRotationX;
-				Player.dblAcceleration[2] -= 0.03 * dblRotationZ;
+				Player.dblAcceleration[0] -= 0.03 * Math.sin(Player.minecraftskinHandle.mesh.rotation.y + (0.5 * Math.PI));
+				Player.dblAcceleration[2] -= 0.03 * Math.cos(Player.minecraftskinHandle.mesh.rotation.y + (0.5 * Math.PI));
 			}
 			
 			if (Input.boolRight === true) {
-				var dblRotationX = Math.sin(Player.minecraftskinHandle.mesh.rotation.y + (0.5 * Math.PI));
-				var dblRotationZ = Math.cos(Player.minecraftskinHandle.mesh.rotation.y + (0.5 * Math.PI));
-
-				Player.dblAcceleration[0] += 0.03 * dblRotationX;
-				Player.dblAcceleration[2] += 0.03 * dblRotationZ;
+				Player.dblAcceleration[0] += 0.03 * Math.sin(Player.minecraftskinHandle.mesh.rotation.y + (0.5 * Math.PI));
+				Player.dblAcceleration[2] += 0.03 * Math.cos(Player.minecraftskinHandle.mesh.rotation.y + (0.5 * Math.PI));
 			}
 			
 			if (Input.boolSpace === true) {
@@ -1777,6 +1780,9 @@ var Player = {
 		}
 		
 		{
+			Player.dblSize = [ 1.0, 1.6, 1.0 ];
+			Player.dblMaxvel = [ 0.12, 0.26, 0.12 ];
+			
 			Physics.update(Player);
 		}
 		
@@ -1788,7 +1794,7 @@ var Player = {
 
 		{
 			Player.minecraftskinHandle.mesh.position.x = Player.dblPosition[0];
-			Player.minecraftskinHandle.mesh.position.y = Player.dblPosition[1] - 0.5;
+			Player.minecraftskinHandle.mesh.position.y = Player.dblPosition[1] - 0.8;
 			Player.minecraftskinHandle.mesh.position.z = Player.dblPosition[2];
 		}
 		
@@ -1859,6 +1865,9 @@ var Enemy = {
 				}
 				
 				{
+					enemyHandle.dblSize = [ 1.0, 1.6, 1.0 ];
+					enemyHandle.dblMaxvel = [ 0.12, 0.26, 0.12 ];
+					
 					Physics.update(enemyHandle);
 				}
 
@@ -1887,7 +1896,7 @@ var Enemy = {
 
 					{
 						minecraftskinHandle.mesh.position.x = enemyHandle.dblPosition[0];
-						minecraftskinHandle.mesh.position.y = enemyHandle.dblPosition[1] - 0.5;
+						minecraftskinHandle.mesh.position.y = enemyHandle.dblPosition[1] - 0.8;
 						minecraftskinHandle.mesh.position.z = enemyHandle.dblPosition[2];
 
 						minecraftskinHandle.mesh.head.rotation.x = enemyHandle.dblRotation[0];
@@ -1937,7 +1946,13 @@ var Item = {
 		}
 		
 		{
-			Item.meshArrow = [];
+			for (var intFor1 = 0; intFor1 < 16; intFor1 += 1) {
+				{
+					var meshHandle = Voxel.itemCreate('itemArrow', 0.04);
+					
+					Item.meshArrow.push(meshHandle);
+				}
+			}
 		}
 	},
 	
@@ -1959,6 +1974,10 @@ var Item = {
 		{
 			if (Socket.itemHandle.hasOwnProperty('itemRedFlag') === true) {
 				var itemHandle = Socket.itemHandle['itemRedFlag'];
+
+				{
+					itemHandle.dblAcceleration[1] -= 0.01;
+				}
 				
 				{
 					Physics.update(itemHandle);
@@ -1977,6 +1996,10 @@ var Item = {
 			
 			if (Socket.itemHandle.hasOwnProperty('itemBlueFlag') === true) {
 				var itemHandle = Socket.itemHandle['itemBlueFlag'];
+
+				{
+					itemHandle.dblAcceleration[1] -= 0.01;
+				}
 				
 				{
 					Physics.update(itemHandle);
@@ -1995,7 +2018,81 @@ var Item = {
 		}
 		
 		{
+			{
+				for (var intFor1 = 0; intFor1 < Item.meshArrow.length; intFor1 += 1) {
+					var meshHandle = Item.meshArrow[intFor1];
+
+					if (meshHandle.parent === undefined) {
+						continue;
+					}
+					
+					{
+						Voxel.voxelengineHandle.scene.remove(meshHandle);
+					}
+				}
+			}
 			
+			{
+				for (var strIdent in Socket.itemHandle) {
+					var itemHandle = Socket.itemHandle[strIdent];
+					
+					if (itemHandle.strItem !== 'itemArrow') {
+						continue;
+					}
+
+					{
+						itemHandle.dblAcceleration[1] -= 0.01;
+					}
+					
+					{
+						Physics.update(itemHandle);
+					}
+					
+					{
+						var dblVelocityX = itemHandle.dblPosition[0] - itemHandle.dblVerlet[0];
+						var dblVelocityY = itemHandle.dblPosition[1] - itemHandle.dblVerlet[1];
+						var dblVelocityZ = itemHandle.dblPosition[2] - itemHandle.dblVerlet[2];
+
+						itemHandle.dblRotation[0] = 0.0;
+						itemHandle.dblRotation[1] = Math.atan2(dblVelocityX, dblVelocityZ);
+						itemHandle.dblRotation[2] = Math.atan2(dblVelocityY, dblVelocityX);
+					}
+
+					{
+						var meshHandle = null;
+						
+						{
+							for (var intFor1 = 0; intFor1 < Item.meshArrow.length; intFor1 += 1) {
+								if (Item.meshArrow[intFor1].parent !== undefined) {
+									continue;
+								}
+								
+								{
+									meshHandle = Item.meshArrow[intFor1];
+								}
+								
+								{
+									break;
+								}
+							}
+						}
+						
+						{
+							Voxel.voxelengineHandle.scene.add(meshHandle);
+						}
+
+						{
+							meshHandle.position.x = itemHandle.dblPosition[0];
+							meshHandle.position.y = itemHandle.dblPosition[1];
+							meshHandle.position.z = itemHandle.dblPosition[2];
+							
+							meshHandle.rotation.x = itemHandle.dblRotation[0];
+							meshHandle.rotation.y = itemHandle.dblRotation[1] + (1.5 * Math.PI);
+							meshHandle.rotation.z = itemHandle.dblRotation[2] + (1.25 * Math.PI);
+						}
+					}
+				}
+			}
 		}
 	}
 };
@@ -2033,36 +2130,53 @@ var Physics = {
 			var dblVelocityY = physicsHandle.dblPosition[1] - physicsHandle.dblVerlet[1];
 			var dblVelocityZ = physicsHandle.dblPosition[2] - physicsHandle.dblVerlet[2];
 			
-			if (dblVelocityX > 0.12) {
-				dblVelocityX = 0.12;
+			if (physicsHandle.dblMaxvel.length === 1) {
+				{
+					var dblLength = Math.sqrt((dblVelocityX * dblVelocityX) + (dblVelocityY * dblVelocityY) + (dblVelocityZ * dblVelocityZ));
+					
+					if (Math.abs(dblLength) > physicsHandle.dblMaxvel[0]) {
+						dblVelocityX *= physicsHandle.dblMaxvel[0] / dblLength;
+						dblVelocityY *= physicsHandle.dblMaxvel[0] / dblLength;
+						dblVelocityZ *= physicsHandle.dblMaxvel[0] / dblLength;
+						
+					} else if (Math.abs(dblLength) < 0.0001) {
+						dblVelocityX = 0.0;
+						dblVelocityY = 0.0;
+						dblVelocityZ = 0.0;
+						
+					}
+				}
 				
-			} else if (dblVelocityX < -0.12) {
-				dblVelocityX = -0.12;
+			} else if (physicsHandle.dblMaxvel.length === 3) {
+				{
+					if (Math.abs(dblVelocityX) > physicsHandle.dblMaxvel[0]) {
+						dblVelocityX = (dblVelocityX > 0.0 ? 1.0 : -1.0) * physicsHandle.dblMaxvel[0];
+						
+					} else if (Math.abs(dblVelocityX) < 0.0001) {
+						dblVelocityX = 0.0;
+						
+					}
+				}
 				
-			} else if (Math.abs(dblVelocityX) < 0.0001) {
-				dblVelocityX = 0.0;
+				{
+					if (Math.abs(dblVelocityY) > physicsHandle.dblMaxvel[1]) {
+						dblVelocityY = (dblVelocityY > 0.0 ? 1.0 : -1.0) * physicsHandle.dblMaxvel[1];
+						
+					} else if (Math.abs(dblVelocityY) < 0.0001) {
+						dblVelocityY = 0.0;
+						
+					}
+				}
 				
-			}
-			
-			if (dblVelocityY > 0.18) {
-				dblVelocityY = 0.18;
-				
-			} else if (dblVelocityY < -0.18) {
-				dblVelocityY = -0.18;
-				
-			} else if (Math.abs(dblVelocityY) < 0.0001) {
-				dblVelocityY = 0.0;
-				
-			}
-			
-			if (dblVelocityZ > 0.12) {
-				dblVelocityZ = 0.12;
-				
-			} else if (dblVelocityZ < -0.12) {
-				dblVelocityZ = -0.12;
-				
-			} else if (Math.abs(dblVelocityZ) < 0.0001) {
-				dblVelocityZ = 0.0;
+				{
+					if (Math.abs(dblVelocityZ) > physicsHandle.dblMaxvel[2]) {
+						dblVelocityZ = (dblVelocityZ > 0.0 ? 1.0 : -1.0) * physicsHandle.dblMaxvel[2];
+						
+					} else if (Math.abs(dblVelocityZ) < 0.0001) {
+						dblVelocityZ = 0.0;
+						
+					}
+				}
 				
 			}
 			
@@ -2076,9 +2190,9 @@ var Physics = {
 			physicsHandle.boolCollisionSide = false;
 			physicsHandle.boolCollisionBottom = false;
 			
-			for (var intFor1 = -1; intFor1 < 2; intFor1 += 1) {
-				for (var intFor2 = -1; intFor2 < 2; intFor2 += 1) {
-					for (var intFor3 = -1; intFor3 < 2; intFor3 += 1) {
+			for (var intFor1 = 1; intFor1 > -2; intFor1 -= 1) {
+				for (var intFor2 = 1; intFor2 > -2; intFor2 -= 1) {
+					for (var intFor3 = 1; intFor3 > -2; intFor3 -= 1) {
 						var intX = Math.floor(physicsHandle.dblPosition[0]) + intFor1;
 						var intY = Math.floor(physicsHandle.dblPosition[1]) + intFor2;
 						var intZ = Math.floor(physicsHandle.dblPosition[2]) + intFor3;
@@ -2101,11 +2215,11 @@ var Physics = {
 							var dblIntersectX = 0.0;
 							var dblIntersectY = 0.0;
 							var dblIntersectZ = 0.0;
-		
+							
 							{
-								dblIntersectX = Math.abs(physicsHandle.dblPosition[0] - dblVoxelX) - 1.0;
-								dblIntersectY = Math.abs(physicsHandle.dblPosition[1] - dblVoxelY) - 1.0;
-								dblIntersectZ = Math.abs(physicsHandle.dblPosition[2] - dblVoxelZ) - 1.0;
+								dblIntersectX = Math.abs(physicsHandle.dblPosition[0] - dblVoxelX) - (0.5 * physicsHandle.dblSize[0]) - (0.5 * 1.0);
+								dblIntersectY = Math.abs(physicsHandle.dblPosition[1] - dblVoxelY) - (0.5 * physicsHandle.dblSize[1]) - (0.5 * 1.0);
+								dblIntersectZ = Math.abs(physicsHandle.dblPosition[2] - dblVoxelZ) - (0.5 * physicsHandle.dblSize[2]) - (0.5 * 1.0);
 								
 								if (dblIntersectX >= 0.0) {
 									continue;
@@ -2236,8 +2350,20 @@ jQuery(document).ready(function() {
 				
 			} else if (Gui.strChooserCategory === 'categoryWeapon') {
 				if (Gui.intChooserType === 0) {
+					// TODO:  maybe fix position
+					
+					Socket.socketHandle.emit('weaponHandle', {
+						'strWeapon': 'weaponSword',
+						'dblRotation': [ Player.minecraftskinHandle.mesh.head.rotation.x, Player.minecraftskinHandle.mesh.rotation.y, 0.0 ]
+					});
 					
 				} else if (Gui.intChooserType === 1) {
+					// TODO:  maybe fix position
+					
+					Socket.socketHandle.emit('weaponHandle', {
+						'strWeapon': 'weaponBow',
+						'dblRotation': [ Player.minecraftskinHandle.mesh.head.rotation.x, Player.minecraftskinHandle.mesh.rotation.y, 0.0 ]
+					});
 					
 				}
 				
