@@ -1,19 +1,23 @@
 var Constants = {
-	dblPlayerSize: [ 1.0, 1.6, 1.0 ],
+	intPlayerHealth: 100,
+	dblPlayerMovement: [ 0.03, 0.18, 0.03 ],
+	dblPlayerSize: [ 0.9, 1.6, 0.9 ],
 	dblPlayerGravity: [ 0.0, -0.01, 0.0 ],
-	dblPlayerMaxvel: [ 0.12, 0.26, 0.12 ],
+	dblPlayerMaxvel: [ 0.08, 0.26, 0.08 ],
 	dblPlayerFriction: [ 0.8, 1.0, 0.8 ],
 	dblPlayerHitbox: [ 0.4, 0.9, 0.4 ],
-
+	
 	dblFlagSize: [ 1.0, 1.0, 1.0 ],
 	dblFlagGravity: [ 0.0, -0.01, 0.0 ],
-	dblFlagMaxvel: [ 0.12, 0.26, 0.12 ],
+	dblFlagMaxvel: [ 0.08, 0.26, 0.08 ],
 	dblFlagFriction: [ 0.8, 1.0, 0.8 ],
 	
 	dblArrowSize: [ 0.3, 0.3, 0.3],
 	dblArrowGravity: [ 0.0, -0.001, 0.0 ],
 	dblArrowMaxvel: [ 0.26 ],
-	dblArrowFriction: [ 1.0, 1.0, 1.0 ]
+	dblArrowFriction: [ 1.0, 1.0, 1.0 ],
+	
+	intWeaponDuration: 33
 };
 
 var Settings = {
@@ -652,7 +656,7 @@ var Voxel = {
 					minecraftskinHandle.meshBow = Voxel.itemCreate('itemBow', 1.0);
 					
 					minecraftskinHandle.meshBow.position.x = 0.0;
-					minecraftskinHandle.meshBow.position.y = 0.0 - 6.0;
+					minecraftskinHandle.meshBow.position.y = 0.0 - 7.5;
 					minecraftskinHandle.meshBow.position.z = 0.0;
 					
 					minecraftskinHandle.meshBow.rotation.x = 0.0;
@@ -1613,6 +1617,8 @@ var Player = {
 	
 	strTeam: '',
 	strItem: '',
+	
+	intHealth: 0,
 
 	dblPosition: [ 0.0, 0.0, 0.0 ],
 	dblVerlet: [ 0.0, 0.0, 0.0 ],
@@ -1717,23 +1723,23 @@ var Player = {
 	update: function() {
 		{
 			if (Input.boolUp === true) {
-				Player.dblAcceleration[0] -= 0.03 * Math.sin(Player.minecraftskinHandle.mesh.rotation.y);
-				Player.dblAcceleration[2] -= 0.03 * Math.cos(Player.minecraftskinHandle.mesh.rotation.y);
+				Player.dblAcceleration[0] -= Constants.dblPlayerMovement[0] * Math.sin(Player.minecraftskinHandle.mesh.rotation.y);
+				Player.dblAcceleration[2] -= Constants.dblPlayerMovement[0] * Math.cos(Player.minecraftskinHandle.mesh.rotation.y);
 			}
 			
 			if (Input.boolDown === true) {
-				Player.dblAcceleration[0] += 0.03 * Math.sin(Player.minecraftskinHandle.mesh.rotation.y);
-				Player.dblAcceleration[2] += 0.03 * Math.cos(Player.minecraftskinHandle.mesh.rotation.y);
+				Player.dblAcceleration[0] += Constants.dblPlayerMovement[0] * Math.sin(Player.minecraftskinHandle.mesh.rotation.y);
+				Player.dblAcceleration[2] += Constants.dblPlayerMovement[0] * Math.cos(Player.minecraftskinHandle.mesh.rotation.y);
 			}
 			
 			if (Input.boolLeft === true) {
-				Player.dblAcceleration[0] -= 0.03 * Math.sin(Player.minecraftskinHandle.mesh.rotation.y + (0.5 * Math.PI));
-				Player.dblAcceleration[2] -= 0.03 * Math.cos(Player.minecraftskinHandle.mesh.rotation.y + (0.5 * Math.PI));
+				Player.dblAcceleration[0] -= Constants.dblPlayerMovement[2] * Math.sin(Player.minecraftskinHandle.mesh.rotation.y + (0.5 * Math.PI));
+				Player.dblAcceleration[2] -= Constants.dblPlayerMovement[2] * Math.cos(Player.minecraftskinHandle.mesh.rotation.y + (0.5 * Math.PI));
 			}
 			
 			if (Input.boolRight === true) {
-				Player.dblAcceleration[0] += 0.03 * Math.sin(Player.minecraftskinHandle.mesh.rotation.y + (0.5 * Math.PI));
-				Player.dblAcceleration[2] += 0.03 * Math.cos(Player.minecraftskinHandle.mesh.rotation.y + (0.5 * Math.PI));
+				Player.dblAcceleration[0] += Constants.dblPlayerMovement[2] * Math.sin(Player.minecraftskinHandle.mesh.rotation.y + (0.5 * Math.PI));
+				Player.dblAcceleration[2] += Constants.dblPlayerMovement[2] * Math.cos(Player.minecraftskinHandle.mesh.rotation.y + (0.5 * Math.PI));
 			}
 			
 			if (Input.boolSpace === true) {
@@ -1743,7 +1749,7 @@ var Player = {
 					}
 					
 					{
-						Player.dblAcceleration[1] += 1.0;
+						Player.dblAcceleration[1] += Constants.dblPlayerMovement[1];
 					}
 				}
 			}
@@ -1760,7 +1766,9 @@ var Player = {
 		
 		{
 			if (Player.boolCollisionBottom === true) {
-				Player.intJumpcount = 1;
+				if (Math.abs(Player.dblPosition[1] - Player.dblVerlet[1]) < 0.0001) {
+					Player.intJumpcount = 1;
+				}
 			}
 		}
 

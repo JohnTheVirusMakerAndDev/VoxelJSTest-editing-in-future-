@@ -1,4 +1,5 @@
 var Constants = {
+	intPlayerMaxhealth: 100,
 	dblPlayerSize: [ 1.0, 1.6, 1.0 ],
 	dblPlayerGravity: [ 0.0, 0.0, 0.0 ],
 	dblPlayerMaxvel: [ 0.12, 0.26, 0.12 ],

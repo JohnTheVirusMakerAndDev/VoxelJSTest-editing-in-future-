@@ -215,7 +215,8 @@ var Node = {
 				'dblPosition': [ 0.0, 0.0, 0.0 ],
 				'dblVerlet': [ 0.0, 0.0, 0.0 ],
 				'dblAcceleration': [ 0.0, 0.0, 0.0 ],
-				'dblRotation': [ 0.0, 0.0, 0.0 ]
+				'dblRotation': [ 0.0, 0.0, 0.0 ],
+				'intLastweapon': 0
 			};
 		}
 		
@@ -553,6 +554,14 @@ var Node = {
 				return;
 			}
 			
+			if (Gameserver.playerHandle[socketHandle.strIdent].intLastweapon > 0) {
+				return;
+			}
+			
+			{
+				Gameserver.playerHandle[socketHandle.strIdent].intLastweapon = Constants.intWeaponDuration;
+			}
+			
 			{
 				if (jsonHandle.strWeapon === 'weaponSword') {
 					
@@ -565,9 +574,9 @@ var Node = {
 					var dblRotation = [ 0.0, 0.0, 0.0 ];
 					
 					{
-						dblPosition[0] = Gameserver.playerHandle[socketHandle.strIdent].dblPosition[0] + (-0.3 * Math.sin(Gameserver.playerHandle[socketHandle.strIdent].dblRotation[1])) + (0.3 * Math.sin(Gameserver.playerHandle[socketHandle.strIdent].dblRotation[1] + (0.5 * Math.PI)));
+						dblPosition[0] = Gameserver.playerHandle[socketHandle.strIdent].dblPosition[0] + (0.25 * Math.sin(Gameserver.playerHandle[socketHandle.strIdent].dblRotation[1] + (0.5 * Math.PI)));
 						dblPosition[1] = Gameserver.playerHandle[socketHandle.strIdent].dblPosition[1] + (0.1);
-						dblPosition[2] = Gameserver.playerHandle[socketHandle.strIdent].dblPosition[2] + (-0.3 * Math.cos(Gameserver.playerHandle[socketHandle.strIdent].dblRotation[1])) + (0.3 * Math.cos(Gameserver.playerHandle[socketHandle.strIdent].dblRotation[1] + (0.5 * Math.PI)));
+						dblPosition[2] = Gameserver.playerHandle[socketHandle.strIdent].dblPosition[2] + (0.25 * Math.cos(Gameserver.playerHandle[socketHandle.strIdent].dblRotation[1] + (0.5 * Math.PI)));
 						
 						dblVerlet[0] = dblPosition[0];
 						dblVerlet[1] = dblPosition[1];
@@ -584,6 +593,7 @@ var Node = {
 					
 					Gameserver.itemHandle[strIdent] = {
 						'strIdent': strIdent,
+						'strOwner': Gameserver.playerHandle[socketHandle.strIdent].strIdent,
 						'strItem': 'itemArrow',
 						'dblPosition': dblPosition,
 						'dblVerlet': dblVerlet,
@@ -604,21 +614,25 @@ var Node = {
 }
 
 var Constants = {
-	dblPlayerSize: [ 1.0, 1.6, 1.0 ],
+	intPlayerHealth: 100,
+	dblPlayerMovement: [ 0.03, 0.18, 0.03 ],
+	dblPlayerSize: [ 0.9, 1.6, 0.9 ],
 	dblPlayerGravity: [ 0.0, -0.01, 0.0 ],
-	dblPlayerMaxvel: [ 0.12, 0.26, 0.12 ],
+	dblPlayerMaxvel: [ 0.08, 0.26, 0.08 ],
 	dblPlayerFriction: [ 0.8, 1.0, 0.8 ],
 	dblPlayerHitbox: [ 0.4, 0.9, 0.4 ],
-
+	
 	dblFlagSize: [ 1.0, 1.0, 1.0 ],
 	dblFlagGravity: [ 0.0, -0.01, 0.0 ],
-	dblFlagMaxvel: [ 0.12, 0.26, 0.12 ],
+	dblFlagMaxvel: [ 0.08, 0.26, 0.08 ],
 	dblFlagFriction: [ 0.8, 1.0, 0.8 ],
 	
 	dblArrowSize: [ 0.3, 0.3, 0.3],
 	dblArrowGravity: [ 0.0, -0.001, 0.0 ],
 	dblArrowMaxvel: [ 0.26 ],
-	dblArrowFriction: [ 1.0, 1.0, 1.0 ]
+	dblArrowFriction: [ 1.0, 1.0, 1.0 ],
+	
+	intWeaponDuration: 33
 };
 
 var Gameserver = {
@@ -840,7 +854,7 @@ var Gameserver = {
 		}
 		
 		{
-			Gameserver.strPhaseActive = 'Combat'; // TODO: change backto 'Build'
+			Gameserver.strPhaseActive = 'Build';
 			
 			Gameserver.intPhaseRemaining = process.env.intPhaseRemaining;
 			
@@ -971,6 +985,20 @@ var Gameserver = {
 						}
 					}
 				}
+				
+				{
+					for (var strIdent in Gameserver.playerHandle) {
+						var playerHandle = Gameserver.playerHandle[strIdent];
+						
+						if (playerHandle === 0) {
+							continue;
+						}
+						
+						{
+							playerHandle.intLastweapon -= 1;
+						}
+					}
+				}
 			};
 			
 			Gameserver.functionPlayerRespawn = function(playerHandle) {
@@ -1025,6 +1053,7 @@ var Gameserver = {
 					
 					Gameserver.itemHandle[strIdent] = {
 						'strIdent': strIdent,
+						'strOwner': 'ownerServer',
 						'strItem': 'itemFlag',
 						'dblPosition': dblPosition,
 						'dblVerlet': dblVerlet,
@@ -1055,6 +1084,7 @@ var Gameserver = {
 					
 					Gameserver.itemHandle[strIdent] = {
 						'strIdent': strIdent,
+						'strOwner': 'ownerServer',
 						'strItem': 'itemFlag',
 						'dblPosition': dblPosition,
 						'dblVerlet': dblVerlet,
@@ -1121,6 +1151,10 @@ var Gameserver = {
 									for (var strIdent in Gameserver.playerHandle) {
 										var playerHandle = Gameserver.playerHandle[strIdent];
 										
+										if (playerHandle.strIdent === itemHandle.strOwner) {
+											continue;
+										}
+										
 										{
 											itemHandle.dblSize = Constants.dblArrowSize;
 											
@@ -1132,11 +1166,18 @@ var Gameserver = {
 										}
 										
 										{
-											// TODO: hit playerHandle
+											delete Gameserver.itemHandle[itemHandle.strIdent];
 										}
 										
 										{
-											delete Gameserver.itemHandle[itemHandle.strIdent];
+											playerHandle.intHealth -= 20;
+										}
+										
+										{
+											playerHandle.socketHandle.emit('weaponHandle', {
+												'intHealth': playerHandle.intHealth,
+												'dblAcceleration': [ 0.0, 0.0, 0.0 ]
+											});
 										}
 
 										{
@@ -1194,8 +1235,6 @@ var Gameserver = {
 			var functionInterval = function() {
 				{
 					Gameserver.functionPhaseUpdate();
-					
-					Gameserver.functionPlayerUpdate();
 				}
 			};
 			
@@ -1207,6 +1246,8 @@ var Gameserver = {
 			
 			var functionInterval = function() {
 				{
+					Gameserver.functionPlayerUpdate();
+					
 					Gameserver.functionItemUpdate();
 				}
 				
