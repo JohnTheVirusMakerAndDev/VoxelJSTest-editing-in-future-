@@ -1,3 +1,21 @@
+var Constants = {
+	dblPlayerSize: [ 1.0, 1.6, 1.0 ],
+	dblPlayerGravity: [ 0.0, -0.01, 0.0 ],
+	dblPlayerMaxvel: [ 0.12, 0.26, 0.12 ],
+	dblPlayerFriction: [ 0.8, 1.0, 0.8 ],
+	dblPlayerHitbox: [ 0.4, 0.9, 0.4 ],
+
+	dblFlagSize: [ 1.0, 1.0, 1.0 ],
+	dblFlagGravity: [ 0.0, -0.01, 0.0 ],
+	dblFlagMaxvel: [ 0.12, 0.26, 0.12 ],
+	dblFlagFriction: [ 0.8, 1.0, 0.8 ],
+	
+	dblArrowSize: [ 0.3, 0.3, 0.3],
+	dblArrowGravity: [ 0.0, -0.001, 0.0 ],
+	dblArrowMaxvel: [ 0.26 ],
+	dblArrowFriction: [ 1.0, 1.0, 1.0 ]
+};
+
 var Settings = {
 	strMapType: {},
 	
@@ -534,13 +552,6 @@ var Voxel = {
 				},
 				'materials': [ 'voxelVoid', 'voxelBrick', 'voxelDirt', 'voxelGrass', 'voxelPlank', 'voxelStone', 'voxelRedSpawn', 'voxelRedFlag', 'voxelBlueSpawn', 'voxelBlueFlag', 'voxelSeparator' ],
 				'controls': {
-					'walkMaxSpeed': 0.008,
-					'runMaxSpeed': 0.008,
-					'jumpMaxSpeed': 0.007,
-					'jumpMaxTimer': 1,
-					'jumpSpeed': 0.007,
-					'jumpSpeedMove': 0.1,
-					'accelTimer': 1,
 					'discreteFire': true
 				},
 				'statsDisabled': true
@@ -616,7 +627,7 @@ var Voxel = {
 				{
 					minecraftskinHandle.meshPickaxe = Voxel.itemCreate('itemPickaxe', 1.0);
 					
-					minecraftskinHandle.meshPickaxe.position.x = 6.0;
+					minecraftskinHandle.meshPickaxe.position.x = 0.0 + 6.0;
 					minecraftskinHandle.meshPickaxe.position.y = 0.0 - 9.5;
 					minecraftskinHandle.meshPickaxe.position.z = 0.0;
 					
@@ -628,7 +639,7 @@ var Voxel = {
 				{
 					minecraftskinHandle.meshSword = Voxel.itemCreate('itemSword', 1.0);
 					
-					minecraftskinHandle.meshSword.position.x = 7.0;
+					minecraftskinHandle.meshSword.position.x = 0.0 + 7.0;
 					minecraftskinHandle.meshSword.position.y = 0.0 - 9.5;
 					minecraftskinHandle.meshSword.position.z = 0.0;
 					
@@ -690,18 +701,32 @@ var Voxel = {
 				
 				{
 					if (strItem === '') {
-						minecraftskinHandle.rightArm.rotation.z = 2 * Math.cos((6.666 * intWalktime) + (0.5 * Math.PI) + Math.PI);
+						minecraftskinHandle.rightArm.rotation.z = 2 * Math.cos((6.666 * intWalktime) + (1.5 * Math.PI));
 						minecraftskinHandle.leftArm.rotation.z = 2 * Math.cos((6.666 * intWalktime) + (0.5 * Math.PI));
 						
 						minecraftskinHandle.rightLeg.rotation.z = 1.4 * Math.cos((6.666 * intWalktime) + (0.5 * Math.PI));
-						minecraftskinHandle.leftLeg.rotation.z = 1.4 * Math.cos((6.666 * intWalktime) + (0.5 * Math.PI) + Math.PI);
+						minecraftskinHandle.leftLeg.rotation.z = 1.4 * Math.cos((6.666 * intWalktime) + (1.5 * Math.PI));
 						
-					} else if (strItem !== '') {
-						minecraftskinHandle.rightArm.rotation.z = 2 * Math.cos((6.666 * intWalktime) + (0.5 * Math.PI) + Math.PI + (0.1 * Math.PI));
+					} else if (strItem === 'itemPickaxe') {
+						minecraftskinHandle.rightArm.rotation.z = 2 * Math.cos((6.666 * intWalktime) + (1.5 * Math.PI) + (0.1 * Math.PI));
 						minecraftskinHandle.leftArm.rotation.z = 2 * Math.cos((6.666 * intWalktime) + (0.5 * Math.PI));
 						
 						minecraftskinHandle.rightLeg.rotation.z = 1.4 * Math.cos((6.666 * intWalktime) + (0.5 * Math.PI));
-						minecraftskinHandle.leftLeg.rotation.z = 1.4 * Math.cos((6.666 * intWalktime) + (0.5 * Math.PI) + Math.PI);
+						minecraftskinHandle.leftLeg.rotation.z = 1.4 * Math.cos((6.666 * intWalktime) + (1.5 * Math.PI));
+						
+					} else if (strItem === 'itemSword') {
+						minecraftskinHandle.rightArm.rotation.z = 2 * Math.cos((6.666 * intWalktime) + (1.5 * Math.PI) + (0.1 * Math.PI));
+						minecraftskinHandle.leftArm.rotation.z = 2 * Math.cos((6.666 * intWalktime) + (0.5 * Math.PI));
+						
+						minecraftskinHandle.rightLeg.rotation.z = 1.4 * Math.cos((6.666 * intWalktime) + (0.5 * Math.PI));
+						minecraftskinHandle.leftLeg.rotation.z = 1.4 * Math.cos((6.666 * intWalktime) + (1.5 * Math.PI));
+						
+					} else if (strItem === 'itemBow') {
+						minecraftskinHandle.rightArm.rotation.z = minecraftskinHandle.mesh.head.rotation.x + (0.47 * Math.PI);
+						minecraftskinHandle.leftArm.rotation.z = 2 * Math.cos((6.666 * intWalktime) + (0.5 * Math.PI));
+						
+						minecraftskinHandle.rightLeg.rotation.z = 1.4 * Math.cos((6.666 * intWalktime) + (0.5 * Math.PI));
+						minecraftskinHandle.leftLeg.rotation.z = 1.4 * Math.cos((6.666 * intWalktime) + (1.5 * Math.PI));
 						
 					}
 				}
@@ -765,8 +790,8 @@ var Voxel = {
 										}
 										
 										{
-											cubegeometryHandle.vertices[intFor3].x += dblScale * (8.0 - intFor1);
-											cubegeometryHandle.vertices[intFor3].y += dblScale * (8.0 - intFor2);
+											cubegeometryHandle.vertices[intFor3].x += dblScale * (8 - intFor1);
+											cubegeometryHandle.vertices[intFor3].y += dblScale * (8 - intFor2);
 											cubegeometryHandle.vertices[intFor3].z += 0.0;
 										}
 									}
@@ -1105,16 +1130,10 @@ var Socket = {
 									'strItem': enemyHandle.strItem,
 									'dblPosition': enemyHandle.dblPosition,
 									'dblVerlet': enemyHandle.dblVerlet,
-									'dblRotation': enemyHandle.dblRotation
+									'dblAcceleration': [ 0.0, 0.0, 0.0 ],
+									'dblRotation': enemyHandle.dblRotation,
+									'intWalktime': 0
 								};
-								
-								enemyOverwrite[enemyHandle.strIdent].dblAcceleration = [ 0.0, 0.0, 0.0 ];
-
-								enemyOverwrite[enemyHandle.strIdent].boolCollisionTop = false;
-								enemyOverwrite[enemyHandle.strIdent].boolCollisionSide = false;
-								enemyOverwrite[enemyHandle.strIdent].boolCollisionBottom = false;
-								
-								enemyOverwrite[enemyHandle.strIdent].intWalktime = 0;
 							}
 						}
 						
@@ -1132,11 +1151,9 @@ var Socket = {
 							{
 								itemHandle.strIdent = itemHandle.a;
 								itemHandle.strItem = itemHandle.b;
-								itemHandle.dblSize = itemHandle.c;
-								itemHandle.dblMaxvel = itemHandle.d;
-								itemHandle.dblPosition = itemHandle.e;
-								itemHandle.dblVerlet = itemHandle.f;
-								itemHandle.dblRotation = itemHandle.g;
+								itemHandle.dblPosition = itemHandle.c;
+								itemHandle.dblVerlet = itemHandle.d;
+								itemHandle.dblRotation = itemHandle.e;
 							}
 							
 							{
@@ -1150,18 +1167,11 @@ var Socket = {
 									'strIdent': itemHandle.strIdent,
 									'strTeam': itemHandle.strTeam,
 									'strItem': itemHandle.strItem,
-									'dblSize': itemHandle.dblSize,
-									'dblMaxvel': itemHandle.dblMaxvel,
 									'dblPosition': itemHandle.dblPosition,
 									'dblVerlet': itemHandle.dblVerlet,
-									'dblRotation': itemHandle.dblRotation,
+									'dblAcceleration': [ 0.0, 0.0, 0.0 ],
+									'dblRotation': itemHandle.dblRotation
 								};
-								
-								itemOverwrite[itemHandle.strIdent].dblAcceleration = [ 0.0, 0.0, 0.0 ];
-
-								itemOverwrite[itemHandle.strIdent].boolCollisionTop = false;
-								itemOverwrite[itemHandle.strIdent].boolCollisionSide = false;
-								itemOverwrite[itemHandle.strIdent].boolCollisionBottom = false;
 							}
 						}
 						
@@ -1603,14 +1613,10 @@ var Player = {
 	
 	strTeam: '',
 	strItem: '',
-	
+
 	dblPosition: [ 0.0, 0.0, 0.0 ],
 	dblVerlet: [ 0.0, 0.0, 0.0 ],
 	dblAcceleration: [ 0.0, 0.0, 0.0 ],
-	
-	boolCollisionTop: false,
-	boolCollisionSide: false,
-	boolCollisionBottom: false,
 
 	intJumpcount: 0,
 	
@@ -1621,8 +1627,6 @@ var Player = {
 			Player.minecraftskinHandle = Voxel.minecraftskinCreate();
 			
 			{
-				Player.minecraftskinHandle.mesh.position.set(0, 0, 0);
-				
 				Player.minecraftskinHandle.mesh.cameraInside.add(Voxel.voxelengineHandle.camera);
 			}
 			
@@ -1653,22 +1657,14 @@ var Player = {
 			Player.dblPosition[0] = 0.0;
 			Player.dblPosition[1] = 0.0;
 			Player.dblPosition[2] = 0.0;
-
+			
 			Player.dblVerlet[0] = Player.dblPosition[0];
 			Player.dblVerlet[1] = Player.dblPosition[1];
 			Player.dblVerlet[2] = Player.dblPosition[2];
-
+			
 			Player.dblAcceleration[0] = 0.0;
 			Player.dblAcceleration[1] = 0.0;
 			Player.dblAcceleration[2] = 0.0;
-		}
-		
-		{
-			Player.boolCollisionTop = false;
-			
-			Player.boolCollisionSide = false;
-			
-			Player.boolCollisionBottom = false;
 		}
 		
 		{
@@ -1699,22 +1695,14 @@ var Player = {
 			Player.dblPosition[0] = 0.0;
 			Player.dblPosition[1] = 0.0;
 			Player.dblPosition[2] = 0.0;
-
+			
 			Player.dblVerlet[0] = 0.0;
 			Player.dblVerlet[1] = 0.0;
 			Player.dblVerlet[2] = 0.0;
-
+			
 			Player.dblAcceleration[0] = 0.0;
 			Player.dblAcceleration[1] = 0.0;
 			Player.dblAcceleration[2] = 0.0;
-		}
-		
-		{
-			Player.boolCollisionTop = false;
-			
-			Player.boolCollisionSide = false;
-			
-			Player.boolCollisionBottom = false;
 		}
 		
 		{
@@ -1762,26 +1750,10 @@ var Player = {
 		}
 		
 		{
-			var dblVelocityX = Player.dblPosition[0] - Player.dblVerlet[0];
-			var dblVelocityY = Player.dblPosition[1] - Player.dblVerlet[1];
-			var dblVelocityZ = Player.dblPosition[2] - Player.dblVerlet[2];
-
-			dblVelocityX *= 0.8;
-			dblVelocityY *= 1.0;
-			dblVelocityZ *= 0.8;
-			
-			Player.dblPosition[0] = Player.dblVerlet[0] + dblVelocityX;
-			Player.dblPosition[1] = Player.dblVerlet[1] + dblVelocityY;
-			Player.dblPosition[2] = Player.dblVerlet[2] + dblVelocityZ;
-		}
-		
-		{
-			Player.dblAcceleration[1] -= 0.01;
-		}
-		
-		{
-			Player.dblSize = [ 1.0, 1.6, 1.0 ];
-			Player.dblMaxvel = [ 0.12, 0.26, 0.12 ];
+			Player.dblSize = Constants.dblPlayerSize;
+			Player.dblGravity = Constants.dblPlayerGravity;
+			Player.dblMaxvel = Constants.dblPlayerMaxvel;
+			Player.dblFriction = Constants.dblPlayerFriction;
 			
 			Physics.update(Player);
 		}
@@ -1794,7 +1766,7 @@ var Player = {
 
 		{
 			Player.minecraftskinHandle.mesh.position.x = Player.dblPosition[0];
-			Player.minecraftskinHandle.mesh.position.y = Player.dblPosition[1] - 0.8;
+			Player.minecraftskinHandle.mesh.position.y = Player.dblPosition[1] - (0.5 * Constants.dblPlayerSize[1]);
 			Player.minecraftskinHandle.mesh.position.z = Player.dblPosition[2];
 		}
 		
@@ -1824,10 +1796,6 @@ var Enemy = {
 			for (var intFor1 = 0; intFor1 < 32; intFor1 += 1) {
 				{
 					var minecraftskinHandle = Voxel.minecraftskinCreate();
-					
-					{
-						minecraftskinHandle.mesh.position.set(0, 0, 0);
-					}
 					
 					Enemy.minecraftskinHandle.push(minecraftskinHandle);
 				}
@@ -1859,14 +1827,12 @@ var Enemy = {
 		{
 			for (var strIdent in Socket.enemyHandle) {
 				var enemyHandle = Socket.enemyHandle[strIdent];
-
-				{
-					enemyHandle.dblAcceleration[1] -= 0.01;
-				}
 				
 				{
-					enemyHandle.dblSize = [ 1.0, 1.6, 1.0 ];
-					enemyHandle.dblMaxvel = [ 0.12, 0.26, 0.12 ];
+					enemyHandle.dblSize = Constants.dblPlayerSize;
+					enemyHandle.dblGravity = Constants.dblPlayerGravity;
+					enemyHandle.dblMaxvel = Constants.dblPlayerMaxvel;
+					enemyHandle.dblFriction = Constants.dblPlayerFriction;
 					
 					Physics.update(enemyHandle);
 				}
@@ -1896,12 +1862,12 @@ var Enemy = {
 
 					{
 						minecraftskinHandle.mesh.position.x = enemyHandle.dblPosition[0];
-						minecraftskinHandle.mesh.position.y = enemyHandle.dblPosition[1] - 0.8;
+						minecraftskinHandle.mesh.position.y = enemyHandle.dblPosition[1] - (0.5 * Constants.dblPlayerSize[1]);
 						minecraftskinHandle.mesh.position.z = enemyHandle.dblPosition[2];
-
-						minecraftskinHandle.mesh.head.rotation.x = enemyHandle.dblRotation[0];
 						
 						minecraftskinHandle.mesh.rotation.y = enemyHandle.dblRotation[1];
+
+						minecraftskinHandle.mesh.head.rotation.x = enemyHandle.dblRotation[2];
 					}
 					
 					{
@@ -1946,7 +1912,7 @@ var Item = {
 		}
 		
 		{
-			for (var intFor1 = 0; intFor1 < 16; intFor1 += 1) {
+			for (var intFor1 = 0; intFor1 < 32; intFor1 += 1) {
 				{
 					var meshHandle = Voxel.itemCreate('itemArrow', 0.04);
 					
@@ -1972,47 +1938,44 @@ var Item = {
 	
 	update: function() {
 		{
-			if (Socket.itemHandle.hasOwnProperty('itemRedFlag') === true) {
-				var itemHandle = Socket.itemHandle['itemRedFlag'];
-
-				{
-					itemHandle.dblAcceleration[1] -= 0.01;
+			for (var strIdent in Socket.itemHandle) {
+				var itemHandle = Socket.itemHandle[strIdent];
+				
+				if (itemHandle.strItem !== 'itemFlag') {
+					continue;
 				}
 				
 				{
+					itemHandle.dblSize = Constants.dblFlagSize;
+					itemHandle.dblGravity = Constants.dblFlagGravity;
+					itemHandle.dblMaxvel = Constants.dblFlagMaxvel;
+					itemHandle.dblFriction = Constants.dblFlagFriction;
+					
 					Physics.update(itemHandle);
 				}
-				
-				{
-					Item.meshRedFlag.position.x = itemHandle.dblPosition[0];
-					Item.meshRedFlag.position.y = itemHandle.dblPosition[1];
-					Item.meshRedFlag.position.z = itemHandle.dblPosition[2];
-					
-					Item.meshRedFlag.rotation.x = itemHandle.dblRotation[0];
-					Item.meshRedFlag.rotation.y = itemHandle.dblRotation[1];
-					Item.meshRedFlag.rotation.z = itemHandle.dblRotation[2];
-				}
-			}
-			
-			if (Socket.itemHandle.hasOwnProperty('itemBlueFlag') === true) {
-				var itemHandle = Socket.itemHandle['itemBlueFlag'];
 
 				{
-					itemHandle.dblAcceleration[1] -= 0.01;
-				}
-				
-				{
-					Physics.update(itemHandle);
-				}
-				
-				{
-					Item.meshBlueFlag.position.x = itemHandle.dblPosition[0];
-					Item.meshBlueFlag.position.y = itemHandle.dblPosition[1];
-					Item.meshBlueFlag.position.z = itemHandle.dblPosition[2];
+					var meshHandle = null;
 					
-					Item.meshBlueFlag.rotation.x = itemHandle.dblRotation[0];
-					Item.meshBlueFlag.rotation.y = itemHandle.dblRotation[1];
-					Item.meshBlueFlag.rotation.z = itemHandle.dblRotation[2];
+					{
+						if (itemHandle.strIdent === 'itemRedFlag') {
+							meshHandle = Item.meshRedFlag;
+							
+						} else if (itemHandle.strIdent === 'itemBlueFlag') {
+							meshHandle = Item.meshBlueFlag;
+							
+						}
+					}
+					
+					{
+						meshHandle.position.x = itemHandle.dblPosition[0];
+						meshHandle.position.y = itemHandle.dblPosition[1];
+						meshHandle.position.z = itemHandle.dblPosition[2];
+						
+						meshHandle.rotation.x = itemHandle.dblRotation[0];
+						meshHandle.rotation.y = itemHandle.dblRotation[1];
+						meshHandle.rotation.z = itemHandle.dblRotation[2];
+					}
 				}
 			}
 		}
@@ -2039,12 +2002,13 @@ var Item = {
 					if (itemHandle.strItem !== 'itemArrow') {
 						continue;
 					}
-
-					{
-						itemHandle.dblAcceleration[1] -= 0.01;
-					}
 					
 					{
+						itemHandle.dblSize = Constants.dblArrowSize;
+						itemHandle.dblGravity = Constants.dblArrowGravity;
+						itemHandle.dblMaxvel = Constants.dblArrowMaxvel;
+						itemHandle.dblFriction = Constants.dblArrowFriction;
+						
 						Physics.update(itemHandle);
 					}
 					
@@ -2052,10 +2016,23 @@ var Item = {
 						var dblVelocityX = itemHandle.dblPosition[0] - itemHandle.dblVerlet[0];
 						var dblVelocityY = itemHandle.dblPosition[1] - itemHandle.dblVerlet[1];
 						var dblVelocityZ = itemHandle.dblPosition[2] - itemHandle.dblVerlet[2];
-
+						
 						itemHandle.dblRotation[0] = 0.0;
-						itemHandle.dblRotation[1] = Math.atan2(dblVelocityX, dblVelocityZ);
-						itemHandle.dblRotation[2] = Math.atan2(dblVelocityY, dblVelocityX);
+						itemHandle.dblRotation[1] = Math.atan2(dblVelocityX, dblVelocityZ) + (1.0 * Math.PI);
+						itemHandle.dblRotation[2] = Math.atan2(dblVelocityY, Math.sqrt((dblVelocityX * dblVelocityX) + (dblVelocityZ * dblVelocityZ)));
+					}
+					
+					{
+						if (itemHandle.boolCollisionTop === true) {
+							continue;
+							
+						} else if (itemHandle.boolCollisionSide === true) {
+							continue;
+							
+						} else if (itemHandle.boolCollisionBottom === true) {
+							continue;
+							
+						}
 					}
 
 					{
@@ -2080,14 +2057,14 @@ var Item = {
 						{
 							Voxel.voxelengineHandle.scene.add(meshHandle);
 						}
-
+						
 						{
 							meshHandle.position.x = itemHandle.dblPosition[0];
 							meshHandle.position.y = itemHandle.dblPosition[1];
 							meshHandle.position.z = itemHandle.dblPosition[2];
 							
 							meshHandle.rotation.x = itemHandle.dblRotation[0];
-							meshHandle.rotation.y = itemHandle.dblRotation[1] + (1.5 * Math.PI);
+							meshHandle.rotation.y = itemHandle.dblRotation[1] + (0.5 * Math.PI);
 							meshHandle.rotation.z = itemHandle.dblRotation[2] + (1.25 * Math.PI);
 						}
 					}
@@ -2107,6 +2084,12 @@ var Physics = {
 	},
 	
 	update: function(physicsHandle) {
+		{
+			physicsHandle.dblAcceleration[0] += physicsHandle.dblGravity[0];
+			physicsHandle.dblAcceleration[1] += physicsHandle.dblGravity[1];
+			physicsHandle.dblAcceleration[2] += physicsHandle.dblGravity[2];
+		}
+		
 		{
 			var dblVerletX = physicsHandle.dblPosition[0];
 			var dblVerletY = physicsHandle.dblPosition[1];
@@ -2129,55 +2112,63 @@ var Physics = {
 			var dblVelocityX = physicsHandle.dblPosition[0] - physicsHandle.dblVerlet[0];
 			var dblVelocityY = physicsHandle.dblPosition[1] - physicsHandle.dblVerlet[1];
 			var dblVelocityZ = physicsHandle.dblPosition[2] - physicsHandle.dblVerlet[2];
+
+			{
+				dblVelocityX *= physicsHandle.dblFriction[0];
+				dblVelocityY *= physicsHandle.dblFriction[1];
+				dblVelocityZ *= physicsHandle.dblFriction[2];
+			}
 			
-			if (physicsHandle.dblMaxvel.length === 1) {
-				{
-					var dblLength = Math.sqrt((dblVelocityX * dblVelocityX) + (dblVelocityY * dblVelocityY) + (dblVelocityZ * dblVelocityZ));
+			{
+				if (physicsHandle.dblMaxvel.length === 1) {
+					{
+						var dblLength = Math.sqrt((dblVelocityX * dblVelocityX) + (dblVelocityY * dblVelocityY) + (dblVelocityZ * dblVelocityZ));
+						
+						if (Math.abs(dblLength) > physicsHandle.dblMaxvel[0]) {
+							dblVelocityX *= physicsHandle.dblMaxvel[0] / dblLength;
+							dblVelocityY *= physicsHandle.dblMaxvel[0] / dblLength;
+							dblVelocityZ *= physicsHandle.dblMaxvel[0] / dblLength;
+							
+						} else if (Math.abs(dblLength) < 0.0001) {
+							dblVelocityX = 0.0;
+							dblVelocityY = 0.0;
+							dblVelocityZ = 0.0;
+							
+						}
+					}
 					
-					if (Math.abs(dblLength) > physicsHandle.dblMaxvel[0]) {
-						dblVelocityX *= physicsHandle.dblMaxvel[0] / dblLength;
-						dblVelocityY *= physicsHandle.dblMaxvel[0] / dblLength;
-						dblVelocityZ *= physicsHandle.dblMaxvel[0] / dblLength;
-						
-					} else if (Math.abs(dblLength) < 0.0001) {
-						dblVelocityX = 0.0;
-						dblVelocityY = 0.0;
-						dblVelocityZ = 0.0;
-						
+				} else if (physicsHandle.dblMaxvel.length === 3) {
+					{
+						if (Math.abs(dblVelocityX) > physicsHandle.dblMaxvel[0]) {
+							dblVelocityX = (dblVelocityX > 0.0 ? 1.0 : -1.0) * physicsHandle.dblMaxvel[0];
+							
+						} else if (Math.abs(dblVelocityX) < 0.0001) {
+							dblVelocityX = 0.0;
+							
+						}
 					}
-				}
-				
-			} else if (physicsHandle.dblMaxvel.length === 3) {
-				{
-					if (Math.abs(dblVelocityX) > physicsHandle.dblMaxvel[0]) {
-						dblVelocityX = (dblVelocityX > 0.0 ? 1.0 : -1.0) * physicsHandle.dblMaxvel[0];
-						
-					} else if (Math.abs(dblVelocityX) < 0.0001) {
-						dblVelocityX = 0.0;
-						
+					
+					{
+						if (Math.abs(dblVelocityY) > physicsHandle.dblMaxvel[1]) {
+							dblVelocityY = (dblVelocityY > 0.0 ? 1.0 : -1.0) * physicsHandle.dblMaxvel[1];
+							
+						} else if (Math.abs(dblVelocityY) < 0.0001) {
+							dblVelocityY = 0.0;
+							
+						}
 					}
-				}
-				
-				{
-					if (Math.abs(dblVelocityY) > physicsHandle.dblMaxvel[1]) {
-						dblVelocityY = (dblVelocityY > 0.0 ? 1.0 : -1.0) * physicsHandle.dblMaxvel[1];
-						
-					} else if (Math.abs(dblVelocityY) < 0.0001) {
-						dblVelocityY = 0.0;
-						
+					
+					{
+						if (Math.abs(dblVelocityZ) > physicsHandle.dblMaxvel[2]) {
+							dblVelocityZ = (dblVelocityZ > 0.0 ? 1.0 : -1.0) * physicsHandle.dblMaxvel[2];
+							
+						} else if (Math.abs(dblVelocityZ) < 0.0001) {
+							dblVelocityZ = 0.0;
+							
+						}
 					}
+	
 				}
-				
-				{
-					if (Math.abs(dblVelocityZ) > physicsHandle.dblMaxvel[2]) {
-						dblVelocityZ = (dblVelocityZ > 0.0 ? 1.0 : -1.0) * physicsHandle.dblMaxvel[2];
-						
-					} else if (Math.abs(dblVelocityZ) < 0.0001) {
-						dblVelocityZ = 0.0;
-						
-					}
-				}
-				
 			}
 			
 			physicsHandle.dblPosition[0] = physicsHandle.dblVerlet[0] + dblVelocityX;
@@ -2189,7 +2180,7 @@ var Physics = {
 			physicsHandle.boolCollisionTop = false;
 			physicsHandle.boolCollisionSide = false;
 			physicsHandle.boolCollisionBottom = false;
-			
+
 			for (var intFor1 = 1; intFor1 > -2; intFor1 -= 1) {
 				for (var intFor2 = 1; intFor2 > -2; intFor2 -= 1) {
 					for (var intFor3 = 1; intFor3 > -2; intFor3 -= 1) {
@@ -2203,7 +2194,7 @@ var Physics = {
 								
 							} else if (Settings.strMapType[[intX, intY, intZ ]] === '') {
 								continue;
-	
+								
 							}
 						}
 						
@@ -2298,6 +2289,29 @@ var Physics = {
 			physicsHandle.dblVerletY = dblVerletY;
 			physicsHandle.dblVerletZ = dblVerletZ;
 		}
+	},
+	
+	updateObjectcol: function(physicsHandle, physicsObjectcol) {
+		var boolObjectcol = true;
+		
+		{
+			var dblIntersectX = Math.abs(physicsHandle.dblPosition[0] - physicsObjectcol.dblPosition[0]) - (0.5 * physicsHandle.dblSize[0]) - (0.5 * physicsObjectcol.dblSize[0]);
+			var dblIntersectY = Math.abs(physicsHandle.dblPosition[1] - physicsObjectcol.dblPosition[1]) - (0.5 * physicsHandle.dblSize[1]) - (0.5 * physicsObjectcol.dblSize[1]);
+			var dblIntersectZ = Math.abs(physicsHandle.dblPosition[2] - physicsObjectcol.dblPosition[2]) - (0.5 * physicsHandle.dblSize[2]) - (0.5 * physicsObjectcol.dblSize[2]);
+
+			if (dblIntersectX >= 0.0) {
+				boolObjectcol = false;
+
+			} else if (dblIntersectY >= 0.0) {
+				boolObjectcol = false;
+
+			} else if (dblIntersectZ >= 0.0) {
+				boolObjectcol = false;
+
+			}
+		}
+		
+		return boolObjectcol;
 	}
 };
 
@@ -2350,19 +2364,13 @@ jQuery(document).ready(function() {
 				
 			} else if (Gui.strChooserCategory === 'categoryWeapon') {
 				if (Gui.intChooserType === 0) {
-					// TODO:  maybe fix position
-					
 					Socket.socketHandle.emit('weaponHandle', {
-						'strWeapon': 'weaponSword',
-						'dblRotation': [ Player.minecraftskinHandle.mesh.head.rotation.x, Player.minecraftskinHandle.mesh.rotation.y, 0.0 ]
+						'strWeapon': 'weaponSword'
 					});
 					
 				} else if (Gui.intChooserType === 1) {
-					// TODO:  maybe fix position
-					
 					Socket.socketHandle.emit('weaponHandle', {
-						'strWeapon': 'weaponBow',
-						'dblRotation': [ Player.minecraftskinHandle.mesh.head.rotation.x, Player.minecraftskinHandle.mesh.rotation.y, 0.0 ]
+						'strWeapon': 'weaponBow'
 					});
 					
 				}
@@ -2387,7 +2395,7 @@ jQuery(document).ready(function() {
 						'a': Player.strItem,
 						'b': Player.dblPosition,
 						'c': Player.dblVerlet,
-						'd': [ Player.minecraftskinHandle.mesh.head.rotation.x, Player.minecraftskinHandle.mesh.rotation.y, 0.0 ]
+						'd': [ 0.0, Player.minecraftskinHandle.mesh.rotation.y, Player.minecraftskinHandle.mesh.head.rotation.x ]
 					});
 				}
 			}

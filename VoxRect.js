@@ -71,6 +71,23 @@ var Node = {
 		{
 			Node.zlibHandle = null;
 		}
+	},
+	
+	hashbase: function(strData) {
+		var hashHande = Node.cryptoHandle.createHash('sha512');
+		
+		{
+			hashHande.update(strData);
+		}
+		
+		var strBase = hashHande.digest('base64');
+		
+		{
+			strBase = strBase.replace(new RegExp('\\+', 'g'), '');
+			strBase = strBase.replace(new RegExp('\\/', 'g'), '');
+		}
+		
+		return strBase;
 	}
 };
 
@@ -106,35 +123,13 @@ var Node = {
 	Express.serverHandle.get('/index.html', function(requestHandle, responseHandle) {
 		var Mustache_objectHandle = {
 			'objectMain': {
-				'strRandom': ''
+				'strRandom': Node.hashbase(Node.cryptoHandle.randomBytes(64)).substr(0, 32)
 			},
 			'objectGameserver': {
-				intLoginPassword: 0,
-				strLoginMotd: ''
+				'intLoginPassword': Gameserver.intLoginPassword,
+				'strLoginMotd': Gameserver.strLoginMotd
 			}
 		};
-		
-		{
-			var hashHande = Node.cryptoHandle.createHash('sha512');
-			
-			{
-				hashHande.update(Node.cryptoHandle.randomBytes(256));
-			}
-			
-			var strBase = hashHande.digest('base64');
-			
-			{
-				strBase = strBase.replace(new RegExp('\\+', 'g'), '');
-				strBase = strBase.replace(new RegExp('\\/', 'g'), '');
-			}
-			
-			Mustache_objectHandle.objectMain.strRandom = strBase.substr(0, 32);
-		}
-		
-		{
-			Mustache_objectHandle.objectGameserver.intLoginPassword = Gameserver.intLoginPassword;
-			Mustache_objectHandle.objectGameserver.strLoginMotd = Gameserver.strLoginMotd;
-		}
 		
 		var FilesystemRead_bufferHandle = null;
 		
@@ -202,9 +197,15 @@ var Node = {
 {
 	Socket.serverHandle.on('connection', function(socketHandle) {
 		{
-			Gameserver.playerHandle[socketHandle.id] = {
+			socketHandle.strIdent = socketHandle.id.substr(1, 8);
+		}
+		
+		{
+			var strIdent = socketHandle.strIdent;
+			
+			Gameserver.playerHandle[strIdent] = {
+				'strIdent': strIdent,
 				'socketHandle': socketHandle,
-				'strIdent': socketHandle.id.substr(1, 8),
 				'strTeam': 'teamLogin',
 				'strItem': '',
 				'strName': '',
@@ -213,8 +214,8 @@ var Node = {
 				'intDeaths': 0,
 				'dblPosition': [ 0.0, 0.0, 0.0 ],
 				'dblVerlet': [ 0.0, 0.0, 0.0 ],
-				'dblRotation': [ 0.0, 0.0, 0.0 ],
-				'dblAcceleration': [ 0.0, 0.0, 0.0 ]
+				'dblAcceleration': [ 0.0, 0.0, 0.0 ],
+				'dblRotation': [ 0.0, 0.0, 0.0 ]
 			};
 		}
 		
@@ -237,10 +238,10 @@ var Node = {
 				
 			}
 			
-			if (Gameserver.playerHandle[socketHandle.id] === undefined) {
+			if (Gameserver.playerHandle[socketHandle.strIdent] === undefined) {
 				return;
 				
-			} else if (Gameserver.playerHandle[socketHandle.id].strTeam !== 'teamLogin') {
+			} else if (Gameserver.playerHandle[socketHandle.strIdent].strTeam !== 'teamLogin') {
 				return;
 				
 			}
@@ -283,16 +284,16 @@ var Node = {
 			
 			{
 				if (jsonHandle.strTeam === 'Red') {
-					Gameserver.playerHandle[socketHandle.id].strTeam = 'teamRed';
+					Gameserver.playerHandle[socketHandle.strIdent].strTeam = 'teamRed';
 					
 				} else if (jsonHandle.strTeam === 'Blue') {
-					Gameserver.playerHandle[socketHandle.id].strTeam = 'teamBlue';
+					Gameserver.playerHandle[socketHandle.strIdent].strTeam = 'teamBlue';
 					
 				}
 			}
 			
 			{
-				Gameserver.playerHandle[socketHandle.id].strName = jsonHandle.strName;
+				Gameserver.playerHandle[socketHandle.strIdent].strName = jsonHandle.strName;
 			}
 			
 			{
@@ -310,7 +311,7 @@ var Node = {
 			}
 			
 			{
-				Gameserver.functionPlayerRespawn(Gameserver.playerHandle[socketHandle.id]);
+				Gameserver.functionPlayerRespawn(Gameserver.playerHandle[socketHandle.strIdent]);
 			}
 		});
 		
@@ -319,10 +320,10 @@ var Node = {
 				return;
 			}
 			
-			if (Gameserver.playerHandle[socketHandle.id] === undefined) {
+			if (Gameserver.playerHandle[socketHandle.strIdent] === undefined) {
 				return;
 				
-			} else if (Gameserver.playerHandle[socketHandle.id].strStatus === 'teamLogin') {
+			} else if (Gameserver.playerHandle[socketHandle.strIdent].strStatus === 'teamLogin') {
 				return;
 				
 			} else if (jsonHandle.strMessage === '') {
@@ -349,8 +350,8 @@ var Node = {
 						
 						{
 							playerHandle.socketHandle.emit('chatHandle', {
-								'strIdent': Gameserver.playerHandle[socketHandle.id].strIdent,
-								'strName': Gameserver.playerHandle[socketHandle.id].strName,
+								'strIdent': Gameserver.playerHandle[socketHandle.strIdent].strIdent,
+								'strName': Gameserver.playerHandle[socketHandle.strIdent].strName,
 								'strMessage': strMessage
 							});
 						}
@@ -364,10 +365,10 @@ var Node = {
 				return;
 			}
 			
-			if (Gameserver.playerHandle[socketHandle.id] === undefined) {
+			if (Gameserver.playerHandle[socketHandle.strIdent] === undefined) {
 				return;
 				
-			} else if (Gameserver.playerHandle[socketHandle.id].strStatus === 'teamLogin') {
+			} else if (Gameserver.playerHandle[socketHandle.strIdent].strStatus === 'teamLogin') {
 				return;
 				
 			}
@@ -448,19 +449,19 @@ var Node = {
 				
 			}
 			
-			if (Gameserver.playerHandle[socketHandle.id] === undefined) {
+			if (Gameserver.playerHandle[socketHandle.strIdent] === undefined) {
 				return;
 				
-			} else if (Gameserver.playerHandle[socketHandle.id].strStatus === 'teamLogin') {
+			} else if (Gameserver.playerHandle[socketHandle.strIdent].strStatus === 'teamLogin') {
 				return;
 				
 			}
 			
 			{
-				Gameserver.playerHandle[socketHandle.id].strItem = jsonHandle.strItem;
-				Gameserver.playerHandle[socketHandle.id].dblPosition = jsonHandle.dblPosition;
-				Gameserver.playerHandle[socketHandle.id].dblVerlet = jsonHandle.dblVerlet;
-				Gameserver.playerHandle[socketHandle.id].dblRotation = jsonHandle.dblRotation;
+				Gameserver.playerHandle[socketHandle.strIdent].strItem = jsonHandle.strItem;
+				Gameserver.playerHandle[socketHandle.strIdent].dblPosition = jsonHandle.dblPosition;
+				Gameserver.playerHandle[socketHandle.strIdent].dblVerlet = jsonHandle.dblVerlet;
+				Gameserver.playerHandle[socketHandle.strIdent].dblRotation = jsonHandle.dblRotation;
 			}
 			
 			{
@@ -469,7 +470,7 @@ var Node = {
 			    for (var strIdent in Gameserver.playerHandle) {
 					var playerHandle = Gameserver.playerHandle[strIdent];
 					
-			    	if (playerHandle.strIdent === Gameserver.playerHandle[socketHandle.id].strIdent) {
+			    	if (playerHandle.strIdent === Gameserver.playerHandle[socketHandle.strIdent].strIdent) {
 						continue;
 						
 					} else if (playerHandle.strStatus === 'teamLogin') {
@@ -505,10 +506,10 @@ var Node = {
 				
 			}
 			
-			if (Gameserver.playerHandle[socketHandle.id] === undefined) {
+			if (Gameserver.playerHandle[socketHandle.strIdent] === undefined) {
 				return;
 				
-			} else if (Gameserver.playerHandle[socketHandle.id].strStatus === 'teamLogin') {
+			} else if (Gameserver.playerHandle[socketHandle.strIdent].strStatus === 'teamLogin') {
 				return;
 				
 			} else if (Gameserver.strMapOrigtype[jsonHandle.intCoordinate] !== undefined) {
@@ -550,13 +551,6 @@ var Node = {
 		socketHandle.on('weaponHandle', function(jsonHandle) {
 			if (jsonHandle.strWeapon === undefined) {
 				return;
-				
-			} else if (jsonHandle.dblRotation === undefined) {
-				return;
-				
-			} else if (jsonHandle.dblRotation.length !== 3) {
-				return;
-				
 			}
 			
 			{
@@ -564,35 +558,37 @@ var Node = {
 					
 					
 				} else if (jsonHandle.strWeapon === 'weaponBow') {
-					// TODO: lock to only one arrow
-					
+					var strIdent = 'itemArrow' + ' - ' + Node.hashbase(Node.cryptoHandle.randomBytes(16)).substr(0, 8);
 					var dblPosition = [ 0.0, 0.0, 0.0 ];
 					var dblVerlet = [ 0.0, 0.0, 0.0 ];
 					var dblAcceleration = [ 0.0, 0.0, 0.0 ];
+					var dblRotation = [ 0.0, 0.0, 0.0 ];
 					
 					{
-						dblPosition[0] = Gameserver.playerHandle[socketHandle.id].dblPosition[0] + (0.3 * Math.sin(jsonHandle.dblRotation[1] + (0.5 * Math.PI)));
-						dblPosition[1] = Gameserver.playerHandle[socketHandle.id].dblPosition[1] + 0.1;
-						dblPosition[2] = Gameserver.playerHandle[socketHandle.id].dblPosition[2] + (0.3 * Math.cos(jsonHandle.dblRotation[1] + (0.5 * Math.PI)));
+						dblPosition[0] = Gameserver.playerHandle[socketHandle.strIdent].dblPosition[0] + (-0.3 * Math.sin(Gameserver.playerHandle[socketHandle.strIdent].dblRotation[1])) + (0.3 * Math.sin(Gameserver.playerHandle[socketHandle.strIdent].dblRotation[1] + (0.5 * Math.PI)));
+						dblPosition[1] = Gameserver.playerHandle[socketHandle.strIdent].dblPosition[1] + (0.1);
+						dblPosition[2] = Gameserver.playerHandle[socketHandle.strIdent].dblPosition[2] + (-0.3 * Math.cos(Gameserver.playerHandle[socketHandle.strIdent].dblRotation[1])) + (0.3 * Math.cos(Gameserver.playerHandle[socketHandle.strIdent].dblRotation[1] + (0.5 * Math.PI)));
 						
 						dblVerlet[0] = dblPosition[0];
 						dblVerlet[1] = dblPosition[1];
 						dblVerlet[2] = dblPosition[2];
 						
-						dblAcceleration[0] = -1.0 * Math.sin(jsonHandle.dblRotation[1]) * Math.cos(jsonHandle.dblRotation[0]);
-						dblAcceleration[1] = 1.0 * Math.sin(jsonHandle.dblRotation[0]);
-						dblAcceleration[2] = -1.0 * Math.cos(jsonHandle.dblRotation[1]) * Math.cos(jsonHandle.dblRotation[0]);
+						dblAcceleration[0] = -1.0 * Math.sin(Gameserver.playerHandle[socketHandle.strIdent].dblRotation[1]) * Math.cos(Gameserver.playerHandle[socketHandle.strIdent].dblRotation[2]);
+						dblAcceleration[1] = -1.0 * Math.sin(Gameserver.playerHandle[socketHandle.strIdent].dblRotation[2] + (1.0 * Math.PI));
+						dblAcceleration[2] = -1.0 * Math.cos(Gameserver.playerHandle[socketHandle.strIdent].dblRotation[1]) * Math.cos(Gameserver.playerHandle[socketHandle.strIdent].dblRotation[2]);
+						
+						dblRotation[0] = Gameserver.playerHandle[socketHandle.strIdent].dblRotation[0];
+						dblRotation[1] = Gameserver.playerHandle[socketHandle.strIdent].dblRotation[1];
+						dblRotation[2] = Gameserver.playerHandle[socketHandle.strIdent].dblRotation[2];
 					}
 					
-					Gameserver.itemHandle['itemArrow' + ' - ' + socketHandle.id] = {
-						'strIdent': 'itemArrow' + ' - ' + socketHandle.id,
+					Gameserver.itemHandle[strIdent] = {
+						'strIdent': strIdent,
 						'strItem': 'itemArrow',
-						'dblSize': [ 0.3, 0.3, 0.3 ],
-						'dblMaxvel': [ 0.26 ],
 						'dblPosition': dblPosition,
 						'dblVerlet': dblVerlet,
 						'dblAcceleration': dblAcceleration,
-						'dblRotation': jsonHandle.dblRotation
+						'dblRotation': dblRotation
 					};
 					
 				}
@@ -601,11 +597,29 @@ var Node = {
 		
 		socketHandle.on('disconnect', function() {
 			{
-				delete Gameserver.playerHandle[socketHandle.id];
+				delete Gameserver.playerHandle[socketHandle.strIdent];
 			}
 		});
 	});
 }
+
+var Constants = {
+	dblPlayerSize: [ 1.0, 1.6, 1.0 ],
+	dblPlayerGravity: [ 0.0, -0.01, 0.0 ],
+	dblPlayerMaxvel: [ 0.12, 0.26, 0.12 ],
+	dblPlayerFriction: [ 0.8, 1.0, 0.8 ],
+	dblPlayerHitbox: [ 0.4, 0.9, 0.4 ],
+
+	dblFlagSize: [ 1.0, 1.0, 1.0 ],
+	dblFlagGravity: [ 0.0, -0.01, 0.0 ],
+	dblFlagMaxvel: [ 0.12, 0.26, 0.12 ],
+	dblFlagFriction: [ 0.8, 1.0, 0.8 ],
+	
+	dblArrowSize: [ 0.3, 0.3, 0.3],
+	dblArrowGravity: [ 0.0, -0.001, 0.0 ],
+	dblArrowMaxvel: [ 0.26 ],
+	dblArrowFriction: [ 1.0, 1.0, 1.0 ]
+};
 
 var Gameserver = {
 	strName: '',
@@ -990,6 +1004,7 @@ var Gameserver = {
 			
 			Gameserver.functionItemLoad = function() {
 				{
+					var strIdent = 'itemRedFlag';
 					var dblPosition = [ 0.0, 0.0, 0.0 ];
 					var dblVerlet = [ 0.0, 0.0, 0.0 ];
 					var dblRotation = [ 0.0, 0.0, 0.0 ];
@@ -1008,11 +1023,9 @@ var Gameserver = {
 						dblRotation[1] = (new Date().getTime() * 0.0008) % (2.0 * Math.PI);
 					}
 					
-					Gameserver.itemHandle['itemRedFlag'] = {
-						'strIdent': 'itemRedFlag',
+					Gameserver.itemHandle[strIdent] = {
+						'strIdent': strIdent,
 						'strItem': 'itemFlag',
-						'dblSize': [ 1.0, 1.0, 1.0 ],
-						'dblMaxvel': [ 0.12, 0.26, 0.12 ],
 						'dblPosition': dblPosition,
 						'dblVerlet': dblVerlet,
 						'dblAcceleration': [ 0.0, 0.0, 0.0 ],
@@ -1021,6 +1034,7 @@ var Gameserver = {
 				}
 				
 				{
+					var strIdent = 'itemBlueFlag';
 					var dblPosition = [ 0.0, 0.0, 0.0 ];
 					var dblVerlet = [ 0.0, 0.0, 0.0 ];
 					var dblRotation = [ 0.0, 0.0, 0.0 ];
@@ -1039,11 +1053,9 @@ var Gameserver = {
 						dblRotation[1] = (new Date().getTime() * 0.0008) % (2.0 * Math.PI);
 					}
 					
-					Gameserver.itemHandle['itemBlueFlag'] = {
-						'strIdent': 'itemBlueFlag',
+					Gameserver.itemHandle[strIdent] = {
+						'strIdent': strIdent,
 						'strItem': 'itemFlag',
-						'dblSize': [ 1.0, 1.0, 1.0 ],
-						'dblMaxvel': [ 0.12, 0.26, 0.12 ],
 						'dblPosition': dblPosition,
 						'dblVerlet': dblVerlet,
 						'dblAcceleration': [ 0.0, 0.0, 0.0 ],
@@ -1064,33 +1076,21 @@ var Gameserver = {
 								}
 								
 								{
-									itemHandle.dblAcceleration[1] -= 0.01;
-								}
-								
-								{
-									Physics.update(itemHandle);
-								}
-								
-								{
-									var dblVelocityX = itemHandle.dblPosition[0] - itemHandle.dblVerlet[0];
-									var dblVelocityY = itemHandle.dblPosition[1] - itemHandle.dblVerlet[1];
-									var dblVelocityZ = itemHandle.dblPosition[2] - itemHandle.dblVerlet[2];
-
-									dblVelocityX *= 0.8;
-									dblVelocityY *= 1.0;
-									dblVelocityZ *= 0.8;
+									itemHandle.dblSize = Constants.dblFlagSize;
+									itemHandle.dblGravity = Constants.dblFlagGravity;
+									itemHandle.dblMaxvel = Constants.dblFlagMaxvel;
+									itemHandle.dblFriction = Constants.dblFlagFriction;
 									
-									itemHandle.dblPosition[0] = itemHandle.dblVerlet[0] + dblVelocityX;
-									itemHandle.dblPosition[1] = itemHandle.dblVerlet[1] + dblVelocityY;
-									itemHandle.dblPosition[2] = itemHandle.dblVerlet[2] + dblVelocityZ;
+									Physics.update(itemHandle);
 								}
 								
 							} else if (itemHandle.strItem === 'itemArrow') {
 								{
-									itemHandle.dblAcceleration[1] -= 0.001;
-								}
-								
-								{
+									itemHandle.dblSize = Constants.dblArrowSize;
+									itemHandle.dblGravity = Constants.dblArrowGravity;
+									itemHandle.dblMaxvel = Constants.dblArrowMaxvel;
+									itemHandle.dblFriction = Constants.dblArrowFriction;
+									
 									Physics.update(itemHandle);
 								}
 								
@@ -1100,20 +1100,48 @@ var Gameserver = {
 									var dblVelocityZ = itemHandle.dblPosition[2] - itemHandle.dblVerlet[2];
 
 									itemHandle.dblRotation[0] = 0.0;
-									itemHandle.dblRotation[1] = Math.atan2(dblVelocityX, dblVelocityZ);
-									itemHandle.dblRotation[2] = Math.atan2(dblVelocityY, dblVelocityX);
+									itemHandle.dblRotation[1] = Math.atan2(dblVelocityX, dblVelocityZ) + (1.0 * Math.PI);
+									itemHandle.dblRotation[2] = Math.atan2(dblVelocityY, Math.sqrt((dblVelocityX * dblVelocityX) + (dblVelocityZ * dblVelocityZ)));
 								}
 								
 								{
 									if (itemHandle.boolCollisionTop === true) {
-										// delete Gameserver.itemHandle[strIdent]
+										delete Gameserver.itemHandle[itemHandle.strIdent];
 										
 									} else if (itemHandle.boolCollisionSide === true) {
-										// delete Gameserver.itemHandle[strIdent]
+										delete Gameserver.itemHandle[itemHandle.strIdent];
 										
 									} else if (itemHandle.boolCollisionBottom === true) {
-										// delete Gameserver.itemHandle[strIdent]
+										delete Gameserver.itemHandle[itemHandle.strIdent];
 										
+									}
+								}
+								
+								{
+									for (var strIdent in Gameserver.playerHandle) {
+										var playerHandle = Gameserver.playerHandle[strIdent];
+										
+										{
+											itemHandle.dblSize = Constants.dblArrowSize;
+											
+											playerHandle.dblSize = Constants.dblPlayerHitbox;
+										}
+										
+										if (Physics.updateObjectcol(itemHandle, playerHandle) === false) {
+											continue;
+										}
+										
+										{
+											// TODO: hit playerHandle
+										}
+										
+										{
+											delete Gameserver.itemHandle[itemHandle.strIdent];
+										}
+
+										{
+											break;
+										}
 									}
 								}
 								
@@ -1132,11 +1160,9 @@ var Gameserver = {
 							jsonHandle.push({
 								'a': itemHandle.strIdent,
 								'b': itemHandle.strItem,
-								'c': itemHandle.dblSize,
-								'd': itemHandle.dblMaxvel,
-								'e': itemHandle.dblPosition,
-								'f': itemHandle.dblVerlet,
-								'g': itemHandle.dblRotation
+								'c': itemHandle.dblPosition,
+								'd': itemHandle.dblVerlet,
+								'e': itemHandle.dblRotation
 							});
 						}
 				    }
@@ -1293,6 +1319,12 @@ var Physics = {
 	
 	update: function(physicsHandle) {
 		{
+			physicsHandle.dblAcceleration[0] += physicsHandle.dblGravity[0];
+			physicsHandle.dblAcceleration[1] += physicsHandle.dblGravity[1];
+			physicsHandle.dblAcceleration[2] += physicsHandle.dblGravity[2];
+		}
+		
+		{
 			var dblVerletX = physicsHandle.dblPosition[0];
 			var dblVerletY = physicsHandle.dblPosition[1];
 			var dblVerletZ = physicsHandle.dblPosition[2];
@@ -1314,55 +1346,63 @@ var Physics = {
 			var dblVelocityX = physicsHandle.dblPosition[0] - physicsHandle.dblVerlet[0];
 			var dblVelocityY = physicsHandle.dblPosition[1] - physicsHandle.dblVerlet[1];
 			var dblVelocityZ = physicsHandle.dblPosition[2] - physicsHandle.dblVerlet[2];
+
+			{
+				dblVelocityX *= physicsHandle.dblFriction[0];
+				dblVelocityY *= physicsHandle.dblFriction[1];
+				dblVelocityZ *= physicsHandle.dblFriction[2];
+			}
 			
-			if (physicsHandle.dblMaxvel.length === 1) {
-				{
-					var dblLength = Math.sqrt((dblVelocityX * dblVelocityX) + (dblVelocityY * dblVelocityY) + (dblVelocityZ * dblVelocityZ));
+			{
+				if (physicsHandle.dblMaxvel.length === 1) {
+					{
+						var dblLength = Math.sqrt((dblVelocityX * dblVelocityX) + (dblVelocityY * dblVelocityY) + (dblVelocityZ * dblVelocityZ));
+						
+						if (Math.abs(dblLength) > physicsHandle.dblMaxvel[0]) {
+							dblVelocityX *= physicsHandle.dblMaxvel[0] / dblLength;
+							dblVelocityY *= physicsHandle.dblMaxvel[0] / dblLength;
+							dblVelocityZ *= physicsHandle.dblMaxvel[0] / dblLength;
+							
+						} else if (Math.abs(dblLength) < 0.0001) {
+							dblVelocityX = 0.0;
+							dblVelocityY = 0.0;
+							dblVelocityZ = 0.0;
+							
+						}
+					}
 					
-					if (Math.abs(dblLength) > physicsHandle.dblMaxvel[0]) {
-						dblVelocityX *= physicsHandle.dblMaxvel[0] / dblLength;
-						dblVelocityY *= physicsHandle.dblMaxvel[0] / dblLength;
-						dblVelocityZ *= physicsHandle.dblMaxvel[0] / dblLength;
-						
-					} else if (Math.abs(dblLength) < 0.0001) {
-						dblVelocityX = 0.0;
-						dblVelocityY = 0.0;
-						dblVelocityZ = 0.0;
-						
+				} else if (physicsHandle.dblMaxvel.length === 3) {
+					{
+						if (Math.abs(dblVelocityX) > physicsHandle.dblMaxvel[0]) {
+							dblVelocityX = (dblVelocityX > 0.0 ? 1.0 : -1.0) * physicsHandle.dblMaxvel[0];
+							
+						} else if (Math.abs(dblVelocityX) < 0.0001) {
+							dblVelocityX = 0.0;
+							
+						}
 					}
-				}
-				
-			} else if (physicsHandle.dblMaxvel.length === 3) {
-				{
-					if (Math.abs(dblVelocityX) > physicsHandle.dblMaxvel[0]) {
-						dblVelocityX = (dblVelocityX > 0.0 ? 1.0 : -1.0) * physicsHandle.dblMaxvel[0];
-						
-					} else if (Math.abs(dblVelocityX) < 0.0001) {
-						dblVelocityX = 0.0;
-						
+					
+					{
+						if (Math.abs(dblVelocityY) > physicsHandle.dblMaxvel[1]) {
+							dblVelocityY = (dblVelocityY > 0.0 ? 1.0 : -1.0) * physicsHandle.dblMaxvel[1];
+							
+						} else if (Math.abs(dblVelocityY) < 0.0001) {
+							dblVelocityY = 0.0;
+							
+						}
 					}
-				}
-				
-				{
-					if (Math.abs(dblVelocityY) > physicsHandle.dblMaxvel[1]) {
-						dblVelocityY = (dblVelocityY > 0.0 ? 1.0 : -1.0) * physicsHandle.dblMaxvel[1];
-						
-					} else if (Math.abs(dblVelocityY) < 0.0001) {
-						dblVelocityY = 0.0;
-						
+					
+					{
+						if (Math.abs(dblVelocityZ) > physicsHandle.dblMaxvel[2]) {
+							dblVelocityZ = (dblVelocityZ > 0.0 ? 1.0 : -1.0) * physicsHandle.dblMaxvel[2];
+							
+						} else if (Math.abs(dblVelocityZ) < 0.0001) {
+							dblVelocityZ = 0.0;
+							
+						}
 					}
+	
 				}
-				
-				{
-					if (Math.abs(dblVelocityZ) > physicsHandle.dblMaxvel[2]) {
-						dblVelocityZ = (dblVelocityZ > 0.0 ? 1.0 : -1.0) * physicsHandle.dblMaxvel[2];
-						
-					} else if (Math.abs(dblVelocityZ) < 0.0001) {
-						dblVelocityZ = 0.0;
-						
-					}
-				}
-				
 			}
 			
 			physicsHandle.dblPosition[0] = physicsHandle.dblVerlet[0] + dblVelocityX;
@@ -1483,6 +1523,29 @@ var Physics = {
 			physicsHandle.dblVerletY = dblVerletY;
 			physicsHandle.dblVerletZ = dblVerletZ;
 		}
+	},
+	
+	updateObjectcol: function(physicsHandle, physicsObjectcol) {
+		var boolObjectcol = true;
+		
+		{
+			var dblIntersectX = Math.abs(physicsHandle.dblPosition[0] - physicsObjectcol.dblPosition[0]) - (0.5 * physicsHandle.dblSize[0]) - (0.5 * physicsObjectcol.dblSize[0]);
+			var dblIntersectY = Math.abs(physicsHandle.dblPosition[1] - physicsObjectcol.dblPosition[1]) - (0.5 * physicsHandle.dblSize[1]) - (0.5 * physicsObjectcol.dblSize[1]);
+			var dblIntersectZ = Math.abs(physicsHandle.dblPosition[2] - physicsObjectcol.dblPosition[2]) - (0.5 * physicsHandle.dblSize[2]) - (0.5 * physicsObjectcol.dblSize[2]);
+
+			if (dblIntersectX >= 0.0) {
+				boolObjectcol = false;
+
+			} else if (dblIntersectY >= 0.0) {
+				boolObjectcol = false;
+
+			} else if (dblIntersectZ >= 0.0) {
+				boolObjectcol = false;
+
+			}
+		}
+		
+		return boolObjectcol;
 	}
 };
 

@@ -1,3 +1,11 @@
+var Constants = {
+	dblPlayerSize: [ 1.0, 1.6, 1.0 ],
+	dblPlayerGravity: [ 0.0, 0.0, 0.0 ],
+	dblPlayerMaxvel: [ 0.12, 0.26, 0.12 ],
+	dblPlayerFriction: [ 0.8, 0.8, 0.8 ],
+	dblPlayerHitbox: [ 0.4, 0.9, 0.4 ]
+};
+
 var Settings = {
 	strMapType: {},
 	
@@ -30,27 +38,6 @@ var Gui = {
 			
 			Gui.intChooserType = 0;
 		}
-		
-		/*{
-			jQuery('#idPhaseBuild_Chooser').find('select').find('option').eq(0)
-			    .prop({
-			        'selected': true
-			    })
-			;
-			
-			jQuery('#idPhaseBuild_Chooser').find('select')
-				.selectmenu({
-					'disabled': false,
-					'width': 200
-				})
-			;
-
-			jQuery('#idPhaseBuild_Chooser').find('select').next()
-				.css({
-					'vertical-align': 'middle'
-				})
-			;
-		}*/
 		
 		{
 			jQuery('#idMap_Json')
@@ -268,13 +255,6 @@ var Voxel = {
 				},
 				'materials': [ 'voxelVoid', 'voxelBrick', 'voxelDirt', 'voxelGrass', 'voxelPlank', 'voxelStone', 'voxelRedSpawn', 'voxelRedFlag', 'voxelBlueSpawn', 'voxelBlueFlag', 'voxelSeparator' ],
 				'controls': {
-					'walkMaxSpeed': 0.008,
-					'runMaxSpeed': 0.008,
-					'jumpMaxSpeed': 0.007,
-					'jumpMaxTimer': 1,
-					'jumpSpeed': 0.007,
-					'jumpSpeedMove': 0.1,
-					'accelTimer': 1,
 					'discreteFire': true
 				},
 				'statsDisabled': true
@@ -364,41 +344,6 @@ var Voxel = {
 						
 						minecraftskinHandle.strTeam = strTeam;
 					}
-				}
-				
-				{
-					if (minecraftskinHandle.strItem !== strItem) {
-						minecraftskinHandle.rightArm.remove(minecraftskinHandle.meshPickaxe);
-						minecraftskinHandle.rightArm.remove(minecraftskinHandle.meshSword);
-						minecraftskinHandle.rightArm.remove(minecraftskinHandle.meshBow);
-						
-						if (strItem === 'itemPickaxe') {
-							minecraftskinHandle.rightArm.add(minecraftskinHandle.meshPickaxe);
-							
-						} else if (strItem === 'itemSword') {
-							minecraftskinHandle.rightArm.add(minecraftskinHandle.meshSword);
-							
-						} else if (strItem === 'itemBow') {
-							minecraftskinHandle.rightArm.add(minecraftskinHandle.meshBow);
-							
-						}
-						
-						minecraftskinHandle.strItem = strItem;
-					}
-				}
-				
-				{
-					var dblItem = 0.0;
-					
-					if (strItem !== '') {
-						dblItem = 0.1 * Math.PI;
-					}
-					
-					minecraftskinHandle.rightArm.rotation.z = 2 * Math.cos((6.666 * intWalktime) + (0.5 * Math.PI) + Math.PI + dblItem);
-					minecraftskinHandle.leftArm.rotation.z = 2 * Math.cos((6.666 * intWalktime) + (0.5 * Math.PI));
-					
-					minecraftskinHandle.rightLeg.rotation.z = 1.4 * Math.cos((6.666 * intWalktime) + (0.5 * Math.PI));
-					minecraftskinHandle.leftLeg.rotation.z = 1.4 * Math.cos((6.666 * intWalktime) + (0.5 * Math.PI) + Math.PI);
 				}
 			};
 		}
@@ -764,17 +709,11 @@ var Player = {
 	dblVerlet: [ 0.0, 0.0, 0.0 ],
 	dblAcceleration: [ 0.0, 0.0, 0.0 ],
 	
-	boolCollisionTop: false,
-	boolCollisionSide: false,
-	boolCollisionBottom: false,
-	
 	init: function() {
 		{
 			Player.minecraftskinHandle = Voxel.minecraftskinCreate();
 			
 			{
-				Player.minecraftskinHandle.mesh.position.set(0, 0, 0);
-				
 				Player.minecraftskinHandle.mesh.cameraInside.add(Voxel.voxelengineHandle.camera);
 			}
 			
@@ -799,22 +738,14 @@ var Player = {
 			Player.dblPosition[0] = 0.0;
 			Player.dblPosition[1] = 1.0;
 			Player.dblPosition[2] = 0.0;
-
+			
 			Player.dblVerlet[0] = Player.dblPosition[0];
 			Player.dblVerlet[1] = Player.dblPosition[1];
 			Player.dblVerlet[2] = Player.dblPosition[2];
-
+			
 			Player.dblAcceleration[0] = 0.0;
 			Player.dblAcceleration[1] = 0.0;
 			Player.dblAcceleration[2] = 0.0;
-		}
-		
-		{
-			Player.boolCollisionTop = false;
-			
-			Player.boolCollisionSide = false;
-			
-			Player.boolCollisionBottom = false;
 		}
 		
 		{
@@ -835,22 +766,14 @@ var Player = {
 			Player.dblPosition[0] = 0.0;
 			Player.dblPosition[1] = 0.0;
 			Player.dblPosition[2] = 0.0;
-
+			
 			Player.dblVerlet[0] = 0.0;
 			Player.dblVerlet[1] = 0.0;
 			Player.dblVerlet[2] = 0.0;
-
+			
 			Player.dblAcceleration[0] = 0.0;
 			Player.dblAcceleration[1] = 0.0;
 			Player.dblAcceleration[2] = 0.0;
-		}
-		
-		{
-			Player.boolCollisionTop = false;
-			
-			Player.boolCollisionSide = false;
-			
-			Player.boolCollisionBottom = false;
 		}
 		
 		{
@@ -890,29 +813,17 @@ var Player = {
 		}
 		
 		{
-			var dblVelocityX = Player.dblPosition[0] - Player.dblVerlet[0];
-			var dblVelocityY = Player.dblPosition[1] - Player.dblVerlet[1];
-			var dblVelocityZ = Player.dblPosition[2] - Player.dblVerlet[2];
-
-			dblVelocityX *= 0.8;
-			dblVelocityY *= 0.8;
-			dblVelocityZ *= 0.8;
-			
-			Player.dblPosition[0] = Player.dblVerlet[0] + dblVelocityX;
-			Player.dblPosition[1] = Player.dblVerlet[1] + dblVelocityY;
-			Player.dblPosition[2] = Player.dblVerlet[2] + dblVelocityZ;
-		}
-		
-		{
-			Player.dblSize = [ 1.0, 1.6, 1.0 ];
-			Player.dblMaxvel = [ 0.12, 0.12, 0.12 ];
+			Player.dblSize = Constants.dblPlayerSize;
+			Player.dblGravity = Constants.dblPlayerGravity;
+			Player.dblMaxvel = Constants.dblPlayerMaxvel;
+			Player.dblFriction = Constants.dblPlayerFriction;
 			
 			Physics.update(Player);
 		}
 		
 		{
 			Player.minecraftskinHandle.mesh.position.x = Player.dblPosition[0];
-			Player.minecraftskinHandle.mesh.position.y = Player.dblPosition[1] - 0.5;
+			Player.minecraftskinHandle.mesh.position.y = Player.dblPosition[1] - (0.5 * Constants.dblPlayerSize[1]);
 			Player.minecraftskinHandle.mesh.position.z = Player.dblPosition[2];
 		}
 	}
@@ -928,6 +839,12 @@ var Physics = {
 	},
 	
 	update: function(physicsHandle) {
+		{
+			physicsHandle.dblAcceleration[0] += physicsHandle.dblGravity[0];
+			physicsHandle.dblAcceleration[1] += physicsHandle.dblGravity[1];
+			physicsHandle.dblAcceleration[2] += physicsHandle.dblGravity[2];
+		}
+		
 		{
 			var dblVerletX = physicsHandle.dblPosition[0];
 			var dblVerletY = physicsHandle.dblPosition[1];
@@ -950,55 +867,63 @@ var Physics = {
 			var dblVelocityX = physicsHandle.dblPosition[0] - physicsHandle.dblVerlet[0];
 			var dblVelocityY = physicsHandle.dblPosition[1] - physicsHandle.dblVerlet[1];
 			var dblVelocityZ = physicsHandle.dblPosition[2] - physicsHandle.dblVerlet[2];
+
+			{
+				dblVelocityX *= physicsHandle.dblFriction[0];
+				dblVelocityY *= physicsHandle.dblFriction[1];
+				dblVelocityZ *= physicsHandle.dblFriction[2];
+			}
 			
-			if (physicsHandle.dblMaxvel.length === 1) {
-				{
-					var dblLength = Math.sqrt((dblVelocityX * dblVelocityX) + (dblVelocityY * dblVelocityY) + (dblVelocityZ * dblVelocityZ));
+			{
+				if (physicsHandle.dblMaxvel.length === 1) {
+					{
+						var dblLength = Math.sqrt((dblVelocityX * dblVelocityX) + (dblVelocityY * dblVelocityY) + (dblVelocityZ * dblVelocityZ));
+						
+						if (Math.abs(dblLength) > physicsHandle.dblMaxvel[0]) {
+							dblVelocityX *= physicsHandle.dblMaxvel[0] / dblLength;
+							dblVelocityY *= physicsHandle.dblMaxvel[0] / dblLength;
+							dblVelocityZ *= physicsHandle.dblMaxvel[0] / dblLength;
+							
+						} else if (Math.abs(dblLength) < 0.0001) {
+							dblVelocityX = 0.0;
+							dblVelocityY = 0.0;
+							dblVelocityZ = 0.0;
+							
+						}
+					}
 					
-					if (Math.abs(dblLength) > physicsHandle.dblMaxvel[0]) {
-						dblVelocityX *= physicsHandle.dblMaxvel[0] / dblLength;
-						dblVelocityY *= physicsHandle.dblMaxvel[0] / dblLength;
-						dblVelocityZ *= physicsHandle.dblMaxvel[0] / dblLength;
-						
-					} else if (Math.abs(dblLength) < 0.0001) {
-						dblVelocityX = 0.0;
-						dblVelocityY = 0.0;
-						dblVelocityZ = 0.0;
-						
+				} else if (physicsHandle.dblMaxvel.length === 3) {
+					{
+						if (Math.abs(dblVelocityX) > physicsHandle.dblMaxvel[0]) {
+							dblVelocityX = (dblVelocityX > 0.0 ? 1.0 : -1.0) * physicsHandle.dblMaxvel[0];
+							
+						} else if (Math.abs(dblVelocityX) < 0.0001) {
+							dblVelocityX = 0.0;
+							
+						}
 					}
-				}
-				
-			} else if (physicsHandle.dblMaxvel.length === 3) {
-				{
-					if (Math.abs(dblVelocityX) > physicsHandle.dblMaxvel[0]) {
-						dblVelocityX = (dblVelocityX > 0.0 ? 1.0 : -1.0) * physicsHandle.dblMaxvel[0];
-						
-					} else if (Math.abs(dblVelocityX) < 0.0001) {
-						dblVelocityX = 0.0;
-						
+					
+					{
+						if (Math.abs(dblVelocityY) > physicsHandle.dblMaxvel[1]) {
+							dblVelocityY = (dblVelocityY > 0.0 ? 1.0 : -1.0) * physicsHandle.dblMaxvel[1];
+							
+						} else if (Math.abs(dblVelocityY) < 0.0001) {
+							dblVelocityY = 0.0;
+							
+						}
 					}
-				}
-				
-				{
-					if (Math.abs(dblVelocityY) > physicsHandle.dblMaxvel[1]) {
-						dblVelocityY = (dblVelocityY > 0.0 ? 1.0 : -1.0) * physicsHandle.dblMaxvel[1];
-						
-					} else if (Math.abs(dblVelocityY) < 0.0001) {
-						dblVelocityY = 0.0;
-						
+					
+					{
+						if (Math.abs(dblVelocityZ) > physicsHandle.dblMaxvel[2]) {
+							dblVelocityZ = (dblVelocityZ > 0.0 ? 1.0 : -1.0) * physicsHandle.dblMaxvel[2];
+							
+						} else if (Math.abs(dblVelocityZ) < 0.0001) {
+							dblVelocityZ = 0.0;
+							
+						}
 					}
+	
 				}
-				
-				{
-					if (Math.abs(dblVelocityZ) > physicsHandle.dblMaxvel[2]) {
-						dblVelocityZ = (dblVelocityZ > 0.0 ? 1.0 : -1.0) * physicsHandle.dblMaxvel[2];
-						
-					} else if (Math.abs(dblVelocityZ) < 0.0001) {
-						dblVelocityZ = 0.0;
-						
-					}
-				}
-				
 			}
 			
 			physicsHandle.dblPosition[0] = physicsHandle.dblVerlet[0] + dblVelocityX;
@@ -1024,7 +949,7 @@ var Physics = {
 								
 							} else if (Settings.strMapType[[intX, intY, intZ ]] === '') {
 								continue;
-	
+								
 							}
 						}
 						
@@ -1119,6 +1044,29 @@ var Physics = {
 			physicsHandle.dblVerletY = dblVerletY;
 			physicsHandle.dblVerletZ = dblVerletZ;
 		}
+	},
+	
+	updateObjectcol: function(physicsHandle, physicsObjectcol) {
+		var boolObjectcol = true;
+		
+		{
+			var dblIntersectX = Math.abs(physicsHandle.dblPosition[0] - physicsObjectcol.dblPosition[0]) - (0.5 * physicsHandle.dblSize[0]) - (0.5 * physicsObjectcol.dblSize[0]);
+			var dblIntersectY = Math.abs(physicsHandle.dblPosition[1] - physicsObjectcol.dblPosition[1]) - (0.5 * physicsHandle.dblSize[1]) - (0.5 * physicsObjectcol.dblSize[1]);
+			var dblIntersectZ = Math.abs(physicsHandle.dblPosition[2] - physicsObjectcol.dblPosition[2]) - (0.5 * physicsHandle.dblSize[2]) - (0.5 * physicsObjectcol.dblSize[2]);
+
+			if (dblIntersectX >= 0.0) {
+				boolObjectcol = false;
+
+			} else if (dblIntersectY >= 0.0) {
+				boolObjectcol = false;
+
+			} else if (dblIntersectZ >= 0.0) {
+				boolObjectcol = false;
+
+			}
+		}
+		
+		return boolObjectcol;
 	}
 };
 
