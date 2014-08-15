@@ -17,7 +17,10 @@ var Constants = {
 	dblArrowMaxvel: [ 0.26 ],
 	dblArrowFriction: [ 1.0, 1.0, 1.0 ],
 	
-	intWeaponDuration: 33
+	intWeaponDuration: 33,
+	intWeaponSwordhit: 20,
+	intWeaponBowhit: 20,
+	dblWeaponImpact: [ 0.09, 0.09, 0.09 ]
 };
 
 var Settings = {
@@ -371,6 +374,12 @@ var Gui = {
 					})
 				;
 				
+				jQuery('#idHealth')
+					.css({
+						'display': 'none'
+					})
+				;
+				
 				jQuery('#idWestside')
 					.css({
 						'display': 'none'
@@ -432,6 +441,12 @@ var Gui = {
 					
 				} else if (Gui.strMode === 'modeGame') {
 					jQuery('#idCrosshair')
+						.css({
+							'display': 'block'
+						})
+					;
+					
+					jQuery('#idHealth')
 						.css({
 							'display': 'block'
 						})
@@ -1091,6 +1106,10 @@ var Socket = {
 					}
 					
 					{
+						Player.intHealth = jsonHandle.intHealth;
+					}
+					
+					{
 						Player.dblPosition[0] = jsonHandle.dblPosition[0];
 						Player.dblPosition[1] = jsonHandle.dblPosition[1];
 						Player.dblPosition[2] = jsonHandle.dblPosition[2];
@@ -1099,9 +1118,9 @@ var Socket = {
 						Player.dblVerlet[1] = Player.dblPosition[1];
 						Player.dblVerlet[2] = Player.dblPosition[2];
 
-						Player.dblAcceleration[0] = 0.0;
-						Player.dblAcceleration[1] = 0.0;
-						Player.dblAcceleration[2] = 0.0;
+						Player.dblAcceleration[0] = jsonHandle.dblAcceleration[0];
+						Player.dblAcceleration[1] = jsonHandle.dblAcceleration[1];
+						Player.dblAcceleration[2] = jsonHandle.dblAcceleration[2];
 					}
 				});
 				
@@ -1660,6 +1679,10 @@ var Player = {
 		}
 		
 		{
+			Player.intHealth = 0;
+		}
+		
+		{
 			Player.dblPosition[0] = 0.0;
 			Player.dblPosition[1] = 0.0;
 			Player.dblPosition[2] = 0.0;
@@ -1698,6 +1721,10 @@ var Player = {
 		}
 		
 		{
+			Player.intHealth = 0;
+		}
+		
+		{
 			Player.dblPosition[0] = 0.0;
 			Player.dblPosition[1] = 0.0;
 			Player.dblPosition[2] = 0.0;
@@ -1721,6 +1748,15 @@ var Player = {
 	},
 	
 	update: function() {
+		{
+			jQuery('#idHealth').children('div')
+				.css({
+					'left': (0.5 * (100 - Player.intHealth)) + '%',
+					'right': (0.5 * (100 - Player.intHealth)) + '%'
+				})
+			;
+		}
+		
 		{
 			if (Input.boolUp === true) {
 				Player.dblAcceleration[0] -= Constants.dblPlayerMovement[0] * Math.sin(Player.minecraftskinHandle.mesh.rotation.y);

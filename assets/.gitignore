@@ -1,7 +1,5 @@
 /node_modules
-/index.js
-/skins
-/textures
-/offline
-/editor.js
+
 /images
+/editor.js
+/index.js

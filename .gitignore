@@ -1,5 +1,6 @@
 /.settings
-.jshintrc
-.project
+/.jshintrc
+/.project
+
 /node_modules
 /tmp

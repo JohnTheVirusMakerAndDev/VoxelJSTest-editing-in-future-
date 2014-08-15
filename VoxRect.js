@@ -212,6 +212,7 @@ var Node = {
 				'intScore': 0,
 				'intKills': 0,
 				'intDeaths': 0,
+				'intHealth': 0,
 				'dblPosition': [ 0.0, 0.0, 0.0 ],
 				'dblVerlet': [ 0.0, 0.0, 0.0 ],
 				'dblAcceleration': [ 0.0, 0.0, 0.0 ],
@@ -632,7 +633,10 @@ var Constants = {
 	dblArrowMaxvel: [ 0.26 ],
 	dblArrowFriction: [ 1.0, 1.0, 1.0 ],
 	
-	intWeaponDuration: 33
+	intWeaponDuration: 33,
+	intWeaponSwordhit: 20,
+	intWeaponBowhit: 20,
+	dblWeaponImpact: [ 0.09, 0.09, 0.09 ]
 };
 
 var Gameserver = {
@@ -668,6 +672,7 @@ var Gameserver = {
 	intPlayerCapacity: 0,
 	functionPlayerUpdate: null,
 	functionPlayerRespawn: null,
+	functionPlayerHit: null,
 	
 	itemHandle: {},
 	functionItemLoad: null,
@@ -1002,7 +1007,9 @@ var Gameserver = {
 			};
 			
 			Gameserver.functionPlayerRespawn = function(playerHandle) {
-				var dblPosition = [ 0.0, 0.0, 0.0 ];
+				{
+					playerHandle.intHealth = Constants.intPlayerHealth;
+				}
 				
 				{
 					var intMapSpawn = [];
@@ -1015,15 +1022,50 @@ var Gameserver = {
 						
 					}
 
-					dblPosition[0] = intMapSpawn[0] + 0.5;
-					dblPosition[1] = intMapSpawn[1] + 2.0;
-					dblPosition[2] = intMapSpawn[2] + 0.5;
+					playerHandle.dblPosition[0] = intMapSpawn[0] + 0.5;
+					playerHandle.dblPosition[1] = intMapSpawn[1] + 2.0;
+					playerHandle.dblPosition[2] = intMapSpawn[2] + 0.5;
 				}
 				
-				playerHandle.socketHandle.emit('playerHandle', {
-					'strTeam': playerHandle.strTeam,
-					'dblPosition': dblPosition
-				});
+				{
+					playerHandle.socketHandle.emit('playerHandle', {
+						'strTeam': playerHandle.strTeam,
+						'intHealth': playerHandle.intHealth,
+						'dblPosition': playerHandle.dblPosition,
+						'dblAcceleration': playerHandle.dblAcceleration
+					});
+				}
+			};
+			
+			Gameserver.functionPlayerHit = function(playerHandle, intHealth, dblRotation) {
+				{
+					playerHandle.intHealth -= intHealth;
+				}
+				
+				{
+					if (playerHandle.intHealth >= 1) {
+						{
+							playerHandle.dblAcceleration[0] = -1.0 * Constants.dblWeaponImpact[0] * Math.sin(dblRotation[1]) * Math.cos(dblRotation[2]);
+							playerHandle.dblAcceleration[1] = -1.0 * Constants.dblWeaponImpact[1] * Math.sin(dblRotation[2] + (1.0 * Math.PI));
+							playerHandle.dblAcceleration[2] = -1.0 * Constants.dblWeaponImpact[2] * Math.cos(dblRotation[1]) * Math.cos(dblRotation[2]);
+						}
+						
+						{
+							playerHandle.socketHandle.emit('playerHandle', {
+								'strTeam': playerHandle.strTeam,
+								'intHealth': playerHandle.intHealth,
+								'dblPosition': playerHandle.dblPosition,
+								'dblAcceleration': playerHandle.dblAcceleration
+							});
+						}
+						
+					} else if (playerHandle.intHealth < 1) {
+						{
+							Gameserver.functionPlayerRespawn(playerHandle);
+						}
+						
+					}
+				}
 			};
 		}
 		
@@ -1166,22 +1208,11 @@ var Gameserver = {
 										}
 										
 										{
+											Gameserver.functionPlayerHit(playerHandle, Constants.intWeaponBowhit, itemHandle.dblRotation);
+										}
+										
+										{
 											delete Gameserver.itemHandle[itemHandle.strIdent];
-										}
-										
-										{
-											playerHandle.intHealth -= 20;
-										}
-										
-										{
-											playerHandle.socketHandle.emit('weaponHandle', {
-												'intHealth': playerHandle.intHealth,
-												'dblAcceleration': [ 0.0, 0.0, 0.0 ]
-											});
-										}
-
-										{
-											break;
 										}
 									}
 								}
@@ -1337,6 +1368,8 @@ var Gameserver = {
 			Gameserver.functionPlayerUpdate = null;
 			
 			Gameserver.functionPlayerRespawn = null;
+			
+			Gameserver.functionPlayerHit = null;
 		}
 		
 		{

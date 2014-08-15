@@ -1,3 +1,4 @@
 :: to install browserify: npm install browserify -g
+:: to install uglifyify: npm install uglifyify -g
 
-browserify editor.debug.js -o editor.js
+browserify -g uglifyify ./editor.debug.js > ./editor.js
