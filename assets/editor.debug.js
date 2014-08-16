@@ -1,24 +1,25 @@
 var Constants = {
-	intPlayerMaxhealth: 100,
-	dblPlayerSize: [ 1.0, 1.6, 1.0 ],
+	intPlayerHealth: 100,
+	dblPlayerMovement: [ 0.03, 0.03, 0.03 ],
+	dblPlayerSize: [ 0.9, 1.6, 0.9 ],
 	dblPlayerGravity: [ 0.0, 0.0, 0.0 ],
 	dblPlayerMaxvel: [ 0.12, 0.26, 0.12 ],
 	dblPlayerFriction: [ 0.8, 0.8, 0.8 ],
 	dblPlayerHitbox: [ 0.4, 0.9, 0.4 ]
 };
 
-var Settings = {
+var Gameserver = {
 	strMapType: {},
 	
 	init: function() {
 		{
-			Settings.strMapType = {};
+			Gameserver.strMapType = {};
 		}
 	},
 	
 	dispel: function() {
 		{
-			Settings.strMapType = {};
+			Gameserver.strMapType = {};
 		}
 	}
 };
@@ -46,7 +47,7 @@ var Gui = {
 				.on('update', function() {
 					{
 						jQuery(this)
-							.val(JSON.stringify(Settings.strMapType))
+							.val(JSON.stringify(Gameserver.strMapType))
 						;
 					}
 				})
@@ -87,8 +88,8 @@ var Gui = {
 				.off('click')
 				.on('click', function() {
 					{
-					    for (var intCoordinate in Settings.strMapType) {
-							var strType = Settings.strMapType[intCoordinate];
+					    for (var intCoordinate in Gameserver.strMapType) {
+							var strType = Gameserver.strMapType[intCoordinate];
 							
 							{
 								Voxel.voxelengineHandle.setBlock(JSON.parse('[' + intCoordinate + ']'), 0);
@@ -97,12 +98,12 @@ var Gui = {
 					}
 					
 					{
-						Settings.strMapType = JSON.parse(jQuery('#idMap_Json').val());
+						Gameserver.strMapType = JSON.parse(jQuery('#idMap_Json').val());
 					}
 					
 					{
-					    for (var intCoordinate in Settings.strMapType) {
-							var strType = Settings.strMapType[intCoordinate];
+					    for (var intCoordinate in Gameserver.strMapType) {
+							var strType = Gameserver.strMapType[intCoordinate];
 							
 							{
 								Voxel.voxelengineHandle.setBlock(JSON.parse('[' + intCoordinate + ']'), Voxel.voxelengineHandle.materials.find(strType));
@@ -265,7 +266,6 @@ var Voxel = {
 		}
 		
 		{
-			// TODO: commit changes to voxel-highlight
 			Voxel.voxelhighlightHandle = require('voxel-highlight')(Voxel.voxelengineHandle, {
 				'enabled': function() {
 					if (Gui.strChooserCategory === 'categoryCreate') {
@@ -728,6 +728,8 @@ var Player = {
 				Player.physicsHandle.blocksCreation = true;
 				
 				Player.physicsHandle.position = Player.minecraftskinHandle.mesh.position;
+				
+				Player.physicsHandle.roll = null;
 				Player.physicsHandle.yaw = Player.minecraftskinHandle.mesh;
 				Player.physicsHandle.pitch = Player.minecraftskinHandle.mesh.head;
 			}
@@ -747,10 +749,6 @@ var Player = {
 			Player.dblAcceleration[0] = 0.0;
 			Player.dblAcceleration[1] = 0.0;
 			Player.dblAcceleration[2] = 0.0;
-		}
-		
-		{
-			Player.intJumpcount = 0;
 		}
 	},
 	
@@ -776,40 +774,36 @@ var Player = {
 			Player.dblAcceleration[1] = 0.0;
 			Player.dblAcceleration[2] = 0.0;
 		}
-		
-		{
-			Player.intJumpcount = 0;
-		}
 	},
 	
 	update: function() {
 		{
 			if (Input.boolUp === true) {
-				Player.dblAcceleration[0] -= 0.03 * Math.sin(Player.minecraftskinHandle.mesh.rotation.y);
-				Player.dblAcceleration[2] -= 0.03 * Math.cos(Player.minecraftskinHandle.mesh.rotation.y);
+				Player.dblAcceleration[0] -= Constants.dblPlayerMovement[0] * Math.sin(Player.physicsHandle.yaw.rotation.y);
+				Player.dblAcceleration[2] -= Constants.dblPlayerMovement[0] * Math.cos(Player.physicsHandle.yaw.rotation.y);
 			}
 			
 			if (Input.boolDown === true) {
-				Player.dblAcceleration[0] += 0.03 * Math.sin(Player.minecraftskinHandle.mesh.rotation.y);
-				Player.dblAcceleration[2] += 0.03 * Math.cos(Player.minecraftskinHandle.mesh.rotation.y);
+				Player.dblAcceleration[0] += Constants.dblPlayerMovement[0] * Math.sin(Player.physicsHandle.yaw.rotation.y);
+				Player.dblAcceleration[2] += Constants.dblPlayerMovement[0] * Math.cos(Player.physicsHandle.yaw.rotation.y);
 			}
 			
 			if (Input.boolLeft === true) {
-				Player.dblAcceleration[0] -= 0.03 * Math.sin(Player.minecraftskinHandle.mesh.rotation.y + (0.5 * Math.PI));
-				Player.dblAcceleration[2] -= 0.03 * Math.cos(Player.minecraftskinHandle.mesh.rotation.y + (0.5 * Math.PI));
+				Player.dblAcceleration[0] -= Constants.dblPlayerMovement[2] * Math.sin(Player.physicsHandle.yaw.rotation.y + (0.5 * Math.PI));
+				Player.dblAcceleration[2] -= Constants.dblPlayerMovement[2] * Math.cos(Player.physicsHandle.yaw.rotation.y + (0.5 * Math.PI));
 			}
 			
 			if (Input.boolRight === true) {
-				Player.dblAcceleration[0] += 0.03 * Math.sin(Player.minecraftskinHandle.mesh.rotation.y + (0.5 * Math.PI));
-				Player.dblAcceleration[2] += 0.03 * Math.cos(Player.minecraftskinHandle.mesh.rotation.y + (0.5 * Math.PI));
+				Player.dblAcceleration[0] += Constants.dblPlayerMovement[2] * Math.sin(Player.physicsHandle.yaw.rotation.y + (0.5 * Math.PI));
+				Player.dblAcceleration[2] += Constants.dblPlayerMovement[2] * Math.cos(Player.physicsHandle.yaw.rotation.y + (0.5 * Math.PI));
 			}
 			
 			if (Input.boolSpace === true) {
-				Player.dblAcceleration[1] += 0.03;
+				Player.dblAcceleration[1] += Constants.dblPlayerMovement[1];
 			}
 			
 			if (Input.boolShift === true) {
-				Player.dblAcceleration[1] -= 0.03;
+				Player.dblAcceleration[1] -= Constants.dblPlayerMovement[1];
 			}
 		}
 		
@@ -945,10 +939,10 @@ var Physics = {
 						var intZ = Math.floor(physicsHandle.dblPosition[2]) + intFor3;
 						
 						if (intY !== 0) {
-							if (Settings.strMapType[[intX, intY, intZ ]] === undefined) {
+							if (Gameserver.strMapType[[intX, intY, intZ ]] === undefined) {
 								continue;
 								
-							} else if (Settings.strMapType[[intX, intY, intZ ]] === '') {
+							} else if (Gameserver.strMapType[[intX, intY, intZ ]] === '') {
 								continue;
 								
 							}
@@ -1068,12 +1062,38 @@ var Physics = {
 		}
 		
 		return boolObjectcol;
+	},
+	
+	updateRaycol: function(physicsHandle, physicsRaycol) {
+		var dblSlabMin = Number.MIN_VALUE;
+		var dblSlabMax = Number.MAX_VALUE;
+		
+		{
+			for (var intFor1 = 0; intFor1 < 3; intFor1 += 1) {
+				if (physicsHandle.dblAcceleration[intFor1] === 0.0) {
+					continue;
+				}
+				
+				{
+					var dblBoxMin = physicsRaycol.dblPosition[intFor1] - (0.5 * physicsRaycol.dblSize[intFor1]);
+					var dblBoxMax = physicsRaycol.dblPosition[intFor1] + (0.5 * physicsRaycol.dblSize[intFor1]);
+					
+					var dblCandidateMin = (dblBoxMin - physicsHandle.dblPosition[intFor1]) / physicsHandle.dblAcceleration[intFor1];
+					var dblCandidateMax = (dblBoxMax - physicsHandle.dblPosition[intFor1]) / physicsHandle.dblAcceleration[intFor1];
+					
+					dblSlabMin = Math.max(dblSlabMin, Math.min(dblCandidateMin, dblCandidateMax));
+					dblSlabMax = Math.min(dblSlabMax, Math.max(dblCandidateMin, dblCandidateMax));
+				}
+			}
+		}
+
+		return dblSlabMax >= Math.max(0.0, dblSlabMin);
 	}
 };
 
 jQuery(document).ready(function() {
 	{
-		Settings.init();
+		Gameserver.init();
 		
 		Gui.init();
 		
@@ -1098,27 +1118,27 @@ jQuery(document).ready(function() {
 						if (Gui.intChooserType === 0) {
 							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelBrick'));
 							
-							Settings.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelBrick';
+							Gameserver.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelBrick';
 							
 						} else if (Gui.intChooserType === 1) {
 							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelDirt'));
 							
-							Settings.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelDirt';
+							Gameserver.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelDirt';
 							
 						} else if (Gui.intChooserType === 2) {
 							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelGrass'));
 							
-							Settings.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelGrass';
+							Gameserver.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelGrass';
 							
 						} else if (Gui.intChooserType === 3) {
 							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelPlank'));
 							
-							Settings.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelPlank';
+							Gameserver.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelPlank';
 							
 						} else if (Gui.intChooserType === 4) {
 							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelStone'));
 							
-							Settings.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelStone';
+							Gameserver.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelStone';
 							
 						}
 					}
@@ -1130,27 +1150,27 @@ jQuery(document).ready(function() {
 						if (Gui.intChooserType === 0) {
 							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelRedSpawn'));
 							
-							Settings.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelRedSpawn';
+							Gameserver.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelRedSpawn';
 							
 						} else if (Gui.intChooserType === 1) {
 							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelRedFlag'));
 							
-							Settings.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelRedFlag';
+							Gameserver.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelRedFlag';
 							
 						} else if (Gui.intChooserType === 2) {
 							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelBlueSpawn'));
 							
-							Settings.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelBlueSpawn';
+							Gameserver.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelBlueSpawn';
 							
 						} else if (Gui.intChooserType === 3) {
 							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelBlueFlag'));
 							
-							Settings.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelBlueFlag';
+							Gameserver.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelBlueFlag';
 							
 						} else if (Gui.intChooserType === 4) {
 							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelSeparator'));
 							
-							Settings.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelSeparator';
+							Gameserver.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelSeparator';
 							
 						}
 					}
@@ -1162,7 +1182,7 @@ jQuery(document).ready(function() {
 						if (Gui.intChooserType === 0) {
 							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionDestroy, 0);
 							
-							delete Settings.strMapType[Voxel.voxelhighlightHandle.positionDestroy];
+							delete Gameserver.strMapType[Voxel.voxelhighlightHandle.positionDestroy];
 						}
 					}
 				}

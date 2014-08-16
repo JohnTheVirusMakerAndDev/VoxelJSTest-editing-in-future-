@@ -16,31 +16,57 @@ var Constants = {
 	dblArrowGravity: [ 0.0, -0.001, 0.0 ],
 	dblArrowMaxvel: [ 0.26 ],
 	dblArrowFriction: [ 1.0, 1.0, 1.0 ],
-	
+
 	intWeaponDuration: 33,
-	intWeaponSwordhit: 20,
-	intWeaponBowhit: 20,
-	dblWeaponImpact: [ 0.09, 0.09, 0.09 ]
+	intWeaponSwordDamage: 20,
+	dblWeaponSwordImpact: [ 0.09, 0.09, 0.09 ],
+	dblWeaponSwordRange: 2.0,
+	intWeaponBowDamage: 20,
+	dblWeaponBowImpact: [ 0.09, 0.09, 0.09 ]
 };
 
-var Settings = {
+var Gameserver = {
 	strMapType: {},
 	
 	strPhaseActive: '',
+
+	enemyHandle: {},
+	
+	itemHandle: {},
 	
 	init: function() {
 		{
-			Settings.strMapType = {};
-			
-			Settings.strPhaseActive = '';
+			Gameserver.strMapType = {};
+		}
+		
+		{
+			Gameserver.strPhaseActive = '';
+		}
+		
+		{
+			Gameserver.enemyHandle = {};
+		}
+		
+		{
+			Gameserver.itemHandle = {};
 		}
 	},
 	
 	dispel: function() {
 		{
-			Settings.strMapType = {};
-			
-			Settings.strPhaseActive = '';
+			Gameserver.strMapType = {};
+		}
+		
+		{
+			Gameserver.strPhaseActive = '';
+		}
+		
+		{
+			Gameserver.enemyHandle = {};
+		}
+		
+		{
+			Gameserver.itemHandle = {};
 		}
 	}
 };
@@ -478,7 +504,7 @@ var Gui = {
 			}
 			
 			{
-				if (Settings.strPhaseActive === 'Build') {
+				if (Gameserver.strPhaseActive === 'Build') {
 					{
 						jQuery('#idPhaseBuild')
 							.css({
@@ -487,7 +513,7 @@ var Gui = {
 						;
 					}
 					
-				} else if (Settings.strPhaseActive === 'Combat') {
+				} else if (Gameserver.strPhaseActive === 'Combat') {
 					{
 						jQuery('#idPhaseCombat')
 							.css({
@@ -580,7 +606,6 @@ var Voxel = {
 		}
 		
 		{
-			// TODO: commit changes to voxel-highlight
 			Voxel.voxelhighlightHandle = require('voxel-highlight')(Voxel.voxelengineHandle, {
 				'enabled': function() {
 					if (Gui.strChooserCategory === 'categoryCreate') {
@@ -868,10 +893,6 @@ var Socket = {
 	socketHandle: null,
 	
 	intPing: 0,
-
-	enemyHandle: {},
-	
-	itemHandle: {},
 	
 	init: function() {
 		{
@@ -880,14 +901,6 @@ var Socket = {
 		
 		{
 			Socket.intPing = 0;
-		}
-		
-		{
-			Socket.enemyHandle = {};
-		}
-		
-		{
-			Socket.itemHandle = {};
 		}
 		
 		{
@@ -1056,10 +1069,10 @@ var Socket = {
 					}
 				});
 				
-				Socket.socketHandle.on('settingsHandle', function(jsonHandle) {
+				Socket.socketHandle.on('gameserverHandle', function(jsonHandle) {
 					{
-					    for (var intCoordinate in Settings.strMapType) {
-							var strType = Settings.strMapType[intCoordinate];
+					    for (var intCoordinate in Gameserver.strMapType) {
+							var strType = Gameserver.strMapType[intCoordinate];
 							
 							{
 								Voxel.voxelengineHandle.setBlock(JSON.parse('[' + intCoordinate + ']'), 0);
@@ -1068,12 +1081,12 @@ var Socket = {
 					}
 					
 					{
-						Settings.strMapType = jsonHandle.strMapType;
+						Gameserver.strMapType = jsonHandle.strMapType;
 					}
 					
 					{
-					    for (var intCoordinate in Settings.strMapType) {
-							var strType = Settings.strMapType[intCoordinate];
+					    for (var intCoordinate in Gameserver.strMapType) {
+							var strType = Gameserver.strMapType[intCoordinate];
 							
 							{
 								Voxel.voxelengineHandle.setBlock(JSON.parse('[' + intCoordinate + ']'), Voxel.voxelengineHandle.materials.find(strType));
@@ -1082,7 +1095,7 @@ var Socket = {
 					}
 					
 					{
-						Settings.strPhaseActive = jsonHandle.strPhaseActive;
+						Gameserver.strPhaseActive = jsonHandle.strPhaseActive;
 					}
 					
 					{
@@ -1141,8 +1154,8 @@ var Socket = {
 							}
 							
 							{
-								if (Socket.enemyHandle.hasOwnProperty(enemyHandle.strIdent) === true) {
-									Physics.updateOverwrite(enemyHandle, Socket.enemyHandle[enemyHandle.strIdent]);
+								if (Gameserver.enemyHandle.hasOwnProperty(enemyHandle.strIdent) === true) {
+									Physics.updateOverwrite(enemyHandle, Gameserver.enemyHandle[enemyHandle.strIdent]);
 								}
 							}
 							
@@ -1160,7 +1173,7 @@ var Socket = {
 							}
 						}
 						
-						Socket.enemyHandle = enemyOverwrite;
+						Gameserver.enemyHandle = enemyOverwrite;
 					}
 				});
 				
@@ -1180,8 +1193,8 @@ var Socket = {
 							}
 							
 							{
-								if (Socket.itemHandle.hasOwnProperty(itemHandle.strIdent) === true) {
-									Physics.updateOverwrite(itemHandle, Socket.itemHandle[itemHandle.strIdent]);
+								if (Gameserver.itemHandle.hasOwnProperty(itemHandle.strIdent) === true) {
+									Physics.updateOverwrite(itemHandle, Gameserver.itemHandle[itemHandle.strIdent]);
 								}
 							}
 							
@@ -1198,17 +1211,17 @@ var Socket = {
 							}
 						}
 						
-						Socket.itemHandle = itemOverwrite;
+						Gameserver.itemHandle = itemOverwrite;
 					}
 				});
 				
 				Socket.socketHandle.on('voxelHandle', function(jsonHandle) {
 					{
 						if (jsonHandle.strType === '') {
-							delete Settings.strMapType[jsonHandle.intCoordinate];
+							delete Gameserver.strMapType[jsonHandle.intCoordinate];
 							
 						} else if (jsonHandle.strType !== '') {
-							Settings.strMapType[jsonHandle.intCoordinate] = jsonHandle.strType;
+							Gameserver.strMapType[jsonHandle.intCoordinate] = jsonHandle.strType;
 							
 						}
 					}
@@ -1240,14 +1253,6 @@ var Socket = {
 		
 		{
 			Socket.intPing = 0;
-		}
-		
-		{
-			Socket.enemyHandle = {};
-		}
-		
-		{
-			Socket.itemHandle = {};
 		}
 	}
 };
@@ -1390,7 +1395,7 @@ var Input = {
 								}
 							}
 							
-							if (Settings.strPhaseActive === 'Build') {
+							if (Gameserver.strPhaseActive === 'Build') {
 								if (eventHandle.keyCode === 49) {
 									{
 										Gui.strChooserCategory = 'categoryCreate';
@@ -1423,7 +1428,7 @@ var Input = {
 									
 								}
 								
-							} else if (Settings.strPhaseActive === 'Combat') {
+							} else if (Gameserver.strPhaseActive === 'Combat') {
 								if (eventHandle.keyCode === 49) {
 									{
 										Gui.strChooserCategory = 'categoryWeapon';
@@ -1665,6 +1670,8 @@ var Player = {
 				Player.physicsHandle.blocksCreation = true;
 				
 				Player.physicsHandle.position = Player.minecraftskinHandle.mesh.position;
+				
+				Player.physicsHandle.roll = null;
 				Player.physicsHandle.yaw = Player.minecraftskinHandle.mesh;
 				Player.physicsHandle.pitch = Player.minecraftskinHandle.mesh.head;
 			}
@@ -1759,23 +1766,23 @@ var Player = {
 		
 		{
 			if (Input.boolUp === true) {
-				Player.dblAcceleration[0] -= Constants.dblPlayerMovement[0] * Math.sin(Player.minecraftskinHandle.mesh.rotation.y);
-				Player.dblAcceleration[2] -= Constants.dblPlayerMovement[0] * Math.cos(Player.minecraftskinHandle.mesh.rotation.y);
+				Player.dblAcceleration[0] -= Constants.dblPlayerMovement[0] * Math.sin(Player.physicsHandle.yaw.rotation.y);
+				Player.dblAcceleration[2] -= Constants.dblPlayerMovement[0] * Math.cos(Player.physicsHandle.yaw.rotation.y);
 			}
 			
 			if (Input.boolDown === true) {
-				Player.dblAcceleration[0] += Constants.dblPlayerMovement[0] * Math.sin(Player.minecraftskinHandle.mesh.rotation.y);
-				Player.dblAcceleration[2] += Constants.dblPlayerMovement[0] * Math.cos(Player.minecraftskinHandle.mesh.rotation.y);
+				Player.dblAcceleration[0] += Constants.dblPlayerMovement[0] * Math.sin(Player.physicsHandle.yaw.rotation.y);
+				Player.dblAcceleration[2] += Constants.dblPlayerMovement[0] * Math.cos(Player.physicsHandle.yaw.rotation.y);
 			}
 			
 			if (Input.boolLeft === true) {
-				Player.dblAcceleration[0] -= Constants.dblPlayerMovement[2] * Math.sin(Player.minecraftskinHandle.mesh.rotation.y + (0.5 * Math.PI));
-				Player.dblAcceleration[2] -= Constants.dblPlayerMovement[2] * Math.cos(Player.minecraftskinHandle.mesh.rotation.y + (0.5 * Math.PI));
+				Player.dblAcceleration[0] -= Constants.dblPlayerMovement[2] * Math.sin(Player.physicsHandle.yaw.rotation.y + (0.5 * Math.PI));
+				Player.dblAcceleration[2] -= Constants.dblPlayerMovement[2] * Math.cos(Player.physicsHandle.yaw.rotation.y + (0.5 * Math.PI));
 			}
 			
 			if (Input.boolRight === true) {
-				Player.dblAcceleration[0] += Constants.dblPlayerMovement[2] * Math.sin(Player.minecraftskinHandle.mesh.rotation.y + (0.5 * Math.PI));
-				Player.dblAcceleration[2] += Constants.dblPlayerMovement[2] * Math.cos(Player.minecraftskinHandle.mesh.rotation.y + (0.5 * Math.PI));
+				Player.dblAcceleration[0] += Constants.dblPlayerMovement[2] * Math.sin(Player.physicsHandle.yaw.rotation.y + (0.5 * Math.PI));
+				Player.dblAcceleration[2] += Constants.dblPlayerMovement[2] * Math.cos(Player.physicsHandle.yaw.rotation.y + (0.5 * Math.PI));
 			}
 			
 			if (Input.boolSpace === true) {
@@ -1869,8 +1876,8 @@ var Enemy = {
 		}
 		
 		{
-			for (var strIdent in Socket.enemyHandle) {
-				var enemyHandle = Socket.enemyHandle[strIdent];
+			for (var strIdent in Gameserver.enemyHandle) {
+				var enemyHandle = Gameserver.enemyHandle[strIdent];
 				
 				{
 					enemyHandle.dblSize = Constants.dblPlayerSize;
@@ -1982,8 +1989,8 @@ var Item = {
 	
 	update: function() {
 		{
-			for (var strIdent in Socket.itemHandle) {
-				var itemHandle = Socket.itemHandle[strIdent];
+			for (var strIdent in Gameserver.itemHandle) {
+				var itemHandle = Gameserver.itemHandle[strIdent];
 				
 				if (itemHandle.strItem !== 'itemFlag') {
 					continue;
@@ -2040,8 +2047,8 @@ var Item = {
 			}
 			
 			{
-				for (var strIdent in Socket.itemHandle) {
-					var itemHandle = Socket.itemHandle[strIdent];
+				for (var strIdent in Gameserver.itemHandle) {
+					var itemHandle = Gameserver.itemHandle[strIdent];
 					
 					if (itemHandle.strItem !== 'itemArrow') {
 						continue;
@@ -2233,10 +2240,10 @@ var Physics = {
 						var intZ = Math.floor(physicsHandle.dblPosition[2]) + intFor3;
 						
 						if (intY !== 0) {
-							if (Settings.strMapType[[intX, intY, intZ ]] === undefined) {
+							if (Gameserver.strMapType[[intX, intY, intZ ]] === undefined) {
 								continue;
 								
-							} else if (Settings.strMapType[[intX, intY, intZ ]] === '') {
+							} else if (Gameserver.strMapType[[intX, intY, intZ ]] === '') {
 								continue;
 								
 							}
@@ -2356,12 +2363,38 @@ var Physics = {
 		}
 		
 		return boolObjectcol;
+	},
+	
+	updateRaycol: function(physicsHandle, physicsRaycol) {
+		var dblSlabMin = Number.MIN_VALUE;
+		var dblSlabMax = Number.MAX_VALUE;
+		
+		{
+			for (var intFor1 = 0; intFor1 < 3; intFor1 += 1) {
+				if (physicsHandle.dblAcceleration[intFor1] === 0.0) {
+					continue;
+				}
+				
+				{
+					var dblBoxMin = physicsRaycol.dblPosition[intFor1] - (0.5 * physicsRaycol.dblSize[intFor1]);
+					var dblBoxMax = physicsRaycol.dblPosition[intFor1] + (0.5 * physicsRaycol.dblSize[intFor1]);
+					
+					var dblCandidateMin = (dblBoxMin - physicsHandle.dblPosition[intFor1]) / physicsHandle.dblAcceleration[intFor1];
+					var dblCandidateMax = (dblBoxMax - physicsHandle.dblPosition[intFor1]) / physicsHandle.dblAcceleration[intFor1];
+					
+					dblSlabMin = Math.max(dblSlabMin, Math.min(dblCandidateMin, dblCandidateMax));
+					dblSlabMax = Math.min(dblSlabMax, Math.max(dblCandidateMin, dblCandidateMax));
+				}
+			}
+		}
+
+		return dblSlabMax >= Math.max(0.0, dblSlabMin);
 	}
 };
 
 jQuery(document).ready(function() {
 	{
-		Settings.init();
+		Gameserver.init();
 		
 		Gui.init();
 		
@@ -2421,7 +2454,7 @@ jQuery(document).ready(function() {
 				
 			}
 		});
-
+		
 		Voxel.voxelengineHandle.on('tick', function(intDelta) {
 			{
 				Input.update();
@@ -2432,14 +2465,14 @@ jQuery(document).ready(function() {
 				
 				Item.update();
 			}
-			 
+			
 			{
 				if (Socket.socketHandle !== null) {
 					Socket.socketHandle.emit('playerHandle', {
 						'a': Player.strItem,
 						'b': Player.dblPosition,
 						'c': Player.dblVerlet,
-						'd': [ 0.0, Player.minecraftskinHandle.mesh.rotation.y, Player.minecraftskinHandle.mesh.head.rotation.x ]
+						'd': [ 0.0, Player.physicsHandle.yaw.rotation.y, Player.physicsHandle.pitch.rotation.x ]
 					});
 				}
 			}
