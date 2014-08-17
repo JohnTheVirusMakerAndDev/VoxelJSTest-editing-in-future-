@@ -1,4 +1,6 @@
 var Constants = {
+	intGameloopInterval: 16,
+	
 	intPlayerHealth: 100,
 	dblPlayerMovement: [ 0.03, 0.03, 0.03 ],
 	dblPlayerSize: [ 0.9, 1.6, 0.9 ],
@@ -332,20 +334,8 @@ var Voxel = {
 				return minecraftskinHandle;
 			};
 			
-			Voxel.minecraftskinUpdate = function(minecraftskinHandle, strTeam, strItem, intWalktime) {
-				{
-					if (minecraftskinHandle.strTeam !== strTeam) {
-						if (strTeam === 'teamRed') {
-							minecraftskinHandle.setImage(jQuery('#idSkinRed').get(0));
-							
-						} else if (strTeam === 'teamBlue') {
-							minecraftskinHandle.setImage(jQuery('#idSkinBlue').get(0));
-							
-						}
-						
-						minecraftskinHandle.strTeam = strTeam;
-					}
-				}
+			Voxel.minecraftskinUpdate = function(minecraftskinHandle, playerHandle) {
+				
 			};
 		}
 	},
@@ -879,7 +869,7 @@ var Physics = {
 							dblVelocityY *= physicsHandle.dblMaxvel[0] / dblLength;
 							dblVelocityZ *= physicsHandle.dblMaxvel[0] / dblLength;
 							
-						} else if (Math.abs(dblLength) < 0.0001) {
+						} else if (Math.abs(dblLength) < 0.001) {
 							dblVelocityX = 0.0;
 							dblVelocityY = 0.0;
 							dblVelocityZ = 0.0;
@@ -892,7 +882,7 @@ var Physics = {
 						if (Math.abs(dblVelocityX) > physicsHandle.dblMaxvel[0]) {
 							dblVelocityX = (dblVelocityX > 0.0 ? 1.0 : -1.0) * physicsHandle.dblMaxvel[0];
 							
-						} else if (Math.abs(dblVelocityX) < 0.0001) {
+						} else if (Math.abs(dblVelocityX) < 0.001) {
 							dblVelocityX = 0.0;
 							
 						}
@@ -902,7 +892,7 @@ var Physics = {
 						if (Math.abs(dblVelocityY) > physicsHandle.dblMaxvel[1]) {
 							dblVelocityY = (dblVelocityY > 0.0 ? 1.0 : -1.0) * physicsHandle.dblMaxvel[1];
 							
-						} else if (Math.abs(dblVelocityY) < 0.0001) {
+						} else if (Math.abs(dblVelocityY) < 0.001) {
 							dblVelocityY = 0.0;
 							
 						}
@@ -912,7 +902,7 @@ var Physics = {
 						if (Math.abs(dblVelocityZ) > physicsHandle.dblMaxvel[2]) {
 							dblVelocityZ = (dblVelocityZ > 0.0 ? 1.0 : -1.0) * physicsHandle.dblMaxvel[2];
 							
-						} else if (Math.abs(dblVelocityZ) < 0.0001) {
+						} else if (Math.abs(dblVelocityZ) < 0.001) {
 							dblVelocityZ = 0.0;
 							
 						}
@@ -1113,78 +1103,78 @@ jQuery(document).ready(function() {
 	{
 		Voxel.voxelengineHandle.on('fire', function(targetHandle, stateHandle) {
 			if (Gui.strChooserCategory === 'categoryCreate') {
-				if (Voxel.voxelhighlightHandle.positionCreate !== null) {
-					if (Voxel.voxelhighlightHandle.positionCreate[1] !== 0) {
-						if (Gui.intChooserType === 0) {
-							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelBrick'));
-							
-							Gameserver.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelBrick';
-							
-						} else if (Gui.intChooserType === 1) {
-							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelDirt'));
-							
-							Gameserver.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelDirt';
-							
-						} else if (Gui.intChooserType === 2) {
-							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelGrass'));
-							
-							Gameserver.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelGrass';
-							
-						} else if (Gui.intChooserType === 3) {
-							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelPlank'));
-							
-							Gameserver.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelPlank';
-							
-						} else if (Gui.intChooserType === 4) {
-							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelStone'));
-							
-							Gameserver.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelStone';
-							
-						}
-					}
+				if (Voxel.voxelhighlightHandle.positionCreate === null) {
+					return;
+				}
+				
+				if (Gui.intChooserType === 0) {
+					Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelBrick'));
+					
+					Gameserver.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelBrick';
+					
+				} else if (Gui.intChooserType === 1) {
+					Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelDirt'));
+					
+					Gameserver.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelDirt';
+					
+				} else if (Gui.intChooserType === 2) {
+					Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelGrass'));
+					
+					Gameserver.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelGrass';
+					
+				} else if (Gui.intChooserType === 3) {
+					Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelPlank'));
+					
+					Gameserver.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelPlank';
+					
+				} else if (Gui.intChooserType === 4) {
+					Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelStone'));
+					
+					Gameserver.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelStone';
+					
 				}
 				
 			} else if (Gui.strChooserCategory === 'categorySpecial') {
-				if (Voxel.voxelhighlightHandle.positionCreate !== null) {
-					if (Voxel.voxelhighlightHandle.positionCreate[1] !== 0) {
-						if (Gui.intChooserType === 0) {
-							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelRedSpawn'));
-							
-							Gameserver.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelRedSpawn';
-							
-						} else if (Gui.intChooserType === 1) {
-							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelRedFlag'));
-							
-							Gameserver.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelRedFlag';
-							
-						} else if (Gui.intChooserType === 2) {
-							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelBlueSpawn'));
-							
-							Gameserver.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelBlueSpawn';
-							
-						} else if (Gui.intChooserType === 3) {
-							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelBlueFlag'));
-							
-							Gameserver.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelBlueFlag';
-							
-						} else if (Gui.intChooserType === 4) {
-							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelSeparator'));
-							
-							Gameserver.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelSeparator';
-							
-						}
-					}
+				if (Voxel.voxelhighlightHandle.positionCreate === null) {
+					return;
+				}
+				
+				if (Gui.intChooserType === 0) {
+					Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelRedSpawn'));
+					
+					Gameserver.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelRedSpawn';
+					
+				} else if (Gui.intChooserType === 1) {
+					Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelRedFlag'));
+					
+					Gameserver.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelRedFlag';
+					
+				} else if (Gui.intChooserType === 2) {
+					Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelBlueSpawn'));
+					
+					Gameserver.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelBlueSpawn';
+					
+				} else if (Gui.intChooserType === 3) {
+					Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelBlueFlag'));
+					
+					Gameserver.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelBlueFlag';
+					
+				} else if (Gui.intChooserType === 4) {
+					Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelSeparator'));
+					
+					Gameserver.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelSeparator';
+					
 				}
 				
 			} else if (Gui.strChooserCategory === 'categoryDestroy') {
-				if (Voxel.voxelhighlightHandle.positionDestroy !== null) {
-					if (Voxel.voxelhighlightHandle.positionDestroy[1] !== 0) {
-						if (Gui.intChooserType === 0) {
-							Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionDestroy, 0);
-							
-							delete Gameserver.strMapType[Voxel.voxelhighlightHandle.positionDestroy];
-						}
-					}
+				if (Voxel.voxelhighlightHandle.positionDestroy === null) {
+					return;
+				}
+				
+				if (Gui.intChooserType === 0) {
+					Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionDestroy, 0);
+					
+					delete Gameserver.strMapType[Voxel.voxelhighlightHandle.positionDestroy];
 				}
 				
 			}

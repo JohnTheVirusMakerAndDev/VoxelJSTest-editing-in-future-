@@ -217,7 +217,7 @@ var Node = {
 				'dblVerlet': [ 0.0, 0.0, 0.0 ],
 				'dblAcceleration': [ 0.0, 0.0, 0.0 ],
 				'dblRotation': [ 0.0, 0.0, 0.0 ],
-				'intLastweapon': 0
+				'intInteractionWeapon': 0
 			};
 		}
 		
@@ -514,12 +514,19 @@ var Node = {
 			} else if (Gameserver.playerHandle[socketHandle.strIdent].strStatus === 'teamLogin') {
 				return;
 				
+			} else if (Gameserver.playerHandle[socketHandle.strIdent].intInteractionWeapon > 0) {
+				return;
+				
 			} else if (Gameserver.strMapOrigtype[jsonHandle.intCoordinate] !== undefined) {
 				return;
 				
 			} else if (Gameserver.strMapBlocked.indexOf(JSON.stringify(jsonHandle.intCoordinate)) !== -1) {
 				return;
 				
+			}
+			
+			{
+				Gameserver.playerHandle[socketHandle.strIdent].intInteractionWeapon = Constants.intInteractionPickaxeDuration;
 			}
 			
 			{
@@ -555,123 +562,138 @@ var Node = {
 				return;
 			}
 			
-			if (Gameserver.playerHandle[socketHandle.strIdent].intLastweapon > 0) {
+			if (Gameserver.playerHandle[socketHandle.strIdent] === undefined) {
 				return;
-			}
-			
-			{
-				Gameserver.playerHandle[socketHandle.strIdent].intLastweapon = Constants.intWeaponDuration;
+				
+			} else if (Gameserver.playerHandle[socketHandle.strIdent].strStatus === 'teamLogin') {
+				return;
+				
+			} else if (Gameserver.playerHandle[socketHandle.strIdent].intInteractionWeapon > 0) {
+				return;
+				
 			}
 			
 			{
 				if (jsonHandle.strWeapon === 'weaponSword') {
-					var strIdent = 'itemSword' + ' - ' + Node.hashbase(Node.cryptoHandle.randomBytes(16)).substr(0, 8);
-					var strPlayer = Gameserver.playerHandle[socketHandle.strIdent].strIdent;
-					var dblPosition = [ 0.0, 0.0, 0.0 ];
-					var dblVerlet = [ 0.0, 0.0, 0.0 ];
-					var dblAcceleration = [ 0.0, 0.0, 0.0 ];
-					var dblRotation = [ 0.0, 0.0, 0.0 ];
-					
 					{
-						dblRotation[0] = Gameserver.playerHandle[socketHandle.strIdent].dblRotation[0];
-						dblRotation[1] = Gameserver.playerHandle[socketHandle.strIdent].dblRotation[1];
-						dblRotation[2] = Gameserver.playerHandle[socketHandle.strIdent].dblRotation[2];
+						Gameserver.playerHandle[socketHandle.strIdent].intInteractionWeapon = Constants.intInteractionSwordDuration;
 					}
 					
 					{
-						var physicsHit = {
-							'dblPosition': [ 0.0, 0.0, 0.0 ],
-							'dblAcceleration': [ 0.0, 0.0, 0.0 ]
-						};
+						var strIdent = 'itemSword' + ' - ' + Node.hashbase(Node.cryptoHandle.randomBytes(16)).substr(0, 8);
+						var strPlayer = Gameserver.playerHandle[socketHandle.strIdent].strIdent;
+						var dblPosition = [ 0.0, 0.0, 0.0 ];
+						var dblVerlet = [ 0.0, 0.0, 0.0 ];
+						var dblAcceleration = [ 0.0, 0.0, 0.0 ];
+						var dblRotation = [ 0.0, 0.0, 0.0 ];
 						
 						{
-							physicsHit.dblPosition[0] = Gameserver.playerHandle[socketHandle.strIdent].dblPosition[0];
-							physicsHit.dblPosition[1] = Gameserver.playerHandle[socketHandle.strIdent].dblPosition[1] + (0.25 * Constants.dblPlayerSize[1]);
-							physicsHit.dblPosition[2] = Gameserver.playerHandle[socketHandle.strIdent].dblPosition[2];
-
-							physicsHit.dblAcceleration[0] = -1.0 * Math.sin(dblRotation[1]) * Math.cos(dblRotation[2]);
-							physicsHit.dblAcceleration[1] = -1.0 * Math.sin(dblRotation[2] + (1.0 * Math.PI));
-							physicsHit.dblAcceleration[2] = -1.0 * Math.cos(dblRotation[1]) * Math.cos(dblRotation[2]);
+							dblRotation[0] = Gameserver.playerHandle[socketHandle.strIdent].dblRotation[0];
+							dblRotation[1] = Gameserver.playerHandle[socketHandle.strIdent].dblRotation[1];
+							dblRotation[2] = Gameserver.playerHandle[socketHandle.strIdent].dblRotation[2];
 						}
 						
-						for (var strIdent in Gameserver.playerHandle) {
-							var playerHandle = Gameserver.playerHandle[strIdent];
-							
-							if (playerHandle.strTeam === 'teamLogin') {
-								continue;
-								
-							} else if (playerHandle.strIdent === Gameserver.playerHandle[socketHandle.strIdent].strIdent) {
-								continue;
-								
-							}
+						{
+							var physicsHit = {
+								'dblPosition': [ 0.0, 0.0, 0.0 ],
+								'dblAcceleration': [ 0.0, 0.0, 0.0 ]
+							};
 							
 							{
-								playerHandle.dblSize = Constants.dblPlayerHitbox;
+								physicsHit.dblPosition[0] = Gameserver.playerHandle[socketHandle.strIdent].dblPosition[0];
+								physicsHit.dblPosition[1] = Gameserver.playerHandle[socketHandle.strIdent].dblPosition[1] + (0.25 * Constants.dblPlayerSize[1]);
+								physicsHit.dblPosition[2] = Gameserver.playerHandle[socketHandle.strIdent].dblPosition[2];
+	
+								physicsHit.dblAcceleration[0] = -1.0 * Math.sin(dblRotation[1]) * Math.cos(dblRotation[2]);
+								physicsHit.dblAcceleration[1] = -1.0 * Math.sin(dblRotation[2] + (1.0 * Math.PI));
+								physicsHit.dblAcceleration[2] = -1.0 * Math.cos(dblRotation[1]) * Math.cos(dblRotation[2]);
+							}
+							
+							for (var strIdent in Gameserver.playerHandle) {
+								var playerHandle = Gameserver.playerHandle[strIdent];
 								
-								if (Physics.updateRaycol(physicsHit, playerHandle) === false) {
+								if (playerHandle.strTeam === 'teamLogin') {
 									continue;
-								}
-							}
-							
-							{
-								var dblHitX = playerHandle.dblPosition[0] - Gameserver.playerHandle[socketHandle.strIdent].dblPosition[0];
-								var dblHitY = playerHandle.dblPosition[1] - Gameserver.playerHandle[socketHandle.strIdent].dblPosition[1];
-								var dblHitZ = playerHandle.dblPosition[2] - Gameserver.playerHandle[socketHandle.strIdent].dblPosition[2];
-								
-								if (Math.sqrt((dblHitX * dblHitX) + (dblHitY * dblHitY) + (dblHitZ * dblHitZ)) > Constants.dblWeaponSwordRange) {
+									
+								} else if (playerHandle.strIdent === Gameserver.playerHandle[socketHandle.strIdent].strIdent) {
 									continue;
+									
 								}
-							}
-							
-							{
-								Gameserver.functionPlayerHit(playerHandle, {
-									'strIdent': strIdent,
-									'strPlayer': strPlayer,
-									'strItem': 'itemSword',
-									'dblPosition': dblPosition,
-									'dblVerlet': dblVerlet,
-									'dblAcceleration': dblAcceleration,
-									'dblRotation': dblRotation
-								});
+								
+								{
+									playerHandle.dblSize = Constants.dblPlayerHitbox;
+									
+									if (Physics.updateRaycol(physicsHit, playerHandle) === false) {
+										continue;
+									}
+								}
+								
+								{
+									var dblHitX = playerHandle.dblPosition[0] - Gameserver.playerHandle[socketHandle.strIdent].dblPosition[0];
+									var dblHitY = playerHandle.dblPosition[1] - Gameserver.playerHandle[socketHandle.strIdent].dblPosition[1];
+									var dblHitZ = playerHandle.dblPosition[2] - Gameserver.playerHandle[socketHandle.strIdent].dblPosition[2];
+									
+									if (Math.sqrt((dblHitX * dblHitX) + (dblHitY * dblHitY) + (dblHitZ * dblHitZ)) > Constants.dblInteractionSwordRange) {
+										continue;
+									}
+								}
+								
+								{
+									Gameserver.functionPlayerHit(playerHandle, {
+										'strIdent': strIdent,
+										'strPlayer': strPlayer,
+										'strItem': 'itemSword',
+										'dblPosition': dblPosition,
+										'dblVerlet': dblVerlet,
+										'dblAcceleration': dblAcceleration,
+										'dblRotation': dblRotation
+									});
+								}
 							}
 						}
 					}
 					
 				} else if (jsonHandle.strWeapon === 'weaponBow') {
-					var strIdent = 'itemArrow' + ' - ' + Node.hashbase(Node.cryptoHandle.randomBytes(16)).substr(0, 8);
-					var strPlayer = Gameserver.playerHandle[socketHandle.strIdent].strIdent;
-					var dblPosition = [ 0.0, 0.0, 0.0 ];
-					var dblVerlet = [ 0.0, 0.0, 0.0 ];
-					var dblAcceleration = [ 0.0, 0.0, 0.0 ];
-					var dblRotation = [ 0.0, 0.0, 0.0 ];
-					
 					{
-						dblPosition[0] = Gameserver.playerHandle[socketHandle.strIdent].dblPosition[0] + (0.25 * Math.sin(Gameserver.playerHandle[socketHandle.strIdent].dblRotation[1] + (0.5 * Math.PI)));
-						dblPosition[1] = Gameserver.playerHandle[socketHandle.strIdent].dblPosition[1] + (0.1);
-						dblPosition[2] = Gameserver.playerHandle[socketHandle.strIdent].dblPosition[2] + (0.25 * Math.cos(Gameserver.playerHandle[socketHandle.strIdent].dblRotation[1] + (0.5 * Math.PI)));
-						
-						dblVerlet[0] = dblPosition[0];
-						dblVerlet[1] = dblPosition[1];
-						dblVerlet[2] = dblPosition[2];
-						
-						dblAcceleration[0] = -1.0 * Math.sin(Gameserver.playerHandle[socketHandle.strIdent].dblRotation[1]) * Math.cos(Gameserver.playerHandle[socketHandle.strIdent].dblRotation[2]);
-						dblAcceleration[1] = -1.0 * Math.sin(Gameserver.playerHandle[socketHandle.strIdent].dblRotation[2] + (1.0 * Math.PI));
-						dblAcceleration[2] = -1.0 * Math.cos(Gameserver.playerHandle[socketHandle.strIdent].dblRotation[1]) * Math.cos(Gameserver.playerHandle[socketHandle.strIdent].dblRotation[2]);
-						
-						dblRotation[0] = Gameserver.playerHandle[socketHandle.strIdent].dblRotation[0];
-						dblRotation[1] = Gameserver.playerHandle[socketHandle.strIdent].dblRotation[1];
-						dblRotation[2] = Gameserver.playerHandle[socketHandle.strIdent].dblRotation[2];
+						Gameserver.playerHandle[socketHandle.strIdent].intInteractionWeapon = Constants.intInteractionBowDuration;
 					}
 					
-					Gameserver.itemHandle[strIdent] = {
-						'strIdent': strIdent,
-						'strPlayer': strPlayer,
-						'strItem': 'itemArrow',
-						'dblPosition': dblPosition,
-						'dblVerlet': dblVerlet,
-						'dblAcceleration': dblAcceleration,
-						'dblRotation': dblRotation
-					};
+					{
+						var strIdent = 'itemArrow' + ' - ' + Node.hashbase(Node.cryptoHandle.randomBytes(16)).substr(0, 8);
+						var strPlayer = Gameserver.playerHandle[socketHandle.strIdent].strIdent;
+						var dblPosition = [ 0.0, 0.0, 0.0 ];
+						var dblVerlet = [ 0.0, 0.0, 0.0 ];
+						var dblAcceleration = [ 0.0, 0.0, 0.0 ];
+						var dblRotation = [ 0.0, 0.0, 0.0 ];
+						
+						{
+							dblPosition[0] = Gameserver.playerHandle[socketHandle.strIdent].dblPosition[0] + (0.25 * Math.sin(Gameserver.playerHandle[socketHandle.strIdent].dblRotation[1] + (0.5 * Math.PI)));
+							dblPosition[1] = Gameserver.playerHandle[socketHandle.strIdent].dblPosition[1] + (0.1);
+							dblPosition[2] = Gameserver.playerHandle[socketHandle.strIdent].dblPosition[2] + (0.25 * Math.cos(Gameserver.playerHandle[socketHandle.strIdent].dblRotation[1] + (0.5 * Math.PI)));
+							
+							dblVerlet[0] = dblPosition[0];
+							dblVerlet[1] = dblPosition[1];
+							dblVerlet[2] = dblPosition[2];
+							
+							dblAcceleration[0] = -1.0 * Math.sin(Gameserver.playerHandle[socketHandle.strIdent].dblRotation[1]) * Math.cos(Gameserver.playerHandle[socketHandle.strIdent].dblRotation[2]);
+							dblAcceleration[1] = -1.0 * Math.sin(Gameserver.playerHandle[socketHandle.strIdent].dblRotation[2] + (1.0 * Math.PI));
+							dblAcceleration[2] = -1.0 * Math.cos(Gameserver.playerHandle[socketHandle.strIdent].dblRotation[1]) * Math.cos(Gameserver.playerHandle[socketHandle.strIdent].dblRotation[2]);
+							
+							dblRotation[0] = Gameserver.playerHandle[socketHandle.strIdent].dblRotation[0];
+							dblRotation[1] = Gameserver.playerHandle[socketHandle.strIdent].dblRotation[1];
+							dblRotation[2] = Gameserver.playerHandle[socketHandle.strIdent].dblRotation[2];
+						}
+						
+						Gameserver.itemHandle[strIdent] = {
+							'strIdent': strIdent,
+							'strPlayer': strPlayer,
+							'strItem': 'itemArrow',
+							'dblPosition': dblPosition,
+							'dblVerlet': dblVerlet,
+							'dblAcceleration': dblAcceleration,
+							'dblRotation': dblRotation
+						};
+					}
 					
 				}
 			}
@@ -686,6 +708,8 @@ var Node = {
 }
 
 var Constants = {
+	intGameloopInterval: 16,
+	
 	intPlayerHealth: 100,
 	dblPlayerMovement: [ 0.03, 0.18, 0.03 ],
 	dblPlayerSize: [ 0.9, 1.6, 0.9 ],
@@ -693,6 +717,15 @@ var Constants = {
 	dblPlayerMaxvel: [ 0.08, 0.26, 0.08 ],
 	dblPlayerFriction: [ 0.8, 1.0, 0.8 ],
 	dblPlayerHitbox: [ 0.4, 0.9, 0.4 ],
+	
+	intInteractionPickaxeDuration: 500,
+	intInteractionSwordDuration: 500,
+	intInteractionSwordDamage: 20,
+	dblInteractionSwordImpact: [ 0.09, 0.09, 0.09 ],
+	dblInteractionSwordRange: 2.0,
+	intInteractionBowDuration: 500,
+	intInteractionBowDamage: 20,
+	dblInteractionBowImpact: [ 0.09, 0.09, 0.09 ],
 	
 	dblFlagSize: [ 1.0, 1.0, 1.0 ],
 	dblFlagGravity: [ 0.0, -0.01, 0.0 ],
@@ -702,14 +735,7 @@ var Constants = {
 	dblArrowSize: [ 0.3, 0.3, 0.3],
 	dblArrowGravity: [ 0.0, -0.001, 0.0 ],
 	dblArrowMaxvel: [ 0.26 ],
-	dblArrowFriction: [ 1.0, 1.0, 1.0 ],
-	
-	intWeaponDuration: 33,
-	intWeaponSwordDamage: 20,
-	dblWeaponSwordImpact: [ 0.09, 0.09, 0.09 ],
-	dblWeaponSwordRange: 2.0,
-	intWeaponBowDamage: 20,
-	dblWeaponBowImpact: [ 0.09, 0.09, 0.09 ]
+	dblArrowFriction: [ 1.0, 1.0, 1.0 ]
 };
 
 var Gameserver = {
@@ -1071,13 +1097,13 @@ var Gameserver = {
 						if (playerHandle.strTeam === 'teamLogin') {
 							continue;
 							
-						} else if (playerHandle.intLastweapon === 0) {
+						} else if (playerHandle.intInteractionWeapon === 0) {
 							continue;
 							
 						}
 						
 						{
-							playerHandle.intLastweapon -= 1;
+							playerHandle.intInteractionWeapon = Math.max(0, playerHandle.intInteractionWeapon - Constants.intGameloopInterval);
 						}
 					}
 				}
@@ -1117,10 +1143,10 @@ var Gameserver = {
 			Gameserver.functionPlayerHit = function(playerHandle, itemHandle) {
 				{
 					if (itemHandle.strItem === 'itemSword') {
-						playerHandle.intHealth -= Constants.intWeaponSwordDamage;
+						playerHandle.intHealth -= Constants.intInteractionSwordDamage;
 						
 					} else if (itemHandle.strItem === 'itemArrow') {
-						playerHandle.intHealth -= Constants.intWeaponBowDamage;
+						playerHandle.intHealth -= Constants.intInteractionBowDamage;
 						
 					}
 				}
@@ -1129,14 +1155,14 @@ var Gameserver = {
 					if (playerHandle.intHealth >= 1) {
 						{
 							if (itemHandle.strItem === 'itemSword') {
-								playerHandle.dblAcceleration[0] = -1.0 * Constants.dblWeaponSwordImpact[0] * Math.sin(itemHandle.dblRotation[1]) * Math.cos(itemHandle.dblRotation[2]);
-								playerHandle.dblAcceleration[1] = -1.0 * Constants.dblWeaponSwordImpact[1] * Math.sin(itemHandle.dblRotation[2] + (1.0 * Math.PI));
-								playerHandle.dblAcceleration[2] = -1.0 * Constants.dblWeaponSwordImpact[2] * Math.cos(itemHandle.dblRotation[1]) * Math.cos(itemHandle.dblRotation[2]);
+								playerHandle.dblAcceleration[0] = -1.0 * Constants.dblInteractionSwordImpact[0] * Math.sin(itemHandle.dblRotation[1]) * Math.cos(itemHandle.dblRotation[2]);
+								playerHandle.dblAcceleration[1] = -1.0 * Constants.dblInteractionSwordImpact[1] * Math.sin(itemHandle.dblRotation[2] + (1.0 * Math.PI));
+								playerHandle.dblAcceleration[2] = -1.0 * Constants.dblInteractionSwordImpact[2] * Math.cos(itemHandle.dblRotation[1]) * Math.cos(itemHandle.dblRotation[2]);
 								
 							} else if (itemHandle.strItem === 'itemArrow') {
-								playerHandle.dblAcceleration[0] = -1.0 * Constants.dblWeaponBowImpact[0] * Math.sin(itemHandle.dblRotation[1]) * Math.cos(itemHandle.dblRotation[2]);
-								playerHandle.dblAcceleration[1] = -1.0 * Constants.dblWeaponBowImpact[1] * Math.sin(itemHandle.dblRotation[2] + (1.0 * Math.PI));
-								playerHandle.dblAcceleration[2] = -1.0 * Constants.dblWeaponBowImpact[2] * Math.cos(itemHandle.dblRotation[1]) * Math.cos(itemHandle.dblRotation[2]);
+								playerHandle.dblAcceleration[0] = -1.0 * Constants.dblInteractionBowImpact[0] * Math.sin(itemHandle.dblRotation[1]) * Math.cos(itemHandle.dblRotation[2]);
+								playerHandle.dblAcceleration[1] = -1.0 * Constants.dblInteractionBowImpact[1] * Math.sin(itemHandle.dblRotation[2] + (1.0 * Math.PI));
+								playerHandle.dblAcceleration[2] = -1.0 * Constants.dblInteractionBowImpact[2] * Math.cos(itemHandle.dblRotation[1]) * Math.cos(itemHandle.dblRotation[2]);
 								
 							}
 						}
@@ -1261,9 +1287,7 @@ var Gameserver = {
 						{
 							if (itemHandle.strItem === 'itemFlag') {
 								{
-									itemHandle.dblRotation[0] = 0.0;
 									itemHandle.dblRotation[1] = (new Date().getTime() * 0.0008) % (2.0 * Math.PI);
-									itemHandle.dblRotation[2] = 0.0;
 								}
 								
 								{
@@ -1410,7 +1434,7 @@ var Gameserver = {
 				}
 				
 				{
-					var intWait = 16 - (new Date().getTime() - Interval_intTimestamp);
+					var intWait = Constants.intGameloopInterval - (new Date().getTime() - Interval_intTimestamp);
 					
 					if (intWait >= 1) {
 						setTimeout(functionInterval, intWait);
@@ -1564,7 +1588,7 @@ var Physics = {
 							dblVelocityY *= physicsHandle.dblMaxvel[0] / dblLength;
 							dblVelocityZ *= physicsHandle.dblMaxvel[0] / dblLength;
 							
-						} else if (Math.abs(dblLength) < 0.0001) {
+						} else if (Math.abs(dblLength) < 0.001) {
 							dblVelocityX = 0.0;
 							dblVelocityY = 0.0;
 							dblVelocityZ = 0.0;
@@ -1577,7 +1601,7 @@ var Physics = {
 						if (Math.abs(dblVelocityX) > physicsHandle.dblMaxvel[0]) {
 							dblVelocityX = (dblVelocityX > 0.0 ? 1.0 : -1.0) * physicsHandle.dblMaxvel[0];
 							
-						} else if (Math.abs(dblVelocityX) < 0.0001) {
+						} else if (Math.abs(dblVelocityX) < 0.001) {
 							dblVelocityX = 0.0;
 							
 						}
@@ -1587,7 +1611,7 @@ var Physics = {
 						if (Math.abs(dblVelocityY) > physicsHandle.dblMaxvel[1]) {
 							dblVelocityY = (dblVelocityY > 0.0 ? 1.0 : -1.0) * physicsHandle.dblMaxvel[1];
 							
-						} else if (Math.abs(dblVelocityY) < 0.0001) {
+						} else if (Math.abs(dblVelocityY) < 0.001) {
 							dblVelocityY = 0.0;
 							
 						}
@@ -1597,7 +1621,7 @@ var Physics = {
 						if (Math.abs(dblVelocityZ) > physicsHandle.dblMaxvel[2]) {
 							dblVelocityZ = (dblVelocityZ > 0.0 ? 1.0 : -1.0) * physicsHandle.dblMaxvel[2];
 							
-						} else if (Math.abs(dblVelocityZ) < 0.0001) {
+						} else if (Math.abs(dblVelocityZ) < 0.001) {
 							dblVelocityZ = 0.0;
 							
 						}
