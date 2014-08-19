@@ -1,5 +1,5 @@
 var Constants = {
-	intGameloopInterval: 16,
+	intGameLoop: 16,
 	
 	intPlayerHealth: 100,
 	dblPlayerMovement: [ 0.03, 0.03, 0.03 ],
@@ -8,22 +8,6 @@ var Constants = {
 	dblPlayerMaxvel: [ 0.12, 0.26, 0.12 ],
 	dblPlayerFriction: [ 0.8, 0.8, 0.8 ],
 	dblPlayerHitbox: [ 0.4, 0.9, 0.4 ]
-};
-
-var Gameserver = {
-	strMapType: {},
-	
-	init: function() {
-		{
-			Gameserver.strMapType = {};
-		}
-	},
-	
-	dispel: function() {
-		{
-			Gameserver.strMapType = {};
-		}
-	}
 };
 
 var Gui = {
@@ -49,7 +33,7 @@ var Gui = {
 				.on('update', function() {
 					{
 						jQuery(this)
-							.val(JSON.stringify(Gameserver.strMapType))
+							.val(Map.save())
 						;
 					}
 				})
@@ -90,27 +74,7 @@ var Gui = {
 				.off('click')
 				.on('click', function() {
 					{
-					    for (var intCoordinate in Gameserver.strMapType) {
-							var strType = Gameserver.strMapType[intCoordinate];
-							
-							{
-								Voxel.voxelengineHandle.setBlock(JSON.parse('[' + intCoordinate + ']'), 0);
-							}
-					    }
-					}
-					
-					{
-						Gameserver.strMapType = JSON.parse(jQuery('#idMap_Json').val());
-					}
-					
-					{
-					    for (var intCoordinate in Gameserver.strMapType) {
-							var strType = Gameserver.strMapType[intCoordinate];
-							
-							{
-								Voxel.voxelengineHandle.setBlock(JSON.parse('[' + intCoordinate + ']'), Voxel.voxelengineHandle.materials.find(strType));
-							}
-					    }
+						Map.load(jQuery('#idMap_Json').val());
 					}
 				})
 			;
@@ -262,16 +226,16 @@ var Gui = {
 		
 		{
 			if (Gui.strChooserCategory === '') {
-				Player.playerHandle['playerCtrl'].strItem = '';
+				Player.playerHandle['1'].strItem = '';
 				
 			} else if (Gui.strChooserCategory === 'categoryCreate') {
-				Player.playerHandle['playerCtrl'].strItem = 'itemPickaxe';
+				Player.playerHandle['1'].strItem = 'itemPickaxe';
 				
 			} else if (Gui.strChooserCategory === 'categorySpecial') {
-				Player.playerHandle['playerCtrl'].strItem = 'itemPickaxe';
+				Player.playerHandle['1'].strItem = 'itemPickaxe';
 				
 			} else if (Gui.strChooserCategory === 'categoryDestroy') {
-				Player.playerHandle['playerCtrl'].strItem = 'itemPickaxe';
+				Player.playerHandle['1'].strItem = 'itemPickaxe';
 				
 			}
 		}
@@ -289,6 +253,8 @@ var Gui = {
 		eval(fsHandle.readFileSync(__dirname + '/../libs/Voxel.js').toString());
 		
 		eval(fsHandle.readFileSync(__dirname + '/../libs/Input.js').toString());
+
+		eval(fsHandle.readFileSync(__dirname + '/../libs/Map.js').toString());
 		
 		eval(fsHandle.readFileSync(__dirname + '/../libs/Player.js').toString());
 		
@@ -296,17 +262,19 @@ var Gui = {
 	}
 }
 
-jQuery(document).ready(function() {
-	{
-		Gameserver.init();
-	}
-	
+jQuery(window).load(function() { // jQuery(document).ready()
 	{
 		Gui.init();
 	}
 	
 	{
-		Voxel.init();
+		Voxel.init(function(intCoordinateX, intCoordinateY, intCoordinateZ) {
+			if (intCoordinateY === 0) {
+				return 1;
+			}
+			
+			return 0;
+		});
 		
 		Voxel.voxelengineHandle.on('fire', function(targetHandle, stateHandle) {
 			if (Gui.strChooserCategory === 'categoryCreate') {
@@ -315,29 +283,19 @@ jQuery(document).ready(function() {
 				}
 				
 				if (Gui.intChooserType === 0) {
-					Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelBrick'));
-					
-					Gameserver.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelBrick';
+					Map.updateType(Voxel.voxelhighlightHandle.positionCreate, 'voxelBrick');
 					
 				} else if (Gui.intChooserType === 1) {
-					Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelDirt'));
-					
-					Gameserver.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelDirt';
+					Map.updateType(Voxel.voxelhighlightHandle.positionCreate, 'voxelDirt');
 					
 				} else if (Gui.intChooserType === 2) {
-					Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelGrass'));
-					
-					Gameserver.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelGrass';
+					Map.updateType(Voxel.voxelhighlightHandle.positionCreate, 'voxelGrass');
 					
 				} else if (Gui.intChooserType === 3) {
-					Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelPlank'));
-					
-					Gameserver.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelPlank';
+					Map.updateType(Voxel.voxelhighlightHandle.positionCreate, 'voxelPlank');
 					
 				} else if (Gui.intChooserType === 4) {
-					Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelStone'));
-					
-					Gameserver.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelStone';
+					Map.updateType(Voxel.voxelhighlightHandle.positionCreate, 'voxelStone');
 					
 				}
 				
@@ -347,29 +305,19 @@ jQuery(document).ready(function() {
 				}
 				
 				if (Gui.intChooserType === 0) {
-					Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelSpawnRed'));
-					
-					Gameserver.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelSpawnRed';
+					Map.updateType(Voxel.voxelhighlightHandle.positionCreate, 'voxelSpawnRed');
 					
 				} else if (Gui.intChooserType === 1) {
-					Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelSpawnBlue'));
-					
-					Gameserver.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelSpawnBlue';
+					Map.updateType(Voxel.voxelhighlightHandle.positionCreate, 'voxelSpawnBlue');
 
 				} else if (Gui.intChooserType === 2) {
-					Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelFlagRed'));
-					
-					Gameserver.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelFlagRed';
+					Map.updateType(Voxel.voxelhighlightHandle.positionCreate, 'voxelFlagRed');
 					
 				} else if (Gui.intChooserType === 3) {
-					Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelFlagBlue'));
-					
-					Gameserver.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelFlagBlue';
+					Map.updateType(Voxel.voxelhighlightHandle.positionCreate, 'voxelFlagBlue');
 					
 				} else if (Gui.intChooserType === 4) {
-					Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionCreate, Voxel.voxelengineHandle.materials.find('voxelSeparator'));
-					
-					Gameserver.strMapType[Voxel.voxelhighlightHandle.positionCreate] = 'voxelSeparator';
+					Map.updateType(Voxel.voxelhighlightHandle.positionCreate, 'voxelSeparator');
 					
 				}
 				
@@ -379,9 +327,7 @@ jQuery(document).ready(function() {
 				}
 				
 				if (Gui.intChooserType === 0) {
-					Voxel.voxelengineHandle.setBlock(Voxel.voxelhighlightHandle.positionDestroy, 0);
-					
-					delete Gameserver.strMapType[Voxel.voxelhighlightHandle.positionDestroy];
+					Map.updateType(Voxel.voxelhighlightHandle.positionDestroy, '');
 				}
 				
 			}
@@ -393,47 +339,45 @@ jQuery(document).ready(function() {
 			}
 			
 			{
-				{
-					if (Input.boolUp === true) {
-						Player.playerHandle['playerCtrl'].dblAcceleration[0] -= Constants.dblPlayerMovement[0] * Math.sin(Player.playerHandle['playerCtrl'].dblRotation[1]);
-						Player.playerHandle['playerCtrl'].dblAcceleration[1] -= 0.0;
-						Player.playerHandle['playerCtrl'].dblAcceleration[2] -= Constants.dblPlayerMovement[0] * Math.cos(Player.playerHandle['playerCtrl'].dblRotation[1]);
-					}
-					
-					if (Input.boolDown === true) {
-						Player.playerHandle['playerCtrl'].dblAcceleration[0] += Constants.dblPlayerMovement[0] * Math.sin(Player.playerHandle['playerCtrl'].dblRotation[1]);
-						Player.playerHandle['playerCtrl'].dblAcceleration[1] += 0.0;
-						Player.playerHandle['playerCtrl'].dblAcceleration[2] += Constants.dblPlayerMovement[0] * Math.cos(Player.playerHandle['playerCtrl'].dblRotation[1]);
-					}
-					
-					if (Input.boolLeft === true) {
-						Player.playerHandle['playerCtrl'].dblAcceleration[0] -= Constants.dblPlayerMovement[2] * Math.sin(Player.playerHandle['playerCtrl'].dblRotation[1] + (0.5 * Math.PI));
-						Player.playerHandle['playerCtrl'].dblAcceleration[1] -= 0.0;
-						Player.playerHandle['playerCtrl'].dblAcceleration[2] -= Constants.dblPlayerMovement[2] * Math.cos(Player.playerHandle['playerCtrl'].dblRotation[1] + (0.5 * Math.PI));
-					}
-					
-					if (Input.boolRight === true) {
-						Player.playerHandle['playerCtrl'].dblAcceleration[0] += Constants.dblPlayerMovement[2] * Math.sin(Player.playerHandle['playerCtrl'].dblRotation[1] + (0.5 * Math.PI));
-						Player.playerHandle['playerCtrl'].dblAcceleration[1] += 0.0;
-						Player.playerHandle['playerCtrl'].dblAcceleration[2] += Constants.dblPlayerMovement[2] * Math.cos(Player.playerHandle['playerCtrl'].dblRotation[1] + (0.5 * Math.PI));
-					}
-					
-					if (Input.boolSpace === true) {
-						Player.playerHandle['playerCtrl'].dblAcceleration[0] += 0.0;
-						Player.playerHandle['playerCtrl'].dblAcceleration[1] += Constants.dblPlayerMovement[1];
-						Player.playerHandle['playerCtrl'].dblAcceleration[2] += 0.0;
-					}
-					
-					if (Input.boolShift === true) {
-						Player.playerHandle['playerCtrl'].dblAcceleration[0] -= 0.0;
-						Player.playerHandle['playerCtrl'].dblAcceleration[1] -= Constants.dblPlayerMovement[1];
-						Player.playerHandle['playerCtrl'].dblAcceleration[2] += 0.0;
-					}
+				if (Input.boolUp === true) {
+					Player.playerHandle['1'].dblAcceleration[0] -= Constants.dblPlayerMovement[0] * Math.sin(Player.playerHandle['1'].dblRotation[1]);
+					Player.playerHandle['1'].dblAcceleration[1] -= 0.0;
+					Player.playerHandle['1'].dblAcceleration[2] -= Constants.dblPlayerMovement[0] * Math.cos(Player.playerHandle['1'].dblRotation[1]);
 				}
 				
-				{
-					Player.update();
+				if (Input.boolDown === true) {
+					Player.playerHandle['1'].dblAcceleration[0] += Constants.dblPlayerMovement[0] * Math.sin(Player.playerHandle['1'].dblRotation[1]);
+					Player.playerHandle['1'].dblAcceleration[1] += 0.0;
+					Player.playerHandle['1'].dblAcceleration[2] += Constants.dblPlayerMovement[0] * Math.cos(Player.playerHandle['1'].dblRotation[1]);
 				}
+				
+				if (Input.boolLeft === true) {
+					Player.playerHandle['1'].dblAcceleration[0] -= Constants.dblPlayerMovement[2] * Math.sin(Player.playerHandle['1'].dblRotation[1] + (0.5 * Math.PI));
+					Player.playerHandle['1'].dblAcceleration[1] -= 0.0;
+					Player.playerHandle['1'].dblAcceleration[2] -= Constants.dblPlayerMovement[2] * Math.cos(Player.playerHandle['1'].dblRotation[1] + (0.5 * Math.PI));
+				}
+				
+				if (Input.boolRight === true) {
+					Player.playerHandle['1'].dblAcceleration[0] += Constants.dblPlayerMovement[2] * Math.sin(Player.playerHandle['1'].dblRotation[1] + (0.5 * Math.PI));
+					Player.playerHandle['1'].dblAcceleration[1] += 0.0;
+					Player.playerHandle['1'].dblAcceleration[2] += Constants.dblPlayerMovement[2] * Math.cos(Player.playerHandle['1'].dblRotation[1] + (0.5 * Math.PI));
+				}
+				
+				if (Input.boolSpace === true) {
+					Player.playerHandle['1'].dblAcceleration[0] += 0.0;
+					Player.playerHandle['1'].dblAcceleration[1] += Constants.dblPlayerMovement[1];
+					Player.playerHandle['1'].dblAcceleration[2] += 0.0;
+				}
+				
+				if (Input.boolShift === true) {
+					Player.playerHandle['1'].dblAcceleration[0] -= 0.0;
+					Player.playerHandle['1'].dblAcceleration[1] -= Constants.dblPlayerMovement[1];
+					Player.playerHandle['1'].dblAcceleration[2] += 0.0;
+				}
+			}
+			
+			{
+				Player.update();
 			}
 		});
 		
@@ -509,31 +453,23 @@ jQuery(document).ready(function() {
 	}
 	
 	{
-		{
-			Player.init();
-			
-			Player.initCtrl();
-		}
+		Map.init();
+	}
+	
+	{
+		Player.init();
 		
-		{
-			Player.playerHandle['playerCtrl'].dblPosition[0] = 0.0;
-			Player.playerHandle['playerCtrl'].dblPosition[1] = 8.0;
-			Player.playerHandle['playerCtrl'].dblPosition[2] = 0.0;
-			
-			Player.playerHandle['playerCtrl'].dblVerlet[0] = Player.playerHandle['playerCtrl'].dblPosition[0];
-			Player.playerHandle['playerCtrl'].dblVerlet[1] = Player.playerHandle['playerCtrl'].dblPosition[1];
-			Player.playerHandle['playerCtrl'].dblVerlet[2] = Player.playerHandle['playerCtrl'].dblPosition[2];
-		}
+		Player.initController();
 	}
 	
 	{
 		Physics.init();
 		
-		Physics.functionVoxelcol = function(intX, intY, intZ) {
-			if (intY === 0) {
+		Physics.functionVoxelcol = function(intCoordinateX, intCoordinateY, intCoordinateZ) {
+			if (intCoordinateY === 0) {
 				return true;
 				
-			} else if (Gameserver.strMapType[[intX, intY, intZ ]] !== undefined) {
+			} else if (Map.strType[[ intCoordinateX, intCoordinateY, intCoordinateZ ]] !== undefined) {
 				return true;
 				
 			}
@@ -543,7 +479,12 @@ jQuery(document).ready(function() {
 	}
 	
 	{
-		// TODO: add a buch of void voxels - this is unusable otherwise
-		// TODO: even better -> make voxel-highlight work different
+		Player.playerHandle['1'].dblPosition[0] = 0.0;
+		Player.playerHandle['1'].dblPosition[1] = 8.0;
+		Player.playerHandle['1'].dblPosition[2] = 0.0;
+		
+		Player.playerHandle['1'].dblVerlet[0] = Player.playerHandle['1'].dblPosition[0];
+		Player.playerHandle['1'].dblVerlet[1] = Player.playerHandle['1'].dblPosition[1];
+		Player.playerHandle['1'].dblVerlet[2] = Player.playerHandle['1'].dblPosition[2];
 	}
 });

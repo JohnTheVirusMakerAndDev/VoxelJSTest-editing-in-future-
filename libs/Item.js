@@ -54,16 +54,16 @@ var Item = {
 	
 	initFlags: function() {
 		{
-			var strIdent = 'itemFlagRed';
+			var strIdent = 'itemFlag - Red';
 			var dblPosition = [ 0.0, 0.0, 0.0 ];
 			var dblVerlet = [ 0.0, 0.0, 0.0 ];
 			
 			{
-				var intMapFlagRed = Gameserver.intMapFlagRed[Math.floor(Math.random() * Gameserver.intMapFlagRed.length)];
+				var intFlagRed = Map.intFlagRed[Math.floor(Math.random() * Map.intFlagRed.length)];
 				
-				dblPosition[0] = intMapFlagRed[0] + 0.5;
-				dblPosition[1] = intMapFlagRed[1] + 1.5;
-				dblPosition[2] = intMapFlagRed[2] + 0.5;
+				dblPosition[0] = intFlagRed[0] + 0.5;
+				dblPosition[1] = intFlagRed[1] + 1.5;
+				dblPosition[2] = intFlagRed[2] + 0.5;
 
 				dblVerlet[0] = dblPosition[0];
 				dblVerlet[1] = dblPosition[1];
@@ -81,16 +81,16 @@ var Item = {
 		}
 		
 		{
-			var strIdent = 'itemFlagBlue';
+			var strIdent = 'itemFlag - Blue';
 			var dblPosition = [ 0.0, 0.0, 0.0 ];
 			var dblVerlet = [ 0.0, 0.0, 0.0 ];
 			
 			{
-				var intMapFlagBlue = Gameserver.intMapFlagBlue[Math.floor(Math.random() * Gameserver.intMapFlagBlue.length)];
+				var intFlagBlue = Map.intFlagBlue[Math.floor(Math.random() * Map.intFlagBlue.length)];
 				
-				dblPosition[0] = intMapFlagBlue[0] + 0.5;
-				dblPosition[1] = intMapFlagBlue[1] + 1.5;
-				dblPosition[2] = intMapFlagBlue[2] + 0.5;
+				dblPosition[0] = intFlagBlue[0] + 0.5;
+				dblPosition[1] = intFlagBlue[1] + 1.5;
+				dblPosition[2] = intFlagBlue[2] + 0.5;
 
 				dblVerlet[0] = dblPosition[0];
 				dblVerlet[1] = dblPosition[1];
@@ -163,6 +163,54 @@ var Item = {
 							}
 						}
 						
+						{
+							itemHandle.dblSize = Constants.dblArrowSize;
+							
+							Physics.updateObjectcol(itemHandle, function() {
+								var playerHandle = null;
+								
+								{
+									if (arguments.callee.strIdent === undefined) {
+										arguments.callee.strIdent = Object.keys(Player.playerHandle);
+									}
+								}
+								
+								{
+									do {
+										playerHandle = Player.playerHandle[arguments.callee.strIdent.pop()];
+										
+										if (playerHandle === undefined) {
+											return null;
+										}
+										
+										if (playerHandle.strTeam === 'teamLogin') {
+											continue;
+											
+										} else if (playerHandle.strIdent === itemHandle.strPlayer) {
+											continue;
+											
+										}
+										
+										break;
+									} while (true);
+								}
+								
+								{
+									playerHandle.dblSize = Constants.dblPlayerHitbox;
+								}
+								
+								return playerHandle;
+							}, function(physicsHandle) {
+								{
+									// TODO: Gameserver.functionPlayerHit(physicsHandle, itemHandle);
+								}
+								
+								{
+									delete Item.itemHandle[itemHandle.strIdent];
+								}
+							});
+						}
+						
 					}
 				}
 			}
@@ -194,10 +242,10 @@ var Item = {
 					var meshHandle = null;
 					
 					{
-						if (itemHandle.strIdent.indexOf('itemFlagRed') === 0) {
+						if (itemHandle.strIdent === 'itemFlag - Red') {
 							meshHandle = Item.meshFlagRed;
 							
-						} else if (itemHandle.strIdent.indexOf('itemFlagBlue') === 0) {
+						} else if (itemHandle.strIdent === 'itemFlag - Blue') {
 							meshHandle = Item.meshFlagBlue;
 							
 						} else if (itemHandle.strIdent.indexOf('itemArrow') === 0) {

@@ -3,7 +3,7 @@ var Physics = {
 	
 	init: function() {
 		{
-			Physics.functionVoxelcol = function(intX, intY, intZ) {
+			Physics.functionVoxelcol = function(intCoordinateX, intCoordinateY, intCoordinateZ) {
 				return false;
 			}
 		}
@@ -61,7 +61,7 @@ var Physics = {
 							dblVelocityY *= physicsHandle.dblMaxvel[0] / dblLength;
 							dblVelocityZ *= physicsHandle.dblMaxvel[0] / dblLength;
 							
-						} else if (Math.abs(dblLength) < 0.001) {
+						} else if (Math.abs(dblLength) < 0.0001) {
 							dblVelocityX = 0.0;
 							dblVelocityY = 0.0;
 							dblVelocityZ = 0.0;
@@ -74,7 +74,7 @@ var Physics = {
 						if (Math.abs(dblVelocityX) > physicsHandle.dblMaxvel[0]) {
 							dblVelocityX = (dblVelocityX > 0.0 ? 1.0 : -1.0) * physicsHandle.dblMaxvel[0];
 							
-						} else if (Math.abs(dblVelocityX) < 0.001) {
+						} else if (Math.abs(dblVelocityX) < 0.0001) {
 							dblVelocityX = 0.0;
 							
 						}
@@ -84,7 +84,7 @@ var Physics = {
 						if (Math.abs(dblVelocityY) > physicsHandle.dblMaxvel[1]) {
 							dblVelocityY = (dblVelocityY > 0.0 ? 1.0 : -1.0) * physicsHandle.dblMaxvel[1];
 							
-						} else if (Math.abs(dblVelocityY) < 0.001) {
+						} else if (Math.abs(dblVelocityY) < 0.0001) {
 							dblVelocityY = 0.0;
 							
 						}
@@ -94,7 +94,7 @@ var Physics = {
 						if (Math.abs(dblVelocityZ) > physicsHandle.dblMaxvel[2]) {
 							dblVelocityZ = (dblVelocityZ > 0.0 ? 1.0 : -1.0) * physicsHandle.dblMaxvel[2];
 							
-						} else if (Math.abs(dblVelocityZ) < 0.001) {
+						} else if (Math.abs(dblVelocityZ) < 0.0001) {
 							dblVelocityZ = 0.0;
 							
 						}
@@ -142,47 +142,41 @@ var Physics = {
 			for (var intFor1 = 1; intFor1 > -2; intFor1 -= 1) {
 				for (var intFor2 = 1; intFor2 > -2; intFor2 -= 1) {
 					for (var intFor3 = 1; intFor3 > -2; intFor3 -= 1) {
-						var intX = Math.floor(physicsHandle.dblPosition[0]) + intFor1;
-						var intY = Math.floor(physicsHandle.dblPosition[1]) + intFor2;
-						var intZ = Math.floor(physicsHandle.dblPosition[2]) + intFor3;
+						var intCoordinateX = Math.floor(physicsHandle.dblPosition[0]) + intFor1;
+						var intCoordinateY = Math.floor(physicsHandle.dblPosition[1]) + intFor2;
+						var intCoordinateZ = Math.floor(physicsHandle.dblPosition[2]) + intFor3;
+
+						var dblPositionX = intCoordinateX + 0.5;
+						var dblPositionY = intCoordinateY + 0.5;
+						var dblPositionZ = intCoordinateZ + 0.5;
 						
-						if (Physics.functionVoxelcol(intX, intY, intZ) === false) {
+						if (Physics.functionVoxelcol(intCoordinateX, intCoordinateY, intCoordinateZ) === false) {
 							continue;
 						}
 						
 						{
-							var dblVoxelX = intX + 0.5;
-							var dblVoxelY = intY + 0.5;
-							var dblVoxelZ = intZ + 0.5;
+							var dblIntersectX = Math.abs(physicsHandle.dblPosition[0] - dblPositionX) - (0.5 * physicsHandle.dblSize[0]) - (0.5 * 1.0);
+							var dblIntersectY = Math.abs(physicsHandle.dblPosition[1] - dblPositionY) - (0.5 * physicsHandle.dblSize[1]) - (0.5 * 1.0);
+							var dblIntersectZ = Math.abs(physicsHandle.dblPosition[2] - dblPositionZ) - (0.5 * physicsHandle.dblSize[2]) - (0.5 * 1.0);
 							
-							var dblIntersectX = 0.0;
-							var dblIntersectY = 0.0;
-							var dblIntersectZ = 0.0;
-							
-							{
-								dblIntersectX = Math.abs(physicsHandle.dblPosition[0] - dblVoxelX) - (0.5 * physicsHandle.dblSize[0]) - (0.5 * 1.0);
-								dblIntersectY = Math.abs(physicsHandle.dblPosition[1] - dblVoxelY) - (0.5 * physicsHandle.dblSize[1]) - (0.5 * 1.0);
-								dblIntersectZ = Math.abs(physicsHandle.dblPosition[2] - dblVoxelZ) - (0.5 * physicsHandle.dblSize[2]) - (0.5 * 1.0);
-								
-								if (dblIntersectX >= 0.0) {
-									continue;
-		
-								} else if (dblIntersectY >= 0.0) {
-									continue;
-		
-								} else if (dblIntersectZ >= 0.0) {
-									continue;
-		
-								}
+							if (dblIntersectX >= 0.0) {
+								continue;
+	
+							} else if (dblIntersectY >= 0.0) {
+								continue;
+	
+							} else if (dblIntersectZ >= 0.0) {
+								continue;
+	
 							}
 							
 							if (Math.max(dblIntersectX, dblIntersectY, dblIntersectZ) === dblIntersectX) {
-								if ((physicsHandle.dblPosition[0] - dblVoxelX) > 0.0) {
+								if ((physicsHandle.dblPosition[0] - dblPositionX) > 0.0) {
 									physicsHandle.dblPosition[0] -= dblIntersectX;
 									
 									physicsHandle.boolCollisionSide = true;
 									
-								} else if ((physicsHandle.dblPosition[0] - dblVoxelX) < 0.0) {
+								} else if ((physicsHandle.dblPosition[0] - dblPositionX) < 0.0) {
 									physicsHandle.dblPosition[0] += dblIntersectX;
 									
 									physicsHandle.boolCollisionSide = true;
@@ -190,12 +184,12 @@ var Physics = {
 								}
 		
 							} else if (Math.max(dblIntersectX, dblIntersectY, dblIntersectZ) === dblIntersectY) {
-								if ((physicsHandle.dblPosition[1] - dblVoxelY) > 0.0) {
+								if ((physicsHandle.dblPosition[1] - dblPositionY) > 0.0) {
 									physicsHandle.dblPosition[1] -= dblIntersectY;
 									
 									physicsHandle.boolCollisionBottom = true;
 									
-								} else if ((physicsHandle.dblPosition[1] - dblVoxelY) < 0.0) {
+								} else if ((physicsHandle.dblPosition[1] - dblPositionY) < 0.0) {
 									physicsHandle.dblPosition[1] += dblIntersectY;
 									
 									physicsHandle.boolCollisionTop = true;
@@ -203,12 +197,12 @@ var Physics = {
 								}
 		
 							} else if (Math.max(dblIntersectX, dblIntersectY, dblIntersectZ) === dblIntersectZ) {
-								if ((physicsHandle.dblPosition[2] - dblVoxelZ) > 0.0) {
+								if ((physicsHandle.dblPosition[2] - dblPositionZ) > 0.0) {
 									physicsHandle.dblPosition[2] -= dblIntersectZ;
 									
 									physicsHandle.boolCollisionSide = true;
 									
-								} else if ((physicsHandle.dblPosition[2] - dblVoxelZ) < 0.0) {
+								} else if ((physicsHandle.dblPosition[2] - dblPositionZ) < 0.0) {
 									physicsHandle.dblPosition[2] += dblIntersectZ;
 									
 									physicsHandle.boolCollisionSide = true;
@@ -223,56 +217,78 @@ var Physics = {
 		}
 	},
 	
-	updateObjectcol: function(physicsHandle, physicsObjectcol) {
-		var boolObjectcol = true;
-		
+	updateObjectcol: function(physicsHandle, functionObjectcol, functionCollision) {
 		{
-			var dblIntersectX = Math.abs(physicsHandle.dblPosition[0] - physicsObjectcol.dblPosition[0]) - (0.5 * physicsHandle.dblSize[0]) - (0.5 * physicsObjectcol.dblSize[0]);
-			var dblIntersectY = Math.abs(physicsHandle.dblPosition[1] - physicsObjectcol.dblPosition[1]) - (0.5 * physicsHandle.dblSize[1]) - (0.5 * physicsObjectcol.dblSize[1]);
-			var dblIntersectZ = Math.abs(physicsHandle.dblPosition[2] - physicsObjectcol.dblPosition[2]) - (0.5 * physicsHandle.dblSize[2]) - (0.5 * physicsObjectcol.dblSize[2]);
+			do {
+				var physicsObjectcol = functionObjectcol();
+				
+				if (physicsObjectcol === null) {
+					break;
+				}
 
-			if (dblIntersectX >= 0.0) {
-				boolObjectcol = false;
+				{
+					var dblIntersectX = Math.abs(physicsHandle.dblPosition[0] - physicsObjectcol.dblPosition[0]) - (0.5 * physicsHandle.dblSize[0]) - (0.5 * physicsObjectcol.dblSize[0]);
+					var dblIntersectY = Math.abs(physicsHandle.dblPosition[1] - physicsObjectcol.dblPosition[1]) - (0.5 * physicsHandle.dblSize[1]) - (0.5 * physicsObjectcol.dblSize[1]);
+					var dblIntersectZ = Math.abs(physicsHandle.dblPosition[2] - physicsObjectcol.dblPosition[2]) - (0.5 * physicsHandle.dblSize[2]) - (0.5 * physicsObjectcol.dblSize[2]);
 
-			} else if (dblIntersectY >= 0.0) {
-				boolObjectcol = false;
+					if (dblIntersectX >= 0.0) {
+						continue;
 
-			} else if (dblIntersectZ >= 0.0) {
-				boolObjectcol = false;
+					} else if (dblIntersectY >= 0.0) {
+						continue;
 
-			}
-		}
-		
-		return boolObjectcol;
-	},
-	
-	updateRaycol: function(physicsHandle, physicsRaycol) {
-		var boolRaycol = false;
-		
-		{
-			var dblSlabMin = Number.MIN_VALUE;
-			var dblSlabMax = Number.MAX_VALUE;
-			
-			for (var intFor1 = 0; intFor1 < 3; intFor1 += 1) {
-				if (physicsHandle.dblAcceleration[intFor1] === 0.0) {
-					continue;
+					} else if (dblIntersectZ >= 0.0) {
+						continue;
+
+					}
 				}
 				
 				{
-					var dblBoxMin = physicsRaycol.dblPosition[intFor1] - (0.5 * physicsRaycol.dblSize[intFor1]);
-					var dblBoxMax = physicsRaycol.dblPosition[intFor1] + (0.5 * physicsRaycol.dblSize[intFor1]);
-					
-					var dblCandidateMin = (dblBoxMin - physicsHandle.dblPosition[intFor1]) / physicsHandle.dblAcceleration[intFor1];
-					var dblCandidateMax = (dblBoxMax - physicsHandle.dblPosition[intFor1]) / physicsHandle.dblAcceleration[intFor1];
-					
-					dblSlabMin = Math.max(dblSlabMin, Math.min(dblCandidateMin, dblCandidateMax));
-					dblSlabMax = Math.min(dblSlabMax, Math.max(dblCandidateMin, dblCandidateMax));
+					functionCollision(physicsObjectcol);
 				}
-			}
-			
-			boolRaycol = dblSlabMax >= Math.max(0.0, dblSlabMin);
+			} while (true);
 		}
+	},
+	
+	updateRaycol: function(physicsHandle, functionRaycol, functionCollision) {
+		{
+			do {
+				var physicsRaycol = functionRaycol();
+				
+				if (physicsRaycol === null) {
+					break;
+				}
 
-		return boolRaycol;
+				{
+					var dblSlabMin = Number.MIN_VALUE;
+					var dblSlabMax = Number.MAX_VALUE;
+					
+					for (var intFor1 = 0; intFor1 < 3; intFor1 += 1) {
+						if (physicsHandle.dblAcceleration[intFor1] === 0.0) {
+							continue;
+						}
+						
+						{
+							var dblBoxMin = physicsRaycol.dblPosition[intFor1] - (0.5 * physicsRaycol.dblSize[intFor1]);
+							var dblBoxMax = physicsRaycol.dblPosition[intFor1] + (0.5 * physicsRaycol.dblSize[intFor1]);
+							
+							var dblCandidateMin = (dblBoxMin - physicsHandle.dblPosition[intFor1]) / physicsHandle.dblAcceleration[intFor1];
+							var dblCandidateMax = (dblBoxMax - physicsHandle.dblPosition[intFor1]) / physicsHandle.dblAcceleration[intFor1];
+							
+							dblSlabMin = Math.max(dblSlabMin, Math.min(dblCandidateMin, dblCandidateMax));
+							dblSlabMax = Math.min(dblSlabMax, Math.max(dblCandidateMin, dblCandidateMax));
+						}
+					}
+					
+					if (dblSlabMax < Math.max(0.0, dblSlabMin)) {
+						continue;
+					}
+				}
+				
+				{
+					functionCollision(physicsRaycol);
+				}
+			} while (true);
+		}
 	}
 };

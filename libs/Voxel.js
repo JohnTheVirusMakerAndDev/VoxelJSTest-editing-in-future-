@@ -14,13 +14,11 @@ var Voxel = {
 	itemGeometry: {},
 	itemMaterial: null,
 	
-	init: function() {
+	init: function(functionGenerate) {
 		{
 			Voxel.voxelengineHandle = require('voxel-engine')({
 				'texturePath': './images/',
-				'generate': function(intX, intY, intZ) {
-					return 0;
-				},
+				'generate': functionGenerate,
 				'materials': [ 'voxelVoid', 'voxelBrick', 'voxelDirt', 'voxelGrass', 'voxelPlank', 'voxelStone', 'voxelSpawnRed', 'voxelSpawnBlue', 'voxelFlagRed', 'voxelFlagBlue', 'voxelSeparator' ],
 				'controls': {
 					'discreteFire': true
@@ -159,11 +157,11 @@ var Voxel = {
 				
 				{
 					if (playerHandle.strItem === '') {
-						minecraftskinHandle.rightArm.rotation.z = 2.0 * Math.cos((0.005 * playerHandle.intInteractionWalk) + (1.5 * Math.PI));
-						minecraftskinHandle.leftArm.rotation.z = 2.0 * Math.cos((0.005 * playerHandle.intInteractionWalk) + (0.5 * Math.PI));
+						minecraftskinHandle.rightArm.rotation.z = 2.0 * Math.cos((0.08 * playerHandle.intInteractionWalk) + (1.5 * Math.PI));
+						minecraftskinHandle.leftArm.rotation.z = 2.0 * Math.cos((0.08 * playerHandle.intInteractionWalk) + (0.5 * Math.PI));
 						
-						minecraftskinHandle.rightLeg.rotation.z = 1.4 * Math.cos((0.005 * playerHandle.intInteractionWalk) + (0.5 * Math.PI));
-						minecraftskinHandle.leftLeg.rotation.z = 1.4 * Math.cos((0.005 * playerHandle.intInteractionWalk) + (1.5 * Math.PI));
+						minecraftskinHandle.rightLeg.rotation.z = 1.4 * Math.cos((0.08 * playerHandle.intInteractionWalk) + (0.5 * Math.PI));
+						minecraftskinHandle.leftLeg.rotation.z = 1.4 * Math.cos((0.08 * playerHandle.intInteractionWalk) + (1.5 * Math.PI));
 						
 					} else if (playerHandle.strItem === 'itemPickaxe') {
 						var dblWeapon = 0.0;
@@ -194,10 +192,10 @@ var Voxel = {
 						}
 						
 						minecraftskinHandle.rightArm.rotation.z = minecraftskinHandle.mesh.head.rotation.x + dblWeapon;
-						minecraftskinHandle.leftArm.rotation.z = 2.0 * Math.cos((0.005 * playerHandle.intInteractionWalk) + (0.5 * Math.PI));
+						minecraftskinHandle.leftArm.rotation.z = 2.0 * Math.cos((0.08 * playerHandle.intInteractionWalk) + (0.5 * Math.PI));
 						
-						minecraftskinHandle.rightLeg.rotation.z = 1.4 * Math.cos((0.005 * playerHandle.intInteractionWalk) + (0.5 * Math.PI));
-						minecraftskinHandle.leftLeg.rotation.z = 1.4 * Math.cos((0.005 * playerHandle.intInteractionWalk) + (1.5 * Math.PI));
+						minecraftskinHandle.rightLeg.rotation.z = 1.4 * Math.cos((0.08 * playerHandle.intInteractionWalk) + (0.5 * Math.PI));
+						minecraftskinHandle.leftLeg.rotation.z = 1.4 * Math.cos((0.08 * playerHandle.intInteractionWalk) + (1.5 * Math.PI));
 						
 					} else if (playerHandle.strItem === 'itemSword') {
 						var dblWeapon = 0.0;
@@ -228,17 +226,17 @@ var Voxel = {
 						}
 						
 						minecraftskinHandle.rightArm.rotation.z = minecraftskinHandle.mesh.head.rotation.x + dblWeapon;
-						minecraftskinHandle.leftArm.rotation.z = 2.0 * Math.cos((0.005 * playerHandle.intInteractionWalk) + (0.5 * Math.PI));
+						minecraftskinHandle.leftArm.rotation.z = 2.0 * Math.cos((0.08 * playerHandle.intInteractionWalk) + (0.5 * Math.PI));
 						
-						minecraftskinHandle.rightLeg.rotation.z = 1.4 * Math.cos((0.005 * playerHandle.intInteractionWalk) + (0.5 * Math.PI));
-						minecraftskinHandle.leftLeg.rotation.z = 1.4 * Math.cos((0.005 * playerHandle.intInteractionWalk) + (1.5 * Math.PI));
+						minecraftskinHandle.rightLeg.rotation.z = 1.4 * Math.cos((0.08 * playerHandle.intInteractionWalk) + (0.5 * Math.PI));
+						minecraftskinHandle.leftLeg.rotation.z = 1.4 * Math.cos((0.08 * playerHandle.intInteractionWalk) + (1.5 * Math.PI));
 						
 					} else if (playerHandle.strItem === 'itemBow') {
 						minecraftskinHandle.rightArm.rotation.z = minecraftskinHandle.mesh.head.rotation.x + (0.47 * Math.PI);
-						minecraftskinHandle.leftArm.rotation.z = 2.0 * Math.cos((0.005 * playerHandle.intInteractionWalk) + (0.5 * Math.PI));
+						minecraftskinHandle.leftArm.rotation.z = 2.0 * Math.cos((0.08 * playerHandle.intInteractionWalk) + (0.5 * Math.PI));
 						
-						minecraftskinHandle.rightLeg.rotation.z = 1.4 * Math.cos((0.005 * playerHandle.intInteractionWalk) + (0.5 * Math.PI));
-						minecraftskinHandle.leftLeg.rotation.z = 1.4 * Math.cos((0.005 * playerHandle.intInteractionWalk) + (1.5 * Math.PI));
+						minecraftskinHandle.rightLeg.rotation.z = 1.4 * Math.cos((0.08 * playerHandle.intInteractionWalk) + (0.5 * Math.PI));
+						minecraftskinHandle.leftLeg.rotation.z = 1.4 * Math.cos((0.08 * playerHandle.intInteractionWalk) + (1.5 * Math.PI));
 						
 					}
 				}

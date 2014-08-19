@@ -1,5 +1,5 @@
 var Constants = {
-	intGameloopInterval: 16,
+	intGameLoop: 16,
 	
 	intPlayerHealth: 100,
 	dblPlayerMovement: [ 0.03, 0.18, 0.03 ],
@@ -9,12 +9,12 @@ var Constants = {
 	dblPlayerFriction: [ 0.8, 1.0, 0.8 ],
 	dblPlayerHitbox: [ 0.4, 0.9, 0.4 ],
 
-	intInteractionPickaxeDuration: 500,
-	intInteractionSwordDuration: 500,
+	intInteractionPickaxeDuration: 30,
+	intInteractionSwordDuration: 30,
 	intInteractionSwordDamage: 20,
 	dblInteractionSwordImpact: [ 0.09, 0.09, 0.09 ],
 	dblInteractionSwordRange: 2.0,
-	intInteractionBowDuration: 500,
+	intInteractionBowDuration: 30,
 	intInteractionBowDamage: 20,
 	dblInteractionBowImpact: [ 0.09, 0.09, 0.09 ],
 	
@@ -28,32 +28,6 @@ var Constants = {
 	dblArrowGravity: [ 0.0, -0.001, 0.0 ],
 	dblArrowMaxvel: [ 0.26 ],
 	dblArrowFriction: [ 1.0, 1.0, 1.0 ]
-};
-
-var Gameserver = {
-	strMapType: {},
-	
-	strPhaseActive: '',
-	
-	init: function() {
-		{
-			Gameserver.strMapType = {};
-		}
-		
-		{
-			Gameserver.strPhaseActive = '';
-		}
-	},
-	
-	dispel: function() {
-		{
-			Gameserver.strMapType = {};
-		}
-		
-		{
-			Gameserver.strPhaseActive = '';
-		}
-	}
 };
 
 var Gui = {
@@ -475,44 +449,6 @@ var Gui = {
 		
 		{
 			{
-				jQuery('#idPhaseBuild')
-					.css({
-						'display': 'none'
-					})
-				;
-				
-				jQuery('#idPhaseCombat')
-					.css({
-						'display': 'none'
-					})
-				;
-			}
-			
-			{
-				if (Gameserver.strPhaseActive === 'Build') {
-					{
-						jQuery('#idPhaseBuild')
-							.css({
-								'display': 'inline-block'
-							})
-						;
-					}
-					
-				} else if (Gameserver.strPhaseActive === 'Combat') {
-					{
-						jQuery('#idPhaseCombat')
-							.css({
-								'display': 'inline-block'
-							})
-						;
-					}
-					
-				}
-			}
-		}
-		
-		{
-			{
 				jQuery('#idPhaseBuild_Chooser').find('button')
 					.css({
 						'background': 'none',
@@ -581,24 +517,30 @@ var Gui = {
 		
 		{
 			if (Gui.strChooserCategory === '') {
-				Player.playerHandle['playerCtrl'].strItem = '';
+				Player.playerHandle['1'].strItem = '';
 				
 			} else if (Gui.strChooserCategory === 'categoryCreate') {
-				Player.playerHandle['playerCtrl'].strItem = 'itemPickaxe';
+				Player.playerHandle['1'].strItem = 'itemPickaxe';
 				
 			} else if (Gui.strChooserCategory === 'categoryDestroy') {
-				Player.playerHandle['playerCtrl'].strItem = 'itemPickaxe';
+				Player.playerHandle['1'].strItem = 'itemPickaxe';
 				
 			} else if (Gui.strChooserCategory === 'categoryWeapon') {
 				if (Gui.intChooserType === 0) {
-					Player.playerHandle['playerCtrl'].strItem = 'itemSword';
+					Player.playerHandle['1'].strItem = 'itemSword';
 					
 				} else if (Gui.intChooserType === 1) {
-					Player.playerHandle['playerCtrl'].strItem = 'itemBow';
+					Player.playerHandle['1'].strItem = 'itemBow';
 					
 				}
 				
 			}
+		}
+		
+		{
+			Socket.socketHandle.emit('itemHandle', {
+				'strItem': Player.playerHandle['1'].strItem
+			});
 		}
 	}
 };
@@ -628,11 +570,13 @@ var Socket = {
 				});
 				
 				{
-					Socket.socketHandle.on('loginHandle', function(jsonHandle) {
+					Socket.socketHandle.io.engine.on('open', function() {
 						{
-							Socket.socketHandle.strIdent = jsonHandle.strIdent;
+							Socket.socketHandle.strIdent = Socket.socketHandle.io.engine.id.substr(1, 8);
 						}
-						
+					});
+					
+					Socket.socketHandle.on('loginHandle', function(jsonHandle) {
 						{
 							if (jsonHandle.strType === 'typeReject') {
 								{
@@ -672,32 +616,16 @@ var Socket = {
 						}
 					});
 					
-					Socket.socketHandle.on('chatHandle', function(jsonHandle) {
+					Socket.socketHandle.on('pingHandle', function(jsonHandle) {
 						{
-							jQuery('#idMessagebox_Log')
-								.append(jQuery('<div></div>')
-									.css({
-										'margin': '0.8em 1.0em 0.8em 1em'
-									})
-									.append(jQuery('<a></a>')
-										.css({
-											'font-weight': 'bold'
-										})
-										.text(jsonHandle.strName + ':' + ' ')
-									)
-									.append(jQuery('<a></a>')
-										.text(jsonHandle.strMessage)
-									)
-								)
-							;
-							
-							jQuery('#idMessagebox_Log')
-								.scrollTop(jQuery('#idMessagebox_Log').get(0).scrollHeight - jQuery('#idMessagebox_Log').height())
+							jQuery('#idHealth').children('div')
+								.css({
+									'left': (0.5 * (100 - Player.playerHandle['1'].intHealth)) + '%',
+									'right': (0.5 * (100 - Player.playerHandle['1'].intHealth)) + '%'
+								})
 							;
 						}
-					});
-					
-					Socket.socketHandle.on('pingHandle', function(jsonHandle) {
+						
 						{
 							jQuery('#idServer_Ping')
 								.val(new Date().getTime() - Socket.intPing)
@@ -778,83 +706,100 @@ var Socket = {
 								.val(jQuery('#idTeamBlue_Table').find('tr').size() - 1)
 							;
 						}
+						
+						{
+							{
+								jQuery('#idPhaseBuild')
+									.css({
+										'display': 'none'
+									})
+								;
+								
+								jQuery('#idPhaseCombat')
+									.css({
+										'display': 'none'
+									})
+								;
+							}
+							
+							{
+								if (jsonHandle.strPhaseActive === 'Build') {
+									jQuery('#idPhaseBuild')
+										.css({
+											'display': 'inline-block'
+										})
+									;
+									
+								} else if (jsonHandle.strPhaseActive === 'Combat') {
+									jQuery('#idPhaseCombat')
+										.css({
+											'display': 'inline-block'
+										})
+									;
+									
+								}
+							}
+						}
 					});
 					
-					Socket.socketHandle.on('gameserverHandle', function(jsonHandle) {
+					Socket.socketHandle.on('chatHandle', function(jsonHandle) {
 						{
-						    for (var intCoordinate in Gameserver.strMapType) {
-								var strType = Gameserver.strMapType[intCoordinate];
-								
-								{
-									Voxel.voxelengineHandle.setBlock(JSON.parse('[' + intCoordinate + ']'), 0);
-								}
-						    }
+							jQuery('#idMessagebox_Log')
+								.append(jQuery('<div></div>')
+									.css({
+										'margin': '0.8em 1.0em 0.8em 1em'
+									})
+									.append(jQuery('<a></a>')
+										.css({
+											'font-weight': 'bold'
+										})
+										.text(jsonHandle.strName + ':' + ' ')
+									)
+									.append(jQuery('<a></a>')
+										.text(jsonHandle.strMessage)
+									)
+								)
+							;
+							
+							jQuery('#idMessagebox_Log')
+								.scrollTop(jQuery('#idMessagebox_Log').get(0).scrollHeight - jQuery('#idMessagebox_Log').height())
+							;
+						}
+					});
+					
+					Socket.socketHandle.on('mapHandle', function(jsonHandle) {
+						{
+						    Map.load(jsonHandle.strMap);
 						}
 						
 						{
-							Gameserver.strMapType = jsonHandle.strMapType;
-						}
-						
-						{
-						    for (var intCoordinate in Gameserver.strMapType) {
-								var strType = Gameserver.strMapType[intCoordinate];
-								
-								{
-									Voxel.voxelengineHandle.setBlock(JSON.parse('[' + intCoordinate + ']'), Voxel.voxelengineHandle.materials.find(strType));
-								}
-						    }
-						}
-						
-						{
-							Gameserver.strPhaseActive = jsonHandle.strPhaseActive;
-						}
-						
-						{
+							// TODO: shouldn't be here
+							
 							Gui.updateChooser('', 0);
 						}
 					});
 					
 					Socket.socketHandle.on('playerHandle', function(jsonHandle) {
 						{
-							Player.playerHandle['playerCtrl'].strTeam = jsonHandle.strTeam;
-						}
-						
-						{
-							Player.playerHandle['playerCtrl'].intHealth = jsonHandle.intHealth;
-						}
-						
-						{
-							Player.playerHandle['playerCtrl'].dblPosition[0] = jsonHandle.dblPosition[0];
-							Player.playerHandle['playerCtrl'].dblPosition[1] = jsonHandle.dblPosition[1];
-							Player.playerHandle['playerCtrl'].dblPosition[2] = jsonHandle.dblPosition[2];
+							Player.playerHandle['1'].dblPosition[0] = jsonHandle.dblPosition[0];
+							Player.playerHandle['1'].dblPosition[1] = jsonHandle.dblPosition[1];
+							Player.playerHandle['1'].dblPosition[2] = jsonHandle.dblPosition[2];
 							
-							Player.playerHandle['playerCtrl'].dblVerlet[0] = jsonHandle.dblVerlet[0];
-							Player.playerHandle['playerCtrl'].dblVerlet[1] = jsonHandle.dblVerlet[1];
-							Player.playerHandle['playerCtrl'].dblVerlet[2] = jsonHandle.dblVerlet[2];
+							Player.playerHandle['1'].dblVerlet[0] = jsonHandle.dblVerlet[0];
+							Player.playerHandle['1'].dblVerlet[1] = jsonHandle.dblVerlet[1];
+							Player.playerHandle['1'].dblVerlet[2] = jsonHandle.dblVerlet[2];
 							
-							Player.playerHandle['playerCtrl'].dblAcceleration[0] = jsonHandle.dblAcceleration[0];
-							Player.playerHandle['playerCtrl'].dblAcceleration[1] = jsonHandle.dblAcceleration[1];
-							Player.playerHandle['playerCtrl'].dblAcceleration[2] = jsonHandle.dblAcceleration[2];
-						}
-						
-						{
-							// TODO: shoudln't be done here
-							
-							jQuery('#idHealth').children('div')
-								.css({
-									'left': (0.5 * (100 - Player.playerHandle['playerCtrl'].intHealth)) + '%',
-									'right': (0.5 * (100 - Player.playerHandle['playerCtrl'].intHealth)) + '%'
-								})
-							;
+							Player.playerHandle['1'].dblAcceleration[0] = jsonHandle.dblAcceleration[0];
+							Player.playerHandle['1'].dblAcceleration[1] = jsonHandle.dblAcceleration[1];
+							Player.playerHandle['1'].dblAcceleration[2] = jsonHandle.dblAcceleration[2];
 						}
 					});
 					
 					Socket.socketHandle.on('enemyHandle', function(jsonHandle) {
 						{
-							var playerOverwrite = {};
-							
-							// TODO: doesn't look really nice
-							playerOverwrite['playerCtrl'] = Player.playerHandle['playerCtrl'];
+							var playerOverwrite = {
+								'1': Player.playerHandle['1']
+							};
 							
 							for (var intFor1 = 0; intFor1 < jsonHandle.length; intFor1 += 1) {
 								var playerHandle = jsonHandle[intFor1];
@@ -867,47 +812,58 @@ var Socket = {
 									playerHandle.intScore = playerHandle.e;
 									playerHandle.intKills = playerHandle.f;
 									playerHandle.intDeaths = playerHandle.g;
-									playerHandle.dblPosition = playerHandle.h;
-									playerHandle.dblVerlet = playerHandle.i;
-									playerHandle.dblRotation = playerHandle.j;
-								}
-								
-								if (playerHandle.strIdent === Socket.socketHandle.strIdent) {
-									// TODO: dont throw the information completely away
-									
-									continue;
+									playerHandle.intHealth = playerHandle.h;
+									playerHandle.dblPosition = playerHandle.i;
+									playerHandle.dblVerlet = playerHandle.j;
+									playerHandle.dblRotation = playerHandle.k;
 								}
 								
 								{
-									if (Player.playerHandle.hasOwnProperty(playerHandle.strIdent) === true) {
-										Physics.updateOverwrite(playerHandle, Player.playerHandle[playerHandle.strIdent]);
-									}
-								}
-								
-								{
-									playerOverwrite[playerHandle.strIdent] = {
-										'strIdent': playerHandle.strIdent,
-										'strTeam': playerHandle.strTeam,
-										'strItem': playerHandle.strItem,
-										'strName': playerHandle.strName,
-										'intScore': playerHandle.intScore,
-										'intKills': playerHandle.intKills,
-										'intDeaths': playerHandle.intDeaths,
-										'intHealth': 0,
-										'dblPosition': playerHandle.dblPosition,
-										'dblVerlet': playerHandle.dblVerlet,
-										'dblAcceleration': [ 0.0, 0.0, 0.0 ],
-										'dblRotation': playerHandle.dblRotation,
-										'intJumpcount': 0,
-										'intInteractionWalk': 0,
-										'intInteractionWeapon': 0
-									};
-								}
-								
-								{
-									if (Player.playerHandle.hasOwnProperty(playerHandle.strIdent) === true) {
-										playerOverwrite[playerHandle.strIdent].intInteractionWalk = Player.playerHandle[playerHandle.strIdent].intInteractionWalk;
-										playerOverwrite[playerHandle.strIdent].intInteractionWeapon = Player.playerHandle[playerHandle.strIdent].intInteractionWeapon;
+									if (playerHandle.strIdent === Socket.socketHandle.strIdent) {
+										{
+											playerOverwrite['1'].strTeam = playerHandle.strTeam;
+											playerOverwrite['1'].strItem = playerHandle.strItem;
+											playerOverwrite['1'].strName = playerHandle.strName;
+											playerOverwrite['1'].intScore = playerHandle.intScore;
+											playerOverwrite['1'].intKills = playerHandle.intKills;
+											playerOverwrite['1'].intDeaths = playerHandle.intDeaths;
+											playerOverwrite['1'].intHealth = playerHandle.intHealth;
+										}
+										
+									} else if (playerHandle.strIdent !== Socket.socketHandle.strIdent) {
+										{
+											if (Player.playerHandle.hasOwnProperty(playerHandle.strIdent) === true) {
+												Physics.updateOverwrite(playerHandle, Player.playerHandle[playerHandle.strIdent]);
+											}
+										}
+										
+										{
+											playerOverwrite[playerHandle.strIdent] = {
+												'strIdent': playerHandle.strIdent,
+												'strTeam': playerHandle.strTeam,
+												'strItem': playerHandle.strItem,
+												'strName': playerHandle.strName,
+												'intScore': playerHandle.intScore,
+												'intKills': playerHandle.intKills,
+												'intDeaths': playerHandle.intDeaths,
+												'intHealth': playerHandle.intHealth,
+												'dblPosition': playerHandle.dblPosition,
+												'dblVerlet': playerHandle.dblVerlet,
+												'dblAcceleration': [ 0.0, 0.0, 0.0 ],
+												'dblRotation': playerHandle.dblRotation,
+												'intJumpcount': 0,
+												'intInteractionWalk': 0,
+												'intInteractionWeapon': 0
+											};
+										}
+										
+										{
+											if (Player.playerHandle.hasOwnProperty(playerHandle.strIdent) === true) {
+												playerOverwrite[playerHandle.strIdent].intInteractionWalk = Player.playerHandle[playerHandle.strIdent].intInteractionWalk;
+												playerOverwrite[playerHandle.strIdent].intInteractionWeapon = Player.playerHandle[playerHandle.strIdent].intInteractionWeapon;
+											}
+										}
+										
 									}
 								}
 							}
@@ -954,17 +910,7 @@ var Socket = {
 					
 					Socket.socketHandle.on('voxelHandle', function(jsonHandle) {
 						{
-							if (jsonHandle.strType === '') {
-								delete Gameserver.strMapType[jsonHandle.intCoordinate];
-								
-							} else if (jsonHandle.strType !== '') {
-								Gameserver.strMapType[jsonHandle.intCoordinate] = jsonHandle.strType;
-								
-							}
-						}
-						
-						{
-							Voxel.voxelengineHandle.setBlock(jsonHandle.intCoordinate, Voxel.voxelengineHandle.materials.find(jsonHandle.strType));
+							Map.updateType(jsonHandle.intCoordinate, jsonHandle.strType);
 						}
 					});
 				}
@@ -1010,6 +956,8 @@ var Socket = {
 		eval(fsHandle.readFileSync(__dirname + '/../libs/Voxel.js').toString());
 		
 		eval(fsHandle.readFileSync(__dirname + '/../libs/Input.js').toString());
+
+		eval(fsHandle.readFileSync(__dirname + '/../libs/Map.js').toString());
 		
 		eval(fsHandle.readFileSync(__dirname + '/../libs/Player.js').toString());
 		
@@ -1019,11 +967,7 @@ var Socket = {
 	}
 }
 
-jQuery(document).ready(function() {
-	{
-		Gameserver.init();
-	}
-	
+jQuery(window).load(function() { // jQuery(document).ready()
 	{
 		Gui.init();
 	}
@@ -1033,7 +977,9 @@ jQuery(document).ready(function() {
 	}
 	
 	{
-		Voxel.init();
+		Voxel.init(function(intCoordinateX, intCoordinateY, intCoordinateZ) {
+			return 0;
+		});
 		
 		Voxel.voxelengineHandle.on('fire', function(targetHandle, stateHandle) {
 			if (Gui.strChooserCategory === 'categoryCreate') {
@@ -1042,12 +988,12 @@ jQuery(document).ready(function() {
 				}
 				
 				if (Gui.intChooserType === 0) {
-					if (Player.playerHandle['playerCtrl'].intInteractionWeapon > 0) {
+					if (Player.playerHandle['1'].intInteractionWeapon > 0) {
 						return;
 					}
 					
 					{
-						Player.playerHandle['playerCtrl'].intInteractionWeapon = Constants.intInteractionPickaxeDuration;
+						Player.playerHandle['1'].intInteractionWeapon = Constants.intInteractionPickaxeDuration;
 					}
 					
 					{
@@ -1064,12 +1010,12 @@ jQuery(document).ready(function() {
 				}
 				
 				if (Gui.intChooserType === 0) {
-					if (Player.playerHandle['playerCtrl'].intInteractionWeapon > 0) {
+					if (Player.playerHandle['1'].intInteractionWeapon > 0) {
 						return;
 					}
 					
 					{
-						Player.playerHandle['playerCtrl'].intInteractionWeapon = Constants.intInteractionPickaxeDuration;
+						Player.playerHandle['1'].intInteractionWeapon = Constants.intInteractionPickaxeDuration;
 					}
 					
 					{
@@ -1082,12 +1028,12 @@ jQuery(document).ready(function() {
 				
 			} else if (Gui.strChooserCategory === 'categoryWeapon') {
 				if (Gui.intChooserType === 0) {
-					if (Player.playerHandle['playerCtrl'].intInteractionWeapon > 0) {
+					if (Player.playerHandle['1'].intInteractionWeapon > 0) {
 						return;
 					}
 					
 					{
-						Player.playerHandle['playerCtrl'].intInteractionWeapon = Constants.intInteractionSwordDuration;
+						Player.playerHandle['1'].intInteractionWeapon = Constants.intInteractionSwordDuration;
 					}
 					
 					{
@@ -1097,12 +1043,12 @@ jQuery(document).ready(function() {
 					}
 					
 				} else if (Gui.intChooserType === 1) {
-					if (Player.playerHandle['playerCtrl'].intInteractionWeapon > 0) {
+					if (Player.playerHandle['1'].intInteractionWeapon > 0) {
 						return;
 					}
 					
 					{
-						Player.playerHandle['playerCtrl'].intInteractionWeapon = Constants.intInteractionBowDuration;
+						Player.playerHandle['1'].intInteractionWeapon = Constants.intInteractionBowDuration;
 					}
 					
 					{
@@ -1117,54 +1063,60 @@ jQuery(document).ready(function() {
 		});
 		
 		Voxel.voxelengineHandle.on('tick', function(intDelta) {
+			if (Gui.strMode === 'modeLogin') {
+				return;
+				
+			} else if (Socket.socketHandle === null) {
+				return
+				
+			}
+			
 			{
 				Input.update();
 			}
-				
+			
 			{
-				{
-					if (Input.boolUp === true) {
-						Player.playerHandle['playerCtrl'].dblAcceleration[0] -= Constants.dblPlayerMovement[0] * Math.sin(Player.playerHandle['playerCtrl'].dblRotation[1]);
-						Player.playerHandle['playerCtrl'].dblAcceleration[1] -= 0.0;
-						Player.playerHandle['playerCtrl'].dblAcceleration[2] -= Constants.dblPlayerMovement[0] * Math.cos(Player.playerHandle['playerCtrl'].dblRotation[1]);
-					}
-					
-					if (Input.boolDown === true) {
-						Player.playerHandle['playerCtrl'].dblAcceleration[0] += Constants.dblPlayerMovement[0] * Math.sin(Player.playerHandle['playerCtrl'].dblRotation[1]);
-						Player.playerHandle['playerCtrl'].dblAcceleration[1] += 0.0;
-						Player.playerHandle['playerCtrl'].dblAcceleration[2] += Constants.dblPlayerMovement[0] * Math.cos(Player.playerHandle['playerCtrl'].dblRotation[1]);
-					}
-					
-					if (Input.boolLeft === true) {
-						Player.playerHandle['playerCtrl'].dblAcceleration[0] -= Constants.dblPlayerMovement[2] * Math.sin(Player.playerHandle['playerCtrl'].dblRotation[1] + (0.5 * Math.PI));
-						Player.playerHandle['playerCtrl'].dblAcceleration[1] -= 0.0;
-						Player.playerHandle['playerCtrl'].dblAcceleration[2] -= Constants.dblPlayerMovement[2] * Math.cos(Player.playerHandle['playerCtrl'].dblRotation[1] + (0.5 * Math.PI));
-					}
-					
-					if (Input.boolRight === true) {
-						Player.playerHandle['playerCtrl'].dblAcceleration[0] += Constants.dblPlayerMovement[2] * Math.sin(Player.playerHandle['playerCtrl'].dblRotation[1] + (0.5 * Math.PI));
-						Player.playerHandle['playerCtrl'].dblAcceleration[1] += 0.0;
-						Player.playerHandle['playerCtrl'].dblAcceleration[2] += Constants.dblPlayerMovement[2] * Math.cos(Player.playerHandle['playerCtrl'].dblRotation[1] + (0.5 * Math.PI));
-					}
-					
-					if (Input.boolSpace === true) {
-						if (Player.playerHandle['playerCtrl'].intJumpcount > 0) {
-							{
-								Player.playerHandle['playerCtrl'].dblAcceleration[0] += 0.0;
-								Player.playerHandle['playerCtrl'].dblAcceleration[1] += Constants.dblPlayerMovement[1];
-								Player.playerHandle['playerCtrl'].dblAcceleration[2] += 0.0;
-							}
-							
-							{
-								Player.playerHandle['playerCtrl'].intJumpcount -= 1;
-							}
+				if (Input.boolUp === true) {
+					Player.playerHandle['1'].dblAcceleration[0] -= Constants.dblPlayerMovement[0] * Math.sin(Player.playerHandle['1'].dblRotation[1]);
+					Player.playerHandle['1'].dblAcceleration[1] -= 0.0;
+					Player.playerHandle['1'].dblAcceleration[2] -= Constants.dblPlayerMovement[0] * Math.cos(Player.playerHandle['1'].dblRotation[1]);
+				}
+				
+				if (Input.boolDown === true) {
+					Player.playerHandle['1'].dblAcceleration[0] += Constants.dblPlayerMovement[0] * Math.sin(Player.playerHandle['1'].dblRotation[1]);
+					Player.playerHandle['1'].dblAcceleration[1] += 0.0;
+					Player.playerHandle['1'].dblAcceleration[2] += Constants.dblPlayerMovement[0] * Math.cos(Player.playerHandle['1'].dblRotation[1]);
+				}
+				
+				if (Input.boolLeft === true) {
+					Player.playerHandle['1'].dblAcceleration[0] -= Constants.dblPlayerMovement[2] * Math.sin(Player.playerHandle['1'].dblRotation[1] + (0.5 * Math.PI));
+					Player.playerHandle['1'].dblAcceleration[1] -= 0.0;
+					Player.playerHandle['1'].dblAcceleration[2] -= Constants.dblPlayerMovement[2] * Math.cos(Player.playerHandle['1'].dblRotation[1] + (0.5 * Math.PI));
+				}
+				
+				if (Input.boolRight === true) {
+					Player.playerHandle['1'].dblAcceleration[0] += Constants.dblPlayerMovement[2] * Math.sin(Player.playerHandle['1'].dblRotation[1] + (0.5 * Math.PI));
+					Player.playerHandle['1'].dblAcceleration[1] += 0.0;
+					Player.playerHandle['1'].dblAcceleration[2] += Constants.dblPlayerMovement[2] * Math.cos(Player.playerHandle['1'].dblRotation[1] + (0.5 * Math.PI));
+				}
+				
+				if (Input.boolSpace === true) {
+					if (Player.playerHandle['1'].intJumpcount > 0) {
+						{
+							Player.playerHandle['1'].dblAcceleration[0] += 0.0;
+							Player.playerHandle['1'].dblAcceleration[1] += Constants.dblPlayerMovement[1];
+							Player.playerHandle['1'].dblAcceleration[2] += 0.0;
+						}
+						
+						{
+							Player.playerHandle['1'].intJumpcount -= 1;
 						}
 					}
 				}
-				
-				{
-					Player.update();
-				}
+			}
+			
+			{
+				Player.update();
 			}
 			
 			{
@@ -1172,16 +1124,11 @@ jQuery(document).ready(function() {
 			}
 			
 			{
-				if (Gui.strMode !== 'modeLogin') {
-					if (Socket.socketHandle !== null) {
-						Socket.socketHandle.emit('playerHandle', {
-							'a': Player.playerHandle['playerCtrl'].strItem,
-							'b': Player.playerHandle['playerCtrl'].dblPosition,
-							'c': Player.playerHandle['playerCtrl'].dblVerlet,
-							'd': Player.playerHandle['playerCtrl'].dblRotation
-						});
-					}
-				}
+				Socket.socketHandle.emit('playerHandle', {
+					'a': Player.playerHandle['1'].dblPosition,
+					'b': Player.playerHandle['1'].dblVerlet,
+					'c': Player.playerHandle['1'].dblRotation
+				});
 			}
 		});
 		
@@ -1235,7 +1182,7 @@ jQuery(document).ready(function() {
 					Gui.updateMode('modeMenu');
 				}
 				
-				if (Gameserver.strPhaseActive === 'Build') {
+				if (jQuery('#idPhaseBuild').css('display') === 'inline-block') {
 					if (eventHandle.keyCode === 49) {
 						Gui.updateChooser('categoryCreate', 0);
 						
@@ -1244,7 +1191,7 @@ jQuery(document).ready(function() {
 						
 					}
 					
-				} else if (Gameserver.strPhaseActive === 'Combat') {
+				} else if (jQuery('#idPhaseCombat').css('display') === 'inline-block') {
 					if (eventHandle.keyCode === 49) {
 						Gui.updateChooser('categoryWeapon', 0);
 						
@@ -1264,9 +1211,13 @@ jQuery(document).ready(function() {
 	}
 	
 	{
+		Map.init();
+	}
+	
+	{
 		Player.init();
 		
-		Player.initCtrl();
+		Player.initController();
 	}
 	
 	{
@@ -1276,11 +1227,11 @@ jQuery(document).ready(function() {
 	{
 		Physics.init();
 		
-		Physics.functionVoxelcol = function(intX, intY, intZ) {
-			if (intY === 0) {
+		Physics.functionVoxelcol = function(intCoordinateX, intCoordinateY, intCoordinateZ) {
+			if (intCoordinateY === 0) {
 				return true;
-				
-			} else if (Gameserver.strMapType[[intX, intY, intZ ]] !== undefined) {
+
+			} else if (Map.strType[[ intCoordinateX, intCoordinateY, intCoordinateZ ]] !== undefined) {
 				return true;
 				
 			}

@@ -1,7 +1,7 @@
 var Player = {
 	playerHandle: {},
 	
-	minecraftskinCtrl: null,
+	minecraftskinController: null,
 	
 	minecraftskinEnemy: [],
 	
@@ -15,7 +15,7 @@ var Player = {
 		}
 		
 		{
-			Player.minecraftskinCtrl = Voxel.minecraftskinCreate();
+			Player.minecraftskinController = Voxel.minecraftskinCreate();
 		}
 		
 		{
@@ -39,7 +39,7 @@ var Player = {
 		}
 		
 		{
-			Player.minecraftskinCtrl = null;
+			Player.minecraftskinController = null;
 		}
 		
 		{
@@ -47,9 +47,9 @@ var Player = {
 		}
 	},
 	
-	initCtrl: function() {
+	initController: function() {
 		{
-			var strIdent = 'playerCtrl';
+			var strIdent = '1';
 			
 			Player.playerHandle[strIdent] = {
 				'strIdent': strIdent,
@@ -71,20 +71,20 @@ var Player = {
 		}
 		
 		{
-			Player.minecraftskinCtrl.mesh.cameraInside.add(Voxel.voxelengineHandle.camera);
+			Player.minecraftskinController.mesh.cameraInside.add(Voxel.voxelengineHandle.camera);
 		}
 		
 		{
-			var physicsHandle = Voxel.voxelengineHandle.makePhysical(Player.minecraftskinCtrl.mesh);
+			var physicsHandle = Voxel.voxelengineHandle.makePhysical(Player.minecraftskinController.mesh);
 			
 			{
 				physicsHandle.blocksCreation = true;
 				
-				physicsHandle.position = Player.minecraftskinCtrl.mesh.position;
+				physicsHandle.position = Player.minecraftskinController.mesh.position;
 				
 				physicsHandle.roll = null;
-				physicsHandle.yaw = Player.minecraftskinCtrl.mesh;
-				physicsHandle.pitch = Player.minecraftskinCtrl.mesh.head;
+				physicsHandle.yaw = Player.minecraftskinController.mesh;
+				physicsHandle.pitch = Player.minecraftskinController.mesh.head;
 			}
 			
 			Voxel.voxelengineHandle.control(physicsHandle);
@@ -92,6 +92,14 @@ var Player = {
 	},
 	
 	update: function() {
+		{
+			if (Player.playerHandle.hasOwnProperty('1') === true) {
+				Player.playerHandle['1'].dblRotation[0] = 0.0;
+				Player.playerHandle['1'].dblRotation[1] = Player.minecraftskinController.mesh.rotation.y;
+				Player.playerHandle['1'].dblRotation[2] = Player.minecraftskinController.mesh.head.rotation.x;
+			}
+		}
+		
 		{
 			for (var strIdent in Player.playerHandle) {
 				var playerHandle = Player.playerHandle[strIdent];
@@ -107,14 +115,6 @@ var Player = {
 				}
 				
 				{
-					if (playerHandle.strIdent.indexOf('playerCtrl') === 0) {
-						playerHandle.dblRotation[0] = 0.0;
-						playerHandle.dblRotation[1] = Player.minecraftskinCtrl.mesh.rotation.y;
-						playerHandle.dblRotation[2] = Player.minecraftskinCtrl.mesh.head.rotation.x;
-					}
-				}
-				
-				{
 					if (playerHandle.boolCollisionBottom === true) {
 						if (Math.abs(playerHandle.dblPosition[1] - playerHandle.dblVerlet[1]) < 0.001) {
 							playerHandle.intJumpcount = 1;
@@ -127,22 +127,22 @@ var Player = {
 					var dblVelocityY = playerHandle.dblPosition[1] - playerHandle.dblVerlet[1];
 					var dblVelocityZ = playerHandle.dblPosition[2] - playerHandle.dblVerlet[2];
 
-					if (Math.abs(dblVelocityX) > 0.001) {
-						playerHandle.intInteractionWalk += Constants.intGameloopInterval;
+					if (Math.abs(dblVelocityX) > 0.01) {
+						playerHandle.intInteractionWalk += 1
 						
-					} else if (Math.abs(dblVelocityZ) > 0.001) {
-						playerHandle.intInteractionWalk += Constants.intGameloopInterval;
+					} else if (Math.abs(dblVelocityZ) > 0.01) {
+						playerHandle.intInteractionWalk += 1;
 						
 					}
 					
-					if (Math.abs(dblVelocityX) < 0.001) {
-						if (Math.abs(dblVelocityZ) < 0.001) {
+					if (Math.abs(dblVelocityX) < 0.01) {
+						if (Math.abs(dblVelocityZ) < 0.01) {
 							playerHandle.intInteractionWalk = 0;
 						}
 					}
 					
 					if (playerHandle.intInteractionWeapon > 0) {
-						playerHandle.intInteractionWeapon = Math.max(0, playerHandle.intInteractionWeapon - Constants.intGameloopInterval);
+						playerHandle.intInteractionWeapon -= 1;
 					}
 				}
 			}
@@ -174,10 +174,10 @@ var Player = {
 					var minecraftskinHandle = null;
 					
 					{
-						if (playerHandle.strIdent.indexOf('playerCtrl') === 0) {
-							minecraftskinHandle = Player.minecraftskinCtrl;
+						if (playerHandle.strIdent === '1') {
+							minecraftskinHandle = Player.minecraftskinController;
 							
-						} else if (playerHandle.strIdent.indexOf('playerCtrl') !== 0) {
+						} else if (playerHandle.strIdent !== '1') {
 							for (var intFor1 = 0; intFor1 < Player.minecraftskinEnemy.length; intFor1 += 1) {
 								if (Player.minecraftskinEnemy[intFor1].mesh.parent !== undefined) {
 									continue;
@@ -202,13 +202,21 @@ var Player = {
 					}
 
 					{
-						minecraftskinHandle.mesh.position.x = playerHandle.dblPosition[0];
-						minecraftskinHandle.mesh.position.y = playerHandle.dblPosition[1] - (0.5 * Constants.dblPlayerSize[1]);
-						minecraftskinHandle.mesh.position.z = playerHandle.dblPosition[2];
-						
-						minecraftskinHandle.mesh.rotation.y = playerHandle.dblRotation[1];
-
-						minecraftskinHandle.mesh.head.rotation.x = playerHandle.dblRotation[2];
+						if (playerHandle.strIdent === '1') {
+							minecraftskinHandle.mesh.position.x = playerHandle.dblPosition[0];
+							minecraftskinHandle.mesh.position.y = playerHandle.dblPosition[1] - (0.5 * Constants.dblPlayerSize[1]);
+							minecraftskinHandle.mesh.position.z = playerHandle.dblPosition[2];
+							
+						} else if (playerHandle.strIdent !== '1') {
+							minecraftskinHandle.mesh.position.x = playerHandle.dblPosition[0];
+							minecraftskinHandle.mesh.position.y = playerHandle.dblPosition[1] - (0.5 * Constants.dblPlayerSize[1]);
+							minecraftskinHandle.mesh.position.z = playerHandle.dblPosition[2];
+							
+							minecraftskinHandle.mesh.rotation.y = playerHandle.dblRotation[1];
+	
+							minecraftskinHandle.mesh.head.rotation.x = playerHandle.dblRotation[2];
+							
+						}
 					}
 					
 					{

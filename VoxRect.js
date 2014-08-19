@@ -228,7 +228,6 @@ var Node = {
 		
 		{
 			socketHandle.emit('loginHandle', {
-				'strIdent': Player.playerHandle[socketHandle.strIdent].strIdent,
 				'strType': 'typeReject',
 				'strMessage': ''
 			});
@@ -253,12 +252,14 @@ var Node = {
 				} else if (Player.playerHandle[socketHandle.strIdent].strTeam !== 'teamLogin') {
 					return;
 					
+				} else if (jsonHandle.strTeam.match(new RegExp('(teamRed)|(teamBlue)', 'g')) === null) {
+					return;
+					
 				}
 				
 				{
 					if (Gameserver.intPlayerActive === Gameserver.intPlayerCapacity) {
 						socketHandle.emit('loginHandle', {
-							'strIdent': Player.playerHandle[socketHandle.strIdent].strIdent,
 							'strType': 'typeReject',
 							'strMessage': 'server full'
 						});
@@ -267,7 +268,6 @@ var Node = {
 						
 					} else if (jsonHandle.strName === '') {
 						socketHandle.emit('loginHandle', {
-							'strIdent': Player.playerHandle[socketHandle.strIdent].strIdent,
 							'strType': 'typeReject',
 							'strMessage': 'name invalid'
 						});
@@ -276,56 +276,66 @@ var Node = {
 						
 					} else if (jsonHandle.strPassword !== Gameserver.strLoginPassword) {
 						socketHandle.emit('loginHandle', {
-							'strIdent': Player.playerHandle[socketHandle.strIdent].strIdent,
 							'strType': 'typeReject',
 							'strMessage': 'password wrong'
 						});
 						
 						return;
 						
-					} else if (([ 'Red', 'Blue' ]).indexOf(jsonHandle.strTeam) === -1) {
-						socketHandle.emit('loginHandle', {
-							'strIdent': Player.playerHandle[socketHandle.strIdent].strIdent,
-							'strType': 'typeReject',
-							'strMessage': 'team invalid'
-						});
-						
-						return;
-						
 					}
 				}
 				
 				{
-					if (jsonHandle.strTeam === 'Red') {
-						Player.playerHandle[socketHandle.strIdent].strTeam = 'teamRed';
-						
-					} else if (jsonHandle.strTeam === 'Blue') {
-						Player.playerHandle[socketHandle.strIdent].strTeam = 'teamBlue';
-						
-					}
-				}
-				
-				{
+					Player.playerHandle[socketHandle.strIdent].strTeam = jsonHandle.strTeam;
+					
 					Player.playerHandle[socketHandle.strIdent].strName = jsonHandle.strName;
 				}
 				
 				{
 					socketHandle.emit('loginHandle', {
-						'strIdent': Player.playerHandle[socketHandle.strIdent].strIdent,
 						'strType': 'typeAccept',
 						'strMessage': ''
 					});
 				}
 				
 				{
-					socketHandle.emit('gameserverHandle', {
-						'strMapType': Gameserver.strMapType,
-						'strPhaseActive': Gameserver.strPhaseActive
+					socketHandle.emit('mapHandle', {
+						'strMap': Map.save()
 					});
 				}
 				
 				{
 					Gameserver.functionPlayerRespawn(Player.playerHandle[socketHandle.strIdent]);
+				}
+			});
+			
+			socketHandle.on('pingHandle', function(jsonHandle) {
+				if (jsonHandle.intTimestamp === undefined) {
+					return;
+				}
+				
+				if (Player.playerHandle[socketHandle.strIdent] === undefined) {
+					return;
+					
+				} else if (Player.playerHandle[socketHandle.strIdent].strStatus === 'teamLogin') {
+					return;
+					
+				}
+				
+				{
+					// TODO: strMapAvailable is empty?
+					
+					socketHandle.emit('pingHandle', {
+						'strMapActive': Gameserver.strMapActive,
+						'strMapAvailable': Gameserver.strMapAvailable,
+						'strPhaseActive': Gameserver.strPhaseActive,
+						'intPhaseRemaining': Gameserver.intPhaseRemaining,
+						'intPhaseRound': Gameserver.intPhaseRound,
+						'intScoreRed': Gameserver.intScoreRed,
+						'intScoreBlue': Gameserver.intScoreBlue,
+						'intPlayerActive': Gameserver.intPlayerActive,
+						'intPlayerCapacity': Gameserver.intPlayerCapacity
+					});
 				}
 			});
 			
@@ -364,7 +374,6 @@ var Node = {
 							
 							{
 								playerHandle.socketHandle.emit('chatHandle', {
-									'strIdent': Player.playerHandle[socketHandle.strIdent].strIdent,
 									'strName': Player.playerHandle[socketHandle.strIdent].strName,
 									'strMessage': strMessage
 								});
@@ -374,48 +383,14 @@ var Node = {
 				}
 			});
 			
-			socketHandle.on('pingHandle', function(jsonHandle) {
-				if (jsonHandle.intTimestamp === undefined) {
-					return;
-				}
-				
-				if (Player.playerHandle[socketHandle.strIdent] === undefined) {
-					return;
-					
-				} else if (Player.playerHandle[socketHandle.strIdent].strStatus === 'teamLogin') {
-					return;
-					
-				}
-				
-				{
-					// TODO: strMapAvailable is empty?
-					
-					socketHandle.emit('pingHandle', {
-						'strMapActive': Gameserver.strMapActive,
-						'strMapAvailable': Gameserver.strMapAvailable,
-						'strPhaseActive': Gameserver.strPhaseActive,
-						'intPhaseRemaining': Gameserver.intPhaseRemaining,
-						'intPhaseRound': Gameserver.intPhaseRound,
-						'intScoreRed': Gameserver.intScoreRed,
-						'intScoreBlue': Gameserver.intScoreBlue,
-						'intPlayerActive': Gameserver.intPlayerActive,
-						'intPlayerCapacity': Gameserver.intPlayerCapacity
-					});
-				}
-			});
-			
 			socketHandle.on('playerHandle', function(jsonHandle) {
 				{
-					jsonHandle.strItem = jsonHandle.a;
-					jsonHandle.dblPosition = jsonHandle.b;
-					jsonHandle.dblVerlet = jsonHandle.c;
-					jsonHandle.dblRotation = jsonHandle.d;
+					jsonHandle.dblPosition = jsonHandle.a;
+					jsonHandle.dblVerlet = jsonHandle.b;
+					jsonHandle.dblRotation = jsonHandle.c;
 				}
 				
-				if (jsonHandle.strItem === undefined) {
-					return;
-					
-				} else if (jsonHandle.dblPosition === undefined) {
+				if (jsonHandle.dblPosition === undefined) {
 					return;
 					
 				} else if (jsonHandle.dblPosition.length !== 3) {
@@ -444,10 +419,30 @@ var Node = {
 				}
 				
 				{
-					Player.playerHandle[socketHandle.strIdent].strItem = jsonHandle.strItem;
 					Player.playerHandle[socketHandle.strIdent].dblPosition = jsonHandle.dblPosition;
 					Player.playerHandle[socketHandle.strIdent].dblVerlet = jsonHandle.dblVerlet;
 					Player.playerHandle[socketHandle.strIdent].dblRotation = jsonHandle.dblRotation;
+				}
+			});
+			
+			socketHandle.on('itemHandle', function(jsonHandle) {
+				if (jsonHandle.strItem === undefined) {
+					return;
+				}
+				
+				if (Player.playerHandle[socketHandle.strIdent] === undefined) {
+					return;
+					
+				} else if (Player.playerHandle[socketHandle.strIdent].strStatus === 'teamLogin') {
+					return;
+
+				} else if (jsonHandle.strItem.match(new RegExp('(itemPickaxe)|(itemSword)|(itemBow)', 'g')) === null) {
+					return;
+					
+				}
+				
+				{
+					Player.playerHandle[socketHandle.strIdent].strItem = jsonHandle.strItem;
 				}
 			});
 			
@@ -472,10 +467,7 @@ var Node = {
 				} else if (Player.playerHandle[socketHandle.strIdent].intInteractionWeapon > 0) {
 					return;
 					
-				} else if (Gameserver.strMapOrigtype[jsonHandle.intCoordinate] !== undefined) {
-					return;
-					
-				} else if (Gameserver.strMapBlocked.indexOf(JSON.stringify(jsonHandle.intCoordinate)) !== -1) {
+				} else if (Map.updateBlocked(jsonHandle.intCoordinate) === true) {
 					return;
 					
 				}
@@ -485,13 +477,7 @@ var Node = {
 				}
 				
 				{
-					if (jsonHandle.strType === '') {
-						delete Gameserver.strMapType[jsonHandle.intCoordinate];
-						
-					} else if (jsonHandle.strType !== '') {
-						Gameserver.strMapType[jsonHandle.intCoordinate] = jsonHandle.strType;
-						
-					}
+					Map.updateType(jsonHandle.intCoordinate, jsonHandle.strType);
 				}
 	
 				{
@@ -530,123 +516,136 @@ var Node = {
 				
 				{
 					if (jsonHandle.strWeapon === 'weaponSword') {
+						Player.playerHandle[socketHandle.strIdent].intInteractionWeapon = Constants.intInteractionSwordDuration;
+						
+					} else if (jsonHandle.strWeapon === 'weaponBow') {
+						Player.playerHandle[socketHandle.strIdent].intInteractionWeapon = Constants.intInteractionBowDuration;
+						
+					}
+				}
+				
+				{
+					if (jsonHandle.strWeapon === 'weaponSword') {
+						var strIdent = 'itemSword' + ' - ' + Node.hashbase(Node.cryptoHandle.randomBytes(16)).substr(0, 8);
+						var strPlayer = Player.playerHandle[socketHandle.strIdent].strIdent;
+						var dblPosition = [ 0.0, 0.0, 0.0 ];
+						var dblVerlet = [ 0.0, 0.0, 0.0 ];
+						var dblAcceleration = [ 0.0, 0.0, 0.0 ];
+						var dblRotation = [ 0.0, 0.0, 0.0 ];
+						
 						{
-							Player.playerHandle[socketHandle.strIdent].intInteractionWeapon = Constants.intInteractionSwordDuration;
+							dblRotation[0] = Player.playerHandle[socketHandle.strIdent].dblRotation[0];
+							dblRotation[1] = Player.playerHandle[socketHandle.strIdent].dblRotation[1];
+							dblRotation[2] = Player.playerHandle[socketHandle.strIdent].dblRotation[2];
 						}
 						
 						{
-							var strPlayer = Player.playerHandle[socketHandle.strIdent].strIdent;
-							var dblPosition = [ 0.0, 0.0, 0.0 ];
-							var dblVerlet = [ 0.0, 0.0, 0.0 ];
-							var dblAcceleration = [ 0.0, 0.0, 0.0 ];
-							var dblRotation = [ 0.0, 0.0, 0.0 ];
+							var physicsHit = {
+								'dblPosition': [ 0.0, 0.0, 0.0 ],
+								'dblAcceleration': [ 0.0, 0.0, 0.0 ]
+							};
 							
 							{
-								dblRotation[0] = Player.playerHandle[socketHandle.strIdent].dblRotation[0];
-								dblRotation[1] = Player.playerHandle[socketHandle.strIdent].dblRotation[1];
-								dblRotation[2] = Player.playerHandle[socketHandle.strIdent].dblRotation[2];
+								physicsHit.dblPosition[0] = Player.playerHandle[socketHandle.strIdent].dblPosition[0];
+								physicsHit.dblPosition[1] = Player.playerHandle[socketHandle.strIdent].dblPosition[1] + (0.25 * Constants.dblPlayerSize[1]);
+								physicsHit.dblPosition[2] = Player.playerHandle[socketHandle.strIdent].dblPosition[2];
+	
+								physicsHit.dblAcceleration[0] = -1.0 * Math.sin(dblRotation[1]) * Math.cos(dblRotation[2]);
+								physicsHit.dblAcceleration[1] = -1.0 * Math.sin(dblRotation[2] + (1.0 * Math.PI));
+								physicsHit.dblAcceleration[2] = -1.0 * Math.cos(dblRotation[1]) * Math.cos(dblRotation[2]);
 							}
 							
-							{
-								var physicsHit = {
-									'dblPosition': [ 0.0, 0.0, 0.0 ],
-									'dblAcceleration': [ 0.0, 0.0, 0.0 ]
-								};
+							Physics.updateRaycol(physicsHit, function() {
+								var playerHandle = null;
 								
 								{
-									physicsHit.dblPosition[0] = Player.playerHandle[socketHandle.strIdent].dblPosition[0];
-									physicsHit.dblPosition[1] = Player.playerHandle[socketHandle.strIdent].dblPosition[1] + (0.25 * Constants.dblPlayerSize[1]);
-									physicsHit.dblPosition[2] = Player.playerHandle[socketHandle.strIdent].dblPosition[2];
-		
-									physicsHit.dblAcceleration[0] = -1.0 * Math.sin(dblRotation[1]) * Math.cos(dblRotation[2]);
-									physicsHit.dblAcceleration[1] = -1.0 * Math.sin(dblRotation[2] + (1.0 * Math.PI));
-									physicsHit.dblAcceleration[2] = -1.0 * Math.cos(dblRotation[1]) * Math.cos(dblRotation[2]);
+									if (arguments.callee.strIdent === undefined) {
+										arguments.callee.strIdent = Object.keys(Player.playerHandle);
+									}
 								}
 								
-								for (var strIdent in Player.playerHandle) {
-									var playerHandle = Player.playerHandle[strIdent];
-									
-									if (playerHandle.strTeam === 'teamLogin') {
-										continue;
+								{
+									do {
+										playerHandle = Player.playerHandle[arguments.callee.strIdent.pop()];
 										
-									} else if (playerHandle.strIdent === Player.playerHandle[socketHandle.strIdent].strIdent) {
-										continue;
+										if (playerHandle === undefined) {
+											return null;
+										}
+
+										if (playerHandle.strTeam === 'teamLogin') {
+											continue;
+											
+										} else if (playerHandle.strIdent === Player.playerHandle[socketHandle.strIdent].strIdent) {
+											continue;
+											
+										}
 										
-									}
-									
-									{
-										playerHandle.dblSize = Constants.dblPlayerHitbox;
+										var dblDistanceX = playerHandle.dblPosition[0] - Player.playerHandle[socketHandle.strIdent].dblPosition[0];
+										var dblDistanceY = playerHandle.dblPosition[1] - Player.playerHandle[socketHandle.strIdent].dblPosition[1];
+										var dblDistanceZ = playerHandle.dblPosition[2] - Player.playerHandle[socketHandle.strIdent].dblPosition[2];
 										
-										if (Physics.updateRaycol(physicsHit, playerHandle) === false) {
+										if (Math.sqrt((dblDistanceX * dblDistanceX) + (dblDistanceY * dblDistanceY) + (dblDistanceZ * dblDistanceZ)) > Constants.dblInteractionSwordRange) {
 											continue;
 										}
-									}
-									
-									{
-										var dblHitX = playerHandle.dblPosition[0] - Player.playerHandle[socketHandle.strIdent].dblPosition[0];
-										var dblHitY = playerHandle.dblPosition[1] - Player.playerHandle[socketHandle.strIdent].dblPosition[1];
-										var dblHitZ = playerHandle.dblPosition[2] - Player.playerHandle[socketHandle.strIdent].dblPosition[2];
 										
-										if (Math.sqrt((dblHitX * dblHitX) + (dblHitY * dblHitY) + (dblHitZ * dblHitZ)) > Constants.dblInteractionSwordRange) {
-											continue;
-										}
-									}
-									
-									{
-										Gameserver.functionPlayerHit(playerHandle, {
-											'strIdent': 'itemSword',
-											'strPlayer': strPlayer,
-											'dblPosition': dblPosition,
-											'dblVerlet': dblVerlet,
-											'dblAcceleration': dblAcceleration,
-											'dblRotation': dblRotation
-										});
-									}
+										break;
+									} while (true);
 								}
-							}
+								
+								{
+									playerHandle.dblSize = Constants.dblPlayerHitbox;
+								}
+								
+								return playerHandle;
+							}, function(physicsHandle) {
+								{
+									Gameserver.functionPlayerHit(physicsHandle, {
+										'strIdent': strIdent,
+										'strPlayer': strPlayer,
+										'dblPosition': dblPosition,
+										'dblVerlet': dblVerlet,
+										'dblAcceleration': dblAcceleration,
+										'dblRotation': dblRotation
+									});
+								}
+							});
 						}
 						
 					} else if (jsonHandle.strWeapon === 'weaponBow') {
-						{
-							Player.playerHandle[socketHandle.strIdent].intInteractionWeapon = Constants.intInteractionBowDuration;
-						}
+						var strIdent = 'itemArrow' + ' - ' + Node.hashbase(Node.cryptoHandle.randomBytes(16)).substr(0, 8);
+						var strPlayer = Player.playerHandle[socketHandle.strIdent].strIdent;
+						var dblPosition = [ 0.0, 0.0, 0.0 ];
+						var dblVerlet = [ 0.0, 0.0, 0.0 ];
+						var dblAcceleration = [ 0.0, 0.0, 0.0 ];
+						var dblRotation = [ 0.0, 0.0, 0.0 ];
 						
 						{
-							var strIdent = 'itemArrow' + ' - ' + Node.hashbase(Node.cryptoHandle.randomBytes(16)).substr(0, 8);
-							var strPlayer = Player.playerHandle[socketHandle.strIdent].strIdent;
-							var dblPosition = [ 0.0, 0.0, 0.0 ];
-							var dblVerlet = [ 0.0, 0.0, 0.0 ];
-							var dblAcceleration = [ 0.0, 0.0, 0.0 ];
-							var dblRotation = [ 0.0, 0.0, 0.0 ];
+							dblPosition[0] = Player.playerHandle[socketHandle.strIdent].dblPosition[0] + (0.25 * Math.sin(Player.playerHandle[socketHandle.strIdent].dblRotation[1] + (0.5 * Math.PI)));
+							dblPosition[1] = Player.playerHandle[socketHandle.strIdent].dblPosition[1] + (0.1);
+							dblPosition[2] = Player.playerHandle[socketHandle.strIdent].dblPosition[2] + (0.25 * Math.cos(Player.playerHandle[socketHandle.strIdent].dblRotation[1] + (0.5 * Math.PI)));
 							
-							{
-								dblPosition[0] = Player.playerHandle[socketHandle.strIdent].dblPosition[0] + (0.25 * Math.sin(Player.playerHandle[socketHandle.strIdent].dblRotation[1] + (0.5 * Math.PI)));
-								dblPosition[1] = Player.playerHandle[socketHandle.strIdent].dblPosition[1] + (0.1);
-								dblPosition[2] = Player.playerHandle[socketHandle.strIdent].dblPosition[2] + (0.25 * Math.cos(Player.playerHandle[socketHandle.strIdent].dblRotation[1] + (0.5 * Math.PI)));
-								
-								dblVerlet[0] = dblPosition[0];
-								dblVerlet[1] = dblPosition[1];
-								dblVerlet[2] = dblPosition[2];
-								
-								dblAcceleration[0] = -1.0 * Math.sin(Player.playerHandle[socketHandle.strIdent].dblRotation[1]) * Math.cos(Player.playerHandle[socketHandle.strIdent].dblRotation[2]);
-								dblAcceleration[1] = -1.0 * Math.sin(Player.playerHandle[socketHandle.strIdent].dblRotation[2] + (1.0 * Math.PI));
-								dblAcceleration[2] = -1.0 * Math.cos(Player.playerHandle[socketHandle.strIdent].dblRotation[1]) * Math.cos(Player.playerHandle[socketHandle.strIdent].dblRotation[2]);
-								
-								dblRotation[0] = Player.playerHandle[socketHandle.strIdent].dblRotation[0];
-								dblRotation[1] = Player.playerHandle[socketHandle.strIdent].dblRotation[1];
-								dblRotation[2] = Player.playerHandle[socketHandle.strIdent].dblRotation[2];
-							}
+							dblVerlet[0] = dblPosition[0];
+							dblVerlet[1] = dblPosition[1];
+							dblVerlet[2] = dblPosition[2];
 							
-							Item.itemHandle[strIdent] = {
-								'strIdent': strIdent,
-								'strPlayer': strPlayer,
-								'strItem': 'itemArrow',
-								'dblPosition': dblPosition,
-								'dblVerlet': dblVerlet,
-								'dblAcceleration': dblAcceleration,
-								'dblRotation': dblRotation
-							};
+							dblAcceleration[0] = -1.0 * Math.sin(Player.playerHandle[socketHandle.strIdent].dblRotation[1]) * Math.cos(Player.playerHandle[socketHandle.strIdent].dblRotation[2]);
+							dblAcceleration[1] = -1.0 * Math.sin(Player.playerHandle[socketHandle.strIdent].dblRotation[2] + (1.0 * Math.PI));
+							dblAcceleration[2] = -1.0 * Math.cos(Player.playerHandle[socketHandle.strIdent].dblRotation[1]) * Math.cos(Player.playerHandle[socketHandle.strIdent].dblRotation[2]);
+							
+							dblRotation[0] = Player.playerHandle[socketHandle.strIdent].dblRotation[0];
+							dblRotation[1] = Player.playerHandle[socketHandle.strIdent].dblRotation[1];
+							dblRotation[2] = Player.playerHandle[socketHandle.strIdent].dblRotation[2];
 						}
+						
+						Item.itemHandle[strIdent] = {
+							'strIdent': strIdent,
+							'strPlayer': strPlayer,
+							'strItem': 'itemArrow',
+							'dblPosition': dblPosition,
+							'dblVerlet': dblVerlet,
+							'dblAcceleration': dblAcceleration,
+							'dblRotation': dblRotation
+						};
 						
 					}
 				}
@@ -662,7 +661,7 @@ var Node = {
 }
 
 var Constants = {
-	intGameloopInterval: 16,
+	intGameLoop: 16,
 	
 	intPlayerHealth: 100,
 	dblPlayerMovement: [ 0.03, 0.18, 0.03 ],
@@ -672,12 +671,12 @@ var Constants = {
 	dblPlayerFriction: [ 0.8, 1.0, 0.8 ],
 	dblPlayerHitbox: [ 0.4, 0.9, 0.4 ],
 	
-	intInteractionPickaxeDuration: 500,
-	intInteractionSwordDuration: 500,
+	intInteractionPickaxeDuration: 30,
+	intInteractionSwordDuration: 30,
 	intInteractionSwordDamage: 20,
 	dblInteractionSwordImpact: [ 0.09, 0.09, 0.09 ],
 	dblInteractionSwordRange: 2.0,
-	intInteractionBowDuration: 500,
+	intInteractionBowDuration: 30,
 	intInteractionBowDamage: 20,
 	dblInteractionBowImpact: [ 0.09, 0.09, 0.09 ],
 	
@@ -702,16 +701,7 @@ var Gameserver = {
 	
 	strMapActive: '',
 	strMapAvailable: [],
-	strMapType: {},
-	strMapOrigtype: {},
-	intMapSpawnRed: [],
-	intMapSpawnBlue: [],
-	intMapFlagRed: [],
-	intMapFlagBlue: [],
-	intMapSeparator: [],
-	strMapBlocked: [],
 	functionMapSwitch: null,
-	functionMapLoad: null,
 	
 	strPhaseActive: '',
 	intPhaseRemaining: 0,
@@ -743,22 +733,6 @@ var Gameserver = {
 			Gameserver.strMapActive = process.env.strMapActive;
 			
 			Gameserver.strMapAvailable = [];
-
-			Gameserver.strMapType = {};
-			
-			Gameserver.strMapOrigtype = {};
-			
-			Gameserver.intMapSpawnRed = [];
-			
-			Gameserver.intMapSpawnBlue = [];
-			
-			Gameserver.intMapFlagRed = [];
-			
-			Gameserver.intMapFlagBlue = [];
-			
-			Gameserver.intMapSeparator = [];
-			
-			Gameserver.strMapBlocked = [];
 			
 			Gameserver.functionMapSwitch = function() {
 				{
@@ -787,121 +761,6 @@ var Gameserver = {
 					var intIndex = (Gameserver.strMapAvailable.indexOf(Gameserver.strMapActive) + 1) % Gameserver.strMapAvailable.length;
 					
 					Gameserver.strMapActive = Gameserver.strMapAvailable[intIndex];
-				}
-			};
-			
-			Gameserver.functionMapLoad = function() {
-				{
-					Gameserver.strMapType = JSON.parse(Node.fsHandle.readFileSync(__dirname + '/assets/maps/' + Gameserver.strMapActive + '.json').toString());
-					
-					Gameserver.strMapOrigtype = JSON.parse(Node.fsHandle.readFileSync(__dirname + '/assets/maps/' + Gameserver.strMapActive + '.json').toString());
-					
-					Gameserver.intMapSpawnRed = [];
-					
-					Gameserver.intMapSpawnBlue = [];
-					
-					Gameserver.intMapFlagRed = [];
-					
-					Gameserver.intMapFlagBlue = [];
-					
-					Gameserver.intMapSeparator = [];
-					
-					Gameserver.strMapBlocked = [];
-				}
-				
-				{
-				    for (var intCoordinate in Gameserver.strMapType) {
-						var strType = Gameserver.strMapType[intCoordinate];
-						
-						{
-							if (strType === 'voxelSpawnRed') {
-								Gameserver.intMapSpawnRed.push(JSON.parse('[' + intCoordinate + ']'));
-								
-							} else if (strType === 'voxelSpawnBlue') {
-								Gameserver.intMapSpawnBlue.push(JSON.parse('[' + intCoordinate + ']'));
-								
-							} else if (strType === 'voxelFlagRed') {
-								Gameserver.intMapFlagRed.push(JSON.parse('[' + intCoordinate + ']'));
-								
-								delete Gameserver.strMapType[intCoordinate];
-								
-							} else if (strType === 'voxelFlagBlue') {
-								Gameserver.intMapFlagBlue.push(JSON.parse('[' + intCoordinate + ']'));
-
-								delete Gameserver.strMapType[intCoordinate];
-								
-							} else if (strType === 'voxelSeparator') {
-								Gameserver.intMapSeparator.push(JSON.parse('[' + intCoordinate + ']'));
-								
-							}
-						}
-				    }
-				}
-				
-				{
-				    for (var intFor1 = 0; intFor1 < Gameserver.intMapSpawnRed.length; intFor1 += 1) {
-				    	for (var intFor2 = -1; intFor2 < 2; intFor2 += 1) {
-					    	for (var intFor3 = -1; intFor3 < 2; intFor3 += 1) {
-					    		var intX = Gameserver.intMapSpawnRed[intFor1][0];
-					    		var intY = Gameserver.intMapSpawnRed[intFor1][1];
-					    		var intZ = Gameserver.intMapSpawnRed[intFor1][2];
-					    		
-					    		{
-							    	Gameserver.strMapBlocked.push(JSON.stringify([ intX + intFor2, intY + 1, intZ + intFor3 ]));
-							    	
-							    	Gameserver.strMapBlocked.push(JSON.stringify([ intX + intFor2, intY + 2, intZ + intFor3 ]));
-					    		}
-					    	}
-				    	}
-				    }
-				    
-				    for (var intFor1 = 0; intFor1 < Gameserver.intMapSpawnBlue.length; intFor1 += 1) {
-				    	for (var intFor2 = -1; intFor2 < 2; intFor2 += 1) {
-					    	for (var intFor3 = -1; intFor3 < 2; intFor3 += 1) {
-					    		var intX = Gameserver.intMapSpawnBlue[intFor1][0];
-					    		var intY = Gameserver.intMapSpawnBlue[intFor1][1];
-					    		var intZ = Gameserver.intMapSpawnBlue[intFor1][2];
-					    		
-					    		{
-							    	Gameserver.strMapBlocked.push(JSON.stringify([ intX + intFor2, intY + 1, intZ + intFor3 ]));
-							    	
-							    	Gameserver.strMapBlocked.push(JSON.stringify([ intX + intFor2, intY + 2, intZ + intFor3 ]));
-					    		}
-					    	}
-				    	}
-				    }
-				    
-				    for (var intFor1 = 0; intFor1 < Gameserver.intMapFlagRed.length; intFor1 += 1) {
-				    	for (var intFor2 = -1; intFor2 < 2; intFor2 += 1) {
-					    	for (var intFor3 = -1; intFor3 < 2; intFor3 += 1) {
-					    		var intX = Gameserver.intMapFlagRed[intFor1][0];
-					    		var intY = Gameserver.intMapFlagRed[intFor1][1];
-					    		var intZ = Gameserver.intMapFlagRed[intFor1][2];
-					    		
-					    		{
-							    	Gameserver.strMapBlocked.push(JSON.stringify([ intX + intFor2, intY + 0, intZ + intFor3 ]));
-							    	
-							    	Gameserver.strMapBlocked.push(JSON.stringify([ intX + intFor2, intY + 1, intZ + intFor3 ]));
-					    		}
-					    	}
-				    	}
-				    }
-				    
-				    for (var intFor1 = 0; intFor1 < Gameserver.intMapFlagBlue.length; intFor1 += 1) {
-				    	for (var intFor2 = -1; intFor2 < 2; intFor2 += 1) {
-					    	for (var intFor3 = -1; intFor3 < 2; intFor3 += 1) {
-					    		var intX = Gameserver.intMapFlagBlue[intFor1][0];
-					    		var intY = Gameserver.intMapFlagBlue[intFor1][1];
-					    		var intZ = Gameserver.intMapFlagBlue[intFor1][2];
-					    		
-					    		{
-							    	Gameserver.strMapBlocked.push(JSON.stringify([ intX + intFor2, intY + 0, intZ + intFor3 ]));
-							    	
-							    	Gameserver.strMapBlocked.push(JSON.stringify([ intX + intFor2, intY + 1, intZ + intFor3 ]));
-					    		}
-					    	}
-				    	}
-				    }
 				}
 			};
 		}
@@ -947,7 +806,7 @@ var Gameserver = {
 						{
 							Gameserver.functionMapSwitch();
 							
-							Gameserver.functionMapLoad();
+							Map.load(Node.fsHandle.readFileSync(__dirname + '/assets/maps/' + Gameserver.strMapActive + '.json').toString());
 						}
 						
 						{
@@ -966,25 +825,27 @@ var Gameserver = {
 				
 				{
 					if (Gameserver.strPhaseActive === 'Build') {
-					    for (var intFor1 = 0; intFor1 < Gameserver.intMapSeparator.length; intFor1 += 1) {
-							var intCoordinate = Gameserver.intMapSeparator[intFor1];
+					    for (var intFor1 = 0; intFor1 < Map.intSeparator.length; intFor1 += 1) {
+							var intCoordinate = Map.intSeparator[intFor1];
 							
 							{
-								Gameserver.strMapType[intCoordinate] = 'voxelSeparator';
+								Map.updateType(intCoordinate, 'voxelSeparator');
 							}
 					    }
 						
 					} else if (Gameserver.strPhaseActive === 'Combat') {
-					    for (var intFor1 = 0; intFor1 < Gameserver.intMapSeparator.length; intFor1 += 1) {
-							var intCoordinate = Gameserver.intMapSeparator[intFor1];
+					    for (var intFor1 = 0; intFor1 < Map.intSeparator.length; intFor1 += 1) {
+							var intCoordinate = Map.intSeparator[intFor1];
 							
 							{
-								delete Gameserver.strMapType[intCoordinate];
+								Map.updateType(intCoordinate, '');
 							}
 					    }
 						
 					}
 				}
+				
+				// TODO: reset player items
 				
 				{
 					for (var strIdent in Player.playerHandle) {
@@ -995,9 +856,8 @@ var Gameserver = {
 						}
 						
 						{
-							playerHandle.socketHandle.emit('gameserverHandle', {
-								'strMapType': Gameserver.strMapType,
-								'strPhaseActive': Gameserver.strPhaseActive
+							playerHandle.socketHandle.emit('mapHandle', {
+								'strMap': Map.save()
 							});
 						}
 						
@@ -1026,19 +886,19 @@ var Gameserver = {
 				}
 				
 				{
-					var intMapSpawn = [];
+					var intSpawn = [];
 					
 					if (playerHandle.strTeam === 'teamRed') {
-						intMapSpawn = Gameserver.intMapSpawnRed[Math.floor(Math.random() * Gameserver.intMapSpawnRed.length)];
+						intSpawn = Map.intSpawnRed[Math.floor(Math.random() * Map.intSpawnRed.length)];
 						
 					} else if (playerHandle.strTeam === 'teamBlue') {
-						intMapSpawn = Gameserver.intMapSpawnBlue[Math.floor(Math.random() * Gameserver.intMapSpawnBlue.length)];
+						intSpawn = Map.intSpawnBlue[Math.floor(Math.random() * Map.intSpawnBlue.length)];
 						
 					}
 
-					playerHandle.dblPosition[0] = intMapSpawn[0] + 0.5;
-					playerHandle.dblPosition[1] = intMapSpawn[1] + 2.0;
-					playerHandle.dblPosition[2] = intMapSpawn[2] + 0.5;
+					playerHandle.dblPosition[0] = intSpawn[0] + 0.5;
+					playerHandle.dblPosition[1] = intSpawn[1] + 2.0;
+					playerHandle.dblPosition[2] = intSpawn[2] + 0.5;
 
 					playerHandle.dblVerlet[0] = playerHandle.dblPosition[0];
 					playerHandle.dblVerlet[1] = playerHandle.dblPosition[1];
@@ -1047,8 +907,6 @@ var Gameserver = {
 				
 				{
 					playerHandle.socketHandle.emit('playerHandle', {
-						'strTeam': playerHandle.strTeam,
-						'intHealth': playerHandle.intHealth,
 						'dblPosition': playerHandle.dblPosition,
 						'dblVerlet': playerHandle.dblVerlet,
 						'dblAcceleration': playerHandle.dblAcceleration
@@ -1085,8 +943,6 @@ var Gameserver = {
 						
 						{
 							playerHandle.socketHandle.emit('playerHandle', {
-								'strTeam': playerHandle.strTeam,
-								'intHealth': playerHandle.intHealth,
 								'dblPosition': playerHandle.dblPosition,
 								'dblVerlet': playerHandle.dblVerlet,
 								'dblAcceleration': playerHandle.dblAcceleration
@@ -1124,10 +980,6 @@ var Gameserver = {
 				}
 			};
 		}
-		
-		{
-			Gameserver.functionMapLoad();
-		}
 	},
 	
 	dispel: function() {
@@ -1148,25 +1000,7 @@ var Gameserver = {
 			
 			Gameserver.strMapAvailable = [];
 			
-			Gameserver.strMapType = {};
-			
-			Gameserver.strMapOrigtype = {};
-			
-			Gameserver.intMapSpawnRed = [];
-			
-			Gameserver.intMapSpawnBlue = [];
-			
-			Gameserver.intMapFlagRed = [];
-			
-			Gameserver.intMapFlagBlue = [];
-			
-			Gameserver.intMapSeparator = [];
-			
-			Gameserver.strMapBlocked = [];
-			
 			Gameserver.functionMapSwitch = null;
-			
-			Gameserver.functionMapLoad = null;
 		}
 		
 		{
@@ -1199,6 +1033,8 @@ var Gameserver = {
 
 {
 	with (global) {
+		eval(Node.fsHandle.readFileSync(__dirname + '/libs/Map.js').toString());
+		
 		eval(Node.fsHandle.readFileSync(__dirname + '/libs/Player.js').toString());
 		
 		eval(Node.fsHandle.readFileSync(__dirname + '/libs/Item.js').toString());
@@ -1209,6 +1045,12 @@ var Gameserver = {
 
 {
 	Gameserver.init();
+}
+
+{
+	Map.init();
+	
+	Map.load(Node.fsHandle.readFileSync(__dirname + '/assets/maps/' + Gameserver.strMapActive + '.json').toString());
 }
 
 {
@@ -1224,11 +1066,11 @@ var Gameserver = {
 {
 	Physics.init();
 	
-	Physics.functionVoxelcol = function(intX, intY, intZ) {
-		if (intY === 0) {
+	Physics.functionVoxelcol = function(intCoordinateX, intCoordinateY, intCoordinateZ) {
+		if (intCoordinateY === 0) {
 			return true;
-			
-		} else if (Gameserver.strMapType[[intX, intY, intZ ]] !== undefined) {
+
+		} else if (Map.strType[[ intCoordinateX, intCoordinateY, intCoordinateZ ]] !== undefined) {
 			return true;
 			
 		}
@@ -1261,9 +1103,10 @@ var Gameserver = {
 							'e': playerHandle.intScore,
 							'f': playerHandle.intKills,
 							'g': playerHandle.intDeaths,
-							'h': playerHandle.dblPosition,
-							'i': playerHandle.dblVerlet,
-							'j': playerHandle.dblRotation
+							'h': playerHandle.intHealth,
+							'i': playerHandle.dblPosition,
+							'j': playerHandle.dblVerlet,
+							'k': playerHandle.dblRotation
 						});
 					}
 			    }
@@ -1318,7 +1161,7 @@ var Gameserver = {
 		}
 		
 		{
-			var intWait = Constants.intGameloopInterval - (new Date().getTime() - Animationframe_intTimestamp);
+			var intWait = Constants.intGameLoop - (new Date().getTime() - Animationframe_intTimestamp);
 			
 			if (intWait >= 1) {
 				setTimeout(functionAnimationframe, intWait);
@@ -1334,7 +1177,7 @@ var Gameserver = {
 		}
 	};
 	
-	setTimeout(functionAnimationframe, Constants.intGameloopInterval);
+	setTimeout(functionAnimationframe, Constants.intGameLoop);
 }
 
 {
@@ -1433,53 +1276,3 @@ var Gameserver = {
 	
 	functionInterval();
 }
-
-
-// TODO: put this back in
-/*
-{
-	for (var strIdent in Item.itemHandle) {
-		var itemHandle = Item.itemHandle[strIdent];
-		
-		if (itemHandle.strItem !== 'itemArrow') {
-			continue;
-		}
-		
-		{
-			for (var strIdent in Player.playerHandle) {
-				var playerHandle = Player.playerHandle[strIdent];
-				
-				if (playerHandle.strTeam === 'teamLogin') {
-					continue;
-					
-				} else if (playerHandle.strIdent === itemHandle.strPlayer) {
-					continue;
-					
-				}
-				
-				{
-					itemHandle.dblSize = Constants.dblArrowSize;
-					
-					playerHandle.dblSize = Constants.dblPlayerHitbox;
-					
-					if (Physics.updateObjectcol(itemHandle, playerHandle) === false) {
-						continue;
-					}
-				}
-				
-				{
-					Gameserver.functionPlayerHit(playerHandle, itemHandle);
-				}
-				
-				{
-					delete Item.itemHandle[itemHandle.strIdent];
-				}
-				
-				{
-					break;
-				}
-			}
-		}
-	}
-}
-*/
