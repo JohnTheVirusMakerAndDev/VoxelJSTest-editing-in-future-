@@ -1,3 +1,7 @@
+'use strict';
+
+var Constants = {};
+
 var Physics = {
 	functionVoxelcol: null,
 	
@@ -220,7 +224,7 @@ var Physics = {
 	updateObjectcol: function(physicsHandle, functionObjectcol, functionCollision) {
 		{
 			do {
-				var physicsObjectcol = functionObjectcol();
+				var physicsObjectcol = functionObjectcol(functionObjectcol);
 				
 				if (physicsObjectcol === null) {
 					break;
@@ -253,7 +257,7 @@ var Physics = {
 	updateRaycol: function(physicsHandle, functionRaycol, functionCollision) {
 		{
 			do {
-				var physicsRaycol = functionRaycol();
+				var physicsRaycol = functionRaycol(functionRaycol);
 				
 				if (physicsRaycol === null) {
 					break;
@@ -291,4 +295,10 @@ var Physics = {
 			} while (true);
 		}
 	}
+};
+
+module.exports = function(constantsHandle) {
+	Constants = constantsHandle;
+	
+	return Physics;
 };

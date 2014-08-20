@@ -1,113 +1,23 @@
-var Node = {
-	childprocessHandle: null,
-	
-	cryptoHandle: null,
-	
-	fsHandle: null,
-	
-	httpHandle: null,
-	
-	httpsHandle: null,
-	
-	pathHandle: null,
-	
-	zlibHandle: null,
-	
-	init: function() {
-		{
-			Node.childprocessHandle = require('child_process');
-		}
-		
-		{
-			Node.cryptoHandle = require('crypto');
-		}
-		
-		{
-			Node.fsHandle = require('fs');
-		}
+'use strict';
 
-		{
-			Node.httpHandle = require('http');
-		}
+var VoxConf = require(__dirname + '/VoxConf.js')();
 
-		{
-			Node.httpsHandle = require('https');
-		}
+var NodeRect = require(__dirname + '/NodeRect.js')();
 
-		{
-			Node.pathHandle = require('path');
-		}
-
-		{
-			Node.zlibHandle = require('zlib');
-		}
-	},
-	
-	dispel: function() {
-		{
-			Node.childprocessHandle = null;
-		}
-		
-		{
-			Node.cryptoHandle = null;
-		}
-		
-		{
-			Node.fsHandle = null;
-		}
-		
-		{
-			Node.httpHandle = null;
-		}
-		
-		{
-			Node.httpsHandle = null;
-		}
-		
-		{
-			Node.pathHandle = null;
-		}
-		
-		{
-			Node.zlibHandle = null;
-		}
-	},
-	
-	hashbase: function(strData) {
-		var hashHande = Node.cryptoHandle.createHash('sha512');
-		
-		{
-			hashHande.update(strData);
-		}
-		
-		var strBase = hashHande.digest('base64');
-		
-		{
-			strBase = strBase.replace(new RegExp('\\+', 'g'), '');
-			strBase = strBase.replace(new RegExp('\\/', 'g'), '');
-		}
-		
-		return strBase;
-	}
-};
-
-{
-	Node.init();
-}
-
-{
-	with (global) {
-		eval(Node.fsHandle.readFileSync(__dirname + '/NodeGen.config').toString());
-		
-		eval(Node.fsHandle.readFileSync(__dirname + '/NodeGen.js').toString());
-	}
-}
-
-{
-	with (global) {
-		eval(Node.fsHandle.readFileSync(__dirname + '/VoxRect.config').toString());
-	}
-}
+var Node = NodeRect.Node;
+var Aws = NodeRect.Aws;
+var Casable = NodeRect.Casable;
+var Express = NodeRect.Express;
+var Geoip = NodeRect.Geoip;
+var Hypertextmin = NodeRect.Hypertextmin;
+var Mime = NodeRect.Mime;
+var Mongo = NodeRect.Mongo;
+var Mustache = NodeRect.Mustache;
+var Phantom = NodeRect.Phantom;
+var Recaptcha = NodeRect.Recaptcha;
+var Socket = NodeRect.Socket;
+var Sqlite = NodeRect.Sqlite;
+var Xml = NodeRect.Xml;
 
 {
 	Express.serverHandle.get('/', function(requestHandle, responseHandle) {
@@ -159,7 +69,7 @@ var Node = {
 			}
 			
 			{
-				strData = Hypertextminfier.hypertextminfierHandle.minify(strData, {
+				strData = Hypertextmin.hypertextminHandle.minify(strData, {
 					'removeComments': true,
 					'removeCommentsFromCDATA': true,
 					'removeCDATASectionsFromCDATA': false,
@@ -299,13 +209,13 @@ var Node = {
 				}
 				
 				{
-					socketHandle.emit('mapHandle', {
-						'strMap': Map.save()
+					socketHandle.emit('worldHandle', {
+						'strWorld': World.save()
 					});
 				}
 				
 				{
-					Gameserver.functionPlayerRespawn(Player.playerHandle[socketHandle.strIdent]);
+					Gameserver.playerRespawn(Player.playerHandle[socketHandle.strIdent]);
 				}
 			});
 			
@@ -317,24 +227,22 @@ var Node = {
 				if (Player.playerHandle[socketHandle.strIdent] === undefined) {
 					return;
 					
-				} else if (Player.playerHandle[socketHandle.strIdent].strStatus === 'teamLogin') {
+				} else if (Player.playerHandle[socketHandle.strIdent].strTeam === 'teamLogin') {
 					return;
 					
 				}
 				
 				{
-					// TODO: strMapAvailable is empty?
-					
 					socketHandle.emit('pingHandle', {
-						'strMapActive': Gameserver.strMapActive,
-						'strMapAvailable': Gameserver.strMapAvailable,
 						'strPhaseActive': Gameserver.strPhaseActive,
-						'intPhaseRemaining': Gameserver.intPhaseRemaining,
 						'intPhaseRound': Gameserver.intPhaseRound,
-						'intScoreRed': Gameserver.intScoreRed,
-						'intScoreBlue': Gameserver.intScoreBlue,
+						'intPhaseRemaining': Gameserver.intPhaseRemaining,
+						'strWorldAvailable': Gameserver.strWorldAvailable,
+						'strWorldActive': Gameserver.strWorldActive,
 						'intPlayerActive': Gameserver.intPlayerActive,
-						'intPlayerCapacity': Gameserver.intPlayerCapacity
+						'intPlayerCapacity': Gameserver.intPlayerCapacity,
+						'intScoreRed': Gameserver.intScoreRed,
+						'intScoreBlue': Gameserver.intScoreBlue
 					});
 				}
 			});
@@ -347,7 +255,7 @@ var Node = {
 				if (Player.playerHandle[socketHandle.strIdent] === undefined) {
 					return;
 					
-				} else if (Player.playerHandle[socketHandle.strIdent].strStatus === 'teamLogin') {
+				} else if (Player.playerHandle[socketHandle.strIdent].strTeam === 'teamLogin') {
 					return;
 					
 				} else if (jsonHandle.strMessage === '') {
@@ -413,7 +321,7 @@ var Node = {
 				if (Player.playerHandle[socketHandle.strIdent] === undefined) {
 					return;
 					
-				} else if (Player.playerHandle[socketHandle.strIdent].strStatus === 'teamLogin') {
+				} else if (Player.playerHandle[socketHandle.strIdent].strTeam === 'teamLogin') {
 					return;
 					
 				}
@@ -433,7 +341,7 @@ var Node = {
 				if (Player.playerHandle[socketHandle.strIdent] === undefined) {
 					return;
 					
-				} else if (Player.playerHandle[socketHandle.strIdent].strStatus === 'teamLogin') {
+				} else if (Player.playerHandle[socketHandle.strIdent].strTeam === 'teamLogin') {
 					return;
 
 				} else if (jsonHandle.strItem.match(new RegExp('(itemPickaxe)|(itemSword)|(itemBow)', 'g')) === null) {
@@ -461,13 +369,13 @@ var Node = {
 				if (Player.playerHandle[socketHandle.strIdent] === undefined) {
 					return;
 					
-				} else if (Player.playerHandle[socketHandle.strIdent].strStatus === 'teamLogin') {
+				} else if (Player.playerHandle[socketHandle.strIdent].strTeam === 'teamLogin') {
 					return;
 					
 				} else if (Player.playerHandle[socketHandle.strIdent].intInteractionWeapon > 0) {
 					return;
 					
-				} else if (Map.updateBlocked(jsonHandle.intCoordinate) === true) {
+				} else if (World.updateBlocked(jsonHandle.intCoordinate) === true) {
 					return;
 					
 				}
@@ -477,7 +385,7 @@ var Node = {
 				}
 				
 				{
-					Map.updateType(jsonHandle.intCoordinate, jsonHandle.strType);
+					World.updateType(jsonHandle.intCoordinate, jsonHandle.strType);
 				}
 	
 				{
@@ -506,7 +414,7 @@ var Node = {
 				if (Player.playerHandle[socketHandle.strIdent] === undefined) {
 					return;
 					
-				} else if (Player.playerHandle[socketHandle.strIdent].strStatus === 'teamLogin') {
+				} else if (Player.playerHandle[socketHandle.strIdent].strTeam === 'teamLogin') {
 					return;
 					
 				} else if (Player.playerHandle[socketHandle.strIdent].intInteractionWeapon > 0) {
@@ -534,39 +442,47 @@ var Node = {
 						var dblRotation = [ 0.0, 0.0, 0.0 ];
 						
 						{
+							dblPosition[0] = Player.playerHandle[socketHandle.strIdent].dblPosition[0];
+							dblPosition[1] = Player.playerHandle[socketHandle.strIdent].dblPosition[1] + (0.25 * Constants.dblPlayerSize[1]);
+							dblPosition[2] = Player.playerHandle[socketHandle.strIdent].dblPosition[2];
+							
+							dblVerlet[0] = dblPosition[0];
+							dblVerlet[1] = dblPosition[1];
+							dblVerlet[2] = dblPosition[2];
+							
+							dblAcceleration[0] = -1.0 * Math.sin(Player.playerHandle[socketHandle.strIdent].dblRotation[1]) * Math.cos(Player.playerHandle[socketHandle.strIdent].dblRotation[2]);
+							dblAcceleration[1] = -1.0 * Math.sin(Player.playerHandle[socketHandle.strIdent].dblRotation[2] + (1.0 * Math.PI));
+							dblAcceleration[2] = -1.0 * Math.cos(Player.playerHandle[socketHandle.strIdent].dblRotation[1]) * Math.cos(Player.playerHandle[socketHandle.strIdent].dblRotation[2]);
+							
 							dblRotation[0] = Player.playerHandle[socketHandle.strIdent].dblRotation[0];
 							dblRotation[1] = Player.playerHandle[socketHandle.strIdent].dblRotation[1];
 							dblRotation[2] = Player.playerHandle[socketHandle.strIdent].dblRotation[2];
 						}
 						
+						var itemHandle = {
+							'strIdent': strIdent,
+							'strPlayer': strPlayer,
+							'dblPosition': dblPosition,
+							'dblVerlet': dblVerlet,
+							'dblAcceleration': dblAcceleration,
+							'dblRotation': dblRotation
+						};
+						
 						{
-							var physicsHit = {
-								'dblPosition': [ 0.0, 0.0, 0.0 ],
-								'dblAcceleration': [ 0.0, 0.0, 0.0 ]
-							};
+							itemHandle.dblSize = [ 0.0, 0.0, 0.0 ];
 							
-							{
-								physicsHit.dblPosition[0] = Player.playerHandle[socketHandle.strIdent].dblPosition[0];
-								physicsHit.dblPosition[1] = Player.playerHandle[socketHandle.strIdent].dblPosition[1] + (0.25 * Constants.dblPlayerSize[1]);
-								physicsHit.dblPosition[2] = Player.playerHandle[socketHandle.strIdent].dblPosition[2];
-	
-								physicsHit.dblAcceleration[0] = -1.0 * Math.sin(dblRotation[1]) * Math.cos(dblRotation[2]);
-								physicsHit.dblAcceleration[1] = -1.0 * Math.sin(dblRotation[2] + (1.0 * Math.PI));
-								physicsHit.dblAcceleration[2] = -1.0 * Math.cos(dblRotation[1]) * Math.cos(dblRotation[2]);
-							}
-							
-							Physics.updateRaycol(physicsHit, function() {
+							Physics.updateRaycol(itemHandle, function(functionRaycol) {
 								var playerHandle = null;
 								
 								{
-									if (arguments.callee.strIdent === undefined) {
-										arguments.callee.strIdent = Object.keys(Player.playerHandle);
+									if (functionRaycol.strIdent === undefined) {
+										functionRaycol.strIdent = Object.keys(Player.playerHandle);
 									}
 								}
 								
 								{
 									do {
-										playerHandle = Player.playerHandle[arguments.callee.strIdent.pop()];
+										playerHandle = Player.playerHandle[functionRaycol.strIdent.pop()];
 										
 										if (playerHandle === undefined) {
 											return null;
@@ -575,14 +491,14 @@ var Node = {
 										if (playerHandle.strTeam === 'teamLogin') {
 											continue;
 											
-										} else if (playerHandle.strIdent === Player.playerHandle[socketHandle.strIdent].strIdent) {
+										} else if (playerHandle.strIdent === itemHandle.strPlayer) {
 											continue;
 											
 										}
 										
-										var dblDistanceX = playerHandle.dblPosition[0] - Player.playerHandle[socketHandle.strIdent].dblPosition[0];
-										var dblDistanceY = playerHandle.dblPosition[1] - Player.playerHandle[socketHandle.strIdent].dblPosition[1];
-										var dblDistanceZ = playerHandle.dblPosition[2] - Player.playerHandle[socketHandle.strIdent].dblPosition[2];
+										var dblDistanceX = playerHandle.dblPosition[0] - itemHandle.dblPosition[0];
+										var dblDistanceY = playerHandle.dblPosition[1] - itemHandle.dblPosition[1];
+										var dblDistanceZ = playerHandle.dblPosition[2] - itemHandle.dblPosition[2];
 										
 										if (Math.sqrt((dblDistanceX * dblDistanceX) + (dblDistanceY * dblDistanceY) + (dblDistanceZ * dblDistanceZ)) > Constants.dblInteractionSwordRange) {
 											continue;
@@ -599,14 +515,7 @@ var Node = {
 								return playerHandle;
 							}, function(physicsHandle) {
 								{
-									Gameserver.functionPlayerHit(physicsHandle, {
-										'strIdent': strIdent,
-										'strPlayer': strPlayer,
-										'dblPosition': dblPosition,
-										'dblVerlet': dblVerlet,
-										'dblAcceleration': dblAcceleration,
-										'dblRotation': dblRotation
-									});
+									Gameserver.playerHit(physicsHandle, itemHandle);
 								}
 							});
 						}
@@ -640,7 +549,6 @@ var Node = {
 						Item.itemHandle[strIdent] = {
 							'strIdent': strIdent,
 							'strPlayer': strPlayer,
-							'strItem': 'itemArrow',
 							'dblPosition': dblPosition,
 							'dblVerlet': dblVerlet,
 							'dblAcceleration': dblAcceleration,
@@ -699,286 +607,59 @@ var Gameserver = {
 	intLoginPassword: 0,
 	strLoginMotd: '',
 	
-	strMapActive: '',
-	strMapAvailable: [],
-	functionMapSwitch: null,
-	
 	strPhaseActive: '',
-	intPhaseRemaining: 0,
 	intPhaseRound: 0,
-	functionPhaseUpdate: null,
+	intPhaseRemaining: 0,
+	
+	strWorldAvailable: [],
+	strWorldActive: '',
+	strWorldFingerprint: '',
+	
+	intPlayerActive: 0,
+	intPlayerCapacity: 0,
 	
 	intScoreRed: 0,
 	intScoreBlue: 0,
 	
-	intPlayerActive: 0,
-	intPlayerCapacity: 0,
-	functionPlayerRespawn: null,
-	functionPlayerHit: null,
-	
 	init: function() {
 		{
-			Gameserver.strName = process.env.strName;
+			Gameserver.strName = VoxConf.strName;
 		}
 		
 		{
-			Gameserver.strLoginPassword = process.env.strLoginPassword;
+			Gameserver.strLoginPassword = VoxConf.strLoginPassword;
 			
-			Gameserver.intLoginPassword = process.env.strLoginPassword === '' ? 0 : 1;
+			Gameserver.intLoginPassword = VoxConf.strLoginPassword === '' ? 0 : 1;
 			
-			Gameserver.strLoginMotd = process.env.strLoginMotd;
-		}
-		
-		{
-			Gameserver.strMapActive = process.env.strMapActive;
-			
-			Gameserver.strMapAvailable = [];
-			
-			Gameserver.functionMapSwitch = function() {
-				{
-					Gameserver.strMapAvailable = [];
-					
-					Gameserver.strMapActive = '';
-				}
-				
-				{
-					var dirHandle = Node.fsHandle.readdirSync(__dirname + '/assets/maps');
-					
-					for (var intFor1 = 0; intFor1 < dirHandle.length; intFor1 += 1) {
-						var strMap = dirHandle[intFor1];
-						
-						{
-							strMap = strMap.replace(new RegExp('\\.json', 'g'), '');
-						}
-						
-						{
-							Gameserver.strMapAvailable.push(strMap);
-						}
-					}
-				}
-				
-				{
-					var intIndex = (Gameserver.strMapAvailable.indexOf(Gameserver.strMapActive) + 1) % Gameserver.strMapAvailable.length;
-					
-					Gameserver.strMapActive = Gameserver.strMapAvailable[intIndex];
-				}
-			};
+			Gameserver.strLoginMotd = VoxConf.strLoginMotd;
 		}
 		
 		{
 			Gameserver.strPhaseActive = 'Build';
 			
-			Gameserver.intPhaseRemaining = process.env.intPhaseRemaining;
+			Gameserver.intPhaseRound = VoxConf.intPhaseRound;
 			
-			Gameserver.intPhaseRound = process.env.intPhaseRound;
+			Gameserver.intPhaseRemaining = VoxConf.intPhaseRemaining;
+		}
+		
+		{
+			Gameserver.strWorldAvailable = VoxConf.strWorldAvailable;
 			
-			Gameserver.functionPhaseUpdate = function() {
-				{
-					Gameserver.intPhaseRemaining -= 1;
-					
-					if (Gameserver.intPhaseRemaining > 0) {
-						return;
-					}
-				}
-				
-				{
-					if (Gameserver.strPhaseActive === 'Build') {
-						{
-							Gameserver.strPhaseActive = 'Combat';
-							
-							Gameserver.intPhaseRemaining = process.env.intPhaseRemaining;
-						}
-						
-					} else if (Gameserver.strPhaseActive === 'Combat') {
-						{
-							Gameserver.strPhaseActive = 'Build';
-							
-							Gameserver.intPhaseRemaining = process.env.intPhaseRemaining;
-							
-							Gameserver.intPhaseRound -= 1;
-						}
-						
-					}
-				}
-				
-				{
-					if (Gameserver.intPhaseRound === 0) {
-						{
-							Gameserver.functionMapSwitch();
-							
-							Map.load(Node.fsHandle.readFileSync(__dirname + '/assets/maps/' + Gameserver.strMapActive + '.json').toString());
-						}
-						
-						{
-							Gameserver.strPhaseActive = 'Build';
-							
-							Gameserver.intPhaseRemaining = process.env.intPhaseRemaining;
-							
-							Gameserver.intPhaseRound = process.env.intPhaseRound;
-						}
-					}
-					
-					{
-						Item.initFlags();
-					}
-				}
-				
-				{
-					if (Gameserver.strPhaseActive === 'Build') {
-					    for (var intFor1 = 0; intFor1 < Map.intSeparator.length; intFor1 += 1) {
-							var intCoordinate = Map.intSeparator[intFor1];
-							
-							{
-								Map.updateType(intCoordinate, 'voxelSeparator');
-							}
-					    }
-						
-					} else if (Gameserver.strPhaseActive === 'Combat') {
-					    for (var intFor1 = 0; intFor1 < Map.intSeparator.length; intFor1 += 1) {
-							var intCoordinate = Map.intSeparator[intFor1];
-							
-							{
-								Map.updateType(intCoordinate, '');
-							}
-					    }
-						
-					}
-				}
-				
-				// TODO: reset player items
-				
-				{
-					for (var strIdent in Player.playerHandle) {
-						var playerHandle = Player.playerHandle[strIdent];
-						
-						if (playerHandle.strTeam === 'teamLogin') {
-							continue;
-						}
-						
-						{
-							playerHandle.socketHandle.emit('mapHandle', {
-								'strMap': Map.save()
-							});
-						}
-						
-						{
-							Gameserver.functionPlayerRespawn(playerHandle);
-						}
-					}
-				}
-			};
+			Gameserver.strWorldActive = Gameserver.strWorldAvailable[(Gameserver.strWorldAvailable.indexOf(Gameserver.strWorldActive) + 1) % Gameserver.strWorldAvailable.length];
+			
+			Gameserver.strWorldFingerprint = '';
+		}
+		
+		{
+			Gameserver.intPlayerCapacity = VoxConf.intPlayerCapacity;
+			
+			Gameserver.intPlayerActive = 0;
 		}
 		
 		{
 			Gameserver.intScoreRed = 0;
 			
 			Gameserver.intScoreBlue = 0;
-		}
-		
-		{
-			Gameserver.intPlayerCapacity = process.env.intPlayerCapacity;
-			
-			Gameserver.intPlayerActive = 0;
-			
-			Gameserver.functionPlayerRespawn = function(playerHandle) {
-				{
-					playerHandle.intHealth = Constants.intPlayerHealth;
-				}
-				
-				{
-					var intSpawn = [];
-					
-					if (playerHandle.strTeam === 'teamRed') {
-						intSpawn = Map.intSpawnRed[Math.floor(Math.random() * Map.intSpawnRed.length)];
-						
-					} else if (playerHandle.strTeam === 'teamBlue') {
-						intSpawn = Map.intSpawnBlue[Math.floor(Math.random() * Map.intSpawnBlue.length)];
-						
-					}
-
-					playerHandle.dblPosition[0] = intSpawn[0] + 0.5;
-					playerHandle.dblPosition[1] = intSpawn[1] + 2.0;
-					playerHandle.dblPosition[2] = intSpawn[2] + 0.5;
-
-					playerHandle.dblVerlet[0] = playerHandle.dblPosition[0];
-					playerHandle.dblVerlet[1] = playerHandle.dblPosition[1];
-					playerHandle.dblVerlet[2] = playerHandle.dblPosition[2];
-				}
-				
-				{
-					playerHandle.socketHandle.emit('playerHandle', {
-						'dblPosition': playerHandle.dblPosition,
-						'dblVerlet': playerHandle.dblVerlet,
-						'dblAcceleration': playerHandle.dblAcceleration
-					});
-				}
-			};
-			
-			Gameserver.functionPlayerHit = function(playerHandle, itemHandle) {
-				{
-					if (itemHandle.strIdent.indexOf('itemSword') === 0) {
-						playerHandle.intHealth -= Constants.intInteractionSwordDamage;
-						
-					} else if (itemHandle.strIdent.indexOf('itemArrow') === 0) {
-						playerHandle.intHealth -= Constants.intInteractionBowDamage;
-						
-					}
-				}
-				
-				{
-					if (playerHandle.intHealth >= 1) {
-						{
-							if (itemHandle.strIdent.indexOf('itemSword') === 0) {
-								playerHandle.dblAcceleration[0] = -1.0 * Constants.dblInteractionSwordImpact[0] * Math.sin(itemHandle.dblRotation[1]) * Math.cos(itemHandle.dblRotation[2]);
-								playerHandle.dblAcceleration[1] = -1.0 * Constants.dblInteractionSwordImpact[1] * Math.sin(itemHandle.dblRotation[2] + (1.0 * Math.PI));
-								playerHandle.dblAcceleration[2] = -1.0 * Constants.dblInteractionSwordImpact[2] * Math.cos(itemHandle.dblRotation[1]) * Math.cos(itemHandle.dblRotation[2]);
-
-							} else if (itemHandle.strIdent.indexOf('itemArrow') === 0) {
-								playerHandle.dblAcceleration[0] = -1.0 * Constants.dblInteractionBowImpact[0] * Math.sin(itemHandle.dblRotation[1]) * Math.cos(itemHandle.dblRotation[2]);
-								playerHandle.dblAcceleration[1] = -1.0 * Constants.dblInteractionBowImpact[1] * Math.sin(itemHandle.dblRotation[2] + (1.0 * Math.PI));
-								playerHandle.dblAcceleration[2] = -1.0 * Constants.dblInteractionBowImpact[2] * Math.cos(itemHandle.dblRotation[1]) * Math.cos(itemHandle.dblRotation[2]);
-								
-							}
-						}
-						
-						{
-							playerHandle.socketHandle.emit('playerHandle', {
-								'dblPosition': playerHandle.dblPosition,
-								'dblVerlet': playerHandle.dblVerlet,
-								'dblAcceleration': playerHandle.dblAcceleration
-							});
-						}
-						
-					} else if (playerHandle.intHealth < 1) {
-						{
-							playerHandle.intDeaths += 1;
-						}
-						
-						{
-							Gameserver.functionPlayerRespawn(playerHandle);
-						}
-						
-						{
-							for (var strIdent in Player.playerHandle) {
-								var playerHandle = Player.playerHandle[strIdent];
-								
-								if (playerHandle.strTeam === 'teamLogin') {
-									continue;
-									
-								} else if (playerHandle.strIdent !== itemHandle.strPlayer) {
-									continue;
-									
-								}
-								
-								{
-									playerHandle.intKills += 1;
-								}
-							}
-						}
-						
-					}
-				}
-			};
 		}
 	},
 	
@@ -996,21 +677,25 @@ var Gameserver = {
 		}
 		
 		{
-			Gameserver.strMapActive = '';
-			
-			Gameserver.strMapAvailable = [];
-			
-			Gameserver.functionMapSwitch = null;
-		}
-		
-		{
 			Gameserver.strPhaseActive = '';
-			
-			Gameserver.intPhaseRemaining = 0;
 			
 			Gameserver.intPhaseRound = 0;
 			
-			Gameserver.functionPhaseUpdate = null;
+			Gameserver.intPhaseRemaining = 0;
+		}
+		
+		{
+			Gameserver.strWorldAvailable = [];
+			
+			Gameserver.strWorldActive = '';
+			
+			Gameserver.strWorldFingerprint = '';
+		}
+		
+		{
+			Gameserver.intPlayerCapacity = 0;
+			
+			Gameserver.intPlayerActive = 0;
 		}
 		
 		{
@@ -1018,39 +703,309 @@ var Gameserver = {
 			
 			Gameserver.intScoreBlue = 0;
 		}
+	},
+	
+	phaseUpdate: function() {
+		{
+			Gameserver.intPhaseRemaining = Math.max(0, Gameserver.intPhaseRemaining - Constants.intGameLoop);
+		}
 		
 		{
-			Gameserver.intPlayerCapacity = 0;
+			if (Gameserver.intPhaseRemaining === 0) {
+				{
+					if (Gameserver.strPhaseActive === 'Build') {
+						{
+							Gameserver.strPhaseActive = 'Combat';
+							
+							Gameserver.intPhaseRound -= 0;
+							
+							Gameserver.intPhaseRemaining = VoxConf.intPhaseRemaining;
+						}
+						
+					} else if (Gameserver.strPhaseActive === 'Combat') {
+						{
+							Gameserver.strPhaseActive = 'Build';
+							
+							Gameserver.intPhaseRound -= 1;
+							
+							Gameserver.intPhaseRemaining = VoxConf.intPhaseRemaining;
+						}
+						
+					}
+				}
+				
+				{
+					if (Gameserver.intPhaseRound === 0) {
+						{
+							Gameserver.strPhaseActive = 'Build';
+							
+							Gameserver.intPhaseRound = VoxConf.intPhaseRound;
+							
+							Gameserver.intPhaseRemaining = VoxConf.intPhaseRemaining;
+						}
+						
+						{
+							Gameserver.strWorldActive = Gameserver.strWorldAvailable[(Gameserver.strWorldAvailable.indexOf(Gameserver.strWorldActive) + 1) % Gameserver.strWorldAvailable.length];
+						}
+					}
+				}
+			}
+		}
+	},
+	
+	worldUpdate: function() {
+		{
+			var boolUpdate = false;
 			
+			if (Gameserver.strWorldFingerprint.indexOf(Gameserver.strWorldActive) !== 0) {
+				{
+					boolUpdate = true;
+				}
+				
+				{
+					World.load(Node.fsHandle.readFileSync(__dirname + '/assets/worlds/' + Gameserver.strWorldActive + '.json').toString());
+				}
+				
+			} else if (Gameserver.strWorldFingerprint.indexOf(Gameserver.strWorldActive + ' - ' + Gameserver.strPhaseActive) !== 0) {
+				{
+					boolUpdate = true;
+				}
+				
+				{
+					if (Gameserver.strPhaseActive === 'Build') {
+					    for (var intFor1 = 0; intFor1 < World.intSeparator.length; intFor1 += 1) {
+							var intCoordinate = World.intSeparator[intFor1];
+							
+							{
+								World.updateType(intCoordinate, 'voxelSeparator');
+							}
+					    }
+						
+					} else if (Gameserver.strPhaseActive === 'Combat') {
+					    for (var intFor1 = 0; intFor1 < World.intSeparator.length; intFor1 += 1) {
+							var intCoordinate = World.intSeparator[intFor1];
+							
+							{
+								World.updateType(intCoordinate, '');
+							}
+					    }
+						
+					}
+				}
+				
+			}
+			
+			if (boolUpdate === true) {
+				{
+					Gameserver.strWorldFingerprint = Gameserver.strWorldActive + ' - ' + Gameserver.strPhaseActive + ' - ' + Gameserver.intPhaseRound;
+				}
+				
+				{
+					Item.initFlags();
+				}
+				
+				{
+					for (var strIdent in Player.playerHandle) {
+						var playerHandle = Player.playerHandle[strIdent];
+						
+						if (playerHandle.strTeam === 'teamLogin') {
+							continue;
+						}
+						
+						{
+							playerHandle.socketHandle.emit('worldHandle', {
+								'strWorld': World.save()
+							});
+						}
+						
+						{
+							Gameserver.playerRespawn(playerHandle);
+						}
+					}
+				}
+			}
+		}
+	},
+	
+	playerUpdate: function() {
+		{
 			Gameserver.intPlayerActive = 0;
+		}
+		
+		{
+			for (var strIdent in Player.playerHandle) {
+				var playerHandle = Player.playerHandle[strIdent];
+				
+				if (playerHandle.strTeam === 'teamLogin') {
+					continue;
+				}
+				
+				{
+					Gameserver.intPlayerActive += 1;
+				}
+			}
+		}
+	},
+	
+	playerRespawn: function(playerHandle) {
+		{
+			playerHandle.strItem = '';
+		}
+		
+		{
+			playerHandle.intHealth = Constants.intPlayerHealth;
+		}
+		
+		{
+			var intSpawn = [];
 			
-			Gameserver.functionPlayerRespawn = null;
-			
-			Gameserver.functionPlayerHit = null;
+			if (playerHandle.strTeam === 'teamRed') {
+				intSpawn = World.intSpawnRed[Math.floor(Math.random() * World.intSpawnRed.length)];
+				
+			} else if (playerHandle.strTeam === 'teamBlue') {
+				intSpawn = World.intSpawnBlue[Math.floor(Math.random() * World.intSpawnBlue.length)];
+				
+			}
+
+			playerHandle.dblPosition[0] = intSpawn[0] + 0.5;
+			playerHandle.dblPosition[1] = intSpawn[1] + 2.0;
+			playerHandle.dblPosition[2] = intSpawn[2] + 0.5;
+
+			playerHandle.dblVerlet[0] = playerHandle.dblPosition[0];
+			playerHandle.dblVerlet[1] = playerHandle.dblPosition[1];
+			playerHandle.dblVerlet[2] = playerHandle.dblPosition[2];
+		}
+		
+		{
+			playerHandle.socketHandle.emit('playerRespawn', {
+				'dblPosition': playerHandle.dblPosition,
+				'dblVerlet': playerHandle.dblVerlet
+			});
+		}
+	},
+	
+	playerHit: function(playerHandle, itemHandle) {
+		{
+			if (itemHandle.strIdent.indexOf('itemSword') === 0) {
+				playerHandle.intHealth -= Constants.intInteractionSwordDamage;
+				
+			} else if (itemHandle.strIdent.indexOf('itemArrow') === 0) {
+				playerHandle.intHealth -= Constants.intInteractionBowDamage;
+				
+			}
+		}
+		
+		{
+			if (playerHandle.intHealth >= 1) {
+				{
+					if (itemHandle.strIdent.indexOf('itemSword') === 0) {
+						playerHandle.dblAcceleration[0] = -1.0 * Constants.dblInteractionSwordImpact[0] * Math.sin(itemHandle.dblRotation[1]) * Math.cos(itemHandle.dblRotation[2]);
+						playerHandle.dblAcceleration[1] = -1.0 * Constants.dblInteractionSwordImpact[1] * Math.sin(itemHandle.dblRotation[2] + (1.0 * Math.PI));
+						playerHandle.dblAcceleration[2] = -1.0 * Constants.dblInteractionSwordImpact[2] * Math.cos(itemHandle.dblRotation[1]) * Math.cos(itemHandle.dblRotation[2]);
+
+					} else if (itemHandle.strIdent.indexOf('itemArrow') === 0) {
+						playerHandle.dblAcceleration[0] = -1.0 * Constants.dblInteractionBowImpact[0] * Math.sin(itemHandle.dblRotation[1]) * Math.cos(itemHandle.dblRotation[2]);
+						playerHandle.dblAcceleration[1] = -1.0 * Constants.dblInteractionBowImpact[1] * Math.sin(itemHandle.dblRotation[2] + (1.0 * Math.PI));
+						playerHandle.dblAcceleration[2] = -1.0 * Constants.dblInteractionBowImpact[2] * Math.cos(itemHandle.dblRotation[1]) * Math.cos(itemHandle.dblRotation[2]);
+						
+					}
+				}
+				
+				{
+					playerHandle.socketHandle.emit('playerHit', {
+						'dblAcceleration': playerHandle.dblAcceleration
+					});
+				}
+				
+			} else if (playerHandle.intHealth < 1) {
+				{
+					Player.playerHandle[itemHandle.strPlayer].intKills += 1;
+				}
+				
+				{
+					playerHandle.intDeaths += 1;
+				}
+				
+				{
+					Gameserver.playerRespawn(playerHandle);
+				}
+				
+			}
+		}
+	},
+	
+	itemUpdate: function() {
+		{
+			for (var strIdent in Item.itemHandle) {
+				var itemHandle = Item.itemHandle[strIdent];
+				
+				if (itemHandle.strIdent.indexOf('itemArrow') !== 0) {
+					continue;
+				}
+
+				{
+					itemHandle.dblSize = Constants.dblArrowSize;
+					
+					Physics.updateObjectcol(itemHandle, function(functionObjectcol) {
+						var playerHandle = null;
+						
+						{
+							if (functionObjectcol.strIdent === undefined) {
+								functionObjectcol.strIdent = Object.keys(Player.playerHandle);
+							}
+						}
+						
+						{
+							do {
+								playerHandle = Player.playerHandle[functionObjectcol.strIdent.pop()];
+								
+								if (playerHandle === undefined) {
+									return null;
+								}
+								
+								if (playerHandle.strTeam === 'teamLogin') {
+									continue;
+									
+								} else if (playerHandle.strIdent === itemHandle.strPlayer) {
+									continue;
+									
+								}
+								
+								break;
+							} while (true);
+						}
+						
+						{
+							playerHandle.dblSize = Constants.dblPlayerHitbox;
+						}
+						
+						return playerHandle;
+					}, function(physicsHandle) {
+						{
+							Gameserver.playerHit(physicsHandle, itemHandle);
+						}
+						
+						{
+							delete Item.itemHandle[itemHandle.strIdent];
+						}
+					});
+				}
+			}
 		}
 	}
 };
 
-{
-	with (global) {
-		eval(Node.fsHandle.readFileSync(__dirname + '/libs/Map.js').toString());
-		
-		eval(Node.fsHandle.readFileSync(__dirname + '/libs/Player.js').toString());
-		
-		eval(Node.fsHandle.readFileSync(__dirname + '/libs/Item.js').toString());
-		
-		eval(Node.fsHandle.readFileSync(__dirname + '/libs/Physics.js').toString());
-	}
-}
+var Physics = require(__dirname + '/libs/Physics.js')(Constants);
+var World = require(__dirname + '/libs/World.js')(Constants, null);
+var Player = require(__dirname + '/libs/Player.js')(Constants, null, Physics);
+var Item = require(__dirname + '/libs/Item.js')(Constants, null, Physics);
 
 {
 	Gameserver.init();
 }
 
 {
-	Map.init();
-	
-	Map.load(Node.fsHandle.readFileSync(__dirname + '/assets/maps/' + Gameserver.strMapActive + '.json').toString());
+	World.init();
 }
 
 {
@@ -1060,7 +1015,15 @@ var Gameserver = {
 {
 	Item.init();
 	
-	Item.initFlags();
+	Item.functionFlag = function(strFlag) {
+		if (strFlag === 'flagRed') {
+			return World.intFlagRed[Math.floor(Math.random() * World.intFlagRed.length)];
+			
+		} else if (strFlag === 'flagBlue') {
+			return World.intFlagBlue[Math.floor(Math.random() * World.intFlagBlue.length)];
+			
+		}
+	};
 }
 
 {
@@ -1070,7 +1033,7 @@ var Gameserver = {
 		if (intCoordinateY === 0) {
 			return true;
 
-		} else if (Map.strType[[ intCoordinateX, intCoordinateY, intCoordinateZ ]] !== undefined) {
+		} else if (World.strType[[ intCoordinateX, intCoordinateY, intCoordinateZ ]] !== undefined) {
 			return true;
 			
 		}
@@ -1083,79 +1046,89 @@ var Gameserver = {
 	var Animationframe_intTimestamp = new Date().getTime();
 	
 	var functionAnimationframe = function() {
-		{	
-			{
-				Player.update();
-			}
+		{
+			Gameserver.phaseUpdate();
+		}
+		
+		{
+			Gameserver.worldUpdate();
+		}
+		
+		{
+			Player.update();
 			
-			{
-				var jsonHandle = [];
+			Gameserver.playerUpdate();
+		}
+		
+		{
+			Item.update();
+			
+			Gameserver.itemUpdate();
+		}
+		
+		{
+			var jsonHandle = [];
 
-				for (var strIdent in Player.playerHandle) {
-					var playerHandle = Player.playerHandle[strIdent];
+			for (var strIdent in Player.playerHandle) {
+				var playerHandle = Player.playerHandle[strIdent];
+				
+				{
+					jsonHandle.push({
+						'a': playerHandle.strIdent,
+						'b': playerHandle.strTeam,
+						'c': playerHandle.strItem,
+						'd': playerHandle.strName,
+						'e': playerHandle.intScore,
+						'f': playerHandle.intKills,
+						'g': playerHandle.intDeaths,
+						'h': playerHandle.intHealth,
+						'i': playerHandle.dblPosition,
+						'j': playerHandle.dblVerlet,
+						'k': playerHandle.dblRotation
+					});
 					
-					{
-						jsonHandle.push({
-							'a': playerHandle.strIdent,
-							'b': playerHandle.strTeam,
-							'c': playerHandle.strItem,
-							'd': playerHandle.strName,
-							'e': playerHandle.intScore,
-							'f': playerHandle.intKills,
-							'g': playerHandle.intDeaths,
-							'h': playerHandle.intHealth,
-							'i': playerHandle.dblPosition,
-							'j': playerHandle.dblVerlet,
-							'k': playerHandle.dblRotation
-						});
-					}
-			    }
-			    
-				for (var strIdent in Player.playerHandle) {
-					var playerHandle = Player.playerHandle[strIdent];
-					
-					if (playerHandle.strTeam === 'teamLogin') {
-						continue;
-					}
-					
-					{
-						playerHandle.socketHandle.emit('enemyHandle', jsonHandle);
-					}
+					// TODO: broadcast intInteractionWeapon, in order to animate others actions
+				}
+		    }
+		    
+			for (var strIdent in Player.playerHandle) {
+				var playerHandle = Player.playerHandle[strIdent];
+				
+				if (playerHandle.strTeam === 'teamLogin') {
+					continue;
+				}
+				
+				{
+					playerHandle.socketHandle.emit('playerHandle', jsonHandle);
 				}
 			}
 		}
 		
 		{
-			{
-				Item.update();
-			}
-			
-			{
-				var jsonHandle = [];
+			var jsonHandle = [];
 
-				for (var strIdent in Item.itemHandle) {
-					var itemHandle = Item.itemHandle[strIdent];
-					
-					{
-						jsonHandle.push({
-							'a': itemHandle.strIdent,
-							'b': itemHandle.dblPosition,
-							'c': itemHandle.dblVerlet,
-							'd': itemHandle.dblRotation
-						});
-					}
-			    }
-			    
-				for (var strIdent in Player.playerHandle) {
-					var playerHandle = Player.playerHandle[strIdent];
-					
-					if (playerHandle.strTeam === 'teamLogin') {
-						continue;
-					}
-					
-					{
-						playerHandle.socketHandle.emit('itemHandle', jsonHandle);
-					}
+			for (var strIdent in Item.itemHandle) {
+				var itemHandle = Item.itemHandle[strIdent];
+				
+				{
+					jsonHandle.push({
+						'a': itemHandle.strIdent,
+						'b': itemHandle.dblPosition,
+						'c': itemHandle.dblVerlet,
+						'd': itemHandle.dblRotation
+					});
+				}
+		    }
+		    
+			for (var strIdent in Player.playerHandle) {
+				var playerHandle = Player.playerHandle[strIdent];
+				
+				if (playerHandle.strTeam === 'teamLogin') {
+					continue;
+				}
+				
+				{
+					playerHandle.socketHandle.emit('itemHandle', jsonHandle);
 				}
 			}
 		}
@@ -1181,42 +1154,14 @@ var Gameserver = {
 }
 
 {
-	var functionInterval = function() {
-		{
-			{
-				Gameserver.intPlayerActive = 0;
-			}
-			
-			{
-				for (var strIdent in Player.playerHandle) {
-					var playerHandle = Player.playerHandle[strIdent];
-					
-					if (playerHandle.strTeam === 'teamLogin') {
-						continue;
-					}
-					
-					{
-						Gameserver.intPlayerActive += 1;
-					}
-				}
-			}
-		}
-		
-		{
-			Gameserver.functionPhaseUpdate();
-		}
-	};
+	// TODO: VoxConf.boolAdvertise
 	
-	setInterval(functionInterval, 1000);
-}
-
-{
 	var functionInterval = function() {
 		var functionRequest = function() {
 			var requestHttp = Node.httpHandle.request({
 				'host': 'www.voxel-warriors.com',
 				'port': 80,
-				'path': '/host.xml?intPort=' + encodeURIComponent(process.env.intExpressPort) + '&strName=' + encodeURIComponent(Gameserver.strName) + '&intLoginPassword=' + encodeURIComponent(Gameserver.intLoginPassword) + '&strMapActive=' + encodeURIComponent(Gameserver.strMapActive) + '&intPlayerCapacity=' + encodeURIComponent(Gameserver.intPlayerCapacity) + '&intPlayerActive=' + encodeURIComponent(Gameserver.intPlayerActive),
+				'path': '/host.xml?intPort=' + encodeURIComponent(Express.httpHandle.address().port) + '&strName=' + encodeURIComponent(Gameserver.strName) + '&intLoginPassword=' + encodeURIComponent(Gameserver.intLoginPassword) + '&strWorldActive=' + encodeURIComponent(Gameserver.strWorldActive) + '&intPlayerCapacity=' + encodeURIComponent(Gameserver.intPlayerCapacity) + '&intPlayerActive=' + encodeURIComponent(Gameserver.intPlayerActive),
 				'method': 'GET'
 			}, function(responseHttp) {
 				var strContent = '';

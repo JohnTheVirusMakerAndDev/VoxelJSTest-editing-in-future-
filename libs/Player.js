@@ -1,3 +1,9 @@
+'use strict';
+
+var Constants = {};
+var Voxel = {};
+var Physics = {};
+
 var Player = {
 	playerHandle: {},
 	
@@ -10,7 +16,7 @@ var Player = {
 			Player.playerHandle = {};
 		}
 
-		if (typeof Voxel === 'undefined') {
+		if (Voxel === null) {
 			return;
 		}
 		
@@ -34,7 +40,7 @@ var Player = {
 			Player.playerHandle = {};
 		}
 
-		if (typeof Voxel === 'undefined') {
+		if (Voxel === null) {
 			return;
 		}
 		
@@ -148,7 +154,7 @@ var Player = {
 			}
 		}
 
-		if (typeof Voxel === 'undefined') {
+		if (Voxel === null) {
 			return;
 		}
 		
@@ -227,3 +233,11 @@ var Player = {
 		}
 	}
 };
+
+module.exports = function(constantsHandle, voxelHandle, physicsHandle) {
+	Constants = constantsHandle;
+	Voxel = voxelHandle;
+	Physics = physicsHandle;
+	
+	return Player;
+}

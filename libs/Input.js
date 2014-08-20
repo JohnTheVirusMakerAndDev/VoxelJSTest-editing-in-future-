@@ -1,3 +1,7 @@
+'use strict';
+
+var Constants = {};
+
 var Input = {
 	functionException: null,
 	functionKeyup: null,
@@ -299,4 +303,10 @@ var Input = {
 			Input.boolPreviousShift = Input.boolShift;
 		}
 	}
+};
+
+module.exports = function(constantsHandle) {
+	Constants = constantsHandle;
+	
+	return Input;
 };

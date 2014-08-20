@@ -10,7 +10,6 @@
 		<link rel="icon" type="image/png" href="http://dhiont4yb3hlc.cloudfront.net/WebsiteRect/bodyFavicon.png" />
 		
 		<link rel="stylesheet" type="text/css" href="http://cdn.jsdelivr.net/jquery.ui/1.11.0/themes/smoothness/jquery-ui.min.css" />
-
 		<style type="text/css">
 			.ui-dialog .ui-dialog-titlebar {
 				line-height:125%;
@@ -24,7 +23,7 @@
 				display:none;
 			}
 		</style>
-
+		
 		<style type="text/css">
 			body {
 				cursor:default;
@@ -71,7 +70,7 @@
 				border-bottom:none;
 			}
 		</style>
-
+		
 		<script type="text/javascript" src="http://cdn.jsdelivr.net/jquery/2.1.1/jquery.min.js"></script>
 		
 		<script type="text/javascript" src="http://cdn.jsdelivr.net/jquery.ui/1.11.0/jquery-ui.min.js"></script>
@@ -110,8 +109,8 @@
 						Message of the Day
 					</div>
 				</div>
-				<div class="ui-dialog-content ui-widget-content" style="padding:1em;">
-					<div class="ui-widget ui-state-default ui-corner-all" style="height:100px; padding:0.8em 1.0em 0.8em 1em; background:none; overflow-y:scroll; font-family:Courier;">
+				<div class="ui-dialog-content ui-widget-content" style="padding:1.0em;">
+					<div class="ui-widget ui-state-default ui-corner-all" style="height:100px; padding:0.8em 1.0em 0.8em 1.0em; background:none; overflow-y:scroll; font-family:Courier;">
 						{{objectGameserver.strLoginMotd}}
 					</div>
 				</div>
@@ -123,7 +122,7 @@
 						Messagebox
 					</div>
 				</div>
-				<div class="ui-dialog-content ui-widget-content" style="padding:1em;">
+				<div class="ui-dialog-content ui-widget-content" style="padding:1.0em;">
 					<div id="idMessagebox_Log" class="ui-widget ui-state-default ui-corner-all" style="height:200px; background:none; overflow-y:scroll;">
 						
 					</div>
@@ -131,10 +130,10 @@
 					<div style="height:8px;"></div>
 					
 					<div style="position:relative;">
-						<div style="position:absolute; top:10px; left:10px; z-index:128; font-weight:bold;">
+						<div style="position:absolute; left:9px; top:9px; z-index:128; font-weight:bold;">
 							Message:
 						</div>
-						<input class="ui-widget ui-state-default ui-corner-all" id="idMessagebox_Chat" type="text" style="width:100%; box-sizing:border-box; padding:0.4em 1.0em 0.4em 1em; background:none;" />
+						<input class="ui-widget ui-state-default ui-corner-all" id="idMessagebox_Chat" type="text" style="width:100%; box-sizing:border-box; padding:0.4em 1.0em 0.4em 1.0em; padding-left:84px; background:none;" />
 					</div>
 				</div>
 			</div>
@@ -147,30 +146,30 @@
 						Server
 					</div>
 				</div>
-				<div class="ui-dialog-content ui-widget-content" style="padding:1em;">
+				<div class="ui-dialog-content ui-widget-content" style="padding:1.0em;">
 					<div style="position:relative;">
-						<div style="position:absolute; top:10px; left:10px; z-index:128; font-weight:bold;">
+						<div style="position:absolute; left:9px; top:9px; z-index:128; font-weight:bold;">
 							Ping:
 						</div>
-						<input class="ui-widget ui-state-default ui-corner-all" id="idServer_Ping" type="text" style="width:100%; box-sizing:border-box; padding:0.4em 1.0em 0.4em 1em; background:none;" />
+						<input class="ui-widget ui-state-default ui-corner-all" id="idServer_Ping" type="text" style="width:100%; box-sizing:border-box; padding:0.4em 1.0em 0.4em 1.0em; padding-left:51px; background:none;" />
 					</div>
 					
 					<div style="height:8px;"></div>
 					
 					<div style="position:relative;">
-						<div style="position:absolute; top:10px; left:10px; z-index:128; font-weight:bold;">
-							Map:
+						<div style="position:absolute; left:9px; top:9px; z-index:128; font-weight:bold;">
+							World:
 						</div>
-						<input class="ui-widget ui-state-default ui-corner-all" id="idServer_Map"  type="text" style="width:100%; box-sizing:border-box; padding:0.4em 1.0em 0.4em 1em; background:none;" />
+						<input class="ui-widget ui-state-default ui-corner-all" id="idServer_World"  type="text" style="width:100%; box-sizing:border-box; padding:0.4em 1.0em 0.4em 1.0em; padding-left:62px; background:none;" />
 					</div>
 					
 					<div style="height:8px;"></div>
 					
 					<div style="position:relative;">
-						<div style="position:absolute; top:10px; left:10px; z-index:128; font-weight:bold;">
+						<div style="position:absolute; left:9px; top:9px; z-index:128; font-weight:bold;">
 							Phase:
 						</div>
-						<div class="ui-widget ui-state-default ui-corner-all" id="idServer_Phase" style="padding:0.8em 1.0em 0.8em 1em; background:none;">
+						<div class="ui-widget ui-state-default ui-corner-all" id="idServer_Phase" style="padding:0.8em 1.0em 0.8em 1.0em; padding-left:64px; background:none;">
 							
 						</div>
 					</div>
@@ -178,10 +177,10 @@
 					<div style="height:8px;"></div>
 					
 					<div style="position:relative;">
-						<div style="position:absolute; top:10px; left:10px; z-index:128; font-weight:bold;">
+						<div style="position:absolute; left:9px; top:9px; z-index:128; font-weight:bold;">
 							Players:
 						</div>
-						<input class="ui-widget ui-state-default ui-corner-all" id="idServer_Players" type="text" style="width:100%; box-sizing:border-box; padding:0.4em 1.0em 0.4em 1em; background:none;" />
+						<input class="ui-widget ui-state-default ui-corner-all" id="idServer_Players" type="text" style="width:100%; box-sizing:border-box; padding:0.4em 1.0em 0.4em 1.0em; padding-left:74px; background:none;" />
 					</div>
 				</div>
 			</div>
@@ -192,21 +191,21 @@
 						Red Team
 					</div>
 				</div>
-				<div class="ui-dialog-content ui-widget-content" style="padding:1em;">
+				<div class="ui-dialog-content ui-widget-content" style="padding:1.0em;">
 					<div style="position:relative;">
-						<div style="position:absolute; top:10px; left:10px; z-index:128; font-weight:bold;">
+						<div style="position:absolute; left:9px; top:9px; z-index:128; font-weight:bold;">
 							Players:
 						</div>
-						<input class="ui-widget ui-state-default ui-corner-all" id="idTeamRed_Players" type="text" style="width:100%; box-sizing:border-box; padding:0.4em 1.0em 0.4em 1em; background:none;" />
+						<input class="ui-widget ui-state-default ui-corner-all" id="idTeamRed_Players" type="text" style="width:100%; box-sizing:border-box; padding:0.4em 1.0em 0.4em 1.0em; padding-left:74px; background:none;" />
 					</div>
 					
 					<div style="height:8px;"></div>
 					
 					<div style="position:relative;">
-						<div style="position:absolute; top:10px; left:10px; z-index:128; font-weight:bold;">
+						<div style="position:absolute; left:9px; top:9px; z-index:128; font-weight:bold;">
 							Score:
 						</div>
-						<input class="ui-widget ui-state-default ui-corner-all" id="idTeamRed_Score" type="text" style="width:100%; box-sizing:border-box; padding:0.4em 1.0em 0.4em 1em; background:none;" />
+						<input class="ui-widget ui-state-default ui-corner-all" id="idTeamRed_Score" type="text" style="width:100%; box-sizing:border-box; padding:0.4em 1.0em 0.4em 1.0em; padding-left:61px; background:none;" />
 					</div>
 					
 					<div style="height:8px;"></div>
@@ -228,21 +227,21 @@
 						Blue Team
 					</div>
 				</div>
-				<div class="ui-dialog-content ui-widget-content" style="padding:1em;">
+				<div class="ui-dialog-content ui-widget-content" style="padding:1.0em;">
 					<div style="position:relative;">
-						<div style="position:absolute; top:10px; left:10px; z-index:128; font-weight:bold;">
+						<div style="position:absolute; left:9px; top:9px; z-index:128; font-weight:bold;">
 							Players:
 						</div>
-						<input class="ui-widget ui-state-default ui-corner-all" id="idTeamBlue_Players" type="text" style="width:100%; box-sizing:border-box; padding:0.4em 1.0em 0.4em 1em; background:none;" />
+						<input class="ui-widget ui-state-default ui-corner-all" id="idTeamBlue_Players" type="text" style="width:100%; box-sizing:border-box; padding:0.4em 1.0em 0.4em 1.0em; padding-left:74px; background:none;" />
 					</div>
 					
 					<div style="height:8px;"></div>
 					
 					<div style="position:relative;">
-						<div style="position:absolute; top:10px; left:10px; z-index:128; font-weight:bold;">
+						<div style="position:absolute; left:9px; top:9px; z-index:128; font-weight:bold;">
 							Score:
 						</div>
-						<input class="ui-widget ui-state-default ui-corner-all" id="idTeamBlue_Score" type="text" style="width:100%; box-sizing:border-box; padding:0.4em 1.0em 0.4em 1em; background:none;" />
+						<input class="ui-widget ui-state-default ui-corner-all" id="idTeamBlue_Score" type="text" style="width:100%; box-sizing:border-box; padding:0.4em 1.0em 0.4em 1.0em; padding-left:61px; background:none;" />
 					</div>
 					
 					<div style="height:8px;"></div>
@@ -261,7 +260,7 @@
 		
 		<div id="idToolbar" style="position:fixed; left:0px; right:0px; bottom:0px; height:100px; text-align:center;">
 			<div id="idPhaseBuild" class="ui-dialog ui-widget ui-widget-content ui-corner-all" style="display:inline-block; position:static;">
-				<div class="ui-dialog-content ui-widget-content" style="padding:1em;">
+				<div class="ui-dialog-content ui-widget-content" style="padding:1.0em;">
 					<div id="idPhaseBuild_Chooser">
 						<button role="button" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
 							<span class="ui-button-text">Create</span>
@@ -274,7 +273,7 @@
 			</div>
 			
 			<div id="idPhaseCombat" class="ui-dialog ui-widget ui-widget-content ui-corner-all" style="display:inline-block; position:static;">
-				<div class="ui-dialog-content ui-widget-content" style="padding:1em;">
+				<div class="ui-dialog-content ui-widget-content" style="padding:1.0em;">
 					<div id="idPhaseCombat_Chooser">
 						<button role="button" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
 							<span class="ui-button-text">Sword</span>
@@ -288,7 +287,7 @@
 		</div>
 		
 		<div id="idLoading" class="ui-dialog ui-widget ui-widget-content ui-corner-all" style="position:fixed; left:50%; top:50%; width:123px; margin:-61px 0px 0px -61px;">
-			<div class="ui-dialog-content ui-widget-content" style="padding:1em;">
+			<div class="ui-dialog-content ui-widget-content" style="padding:1.0em;">
 				<div style="margin:32px;">
 					<img width="31" height="31" border="0" src="http://dhiont4yb3hlc.cloudfront.net/WebsiteRect/bodyLoading.gif">
 				</div>
@@ -302,41 +301,41 @@
 						Login
 					</div>
 				</div>
-				<div class="ui-dialog-content ui-widget-content" style="padding:1em;">
-					<div id="idLogin_Message" class="ui-state-highlight ui-corner-all" style="padding:0.4em 1.0em 0.4em 1em;">
+				<div class="ui-dialog-content ui-widget-content" style="padding:1.0em;">
+					<div id="idLogin_Message" class="ui-state-highlight ui-corner-all" style="padding:0.4em 1.0em 0.4em 1.0em;">
 						
 					</div>
 					
 					<div style="height:8px;"></div>
 					
 					<div style="position:relative;">
-						<div style="position:absolute; top:10px; left:10px; z-index:128; font-weight:bold;">
+						<div style="position:absolute; left:9px; top:9px; z-index:128; font-weight:bold;">
 							Name:
 						</div>
-						<input class="ui-widget ui-state-default ui-corner-all" id="idLogin_Name" type="text" style="width:100%; box-sizing:border-box; padding:0.4em 1.0em 0.4em 1em; background:none;" />
+						<input class="ui-widget ui-state-default ui-corner-all" id="idLogin_Name" type="text" style="width:100%; box-sizing:border-box; padding:0.4em 1.0em 0.4em 1.0em; padding-left:62px; background:none;" />
 					</div>
 					
 					<div style="height:8px;"></div>
 					
 					<div style="position:relative;">
-						<div style="position:absolute; top:10px; left:10px; z-index:128; font-weight:bold;">
+						<div style="position:absolute; left:9px; top:9px; z-index:128; font-weight:bold;">
 							Password:
 						</div>
 						{{#objectGameserver.intLoginPassword}}
-							<input class="ui-widget ui-state-default ui-corner-all" id="idLogin_Password" type="password" style="width:100%; box-sizing:border-box; padding:0.4em 1.0em 0.4em 1em; background:none;" />
+							<input class="ui-widget ui-state-default ui-corner-all" id="idLogin_Password" type="password" style="width:100%; box-sizing:border-box; padding:0.4em 1.0em 0.4em 1.0em; padding-left:90px; background:none;" />
 						{{/objectGameserver.intLoginPassword}}
 						{{^objectGameserver.intLoginPassword}}
-							<input class="ui-widget ui-state-default ui-corner-all" id="idLogin_Password" type="password" disabled="disabled" style="width:100%; box-sizing:border-box; padding:0.4em 1.0em 0.4em 1em; background:none; background-color:#F2F2F2;" />
+							<input class="ui-widget ui-state-default ui-corner-all" id="idLogin_Password" type="password" disabled="disabled" style="width:100%; box-sizing:border-box; padding:0.4em 1.0em 0.4em 1.0em; padding-left:90px; background:none; background-color:#F2F2F2;" />
 						{{/objectGameserver.intLoginPassword}}
 					</div>
 					
 					<div style="height:8px;"></div>
 					
 					<div style="position:relative;">
-						<div style="position:absolute; top:10px; left:10px; z-index:128; font-weight:bold;">
+						<div style="position:absolute; left:9px; top:9px; z-index:128; font-weight:bold;">
 							Team:
 						</div>
-						<select class="ui-widget ui-state-default ui-corner-all" id="idLogin_Team" style="width:100%; box-sizing:border-box; padding:0.4em 1.0em 0.4em 1em; background:none;">
+						<select class="ui-widget ui-state-default ui-corner-all" id="idLogin_Team" style="width:100%; box-sizing:border-box; padding:0.4em 1.0em 0.4em 1.0em; padding-left:55px; background:none;">
 							<option value="teamRed">Red</option>
 							<option value="teamBlue">Blue</option>
 						</select>
@@ -354,7 +353,7 @@
 						Information
 					</div>
 				</div>
-				<div class="ui-dialog-content ui-widget-content" style="padding:1em;">
+				<div class="ui-dialog-content ui-widget-content" style="padding:1.0em;">
 					<div style="text-align:justify; line-height:200%;">
 						Use the <button id="idLogin_Switch">e</button> key in order to toggle between the game and the menu. In order to control your player, you have to click inside the world and let the game take control over your mouse. When your mouse is being locked inside the browser, use the <button id="idLogin_Esc">esc</button> key in order to release it again.
 					</div>

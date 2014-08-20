@@ -1,3 +1,6 @@
+'use strict';
+
+var Constants = {};
 
 var Voxel = {
 	voxelengineHandle: null,
@@ -353,4 +356,10 @@ var Voxel = {
 			Voxel.itemMaterial = null;
 		}
 	}
+};
+
+module.exports = function(constantsHandle) {
+	Constants = constantsHandle;
+	
+	return Voxel;
 };

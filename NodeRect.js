@@ -1,3 +1,98 @@
+var NodeConf = require(__dirname + '/NodeConf.js')();
+
+var Node = {
+	childprocessHandle: null,
+	
+	cryptoHandle: null,
+	
+	fsHandle: null,
+	
+	httpHandle: null,
+	
+	httpsHandle: null,
+	
+	pathHandle: null,
+	
+	zlibHandle: null,
+	
+	init: function() {
+		{
+			Node.childprocessHandle = require('child_process');
+		}
+		
+		{
+			Node.cryptoHandle = require('crypto');
+		}
+		
+		{
+			Node.fsHandle = require('fs');
+		}
+
+		{
+			Node.httpHandle = require('http');
+		}
+
+		{
+			Node.httpsHandle = require('https');
+		}
+
+		{
+			Node.pathHandle = require('path');
+		}
+
+		{
+			Node.zlibHandle = require('zlib');
+		}
+	},
+	
+	dispel: function() {
+		{
+			Node.childprocessHandle = null;
+		}
+		
+		{
+			Node.cryptoHandle = null;
+		}
+		
+		{
+			Node.fsHandle = null;
+		}
+		
+		{
+			Node.httpHandle = null;
+		}
+		
+		{
+			Node.httpsHandle = null;
+		}
+		
+		{
+			Node.pathHandle = null;
+		}
+		
+		{
+			Node.zlibHandle = null;
+		}
+	},
+	
+	hashbase: function(strData) {
+		var hashHande = Node.cryptoHandle.createHash('sha512');
+		
+		{
+			hashHande.update(strData);
+		}
+		
+		var strBase = hashHande.digest('base64');
+		
+		{
+			strBase = strBase.replace(new RegExp('\\+', 'g'), '');
+			strBase = strBase.replace(new RegExp('\\/', 'g'), '');
+		}
+		
+		return strBase;
+	}
+};
+
 var Aws = {
 	awsHandle: null,
 	
@@ -8,8 +103,8 @@ var Aws = {
 			Aws.awsHandle = require('aws-sdk');
 			
 			Aws.awsHandle.config.update({
-				'accessKeyId': process.env.strAwsIdent,
-				'secretAccessKey': process.env.strAwsKey
+				'accessKeyId': NodeConf.strAwsIdent,
+				'secretAccessKey': NodeConf.strAwsKey
 			});
 		}
 		
@@ -42,9 +137,9 @@ var Casable = {
 		}
 		
 		{
-			Casable.clientHandle = Casable.casableHandle.authentication(process.env.strCasableServer, {
-				'casVersion': process.env.strCasableVersion,
-				'logoutPath': process.env.strCasableLogout
+			Casable.clientHandle = Casable.casableHandle.authentication(NodeConf.strCasableServer, {
+				'casVersion': NodeConf.strCasableVersion,
+				'logoutPath': NodeConf.strCasableLogout
 			});
 		}
 	},
@@ -93,18 +188,18 @@ var Express = {
 		}
 		
 		{
-			if (process.env.boolExpressUpload === 'true') {
+			if (NodeConf.boolExpressUpload === true) {
 				Express.multerHandle = require('multer');
 			}
 		}
 		
 		{
-			if (process.env.strExpressSession === 'sessionCookie') {
+			if (NodeConf.strExpressSession === 'sessionCookie') {
 				Express.expresssessionHandle = require('express-session');
 				
 				Express.cookiesessionHandle = require('cookie-session');
 				
-			} else if (process.env.strExpressSession === 'sessionMongo') {
+			} else if (NodeConf.strExpressSession === 'sessionMongo') {
 				Express.expresssessionHandle = require('express-session');
 				
 				Express.connectmongoHandle = require('connect-mongo')(Express.expresssessionHandle);
@@ -171,7 +266,7 @@ var Express = {
 		}
 		
 		{
-			if (process.env.boolExpressUpload === 'true') {
+			if (NodeConf.boolExpressUpload === true) {
 				Express.serverHandle.use(Express.multerHandle({
 					'dest': __dirname + '/tmp',
 					'limits': {
@@ -183,22 +278,22 @@ var Express = {
 		}
 		
 		{
-			if (process.env.strExpressSession === 'sessionCookie') {
+			if (NodeConf.strExpressSession === 'sessionCookie') {
 				Express.serverHandle.use(Express.cookiesessionHandle({
-					'secret': process.env.strExpressSecret,
+					'secret': NodeConf.strExpressSecret,
 					'cookie': {
 						'maxAge': 31 * 24 * 60 * 60 * 1000
 					}
 				}));
 				
-			} else if (process.env.strExpressSession === 'sessionMongo') {
+			} else if (NodeConf.strExpressSession === 'sessionMongo') {
 				Express.serverHandle.use(Express.expresssessionHandle({
-					'secret': process.env.strExpressSecret,
+					'secret': NodeConf.strExpressSecret,
 					'cookie': {
 						'maxAge': 31 * 24 * 60 * 60 * 1000
 					},
 					'store': new Express.connectmongoHandle({
-						'url': process.env.strMongoServer,
+						'url': NodeConf.strMongoServer,
 						'collection': 'collectionSession'
 					})
 				}));
@@ -207,7 +302,7 @@ var Express = {
 		}
 		
 		{
-			Express.httpHandle = Express.serverHandle.listen(process.env.intExpressPort);
+			Express.httpHandle = Express.serverHandle.listen(NodeConf.intExpressPort);
 		}
 		
 		{
@@ -294,7 +389,7 @@ var Express = {
 					console.log('');
 					console.log('------------------------------------------------------------');
 					console.log('- Timestamp: ' + dateHandle.toISOString());
-					console.log('- Origin: NodeGen - Express');
+					console.log('- Origin: NodeRect - Express');
 					console.log('- Duration: ' + (dateHandle.getTime() - Errorsuccess_intTimestamp));
 					console.log('- Status: Error');
 					console.log('------------------------------------------------------------');
@@ -306,7 +401,7 @@ var Express = {
 					console.log('');
 					console.log('------------------------------------------------------------');
 					console.log('- Timestamp: ' + dateHandle.toISOString());
-					console.log('- Origin: NodeGen - Express');
+					console.log('- Origin: NodeRect - Express');
 					console.log('- Duration: ' + (dateHandle.getTime() - Errorsuccess_intTimestamp));
 					console.log('- Status: Success');
 					console.log('------------------------------------------------------------');
@@ -336,18 +431,18 @@ var Geoip = {
 	}
 };
 
-var Hypertextminfier = {
-	hypertextminfierHandle: null,
+var Hypertextmin = {
+	hypertextminHandle: null,
 	
 	init: function() {
 		{
-			Hypertextminfier.hypertextminfierHandle = require('html-minifier');
+			Hypertextmin.hypertextminHandle = require('html-minifier');
 		}
 	},
 	
 	dispel: function() {
 		{
-			Hypertextminfier.hypertextminfierHandle = null;
+			Hypertextmin.hypertextminHandle = null;
 		}
 	}
 };
@@ -379,7 +474,7 @@ var Mongo = {
 		}
 		
 		{
-			Mongo.mongoHandle.MongoClient.connect(process.env.strMongoServer, function(errorHandle, clientHandle) {
+			Mongo.mongoHandle.MongoClient.connect(NodeConf.strMongoServer, function(errorHandle, clientHandle) {
 				Mongo.clientHandle = clientHandle;
 			});
 		}
@@ -441,7 +536,7 @@ var Recaptcha = {
 		}
 		
 		{
-			Recaptcha.clientHandle = new Recaptcha.recaptchaHandle(process.env.strRecaptchaPublic, process.env.strRecaptchaPrivate);
+			Recaptcha.clientHandle = new Recaptcha.recaptchaHandle(NodeConf.strRecaptchaPublic, NodeConf.strRecaptchaPrivate);
 		}
 	},
 	
@@ -510,7 +605,7 @@ var Socket = {
 						Socket.serverHandle.origins('*:*');
 					}
 					
-					Socket.httpHandle.listen(process.env.intSocketPort);
+					Socket.httpHandle.listen(NodeConf.intSocketPort);
 				}
 				
 			} else if (Express.serverHandle !== null) {
@@ -536,7 +631,7 @@ var Sqlite = {
 		}
 		
 		{
-			Sqlite.clientHandle = new Sqlite.sqliteHandle.Database(process.env.strSqliteDatabase);
+			Sqlite.clientHandle = new Sqlite.sqliteHandle.Database(NodeConf.strSqliteDatabase);
 		}
 	},
 	
@@ -567,66 +662,89 @@ var Xml = {
 	}
 };
 
-{
-	if (process.env.boolAws === 'true') {
-		Aws.init();
+module.exports = function() {
+	{
+		Node.init();
 	}
 	
-	if (process.env.boolCasable === 'true') {
-		Casable.init();
+	{
+		if (NodeConf.boolAws === true) {
+			Aws.init();
+		}
+		
+		if (NodeConf.boolCasable === true) {
+			Casable.init();
+		}
+		
+		if (NodeConf.boolExpress === true) {
+			Express.init();
+		}
+		
+		if (NodeConf.boolGeoip === true) {
+			Geoip.init();
+		}
+		
+		if (NodeConf.boolHypertextmin === true) {
+			Hypertextmin.init();
+		}
+		
+		if (NodeConf.boolMime === true) {
+			Mime.init();
+		}
+		
+		if (NodeConf.boolMongo === true) {
+			Mongo.init();
+		}
+		
+		if (NodeConf.boolMustache === true) {
+			Mustache.init();
+		}
+		
+		if (NodeConf.boolPhantom === true) {
+			Phantom.init();
+		}
+		
+		if (NodeConf.boolRecaptcha === true) {
+			Recaptcha.init();
+		}
+		
+		if (NodeConf.boolSocket === true) {
+			Socket.init();
+		}
+		
+		if (NodeConf.boolSqlite === true) {
+			Sqlite.init();
+		}
+		
+		if (NodeConf.boolXml === true) {
+			Xml.init();
+		}
 	}
-	
-	if (process.env.boolExpress === 'true') {
-		Express.init();
-	}
-	
-	if (process.env.boolGeoip === 'true') {
-		Geoip.init();
-	}
-	
-	if (process.env.boolHypertextminfier === 'true') {
-		Hypertextminfier.init();
-	}
-	
-	if (process.env.boolMime === 'true') {
-		Mime.init();
-	}
-	
-	if (process.env.boolMongo === 'true') {
-		Mongo.init();
-	}
-	
-	if (process.env.boolMustache === 'true') {
-		Mustache.init();
-	}
-	
-	if (process.env.boolPhantom === 'true') {
-		Phantom.init();
-	}
-	
-	if (process.env.boolRecaptcha === 'true') {
-		Recaptcha.init();
-	}
-	
-	if (process.env.boolSocket === 'true') {
-		Socket.init();
-	}
-	
-	if (process.env.boolSqlite === 'true') {
-		Sqlite.init();
-	}
-	
-	if (process.env.boolXml === 'true') {
-		Xml.init();
-	}
-}
 
-{
-	if (process.env.boolExpress === 'true') {
-		Express.run();
+	{
+		if (NodeConf.boolExpress === true) {
+			Express.run();
+		}
+		
+		if (NodeConf.boolSocket === true) {
+			Socket.run();
+		}
 	}
 	
-	if (process.env.boolSocket === 'true') {
-		Socket.run();
-	}
-}
+	return {
+		'Node': Node,
+		'Aws': Aws,
+		'Casable': Casable,
+		'Express': Express,
+		'Geoip': Geoip,
+		'Hypertextmin': Hypertextmin,
+		'Mime': Mime,
+		'Mongo': Mongo,
+		'Mustache': Mustache,
+		'Phantom': Phantom,
+		'Recaptcha': Recaptcha,
+		'Socket': Socket,
+		'Sqlite': Sqlite,
+		'Xml': Xml
+	};
+};

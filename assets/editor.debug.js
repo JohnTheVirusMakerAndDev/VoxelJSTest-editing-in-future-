@@ -1,3 +1,5 @@
+'use strict';
+
 var Constants = {
 	intGameLoop: 16,
 	
@@ -28,24 +30,7 @@ var Gui = {
 		}
 		
 		{
-			jQuery('#idMap_Json')
-				.off('update')
-				.on('update', function() {
-					{
-						jQuery(this)
-							.val(Map.save())
-						;
-					}
-				})
-			;
-
-			jQuery('#idMap_Json')
-				.trigger('update')
-			;
-		}
-		
-		{
-			jQuery('#idMap_Save')
+			jQuery('#idWorld_Save')
 				.button({
 					'disabled': false,
 					'icons': {
@@ -55,8 +40,8 @@ var Gui = {
 				.off('click')
 				.on('click', function() {
 					{
-						jQuery('#idMap_Json')
-							.trigger('update')
+						jQuery('#idWorld_Json')
+							.val(World.save())
 						;
 					}
 				})
@@ -64,7 +49,7 @@ var Gui = {
 		}
 		
 		{
-			jQuery('#idMap_Load')
+			jQuery('#idWorld_Load')
 				.button({
 					'disabled': false,
 					'icons': {
@@ -74,7 +59,7 @@ var Gui = {
 				.off('click')
 				.on('click', function() {
 					{
-						Map.load(jQuery('#idMap_Json').val());
+						World.load(jQuery('#idWorld_Json').val());
 					}
 				})
 			;
@@ -112,7 +97,7 @@ var Gui = {
 					})
 				;
 				
-				jQuery('#idMap')
+				jQuery('#idWorld')
 					.css({
 						'display': 'none'
 					})
@@ -121,7 +106,7 @@ var Gui = {
 			
 			{
 				if (Gui.strMode === 'modeMenu') {
-					jQuery('#idMap')
+					jQuery('#idWorld')
 						.css({
 							'display': 'block'
 						})
@@ -242,27 +227,13 @@ var Gui = {
 	}
 };
 
-{
-	with (global) {
-		require('minecraft-skin');
-		require('voxel-engine');
-		require('voxel-highlight');
-		
-		var fsHandle = require('fs');
+var Voxel = require('../libs/Voxel.js')(Constants);
+var Input = require('../libs/Input.js')(Constants);
+var Physics = require('../libs/Physics.js')(Constants);
+var World = require('../libs/World.js')(Constants, Voxel);
+var Player = require('../libs/Player.js')(Constants, Voxel, Physics);
 
-		eval(fsHandle.readFileSync(__dirname + '/../libs/Voxel.js').toString());
-		
-		eval(fsHandle.readFileSync(__dirname + '/../libs/Input.js').toString());
-
-		eval(fsHandle.readFileSync(__dirname + '/../libs/Map.js').toString());
-		
-		eval(fsHandle.readFileSync(__dirname + '/../libs/Player.js').toString());
-		
-		eval(fsHandle.readFileSync(__dirname + '/../libs/Physics.js').toString());
-	}
-}
-
-jQuery(window).load(function() { // jQuery(document).ready()
+window.addEventListener('load', function () {
 	{
 		Gui.init();
 	}
@@ -283,19 +254,19 @@ jQuery(window).load(function() { // jQuery(document).ready()
 				}
 				
 				if (Gui.intChooserType === 0) {
-					Map.updateType(Voxel.voxelhighlightHandle.positionCreate, 'voxelBrick');
+					World.updateType(Voxel.voxelhighlightHandle.positionCreate, 'voxelBrick');
 					
 				} else if (Gui.intChooserType === 1) {
-					Map.updateType(Voxel.voxelhighlightHandle.positionCreate, 'voxelDirt');
+					World.updateType(Voxel.voxelhighlightHandle.positionCreate, 'voxelDirt');
 					
 				} else if (Gui.intChooserType === 2) {
-					Map.updateType(Voxel.voxelhighlightHandle.positionCreate, 'voxelGrass');
+					World.updateType(Voxel.voxelhighlightHandle.positionCreate, 'voxelGrass');
 					
 				} else if (Gui.intChooserType === 3) {
-					Map.updateType(Voxel.voxelhighlightHandle.positionCreate, 'voxelPlank');
+					World.updateType(Voxel.voxelhighlightHandle.positionCreate, 'voxelPlank');
 					
 				} else if (Gui.intChooserType === 4) {
-					Map.updateType(Voxel.voxelhighlightHandle.positionCreate, 'voxelStone');
+					World.updateType(Voxel.voxelhighlightHandle.positionCreate, 'voxelStone');
 					
 				}
 				
@@ -305,19 +276,19 @@ jQuery(window).load(function() { // jQuery(document).ready()
 				}
 				
 				if (Gui.intChooserType === 0) {
-					Map.updateType(Voxel.voxelhighlightHandle.positionCreate, 'voxelSpawnRed');
+					World.updateType(Voxel.voxelhighlightHandle.positionCreate, 'voxelSpawnRed');
 					
 				} else if (Gui.intChooserType === 1) {
-					Map.updateType(Voxel.voxelhighlightHandle.positionCreate, 'voxelSpawnBlue');
+					World.updateType(Voxel.voxelhighlightHandle.positionCreate, 'voxelSpawnBlue');
 
 				} else if (Gui.intChooserType === 2) {
-					Map.updateType(Voxel.voxelhighlightHandle.positionCreate, 'voxelFlagRed');
+					World.updateType(Voxel.voxelhighlightHandle.positionCreate, 'voxelFlagRed');
 					
 				} else if (Gui.intChooserType === 3) {
-					Map.updateType(Voxel.voxelhighlightHandle.positionCreate, 'voxelFlagBlue');
+					World.updateType(Voxel.voxelhighlightHandle.positionCreate, 'voxelFlagBlue');
 					
 				} else if (Gui.intChooserType === 4) {
-					Map.updateType(Voxel.voxelhighlightHandle.positionCreate, 'voxelSeparator');
+					World.updateType(Voxel.voxelhighlightHandle.positionCreate, 'voxelSeparator');
 					
 				}
 				
@@ -327,7 +298,7 @@ jQuery(window).load(function() { // jQuery(document).ready()
 				}
 				
 				if (Gui.intChooserType === 0) {
-					Map.updateType(Voxel.voxelhighlightHandle.positionDestroy, '');
+					World.updateType(Voxel.voxelhighlightHandle.positionDestroy, '');
 				}
 				
 			}
@@ -413,7 +384,7 @@ jQuery(window).load(function() { // jQuery(document).ready()
 		Input.init();
 		
 		Input.functionException = function() {
-			if (jQuery('#idMap_Json').is(':focus') === true) {
+			if (jQuery('#idWorld_Json').is(':focus') === true) {
 				return true;
 			}
 			
@@ -430,8 +401,8 @@ jQuery(window).load(function() { // jQuery(document).ready()
 				if (eventHandle.keyCode === 69) {
 					Gui.updateMode('modeMenu');
 				}
-				
-				{
+
+				if (jQuery('#idPhaseBuild').css('display') === 'inline-block') {
 					if (eventHandle.keyCode === 49) {
 						Gui.updateChooser('categoryCreate', (Gui.intChooserType + 1) % 5);
 						
@@ -453,7 +424,7 @@ jQuery(window).load(function() { // jQuery(document).ready()
 	}
 	
 	{
-		Map.init();
+		World.init();
 	}
 	
 	{
@@ -469,7 +440,7 @@ jQuery(window).load(function() { // jQuery(document).ready()
 			if (intCoordinateY === 0) {
 				return true;
 				
-			} else if (Map.strType[[ intCoordinateX, intCoordinateY, intCoordinateZ ]] !== undefined) {
+			} else if (World.strType[[ intCoordinateX, intCoordinateY, intCoordinateZ ]] !== undefined) {
 				return true;
 				
 			}
@@ -487,4 +458,4 @@ jQuery(window).load(function() { // jQuery(document).ready()
 		Player.playerHandle['1'].dblVerlet[1] = Player.playerHandle['1'].dblPosition[1];
 		Player.playerHandle['1'].dblVerlet[2] = Player.playerHandle['1'].dblPosition[2];
 	}
-});
+}, false);

@@ -1,3 +1,5 @@
+'use strict';
+
 var Constants = {
 	intGameLoop: 16,
 	
@@ -67,199 +69,6 @@ var Gui = {
 						;
 					}
 				})
-				.off('update')
-				.on('update', function() {
-					jQuery(this)
-						.css({
-							'padding-left': (jQuery(this).prev().width() + 15) + 'px'
-						})
-						.val('')
-					;
-				})
-			;
-			
-			jQuery('#idMessagebox_Chat')
-				.trigger('update')
-			;
-		}
-		
-		{
-			jQuery('#idServer_Ping')
-				.off('update')
-				.on('update', function() {
-					jQuery(this)
-						.css({
-							'padding-left': (jQuery(this).prev().width() + 15) + 'px'
-						})
-						.val('')
-					;
-				})
-			;
-			
-			jQuery('#idServer_Ping')
-				.trigger('update')
-			;
-		}
-		
-		{
-			jQuery('#idServer_Players')
-				.off('update')
-				.on('update', function() {
-					jQuery(this)
-						.css({
-							'padding-left': (jQuery(this).prev().width() + 15) + 'px'
-						})
-						.val('')
-					;
-				})
-			;
-			
-			jQuery('#idServer_Players')
-				.trigger('update')
-			;
-		}
-		
-		{
-			jQuery('#idServer_Map')
-				.off('update')
-				.on('update', function() {
-					jQuery(this)
-						.css({
-							'padding-left': (jQuery(this).prev().width() + 15) + 'px'
-						})
-						.val('')
-					;
-				})
-			;
-			
-			jQuery('#idServer_Map')
-				.trigger('update')
-			;
-		}
-		
-		{
-			jQuery('#idServer_Phase')
-				.off('update')
-				.on('update', function() {
-					jQuery(this)
-						.css({
-							'padding-left': (jQuery(this).prev().width() + 15) + 'px'
-						})
-						.html('')
-					;
-				})
-			;
-			
-			jQuery('#idServer_Phase')
-				.trigger('update')
-			;
-		}
-		
-		{
-			jQuery('#idTeamRed_Players')
-				.off('update')
-				.on('update', function() {
-					jQuery(this)
-						.css({
-							'padding-left': (jQuery(this).prev().width() + 15) + 'px'
-						})
-						.val('')
-					;
-				})
-			;
-			
-			jQuery('#idTeamRed_Players')
-				.trigger('update')
-			;
-		}
-		
-		{
-			jQuery('#idTeamRed_Score')
-				.off('update')
-				.on('update', function() {
-					jQuery(this)
-						.css({
-							'padding-left': (jQuery(this).prev().width() + 15) + 'px'
-						})
-						.val('')
-					;
-				})
-			;
-			
-			jQuery('#idTeamRed_Score')
-				.trigger('update')
-			;
-		}
-		
-		{
-			jQuery('#idTeamBlue_Players')
-				.off('update')
-				.on('update', function() {
-					jQuery(this)
-						.css({
-							'padding-left': (jQuery(this).prev().width() + 15) + 'px'
-						})
-						.val('')
-					;
-				})
-			;
-			
-			jQuery('#idTeamBlue_Players')
-				.trigger('update')
-			;
-		}
-		
-		{
-			jQuery('#idTeamBlue_Score')
-				.off('update')
-				.on('update', function() {
-					jQuery(this)
-						.css({
-							'padding-left': (jQuery(this).prev().width() + 15) + 'px'
-						})
-						.val('')
-					;
-				})
-			;
-			
-			jQuery('#idTeamBlue_Score')
-				.trigger('update')
-			;
-		}
-		
-		{
-			jQuery('#idLogin_Name')
-				.off('update')
-				.on('update', function() {
-					jQuery(this)
-						.css({
-							'padding-left': (jQuery(this).prev().width() + 15) + 'px'
-						})
-						.val('')
-					;
-				})
-			;
-			
-			jQuery('#idLogin_Name')
-				.trigger('update')
-			;
-		}
-		
-		{
-			jQuery('#idLogin_Password')
-				.off('update')
-				.on('update', function() {
-					jQuery(this)
-						.css({
-							'padding-left': (jQuery(this).prev().width() + 15) + 'px'
-						})
-						.val('')
-					;
-				})
-			;
-			
-			jQuery('#idLogin_Password')
-				.trigger('update')
 			;
 		}
 
@@ -268,21 +77,6 @@ var Gui = {
 			    .prop({
 			        'selected': true
 			    })
-			;
-			
-			jQuery('#idLogin_Team')
-				.off('update')
-				.on('update', function() {
-					jQuery(this)
-						.css({
-							'padding-left': (jQuery(this).prev().width() + 15) + 'px'
-						})
-					;
-				})
-			;
-			
-			jQuery('#idLogin_Team')
-				.trigger('update')
 			;
 		}
 		
@@ -385,13 +179,13 @@ var Gui = {
 				
 				jQuery('#idLoading')
 					.css({
-						'visibility': 'hidden'
+						'display': 'none'
 					})
 				;
 				
 				jQuery('#idLogin')
 					.css({
-						'visibility': 'hidden'
+						'display': 'none'
 					})
 				;
 			}
@@ -400,14 +194,14 @@ var Gui = {
 				if (Gui.strMode === 'modeLogin') {
 					jQuery('#idLogin')
 						.css({
-							'visibility': 'visible'
+							'display': 'block'
 						})
 					;
 					
 				} else if (Gui.strMode === 'modeLoading') {
 					jQuery('#idLoading')
 						.css({
-							'visibility': 'visible'
+							'display': 'block'
 						})
 					;
 					
@@ -631,12 +425,16 @@ var Socket = {
 								.val(new Date().getTime() - Socket.intPing)
 							;
 							
-							jQuery('#idServer_Map')
-								.val(jsonHandle.strMapActive)
+							jQuery('#idServer_Phase')
+								.html(jsonHandle.strPhaseActive + '<div style="padding:0.8em 0.0em 0.0em 0.0em; font-size:10px;">with ' + Math.floor(jsonHandle.intPhaseRemaining / 1000) + ' seconds remainin and ' + jsonHandle.intPhaseRound + ' rounds left</div>')
 							;
 							
-							jQuery('#idServer_Phase')
-								.html(jsonHandle.strPhaseActive + '<div style="padding:0.8em 0.0em 0.0em 0.0em; font-size:10px;">with ' + jsonHandle.intPhaseRemaining + ' seconds remainin and ' + jsonHandle.intPhaseRound + ' rounds left</div>')
+							jQuery('#idServer_World')
+								.val(jsonHandle.strWorldActive)
+							;
+							
+							jQuery('#idServer_Players')
+								.val(jsonHandle.intPlayerActive + ' / ' + jsonHandle.intPlayerCapacity)
 							;
 							
 							jQuery('#idTeamRed_Score')
@@ -645,10 +443,6 @@ var Socket = {
 							
 							jQuery('#idTeamBlue_Score')
 								.val(jsonHandle.intScoreBlue)
-							;
-							
-							jQuery('#idServer_Players')
-								.val(jsonHandle.intPlayerActive + ' / ' + jsonHandle.intPlayerCapacity)
 							;
 						}
 						
@@ -767,9 +561,9 @@ var Socket = {
 						}
 					});
 					
-					Socket.socketHandle.on('mapHandle', function(jsonHandle) {
+					Socket.socketHandle.on('worldHandle', function(jsonHandle) {
 						{
-						    Map.load(jsonHandle.strMap);
+						    World.load(jsonHandle.strWorld);
 						}
 						
 						{
@@ -780,22 +574,6 @@ var Socket = {
 					});
 					
 					Socket.socketHandle.on('playerHandle', function(jsonHandle) {
-						{
-							Player.playerHandle['1'].dblPosition[0] = jsonHandle.dblPosition[0];
-							Player.playerHandle['1'].dblPosition[1] = jsonHandle.dblPosition[1];
-							Player.playerHandle['1'].dblPosition[2] = jsonHandle.dblPosition[2];
-							
-							Player.playerHandle['1'].dblVerlet[0] = jsonHandle.dblVerlet[0];
-							Player.playerHandle['1'].dblVerlet[1] = jsonHandle.dblVerlet[1];
-							Player.playerHandle['1'].dblVerlet[2] = jsonHandle.dblVerlet[2];
-							
-							Player.playerHandle['1'].dblAcceleration[0] = jsonHandle.dblAcceleration[0];
-							Player.playerHandle['1'].dblAcceleration[1] = jsonHandle.dblAcceleration[1];
-							Player.playerHandle['1'].dblAcceleration[2] = jsonHandle.dblAcceleration[2];
-						}
-					});
-					
-					Socket.socketHandle.on('enemyHandle', function(jsonHandle) {
 						{
 							var playerOverwrite = {
 								'1': Player.playerHandle['1']
@@ -872,6 +650,26 @@ var Socket = {
 						}
 					});
 					
+					Socket.socketHandle.on('playerRespawn', function(jsonHandle) {
+						{
+							Player.playerHandle['1'].dblPosition[0] = jsonHandle.dblPosition[0];
+							Player.playerHandle['1'].dblPosition[1] = jsonHandle.dblPosition[1];
+							Player.playerHandle['1'].dblPosition[2] = jsonHandle.dblPosition[2];
+							
+							Player.playerHandle['1'].dblVerlet[0] = jsonHandle.dblVerlet[0];
+							Player.playerHandle['1'].dblVerlet[1] = jsonHandle.dblVerlet[1];
+							Player.playerHandle['1'].dblVerlet[2] = jsonHandle.dblVerlet[2];
+						}
+					});
+					
+					Socket.socketHandle.on('playerHit', function(jsonHandle) {
+						{
+							Player.playerHandle['1'].dblAcceleration[0] = jsonHandle.dblAcceleration[0];
+							Player.playerHandle['1'].dblAcceleration[1] = jsonHandle.dblAcceleration[1];
+							Player.playerHandle['1'].dblAcceleration[2] = jsonHandle.dblAcceleration[2];
+						}
+					});
+					
 					Socket.socketHandle.on('itemHandle', function(jsonHandle) {
 						{
 							var itemOverwrite = {};
@@ -910,7 +708,7 @@ var Socket = {
 					
 					Socket.socketHandle.on('voxelHandle', function(jsonHandle) {
 						{
-							Map.updateType(jsonHandle.intCoordinate, jsonHandle.strType);
+							World.updateType(jsonHandle.intCoordinate, jsonHandle.strType);
 						}
 					});
 				}
@@ -945,29 +743,14 @@ var Socket = {
 	}
 };
 
-{
-	with (global) {
-		require('minecraft-skin');
-		require('voxel-engine');
-		require('voxel-highlight');
-		
-		var fsHandle = require('fs');
+var Voxel = require('../libs/Voxel.js')(Constants);
+var Input = require('../libs/Input.js')(Constants);
+var Physics = require('../libs/Physics.js')(Constants);
+var World = require('../libs/World.js')(Constants, Voxel);
+var Player = require('../libs/Player.js')(Constants, Voxel, Physics);
+var Item = require('../libs/Item.js')(Constants, Voxel, Physics);
 
-		eval(fsHandle.readFileSync(__dirname + '/../libs/Voxel.js').toString());
-		
-		eval(fsHandle.readFileSync(__dirname + '/../libs/Input.js').toString());
-
-		eval(fsHandle.readFileSync(__dirname + '/../libs/Map.js').toString());
-		
-		eval(fsHandle.readFileSync(__dirname + '/../libs/Player.js').toString());
-		
-		eval(fsHandle.readFileSync(__dirname + '/../libs/Item.js').toString());
-		
-		eval(fsHandle.readFileSync(__dirname + '/../libs/Physics.js').toString());
-	}
-}
-
-jQuery(window).load(function() { // jQuery(document).ready()
+window.addEventListener('load', function () {
 	{
 		Gui.init();
 	}
@@ -1211,7 +994,7 @@ jQuery(window).load(function() { // jQuery(document).ready()
 	}
 	
 	{
-		Map.init();
+		World.init();
 	}
 	
 	{
@@ -1231,7 +1014,7 @@ jQuery(window).load(function() { // jQuery(document).ready()
 			if (intCoordinateY === 0) {
 				return true;
 
-			} else if (Map.strType[[ intCoordinateX, intCoordinateY, intCoordinateZ ]] !== undefined) {
+			} else if (World.strType[[ intCoordinateX, intCoordinateY, intCoordinateZ ]] !== undefined) {
 				return true;
 				
 			}
@@ -1239,4 +1022,4 @@ jQuery(window).load(function() { // jQuery(document).ready()
 			return false;
 		}
 	}
-});
+}, false);
