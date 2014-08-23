@@ -33,15 +33,15 @@ var Item = {
 				}
 			};
 			
-			Item.meshFlagRed = Voxel.itemCreate('itemFlagRed', 0.04);
+			Item.meshFlagRed = Voxel.minecraftitemCreate('itemFlagRed', Constants.dblGameScale);
 			
-			Item.meshFlagBlue = Voxel.itemCreate('itemFlagBlue', 0.04);
+			Item.meshFlagBlue = Voxel.minecraftitemCreate('itemFlagBlue', Constants.dblGameScale);
 		}
 		
 		{
 			for (var intFor1 = 0; intFor1 < 32; intFor1 += 1) {
 				{
-					var meshHandle = Voxel.itemCreate('itemArrow', 0.04);
+					var meshHandle = Voxel.minecraftitemCreate('itemArrow', Constants.dblGameScale);
 					
 					Item.meshArrow.push(meshHandle);
 				}
@@ -141,7 +141,7 @@ var Item = {
 							itemHandle.dblFriction = Constants.dblFlagFriction;
 	
 							Physics.update(itemHandle);
-							Physics.updateVoxelcol(itemHandle);
+							Physics.updateWorldcol(itemHandle);
 						}
 						
 						{
@@ -156,7 +156,7 @@ var Item = {
 							itemHandle.dblFriction = Constants.dblArrowFriction;
 							
 							Physics.update(itemHandle);
-							Physics.updateVoxelcol(itemHandle);
+							Physics.updateWorldcol(itemHandle);
 						}
 						
 						{

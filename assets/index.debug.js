@@ -2,6 +2,9 @@
 
 var Constants = {
 	intGameLoop: 16,
+	dblGameScale: 0.04,
+	
+	dblWorldBlocksize: 1.0,
 	
 	intPlayerHealth: 100,
 	dblPlayerMovement: [ 0.03, 0.18, 0.03 ],
@@ -31,6 +34,13 @@ var Constants = {
 	dblArrowMaxvel: [ 0.26 ],
 	dblArrowFriction: [ 1.0, 1.0, 1.0 ]
 };
+
+var Voxel = require('../libs/Voxel.js')(Constants);
+var Input = require('../libs/Input.js')(Constants);
+var Physics = require('../libs/Physics.js')(Constants);
+var World = require('../libs/World.js')(Constants, Voxel);
+var Player = require('../libs/Player.js')(Constants, Voxel, Physics);
+var Item = require('../libs/Item.js')(Constants, Voxel, Physics);
 
 var Gui = {
 	strMode: '',
@@ -565,11 +575,11 @@ var Socket = {
 						{
 						    World.load(jsonHandle.strWorld);
 						}
-						
+					});
+					
+					Socket.socketHandle.on('worldType', function(jsonHandle) {
 						{
-							// TODO: shouldn't be here
-							
-							Gui.updateChooser('', 0);
+							World.updateType(jsonHandle.intCoordinate, jsonHandle.strType);
 						}
 					});
 					
@@ -593,7 +603,11 @@ var Socket = {
 									playerHandle.intHealth = playerHandle.h;
 									playerHandle.dblPosition = playerHandle.i;
 									playerHandle.dblVerlet = playerHandle.j;
-									playerHandle.dblRotation = playerHandle.k;
+									playerHandle.dblAcceleration = playerHandle.k;
+									playerHandle.dblRotation = playerHandle.l;
+									playerHandle.intJumpcount = playerHandle.m;
+									playerHandle.intInteractionWalk = playerHandle.n;
+									playerHandle.intInteractionWeapon = playerHandle.o;
 								}
 								
 								{
@@ -610,7 +624,7 @@ var Socket = {
 										
 									} else if (playerHandle.strIdent !== Socket.socketHandle.strIdent) {
 										{
-											if (Player.playerHandle.hasOwnProperty(playerHandle.strIdent) === true) {
+											if (Player.playerHandle[playerHandle.strIdent] !== undefined) {
 												Physics.updateOverwrite(playerHandle, Player.playerHandle[playerHandle.strIdent]);
 											}
 										}
@@ -627,18 +641,17 @@ var Socket = {
 												'intHealth': playerHandle.intHealth,
 												'dblPosition': playerHandle.dblPosition,
 												'dblVerlet': playerHandle.dblVerlet,
-												'dblAcceleration': [ 0.0, 0.0, 0.0 ],
+												'dblAcceleration': playerHandle.dblAcceleration,
 												'dblRotation': playerHandle.dblRotation,
-												'intJumpcount': 0,
-												'intInteractionWalk': 0,
-												'intInteractionWeapon': 0
+												'intJumpcount': playerHandle.intJumpcount,
+												'intInteractionWalk': playerHandle.intInteractionWalk,
+												'intInteractionWeapon': playerHandle.intInteractionWeapon
 											};
 										}
 										
 										{
-											if (Player.playerHandle.hasOwnProperty(playerHandle.strIdent) === true) {
+											if (Player.playerHandle[playerHandle.strIdent] !== undefined) {
 												playerOverwrite[playerHandle.strIdent].intInteractionWalk = Player.playerHandle[playerHandle.strIdent].intInteractionWalk;
-												playerOverwrite[playerHandle.strIdent].intInteractionWeapon = Player.playerHandle[playerHandle.strIdent].intInteractionWeapon;
 											}
 										}
 										
@@ -659,6 +672,10 @@ var Socket = {
 							Player.playerHandle['1'].dblVerlet[0] = jsonHandle.dblVerlet[0];
 							Player.playerHandle['1'].dblVerlet[1] = jsonHandle.dblVerlet[1];
 							Player.playerHandle['1'].dblVerlet[2] = jsonHandle.dblVerlet[2];
+						}
+						
+						{
+							Gui.updateChooser('', 0);
 						}
 					});
 					
@@ -685,7 +702,7 @@ var Socket = {
 								}
 								
 								{
-									if (Item.itemHandle.hasOwnProperty(itemHandle.strIdent) === true) {
+									if (Item.itemHandle[itemHandle.strIdent] !== undefined) {
 										Physics.updateOverwrite(itemHandle, Item.itemHandle[itemHandle.strIdent]);
 									}
 								}
@@ -703,12 +720,6 @@ var Socket = {
 							}
 							
 							Item.itemHandle = itemOverwrite;
-						}
-					});
-					
-					Socket.socketHandle.on('voxelHandle', function(jsonHandle) {
-						{
-							World.updateType(jsonHandle.intCoordinate, jsonHandle.strType);
 						}
 					});
 				}
@@ -743,22 +754,7 @@ var Socket = {
 	}
 };
 
-var Voxel = require('../libs/Voxel.js')(Constants);
-var Input = require('../libs/Input.js')(Constants);
-var Physics = require('../libs/Physics.js')(Constants);
-var World = require('../libs/World.js')(Constants, Voxel);
-var Player = require('../libs/Player.js')(Constants, Voxel, Physics);
-var Item = require('../libs/Item.js')(Constants, Voxel, Physics);
-
 window.addEventListener('load', function () {
-	{
-		Gui.init();
-	}
-	
-	{
-		Socket.init();
-	}
-	
 	{
 		Voxel.init(function(intCoordinateX, intCoordinateY, intCoordinateZ) {
 			return 0;
@@ -780,7 +776,7 @@ window.addEventListener('load', function () {
 					}
 					
 					{
-						Socket.socketHandle.emit('voxelHandle', {
+						Socket.socketHandle.emit('worldType', {
 							'intCoordinate': Voxel.voxelhighlightHandle.positionCreate,
 							'strType': 'voxelDirt'
 						});
@@ -802,7 +798,7 @@ window.addEventListener('load', function () {
 					}
 					
 					{
-						Socket.socketHandle.emit('voxelHandle', {
+						Socket.socketHandle.emit('worldType', {
 							'intCoordinate': Voxel.voxelhighlightHandle.positionDestroy,
 							'strType': ''
 						});
@@ -910,7 +906,8 @@ window.addEventListener('load', function () {
 				Socket.socketHandle.emit('playerHandle', {
 					'a': Player.playerHandle['1'].dblPosition,
 					'b': Player.playerHandle['1'].dblVerlet,
-					'c': Player.playerHandle['1'].dblRotation
+					'c': Player.playerHandle['1'].dblAcceleration,
+					'd': Player.playerHandle['1'].dblRotation
 				});
 			}
 		});
@@ -994,6 +991,22 @@ window.addEventListener('load', function () {
 	}
 	
 	{
+		Physics.init();
+		
+		Physics.functionWorldcol = function(intCoordinateX, intCoordinateY, intCoordinateZ) {
+			if (intCoordinateY === 0) {
+				return true;
+
+			} else if (World.strType[[ intCoordinateX, intCoordinateY, intCoordinateZ ]] !== undefined) {
+				return true;
+				
+			}
+			
+			return false;
+		}
+	}
+	
+	{
 		World.init();
 	}
 	
@@ -1008,18 +1021,10 @@ window.addEventListener('load', function () {
 	}
 	
 	{
-		Physics.init();
-		
-		Physics.functionVoxelcol = function(intCoordinateX, intCoordinateY, intCoordinateZ) {
-			if (intCoordinateY === 0) {
-				return true;
-
-			} else if (World.strType[[ intCoordinateX, intCoordinateY, intCoordinateZ ]] !== undefined) {
-				return true;
-				
-			}
-			
-			return false;
-		}
+		Gui.init();
+	}
+	
+	{
+		Socket.init();
 	}
 }, false);

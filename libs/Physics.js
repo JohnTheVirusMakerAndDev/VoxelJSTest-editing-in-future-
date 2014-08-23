@@ -3,11 +3,11 @@
 var Constants = {};
 
 var Physics = {
-	functionVoxelcol: null,
+	functionWorldcol: null,
 	
 	init: function() {
 		{
-			Physics.functionVoxelcol = function(intCoordinateX, intCoordinateY, intCoordinateZ) {
+			Physics.functionWorldcol = function(intCoordinateX, intCoordinateY, intCoordinateZ) {
 				return false;
 			}
 		}
@@ -15,7 +15,7 @@ var Physics = {
 	
 	dispel: function() {
 		{
-			Physics.functionVoxelcol = null;
+			Physics.functionWorldcol = null;
 		}
 	},
 	
@@ -133,7 +133,7 @@ var Physics = {
 		}
 	},
 	
-	updateVoxelcol: function(physicsHandle) {
+	updateWorldcol: function(physicsHandle) {
 		{
 			physicsHandle.boolCollisionTop = false;
 			
@@ -143,25 +143,25 @@ var Physics = {
 		}
 		
 		{
-			for (var intFor1 = 1; intFor1 > -2; intFor1 -= 1) {
-				for (var intFor2 = 1; intFor2 > -2; intFor2 -= 1) {
-					for (var intFor3 = 1; intFor3 > -2; intFor3 -= 1) {
-						var intCoordinateX = Math.floor(physicsHandle.dblPosition[0]) + intFor1;
-						var intCoordinateY = Math.floor(physicsHandle.dblPosition[1]) + intFor2;
-						var intCoordinateZ = Math.floor(physicsHandle.dblPosition[2]) + intFor3;
+			for (var intFor1 = 0; intFor1 < 3; intFor1 += 1) {
+				for (var intFor2 = 0; intFor2 < 3; intFor2 += 1) {
+					for (var intFor3 = 0; intFor3 < 3; intFor3 += 1) {
+						var intCoordinateX = Math.floor(physicsHandle.dblPosition[0] / Constants.dblWorldBlocksize) + [ 0, -1, 1 ][intFor1];
+						var intCoordinateY = Math.floor(physicsHandle.dblPosition[1] / Constants.dblWorldBlocksize) + [ -1, 0, 1 ][intFor2];
+						var intCoordinateZ = Math.floor(physicsHandle.dblPosition[2] / Constants.dblWorldBlocksize) + [ 0, -1, 1 ][intFor3];
 
-						var dblPositionX = intCoordinateX + 0.5;
-						var dblPositionY = intCoordinateY + 0.5;
-						var dblPositionZ = intCoordinateZ + 0.5;
+						var dblPositionX = intCoordinateX + (0.5 * Constants.dblWorldBlocksize);
+						var dblPositionY = intCoordinateY + (0.5 * Constants.dblWorldBlocksize);
+						var dblPositionZ = intCoordinateZ + (0.5 * Constants.dblWorldBlocksize);
 						
-						if (Physics.functionVoxelcol(intCoordinateX, intCoordinateY, intCoordinateZ) === false) {
+						if (Physics.functionWorldcol(intCoordinateX, intCoordinateY, intCoordinateZ) === false) {
 							continue;
 						}
 						
 						{
-							var dblIntersectX = Math.abs(physicsHandle.dblPosition[0] - dblPositionX) - (0.5 * physicsHandle.dblSize[0]) - (0.5 * 1.0);
-							var dblIntersectY = Math.abs(physicsHandle.dblPosition[1] - dblPositionY) - (0.5 * physicsHandle.dblSize[1]) - (0.5 * 1.0);
-							var dblIntersectZ = Math.abs(physicsHandle.dblPosition[2] - dblPositionZ) - (0.5 * physicsHandle.dblSize[2]) - (0.5 * 1.0);
+							var dblIntersectX = Math.abs(physicsHandle.dblPosition[0] - dblPositionX) - (0.5 * physicsHandle.dblSize[0]) - (0.5 * Constants.dblWorldBlocksize);
+							var dblIntersectY = Math.abs(physicsHandle.dblPosition[1] - dblPositionY) - (0.5 * physicsHandle.dblSize[1]) - (0.5 * Constants.dblWorldBlocksize);
+							var dblIntersectZ = Math.abs(physicsHandle.dblPosition[2] - dblPositionZ) - (0.5 * physicsHandle.dblSize[2]) - (0.5 * Constants.dblWorldBlocksize);
 							
 							if (dblIntersectX >= 0.0) {
 								continue;

@@ -19,7 +19,7 @@ npm install
 node VoxRect.js
 ```
 
-several preferences of the game can furthermore be changed within `VoxRect.config`. to change the port on which the server is listening, open `NodeGen.config` and change the following line appropriately.
+several preferences of the game can furthermore be changed within `VoxConf.js`. to change the port on which the server is listening, open `NodeConf.js` and change the following line appropriately.
 
 ```javascript
 process.env.intExpressPort = 15897;

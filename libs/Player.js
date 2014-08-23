@@ -21,7 +21,9 @@ var Player = {
 		}
 		
 		{
-			Player.minecraftskinController = Voxel.minecraftskinCreate();
+			var minecraftskinHandle = Voxel.minecraftskinCreate();
+			
+			Player.minecraftskinController = minecraftskinHandle;
 		}
 		
 		{
@@ -99,7 +101,7 @@ var Player = {
 	
 	update: function() {
 		{
-			if (Player.playerHandle.hasOwnProperty('1') === true) {
+			if (Player.playerHandle['1'] !== undefined) {
 				Player.playerHandle['1'].dblRotation[0] = 0.0;
 				Player.playerHandle['1'].dblRotation[1] = Player.minecraftskinController.mesh.rotation.y;
 				Player.playerHandle['1'].dblRotation[2] = Player.minecraftskinController.mesh.head.rotation.x;
@@ -117,7 +119,7 @@ var Player = {
 					playerHandle.dblFriction = Constants.dblPlayerFriction;
 					
 					Physics.update(playerHandle);
-					Physics.updateVoxelcol(playerHandle);
+					Physics.updateWorldcol(playerHandle);
 				}
 				
 				{

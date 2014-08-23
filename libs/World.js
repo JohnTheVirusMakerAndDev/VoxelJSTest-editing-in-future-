@@ -68,8 +68,12 @@ var World = {
 		    for (var intCoordinate in World.strType) {
 				var strType = World.strType[intCoordinate];
 				
+				var intCoordinateX = JSON.parse('[' + intCoordinate + ']')[0];
+				var intCoordinateY = JSON.parse('[' + intCoordinate + ']')[1];
+				var intCoordinateZ = JSON.parse('[' + intCoordinate + ']')[2];
+				
 				{
-					World.updateType(JSON.parse('[' + intCoordinate + ']'), '');
+					World.updateType([ intCoordinateX, intCoordinateY, intCoordinateZ ], '');
 				}
 		    }
 		}
@@ -95,26 +99,30 @@ var World = {
 		{
 		    for (var intCoordinate in World.strType) {
 				var strType = World.strType[intCoordinate];
+
+				var intCoordinateX = JSON.parse('[' + intCoordinate + ']')[0];
+				var intCoordinateY = JSON.parse('[' + intCoordinate + ']')[1];
+				var intCoordinateZ = JSON.parse('[' + intCoordinate + ']')[2];
 				
 				{
 					if (strType === 'voxelSpawnRed') {
-						World.intSpawnRed.push(JSON.parse('[' + intCoordinate + ']'));
+						World.intSpawnRed.push([ intCoordinateX, intCoordinateY, intCoordinateZ ]);
 						
 					} else if (strType === 'voxelSpawnBlue') {
-						World.intSpawnBlue.push(JSON.parse('[' + intCoordinate + ']'));
+						World.intSpawnBlue.push([ intCoordinateX, intCoordinateY, intCoordinateZ ]);
 						
 					} else if (strType === 'voxelFlagRed') {
-						World.intFlagRed.push(JSON.parse('[' + intCoordinate + ']'));
+						World.intFlagRed.push([ intCoordinateX, intCoordinateY, intCoordinateZ ]);
 						
-						delete World.strType[intCoordinate];
+						delete World.strType[[ intCoordinateX, intCoordinateY, intCoordinateZ ]];
 						
 					} else if (strType === 'voxelFlagBlue') {
-						World.intFlagBlue.push(JSON.parse('[' + intCoordinate + ']'));
-
-						delete World.strType[intCoordinate];
+						World.intFlagBlue.push([ intCoordinateX, intCoordinateY, intCoordinateZ ]);
+						
+						delete World.strType[[ intCoordinateX, intCoordinateY, intCoordinateZ ]];
 						
 					} else if (strType === 'voxelSeparator') {
-						World.intSeparator.push(JSON.parse('[' + intCoordinate + ']'));
+						World.intSeparator.push([ intCoordinateX, intCoordinateY, intCoordinateZ ]);
 						
 					}
 				}
@@ -124,9 +132,13 @@ var World = {
 		{
 		    for (var intCoordinate in World.strType) {
 				var strType = World.strType[intCoordinate];
+
+				var intCoordinateX = JSON.parse('[' + intCoordinate + ']')[0];
+				var intCoordinateY = JSON.parse('[' + intCoordinate + ']')[1];
+				var intCoordinateZ = JSON.parse('[' + intCoordinate + ']')[2];
 				
 				{
-					World.updateType(JSON.parse('[' + intCoordinate + ']'), strType);
+					World.updateType([ intCoordinateX, intCoordinateY, intCoordinateZ ], strType);
 				}
 		    }
 		}

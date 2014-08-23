@@ -2,6 +2,9 @@
 
 var Constants = {
 	intGameLoop: 16,
+	dblGameScale: 0.04,
+	
+	dblWorldBlocksize: 1.0,
 	
 	intPlayerHealth: 100,
 	dblPlayerMovement: [ 0.03, 0.03, 0.03 ],
@@ -11,6 +14,12 @@ var Constants = {
 	dblPlayerFriction: [ 0.8, 0.8, 0.8 ],
 	dblPlayerHitbox: [ 0.4, 0.9, 0.4 ]
 };
+
+var Voxel = require('../libs/Voxel.js')(Constants);
+var Input = require('../libs/Input.js')(Constants);
+var Physics = require('../libs/Physics.js')(Constants);
+var World = require('../libs/World.js')(Constants, Voxel);
+var Player = require('../libs/Player.js')(Constants, Voxel, Physics);
 
 var Gui = {
 	strMode: '',
@@ -227,17 +236,7 @@ var Gui = {
 	}
 };
 
-var Voxel = require('../libs/Voxel.js')(Constants);
-var Input = require('../libs/Input.js')(Constants);
-var Physics = require('../libs/Physics.js')(Constants);
-var World = require('../libs/World.js')(Constants, Voxel);
-var Player = require('../libs/Player.js')(Constants, Voxel, Physics);
-
 window.addEventListener('load', function () {
-	{
-		Gui.init();
-	}
-	
 	{
 		Voxel.init(function(intCoordinateX, intCoordinateY, intCoordinateZ) {
 			if (intCoordinateY === 0) {
@@ -424,19 +423,9 @@ window.addEventListener('load', function () {
 	}
 	
 	{
-		World.init();
-	}
-	
-	{
-		Player.init();
-		
-		Player.initController();
-	}
-	
-	{
 		Physics.init();
 		
-		Physics.functionVoxelcol = function(intCoordinateX, intCoordinateY, intCoordinateZ) {
+		Physics.functionWorldcol = function(intCoordinateX, intCoordinateY, intCoordinateZ) {
 			if (intCoordinateY === 0) {
 				return true;
 				
@@ -450,6 +439,16 @@ window.addEventListener('load', function () {
 	}
 	
 	{
+		World.init();
+	}
+	
+	{
+		Player.init();
+		
+		Player.initController();
+	}
+	
+	{
 		Player.playerHandle['1'].dblPosition[0] = 0.0;
 		Player.playerHandle['1'].dblPosition[1] = 8.0;
 		Player.playerHandle['1'].dblPosition[2] = 0.0;
@@ -457,5 +456,9 @@ window.addEventListener('load', function () {
 		Player.playerHandle['1'].dblVerlet[0] = Player.playerHandle['1'].dblPosition[0];
 		Player.playerHandle['1'].dblVerlet[1] = Player.playerHandle['1'].dblPosition[1];
 		Player.playerHandle['1'].dblVerlet[2] = Player.playerHandle['1'].dblPosition[2];
+	}
+	
+	{
+		Gui.init();
 	}
 }, false);

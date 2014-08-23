@@ -1,7 +1,6 @@
 'use strict';
 
-var VoxConf = require(__dirname + '/VoxConf.js')();
-
+var NodeConf = require(__dirname + '/NodeConf.js')();
 var NodeRect = require(__dirname + '/NodeRect.js')();
 
 var Node = NodeRect.Node;
@@ -18,6 +17,8 @@ var Recaptcha = NodeRect.Recaptcha;
 var Socket = NodeRect.Socket;
 var Sqlite = NodeRect.Sqlite;
 var Xml = NodeRect.Xml;
+
+var VoxConf = require(__dirname + '/VoxConf.js')();
 
 {
 	Express.serverHandle.get('/', function(requestHandle, responseHandle) {
@@ -291,70 +292,7 @@ var Xml = NodeRect.Xml;
 				}
 			});
 			
-			socketHandle.on('playerHandle', function(jsonHandle) {
-				{
-					jsonHandle.dblPosition = jsonHandle.a;
-					jsonHandle.dblVerlet = jsonHandle.b;
-					jsonHandle.dblRotation = jsonHandle.c;
-				}
-				
-				if (jsonHandle.dblPosition === undefined) {
-					return;
-					
-				} else if (jsonHandle.dblPosition.length !== 3) {
-					return;
-					
-				} else if (jsonHandle.dblVerlet === undefined) {
-					return;
-					
-				} else if (jsonHandle.dblVerlet.length !== 3) {
-					return;
-					
-				} else if (jsonHandle.dblRotation === undefined) {
-					return;
-					
-				} else if (jsonHandle.dblRotation.length !== 3) {
-					return;
-					
-				}
-				
-				if (Player.playerHandle[socketHandle.strIdent] === undefined) {
-					return;
-					
-				} else if (Player.playerHandle[socketHandle.strIdent].strTeam === 'teamLogin') {
-					return;
-					
-				}
-				
-				{
-					Player.playerHandle[socketHandle.strIdent].dblPosition = jsonHandle.dblPosition;
-					Player.playerHandle[socketHandle.strIdent].dblVerlet = jsonHandle.dblVerlet;
-					Player.playerHandle[socketHandle.strIdent].dblRotation = jsonHandle.dblRotation;
-				}
-			});
-			
-			socketHandle.on('itemHandle', function(jsonHandle) {
-				if (jsonHandle.strItem === undefined) {
-					return;
-				}
-				
-				if (Player.playerHandle[socketHandle.strIdent] === undefined) {
-					return;
-					
-				} else if (Player.playerHandle[socketHandle.strIdent].strTeam === 'teamLogin') {
-					return;
-
-				} else if (jsonHandle.strItem.match(new RegExp('(itemPickaxe)|(itemSword)|(itemBow)', 'g')) === null) {
-					return;
-					
-				}
-				
-				{
-					Player.playerHandle[socketHandle.strIdent].strItem = jsonHandle.strItem;
-				}
-			});
-			
-			socketHandle.on('voxelHandle', function(jsonHandle) {
+			socketHandle.on('worldType', function(jsonHandle) {
 				if (jsonHandle.intCoordinate === undefined) {
 					return;
 					
@@ -397,12 +335,83 @@ var Xml = NodeRect.Xml;
 						}
 						
 						{
-							playerHandle.socketHandle.emit('voxelHandle', {
+							playerHandle.socketHandle.emit('worldType', {
 								'intCoordinate': jsonHandle.intCoordinate,
 								'strType': jsonHandle.strType
 							});
 						}
 					}
+				}
+			});
+			
+			socketHandle.on('playerHandle', function(jsonHandle) {
+				{
+					jsonHandle.dblPosition = jsonHandle.a;
+					jsonHandle.dblVerlet = jsonHandle.b;
+					jsonHandle.dblAcceleration = jsonHandle.c;
+					jsonHandle.dblRotation = jsonHandle.d;
+				}
+				
+				if (jsonHandle.dblPosition === undefined) {
+					return;
+					
+				} else if (jsonHandle.dblPosition.length !== 3) {
+					return;
+					
+				} else if (jsonHandle.dblVerlet === undefined) {
+					return;
+					
+				} else if (jsonHandle.dblVerlet.length !== 3) {
+					return;
+					
+				} else if (jsonHandle.dblAcceleration === undefined) {
+					return;
+					
+				} else if (jsonHandle.dblAcceleration.length !== 3) {
+					return;
+					
+				} else if (jsonHandle.dblRotation === undefined) {
+					return;
+					
+				} else if (jsonHandle.dblRotation.length !== 3) {
+					return;
+					
+				}
+				
+				if (Player.playerHandle[socketHandle.strIdent] === undefined) {
+					return;
+					
+				} else if (Player.playerHandle[socketHandle.strIdent].strTeam === 'teamLogin') {
+					return;
+					
+				}
+				
+				{
+					Player.playerHandle[socketHandle.strIdent].dblPosition = jsonHandle.dblPosition;
+					Player.playerHandle[socketHandle.strIdent].dblVerlet = jsonHandle.dblVerlet;
+					Player.playerHandle[socketHandle.strIdent].dblAcceleration = jsonHandle.dblAcceleration;
+					Player.playerHandle[socketHandle.strIdent].dblRotation = jsonHandle.dblRotation;
+				}
+			});
+			
+			socketHandle.on('itemHandle', function(jsonHandle) {
+				if (jsonHandle.strItem === undefined) {
+					return;
+				}
+				
+				if (Player.playerHandle[socketHandle.strIdent] === undefined) {
+					return;
+					
+				} else if (Player.playerHandle[socketHandle.strIdent].strTeam === 'teamLogin') {
+					return;
+
+				} else if (jsonHandle.strItem.match(new RegExp('(itemPickaxe)|(itemSword)|(itemBow)', 'g')) === null) {
+					return;
+					
+				}
+				
+				{
+					Player.playerHandle[socketHandle.strIdent].strItem = jsonHandle.strItem;
 				}
 			});
 			
@@ -570,6 +579,9 @@ var Xml = NodeRect.Xml;
 
 var Constants = {
 	intGameLoop: 16,
+	dblGameScale: 0.04,
+	
+	dblWorldBlocksize: 1.0,
 	
 	intPlayerHealth: 100,
 	dblPlayerMovement: [ 0.03, 0.18, 0.03 ],
@@ -746,6 +758,8 @@ var Gameserver = {
 						
 						{
 							Gameserver.strWorldActive = Gameserver.strWorldAvailable[(Gameserver.strWorldAvailable.indexOf(Gameserver.strWorldActive) + 1) % Gameserver.strWorldAvailable.length];
+							
+							Gameserver.strWorldFingerprint = '';
 						}
 					}
 				}
@@ -763,7 +777,7 @@ var Gameserver = {
 				}
 				
 				{
-					World.load(Node.fsHandle.readFileSync(__dirname + '/assets/worlds/' + Gameserver.strWorldActive + '.json').toString());
+					World.load(Node.fsHandle.readFileSync(__dirname + '/worlds/' + Gameserver.strWorldActive + '.json').toString());
 				}
 				
 			} else if (Gameserver.strWorldFingerprint.indexOf(Gameserver.strWorldActive + ' - ' + Gameserver.strPhaseActive) !== 0) {
@@ -1005,6 +1019,22 @@ var Item = require(__dirname + '/libs/Item.js')(Constants, null, Physics);
 }
 
 {
+	Physics.init();
+	
+	Physics.functionWorldcol = function(intCoordinateX, intCoordinateY, intCoordinateZ) {
+		if (intCoordinateY === 0) {
+			return true;
+
+		} else if (World.strType[[ intCoordinateX, intCoordinateY, intCoordinateZ ]] !== undefined) {
+			return true;
+			
+		}
+		
+		return false;
+	}
+}
+
+{
 	World.init();
 }
 
@@ -1024,22 +1054,6 @@ var Item = require(__dirname + '/libs/Item.js')(Constants, null, Physics);
 			
 		}
 	};
-}
-
-{
-	Physics.init();
-	
-	Physics.functionVoxelcol = function(intCoordinateX, intCoordinateY, intCoordinateZ) {
-		if (intCoordinateY === 0) {
-			return true;
-
-		} else if (World.strType[[ intCoordinateX, intCoordinateY, intCoordinateZ ]] !== undefined) {
-			return true;
-			
-		}
-		
-		return false;
-	}
 }
 
 {
@@ -1084,10 +1098,12 @@ var Item = require(__dirname + '/libs/Item.js')(Constants, null, Physics);
 						'h': playerHandle.intHealth,
 						'i': playerHandle.dblPosition,
 						'j': playerHandle.dblVerlet,
-						'k': playerHandle.dblRotation
+						'k': playerHandle.dblAcceleration,
+						'l': playerHandle.dblRotation,
+						'm': playerHandle.intJumpcount,
+						'n': playerHandle.intInteractionWalk,
+						'o': playerHandle.intInteractionWeapon
 					});
-					
-					// TODO: broadcast intInteractionWeapon, in order to animate others actions
 				}
 		    }
 		    
@@ -1161,7 +1177,7 @@ var Item = require(__dirname + '/libs/Item.js')(Constants, null, Physics);
 			var requestHttp = Node.httpHandle.request({
 				'host': 'www.voxel-warriors.com',
 				'port': 80,
-				'path': '/host.xml?intPort=' + encodeURIComponent(Express.httpHandle.address().port) + '&strName=' + encodeURIComponent(Gameserver.strName) + '&intLoginPassword=' + encodeURIComponent(Gameserver.intLoginPassword) + '&strWorldActive=' + encodeURIComponent(Gameserver.strWorldActive) + '&intPlayerCapacity=' + encodeURIComponent(Gameserver.intPlayerCapacity) + '&intPlayerActive=' + encodeURIComponent(Gameserver.intPlayerActive),
+				'path': '/host.xml?intPort=' + encodeURIComponent(NodeConf.intExpressPort) + '&strName=' + encodeURIComponent(Gameserver.strName) + '&intLoginPassword=' + encodeURIComponent(Gameserver.intLoginPassword) + '&strWorldActive=' + encodeURIComponent(Gameserver.strWorldActive) + '&intPlayerCapacity=' + encodeURIComponent(Gameserver.intPlayerCapacity) + '&intPlayerActive=' + encodeURIComponent(Gameserver.intPlayerActive),
 				'method': 'GET'
 			}, function(responseHttp) {
 				var strContent = '';

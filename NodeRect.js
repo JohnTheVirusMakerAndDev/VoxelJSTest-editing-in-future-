@@ -295,7 +295,9 @@ var Express = {
 					'store': new Express.connectmongoHandle({
 						'url': NodeConf.strMongoServer,
 						'collection': 'collectionSession'
-					})
+					}),
+	                'resave': true,
+	                'saveUninitialized': true
 				}));
 				
 			}
@@ -647,17 +649,27 @@ var Sqlite = {
 };
 
 var Xml = {
-	xmldocHandle: null,
+	xmldocHandle: null,	
+	
+	saxHandle: null,
 	
 	init: function() {
 		{
-			Xml.xmldocHandle = require('xmldoc');
+			Xml.xmldocHandle = require('xmldoc');	
+		}
+		
+		{
+			Xml.saxHandle = require('sax');
 		}
 	},
 	
 	dispel: function() {
 		{
 			Xml.xmldocHandle = null;
+		}
+		
+		{
+			Xml.saxHandle = null;
 		}
 	}
 };
