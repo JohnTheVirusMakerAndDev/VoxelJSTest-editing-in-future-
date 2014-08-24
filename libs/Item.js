@@ -127,6 +127,126 @@ var Item = {
 		}
 	},
 	
+	saveBuffer: function(itemHandle, bufferHandle, intBuffer) {
+		{
+			bufferHandle.writeInt16LE(itemHandle.strIdent.length, intBuffer);
+			
+			intBuffer += 2;
+			
+			bufferHandle.write(itemHandle.strIdent, intBuffer, itemHandle.strIdent.length, 'ascii');
+			
+			intBuffer += itemHandle.strIdent.length;
+		}
+		
+		{
+			bufferHandle.writeInt16LE(itemHandle.strPlayer.length, intBuffer);
+			
+			intBuffer += 2;
+			
+			bufferHandle.write(itemHandle.strPlayer, intBuffer, itemHandle.strPlayer.length, 'ascii');
+			
+			intBuffer += itemHandle.strPlayer.length;
+		}
+		
+		{
+			bufferHandle.writeFloatLE(itemHandle.dblPosition[0], intBuffer + 0);
+			bufferHandle.writeFloatLE(itemHandle.dblPosition[1], intBuffer + 4);
+			bufferHandle.writeFloatLE(itemHandle.dblPosition[2], intBuffer + 8);
+			
+			intBuffer += 12;
+		}
+		
+		{
+			bufferHandle.writeFloatLE(itemHandle.dblVerlet[0], intBuffer + 0);
+			bufferHandle.writeFloatLE(itemHandle.dblVerlet[1], intBuffer + 4);
+			bufferHandle.writeFloatLE(itemHandle.dblVerlet[2], intBuffer + 8);
+			
+			intBuffer += 12;
+		}
+		
+		{
+			bufferHandle.writeFloatLE(itemHandle.dblAcceleration[0], intBuffer + 0);
+			bufferHandle.writeFloatLE(itemHandle.dblAcceleration[1], intBuffer + 4);
+			bufferHandle.writeFloatLE(itemHandle.dblAcceleration[2], intBuffer + 8);
+			
+			intBuffer += 12;
+		}
+		
+		{
+			bufferHandle.writeFloatLE(itemHandle.dblRotation[0], intBuffer + 0);
+			bufferHandle.writeFloatLE(itemHandle.dblRotation[1], intBuffer + 4);
+			bufferHandle.writeFloatLE(itemHandle.dblRotation[2], intBuffer + 8);
+			
+			intBuffer += 12;
+		}
+		
+		return intBuffer;
+	},
+	
+	load: function(itemHandle, bufferHandle, intBuffer) {
+		{
+			var intLength = bufferHandle.readInt16LE(intBuffer);
+
+			intBuffer += 2;
+			
+			itemHandle.strIdent = bufferHandle.toString('ascii', intBuffer, intBuffer + intLength);
+			
+			intBuffer += intLength;
+		}
+		
+		{
+			var intLength = bufferHandle.readInt16LE(intBuffer);
+
+			intBuffer += 2;
+			
+			itemHandle.strPlayer = bufferHandle.toString('ascii', intBuffer, intBuffer + intLength);
+			
+			intBuffer += intLength;
+		}
+		
+		{
+			itemHandle.dblPosition = [ 0.0, 0.0, 0.0 ];
+			
+			itemHandle.dblPosition[0] = bufferHandle.readFloatLE(intBuffer + 0);
+			itemHandle.dblPosition[1] = bufferHandle.readFloatLE(intBuffer + 4);
+			itemHandle.dblPosition[2] = bufferHandle.readFloatLE(intBuffer + 8);
+			
+			intBuffer += 12;
+		}
+		
+		{
+			itemHandle.dblVerlet = [ 0.0, 0.0, 0.0 ];
+			
+			itemHandle.dblVerlet[0] = bufferHandle.readFloatLE(intBuffer + 0);
+			itemHandle.dblVerlet[1] = bufferHandle.readFloatLE(intBuffer + 4);
+			itemHandle.dblVerlet[2] = bufferHandle.readFloatLE(intBuffer + 8);
+			
+			intBuffer += 12;
+		}
+		
+		{
+			itemHandle.dblAcceleration = [ 0.0, 0.0, 0.0 ];
+			
+			itemHandle.dblAcceleration[0] = bufferHandle.readFloatLE(intBuffer + 0);
+			itemHandle.dblAcceleration[1] = bufferHandle.readFloatLE(intBuffer + 4);
+			itemHandle.dblAcceleration[2] = bufferHandle.readFloatLE(intBuffer + 8);
+			
+			intBuffer += 12;
+		}
+		
+		{
+			itemHandle.dblRotation = [ 0.0, 0.0, 0.0 ];
+			
+			itemHandle.dblRotation[0] = bufferHandle.readFloatLE(intBuffer + 0);
+			itemHandle.dblRotation[1] = bufferHandle.readFloatLE(intBuffer + 4);
+			itemHandle.dblRotation[2] = bufferHandle.readFloatLE(intBuffer + 8);
+			
+			intBuffer += 12;
+		}
+		
+		return intBuffer;
+	},
+	
 	update: function() {
 		{
 			for (var strIdent in Item.itemHandle) {

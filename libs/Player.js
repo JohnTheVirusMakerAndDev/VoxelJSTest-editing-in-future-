@@ -99,6 +99,286 @@ var Player = {
 		}
 	},
 	
+	saveBuffer: function(playerHandle, bufferHandle, intBuffer) {
+		{
+			bufferHandle.writeInt16LE(playerHandle.strIdent.length, intBuffer);
+			
+			intBuffer += 2;
+			
+			bufferHandle.write(playerHandle.strIdent, intBuffer, playerHandle.strIdent.length, 'ascii');
+			
+			intBuffer += playerHandle.strIdent.length;
+		}
+		
+		{
+			var intTeam = 0;
+			
+			if (playerHandle.strTeam === 'teamLogin') {
+				intTeam = 1;
+				
+			} else if (playerHandle.strTeam === 'teamRed') {
+				intTeam = 2;
+				
+			} else if (playerHandle.strTeam === 'teamBlue') {
+				intTeam = 3;
+				
+			}
+			
+			bufferHandle.writeInt16LE(intTeam, intBuffer);
+			
+			intBuffer += 2;
+		}
+		
+		{
+			var intItem = 0;
+			
+			if (playerHandle.strItem === 'itemPickaxe') {
+				intItem = 1;
+				
+			} else if (playerHandle.strItem === 'itemSword') {
+				intItem = 2;
+				
+			} else if (playerHandle.strItem === 'itemBow') {
+				intItem = 3;
+				
+			}
+			
+			bufferHandle.writeInt16LE(intItem, intBuffer);
+			
+			intBuffer += 2;
+		}
+		
+		{
+			bufferHandle.writeInt16LE(playerHandle.strName.length, intBuffer);
+			
+			intBuffer += 2;
+			
+			bufferHandle.write(playerHandle.strName, intBuffer, playerHandle.strName.length, 'ascii');
+			
+			intBuffer += playerHandle.strName.length;
+		}
+		
+		{
+			bufferHandle.writeInt16LE(playerHandle.intScore, intBuffer);
+			
+			intBuffer += 2;
+		}
+		
+		{
+			bufferHandle.writeInt16LE(playerHandle.intKills, intBuffer);
+			
+			intBuffer += 2;
+		}
+		
+		{
+			bufferHandle.writeInt16LE(playerHandle.intDeaths, intBuffer);
+			
+			intBuffer += 2;
+		}
+		
+		{
+			bufferHandle.writeInt16LE(playerHandle.intHealth, intBuffer);
+			
+			intBuffer += 2;
+		}
+		
+		{
+			bufferHandle.writeFloatLE(playerHandle.dblPosition[0], intBuffer + 0);
+			bufferHandle.writeFloatLE(playerHandle.dblPosition[1], intBuffer + 4);
+			bufferHandle.writeFloatLE(playerHandle.dblPosition[2], intBuffer + 8);
+			
+			intBuffer += 12;
+		}
+		
+		{
+			bufferHandle.writeFloatLE(playerHandle.dblVerlet[0], intBuffer + 0);
+			bufferHandle.writeFloatLE(playerHandle.dblVerlet[1], intBuffer + 4);
+			bufferHandle.writeFloatLE(playerHandle.dblVerlet[2], intBuffer + 8);
+			
+			intBuffer += 12;
+		}
+		
+		{
+			bufferHandle.writeFloatLE(playerHandle.dblAcceleration[0], intBuffer + 0);
+			bufferHandle.writeFloatLE(playerHandle.dblAcceleration[1], intBuffer + 4);
+			bufferHandle.writeFloatLE(playerHandle.dblAcceleration[2], intBuffer + 8);
+			
+			intBuffer += 12;
+		}
+		
+		{
+			bufferHandle.writeFloatLE(playerHandle.dblRotation[0], intBuffer + 0);
+			bufferHandle.writeFloatLE(playerHandle.dblRotation[1], intBuffer + 4);
+			bufferHandle.writeFloatLE(playerHandle.dblRotation[2], intBuffer + 8);
+			
+			intBuffer += 12;
+		}
+		
+		{
+			bufferHandle.writeInt16LE(playerHandle.intJumpcount, intBuffer);
+			
+			intBuffer += 2;
+		}
+		
+		{
+			bufferHandle.writeInt16LE(playerHandle.intInteractionWalk, intBuffer);
+			
+			intBuffer += 2;
+		}
+		
+		{
+			bufferHandle.writeInt16LE(playerHandle.intInteractionWalk, intBuffer);
+			
+			intBuffer += 2;
+		}
+		
+		return intBuffer;
+	},
+	
+	load: function(playerHandle, bufferHandle, intBuffer) {
+		{
+			var intLength = bufferHandle.readInt16LE(intBuffer);
+
+			intBuffer += 2;
+			
+			playerHandle.strIdent = bufferHandle.toString('ascii', intBuffer, intBuffer + intLength);
+			
+			intBuffer += intLength;
+		}
+		
+		{
+			playerHandle.strTeam = '';
+			
+			var intTeam = bufferHandle.readInt16LE(intBuffer);
+			
+			if (intTeam === 1) {
+				playerHandle.strTeam = 'teamLogin';
+				
+			} else if (intTeam === 2) {
+				playerHandle.strTeam = 'teamRed';
+				
+			} else if (intTeam === 3) {
+				playerHandle.strTeam = 'teamBlue';
+				
+			}
+			
+			intBuffer += 2;
+		}
+		
+		{
+			playerHandle.strItem = '';
+			
+			var intItem = bufferHandle.readInt16LE(intBuffer);
+			
+			if (intItem === 1) {
+				playerHandle.strItem = 'itemPickaxe';
+				
+			} else if (intItem === 2) {
+				playerHandle.strItem = 'itemSword';
+				
+			} else if (intItem === 3) {
+				playerHandle.strItem = 'itemBow';
+				
+			}
+			
+			intBuffer += 2;
+		}
+		
+		{
+			var intLength = bufferHandle.readInt16LE(intBuffer);
+
+			intBuffer += 2;
+			
+			playerHandle.strName = bufferHandle.toString('ascii', intBuffer, intBuffer + intLength);
+			
+			intBuffer += intLength;
+		}
+		
+		{
+			playerHandle.intScore = bufferHandle.readInt16LE(intBuffer);
+			
+			intBuffer += 2;
+		}
+		
+		{
+			playerHandle.intKills = bufferHandle.readInt16LE(intBuffer);
+			
+			intBuffer += 2;
+		}
+		
+		{
+			playerHandle.intDeaths = bufferHandle.readInt16LE(intBuffer);
+			
+			intBuffer += 2;
+		}
+		
+		{
+			playerHandle.intHealth = bufferHandle.readInt16LE(intBuffer);
+			
+			intBuffer += 2;
+		}
+		
+		{
+			playerHandle.dblPosition = [ 0.0, 0.0, 0.0 ];
+			
+			playerHandle.dblPosition[0] = bufferHandle.readFloatLE(intBuffer + 0);
+			playerHandle.dblPosition[1] = bufferHandle.readFloatLE(intBuffer + 4);
+			playerHandle.dblPosition[2] = bufferHandle.readFloatLE(intBuffer + 8);
+			
+			intBuffer += 12;
+		}
+		
+		{
+			playerHandle.dblVerlet = [ 0.0, 0.0, 0.0 ];
+			
+			playerHandle.dblVerlet[0] = bufferHandle.readFloatLE(intBuffer + 0);
+			playerHandle.dblVerlet[1] = bufferHandle.readFloatLE(intBuffer + 4);
+			playerHandle.dblVerlet[2] = bufferHandle.readFloatLE(intBuffer + 8);
+			
+			intBuffer += 12;
+		}
+		
+		{
+			playerHandle.dblAcceleration = [ 0.0, 0.0, 0.0 ];
+			
+			playerHandle.dblAcceleration[0] = bufferHandle.readFloatLE(intBuffer + 0);
+			playerHandle.dblAcceleration[1] = bufferHandle.readFloatLE(intBuffer + 4);
+			playerHandle.dblAcceleration[2] = bufferHandle.readFloatLE(intBuffer + 8);
+			
+			intBuffer += 12;
+		}
+		
+		{
+			playerHandle.dblRotation = [ 0.0, 0.0, 0.0 ];
+			
+			playerHandle.dblRotation[0] = bufferHandle.readFloatLE(intBuffer + 0);
+			playerHandle.dblRotation[1] = bufferHandle.readFloatLE(intBuffer + 4);
+			playerHandle.dblRotation[2] = bufferHandle.readFloatLE(intBuffer + 8);
+			
+			intBuffer += 12;
+		}
+		
+		{
+			playerHandle.intJumpcount = bufferHandle.readInt16LE(intBuffer);
+			
+			intBuffer += 2;
+		}
+		
+		{
+			playerHandle.intInteractionWalk = bufferHandle.readInt16LE(intBuffer);
+			
+			intBuffer += 2;
+		}
+		
+		{
+			playerHandle.intInteractionWalk = bufferHandle.readInt16LE(intBuffer);
+			
+			intBuffer += 2;
+		}
+		
+		return intBuffer;
+	},
+	
 	update: function() {
 		{
 			if (Player.playerHandle['1'] !== undefined) {

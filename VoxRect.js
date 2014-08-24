@@ -197,6 +197,12 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 				}
 				
 				{
+					if (jsonHandle.strName.length > 20) {
+						jsonHandle.strName = jsonHandle.strName.substr(1, 20);
+					}
+				}
+				
+				{
 					Player.playerHandle[socketHandle.strIdent].strTeam = jsonHandle.strTeam;
 					
 					Player.playerHandle[socketHandle.strIdent].strName = jsonHandle.strName;
@@ -265,28 +271,24 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 				}
 				
 				{
-					var strMessage = jsonHandle.strMessage;
-					
-					{
-						if (strMessage.length > 140) {
-							strMessage = strMessage.substr(1, 140) + ' ' + '...';
-						}
+					if (jsonHandle.strMessage.length > 140) {
+						jsonHandle.strMessage = jsonHandle.strMessage.substr(1, 140);
 					}
-					
-					{
-						for (var strIdent in Player.playerHandle) {
-							var playerHandle = Player.playerHandle[strIdent];
-							
-							if (playerHandle.strTeam === 'teamLogin') {
-								continue;
-							}
-							
-							{
-								playerHandle.socketHandle.emit('chatHandle', {
-									'strName': Player.playerHandle[socketHandle.strIdent].strName,
-									'strMessage': strMessage
-								});
-							}
+				}
+				
+				{
+					for (var strIdent in Player.playerHandle) {
+						var playerHandle = Player.playerHandle[strIdent];
+						
+						if (playerHandle.strTeam === 'teamLogin') {
+							continue;
+						}
+						
+						{
+							playerHandle.socketHandle.emit('chatHandle', {
+								'strName': Player.playerHandle[socketHandle.strIdent].strName,
+								'strMessage': jsonHandle.strMessage
+							});
 						}
 					}
 				}
@@ -323,6 +325,60 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 				}
 				
 				{
+					var dblPosition = [ 0.0, 0.0, 0.0 ];
+					var dblSize = [ 0.0, 0.0, 0.0 ];
+					
+					{
+						dblPosition[0] = jsonHandle.intCoordinate[0] + (0.5 * Constants.dblWorldBlocksize);
+						dblPosition[1] = jsonHandle.intCoordinate[1] + (0.5 * Constants.dblWorldBlocksize);
+						dblPosition[2] = jsonHandle.intCoordinate[2] + (0.5 * Constants.dblWorldBlocksize);
+						
+						dblSize[0] = 1.25 * Constants.dblWorldBlocksize;
+						dblSize[1] = 1.25 * Constants.dblWorldBlocksize;
+						dblSize[2] = 1.25 * Constants.dblWorldBlocksize;
+					}
+					
+					Physics.updateObjectcol({
+						'dblPosition': dblPosition,
+						'dblSize': dblSize
+					}, function(functionObjectcol) {
+						var playerHandle = null;
+						
+						{
+							if (functionObjectcol.strIdent === undefined) {
+								functionObjectcol.strIdent = Object.keys(Player.playerHandle);
+							}
+						}
+						
+						{
+							do {
+								playerHandle = Player.playerHandle[functionObjectcol.strIdent.pop()];
+								
+								if (playerHandle === undefined) {
+									return null;
+								}
+								
+								if (playerHandle.strTeam === 'teamLogin') {
+									continue;
+								}
+								
+								break;
+							} while (true);
+						}
+						
+						{
+							playerHandle.dblSize = Constants.dblPlayerHitbox;
+						}
+						
+						return playerHandle;
+					}, function(physicsHandle) {
+						{
+							jsonHandle.strType = '';
+						}
+					});
+				}
+				
+				{
 					World.updateType(jsonHandle.intCoordinate, jsonHandle.strType);
 				}
 	
@@ -344,38 +400,13 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 				}
 			});
 			
-			socketHandle.on('playerHandle', function(jsonHandle) {
+			socketHandle.on('playerHandle', function(bufferHandle) {
 				{
-					jsonHandle.dblPosition = jsonHandle.a;
-					jsonHandle.dblVerlet = jsonHandle.b;
-					jsonHandle.dblAcceleration = jsonHandle.c;
-					jsonHandle.dblRotation = jsonHandle.d;
+					bufferHandle = new Buffer(new Uint8Array(bufferHandle.data));
 				}
 				
-				if (jsonHandle.dblPosition === undefined) {
-					return;
-					
-				} else if (jsonHandle.dblPosition.length !== 3) {
-					return;
-					
-				} else if (jsonHandle.dblVerlet === undefined) {
-					return;
-					
-				} else if (jsonHandle.dblVerlet.length !== 3) {
-					return;
-					
-				} else if (jsonHandle.dblAcceleration === undefined) {
-					return;
-					
-				} else if (jsonHandle.dblAcceleration.length !== 3) {
-					return;
-					
-				} else if (jsonHandle.dblRotation === undefined) {
-					return;
-					
-				} else if (jsonHandle.dblRotation.length !== 3) {
-					return;
-					
+				{
+					// TODO: check bufferHandle for validity (wahrscheinlich einfach innerhalb der load und dann hier noch attribute checken)
 				}
 				
 				if (Player.playerHandle[socketHandle.strIdent] === undefined) {
@@ -385,12 +416,24 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 					return;
 					
 				}
-				
+
 				{
-					Player.playerHandle[socketHandle.strIdent].dblPosition = jsonHandle.dblPosition;
-					Player.playerHandle[socketHandle.strIdent].dblVerlet = jsonHandle.dblVerlet;
-					Player.playerHandle[socketHandle.strIdent].dblAcceleration = jsonHandle.dblAcceleration;
-					Player.playerHandle[socketHandle.strIdent].dblRotation = jsonHandle.dblRotation;
+					var playerHandle = {};
+					
+					{
+						var intBuffer = 0;
+						
+						{
+							intBuffer += Player.load(playerHandle, bufferHandle, intBuffer);
+						}
+					}
+
+					{
+						Player.playerHandle[socketHandle.strIdent].dblPosition = playerHandle.dblPosition;
+						Player.playerHandle[socketHandle.strIdent].dblVerlet = playerHandle.dblVerlet;
+						Player.playerHandle[socketHandle.strIdent].dblAcceleration = playerHandle.dblAcceleration;
+						Player.playerHandle[socketHandle.strIdent].dblRotation = playerHandle.dblRotation;
+					}
 				}
 			});
 			
@@ -606,9 +649,9 @@ var Constants = {
 	dblFlagFriction: [ 0.8, 1.0, 0.8 ],
 	dblFlagRotate: 0.02,
 	
-	dblArrowSize: [ 0.3, 0.3, 0.3],
+	dblArrowSize: [ 0.3, 0.3, 0.3 ],
 	dblArrowGravity: [ 0.0, -0.001, 0.0 ],
-	dblArrowMaxvel: [ 0.26 ],
+	dblArrowMaxvel: [ 0.36 ],
 	dblArrowFriction: [ 1.0, 1.0, 1.0 ]
 };
 
@@ -769,11 +812,11 @@ var Gameserver = {
 	
 	worldUpdate: function() {
 		{
-			var boolUpdate = false;
+			var boolGood = true;
 			
 			if (Gameserver.strWorldFingerprint.indexOf(Gameserver.strWorldActive) !== 0) {
 				{
-					boolUpdate = true;
+					boolGood = false;
 				}
 				
 				{
@@ -782,7 +825,7 @@ var Gameserver = {
 				
 			} else if (Gameserver.strWorldFingerprint.indexOf(Gameserver.strWorldActive + ' - ' + Gameserver.strPhaseActive) !== 0) {
 				{
-					boolUpdate = true;
+					boolGood = false;
 				}
 				
 				{
@@ -809,7 +852,7 @@ var Gameserver = {
 				
 			}
 			
-			if (boolUpdate === true) {
+			if (boolGood === false) {
 				{
 					Gameserver.strWorldFingerprint = Gameserver.strWorldActive + ' - ' + Gameserver.strPhaseActive + ' - ' + Gameserver.intPhaseRound;
 				}
@@ -853,9 +896,23 @@ var Gameserver = {
 				if (playerHandle.strTeam === 'teamLogin') {
 					continue;
 				}
-				
+
 				{
 					Gameserver.intPlayerActive += 1;
+				}
+				
+				{
+					if (playerHandle.boolCollisionBottom === true) {
+						if (Math.floor(playerHandle.dblPosition[1]) === 1) {
+							{
+								playerHandle.intDeaths += 1;
+							}
+							
+							{
+								Gameserver.playerRespawn(playerHandle);
+							}
+						}
+					}
 				}
 			}
 		}
@@ -1081,31 +1138,22 @@ var Item = require(__dirname + '/libs/Item.js')(Constants, null, Physics);
 		}
 		
 		{
-			var jsonHandle = [];
+			var bufferHandle = new Buffer(256 * Object.keys(Player.playerHandle).length);
+			var intBuffer = 0;
 
 			for (var strIdent in Player.playerHandle) {
 				var playerHandle = Player.playerHandle[strIdent];
 				
+				if (playerHandle.strTeam === 'teamLogin') {
+					continue;
+				}
+				
 				{
-					jsonHandle.push({
-						'a': playerHandle.strIdent,
-						'b': playerHandle.strTeam,
-						'c': playerHandle.strItem,
-						'd': playerHandle.strName,
-						'e': playerHandle.intScore,
-						'f': playerHandle.intKills,
-						'g': playerHandle.intDeaths,
-						'h': playerHandle.intHealth,
-						'i': playerHandle.dblPosition,
-						'j': playerHandle.dblVerlet,
-						'k': playerHandle.dblAcceleration,
-						'l': playerHandle.dblRotation,
-						'm': playerHandle.intJumpcount,
-						'n': playerHandle.intInteractionWalk,
-						'o': playerHandle.intInteractionWeapon
-					});
+					intBuffer += Player.saveBuffer(playerHandle, bufferHandle, intBuffer);
 				}
 		    }
+			
+			bufferHandle = bufferHandle.slice(0, intBuffer);
 		    
 			for (var strIdent in Player.playerHandle) {
 				var playerHandle = Player.playerHandle[strIdent];
@@ -1115,26 +1163,24 @@ var Item = require(__dirname + '/libs/Item.js')(Constants, null, Physics);
 				}
 				
 				{
-					playerHandle.socketHandle.emit('playerHandle', jsonHandle);
+					playerHandle.socketHandle.emit('playerHandle', bufferHandle);
 				}
 			}
 		}
 		
 		{
-			var jsonHandle = [];
-
+			var bufferHandle = new Buffer(256 * Object.keys(Item.itemHandle).length);
+			var intBuffer = 0;
+			
 			for (var strIdent in Item.itemHandle) {
 				var itemHandle = Item.itemHandle[strIdent];
-				
+
 				{
-					jsonHandle.push({
-						'a': itemHandle.strIdent,
-						'b': itemHandle.dblPosition,
-						'c': itemHandle.dblVerlet,
-						'd': itemHandle.dblRotation
-					});
+					intBuffer += Item.saveBuffer(itemHandle, bufferHandle, intBuffer);
 				}
 		    }
+
+			bufferHandle = bufferHandle.slice(0, intBuffer);
 		    
 			for (var strIdent in Player.playerHandle) {
 				var playerHandle = Player.playerHandle[strIdent];
@@ -1144,7 +1190,7 @@ var Item = require(__dirname + '/libs/Item.js')(Constants, null, Physics);
 				}
 				
 				{
-					playerHandle.socketHandle.emit('itemHandle', jsonHandle);
+					playerHandle.socketHandle.emit('itemHandle', bufferHandle);
 				}
 			}
 		}
