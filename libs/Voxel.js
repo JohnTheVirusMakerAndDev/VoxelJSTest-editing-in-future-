@@ -21,6 +21,7 @@ var Voxel = {
 				'controls': {
 					'discreteFire': true
 				},
+				'fogDisabled': false,
 				'statsDisabled': true
 			});
 			

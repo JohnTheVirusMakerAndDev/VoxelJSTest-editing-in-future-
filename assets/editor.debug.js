@@ -50,7 +50,7 @@ var Gui = {
 				.on('click', function() {
 					{
 						jQuery('#idWorld_Json')
-							.val(World.save())
+							.val(World.saveBuffer())
 						;
 					}
 				})
@@ -68,7 +68,7 @@ var Gui = {
 				.off('click')
 				.on('click', function() {
 					{
-						World.load(jQuery('#idWorld_Json').val());
+						World.loadBuffer(jQuery('#idWorld_Json').val());
 					}
 				})
 			;
@@ -253,19 +253,19 @@ window.addEventListener('load', function () {
 				}
 				
 				if (Gui.intChooserType === 0) {
-					World.updateType(Voxel.voxelhighlightHandle.positionCreate, 'voxelBrick');
+					World.updateCreate(Voxel.voxelhighlightHandle.positionCreate, 'voxelBrick', true);
 					
 				} else if (Gui.intChooserType === 1) {
-					World.updateType(Voxel.voxelhighlightHandle.positionCreate, 'voxelDirt');
+					World.updateCreate(Voxel.voxelhighlightHandle.positionCreate, 'voxelDirt', true);
 					
 				} else if (Gui.intChooserType === 2) {
-					World.updateType(Voxel.voxelhighlightHandle.positionCreate, 'voxelGrass');
+					World.updateCreate(Voxel.voxelhighlightHandle.positionCreate, 'voxelGrass', true);
 					
 				} else if (Gui.intChooserType === 3) {
-					World.updateType(Voxel.voxelhighlightHandle.positionCreate, 'voxelPlank');
+					World.updateCreate(Voxel.voxelhighlightHandle.positionCreate, 'voxelPlank', true);
 					
 				} else if (Gui.intChooserType === 4) {
-					World.updateType(Voxel.voxelhighlightHandle.positionCreate, 'voxelStone');
+					World.updateCreate(Voxel.voxelhighlightHandle.positionCreate, 'voxelStone', true);
 					
 				}
 				
@@ -275,19 +275,19 @@ window.addEventListener('load', function () {
 				}
 				
 				if (Gui.intChooserType === 0) {
-					World.updateType(Voxel.voxelhighlightHandle.positionCreate, 'voxelSpawnRed');
+					World.updateCreate(Voxel.voxelhighlightHandle.positionCreate, 'voxelSpawnRed', true);
 					
 				} else if (Gui.intChooserType === 1) {
-					World.updateType(Voxel.voxelhighlightHandle.positionCreate, 'voxelSpawnBlue');
+					World.updateCreate(Voxel.voxelhighlightHandle.positionCreate, 'voxelSpawnBlue', true);
 
 				} else if (Gui.intChooserType === 2) {
-					World.updateType(Voxel.voxelhighlightHandle.positionCreate, 'voxelFlagRed');
+					World.updateCreate(Voxel.voxelhighlightHandle.positionCreate, 'voxelFlagRed', true);
 					
 				} else if (Gui.intChooserType === 3) {
-					World.updateType(Voxel.voxelhighlightHandle.positionCreate, 'voxelFlagBlue');
+					World.updateCreate(Voxel.voxelhighlightHandle.positionCreate, 'voxelFlagBlue', true);
 					
 				} else if (Gui.intChooserType === 4) {
-					World.updateType(Voxel.voxelhighlightHandle.positionCreate, 'voxelSeparator');
+					World.updateCreate(Voxel.voxelhighlightHandle.positionCreate, 'voxelSeparator', true);
 					
 				}
 				
@@ -297,7 +297,7 @@ window.addEventListener('load', function () {
 				}
 				
 				if (Gui.intChooserType === 0) {
-					World.updateType(Voxel.voxelhighlightHandle.positionDestroy, '');
+					World.updateDestroy(Voxel.voxelhighlightHandle.positionDestroy);
 				}
 				
 			}
@@ -306,6 +306,10 @@ window.addEventListener('load', function () {
 		Voxel.voxelengineHandle.on('tick', function(intDelta) {
 			{
 				Input.update();
+			}
+			
+			{
+				World.update();
 			}
 			
 			{
@@ -429,7 +433,7 @@ window.addEventListener('load', function () {
 			if (intCoordinateY === 0) {
 				return true;
 				
-			} else if (World.strType[[ intCoordinateX, intCoordinateY, intCoordinateZ ]] !== undefined) {
+			} else if (World.worldHandle[[ intCoordinateX, intCoordinateY, intCoordinateZ ]] !== undefined) {
 				return true;
 				
 			}

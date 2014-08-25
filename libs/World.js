@@ -4,8 +4,8 @@ var Constants = {};
 var Voxel = {};
 
 var World = {
-	strType: {},
-	strOrigtype: {},
+	worldPast: {},
+	worldHandle: {},
 	
 	intSpawnRed: [],
 	intSpawnBlue: [],
@@ -15,9 +15,9 @@ var World = {
 	
 	init: function() {
 		{
-			World.strType = {};
+			World.worldPast = {};
 			
-			World.strOrigtype = {};
+			World.worldHandle = {};
 		}
 		
 		{
@@ -35,9 +35,9 @@ var World = {
 	
 	dispel: function() {
 		{
-			World.strType = {};
+			World.worldPast = {};
 			
-			World.strOrigtype = {};
+			World.worldHandle = {};
 		}
 		
 		{
@@ -53,35 +53,52 @@ var World = {
 		}
 	},
 	
-	save: function() {
-		var strJson = '';
+	saveBuffer: function() {
+		var bufferHandle = new Buffer(256 * Object.keys(World.worldHandle).length);
+		var intBuffer = 0;
 		
 		{
-			strJson = JSON.stringify(World.strType);
-		}
-		
-		return strJson;
-	},
-	
-	load: function(strJson) {
-		{
-		    for (var intCoordinate in World.strType) {
-				var strType = World.strType[intCoordinate];
-				
-				var intCoordinateX = JSON.parse('[' + intCoordinate + ']')[0];
-				var intCoordinateY = JSON.parse('[' + intCoordinate + ']')[1];
-				var intCoordinateZ = JSON.parse('[' + intCoordinate + ']')[2];
+		    for (var intCoordinate in World.worldHandle) {
+				var worldHandle = World.worldHandle[intCoordinate];
 				
 				{
-					World.updateType([ intCoordinateX, intCoordinateY, intCoordinateZ ], '');
+					intBuffer = World.saveBufferpart(worldHandle, bufferHandle, intBuffer);
 				}
 		    }
 		}
 		
+		return bufferHandle.slice(0, intBuffer).toString('base64');
+	},
+	
+	loadBuffer: function(strBuffer) {
+		var bufferHandle = new Buffer(strBuffer, 'base64');
+		
 		{
-			World.strType = JSON.parse(strJson);
+			World.worldPast = World.worldHandle;
 			
-			World.strOrigtype = JSON.parse(strJson);
+			World.worldHandle = {};
+		}
+		
+		{
+			var intBuffer = 0;
+			
+			{
+				do {
+					if (intBuffer >= bufferHandle.length) {
+						break;
+					}
+					
+					var worldHandle = {};
+					
+					{
+						intBuffer = World.loadBufferpart(worldHandle, bufferHandle, intBuffer);
+					}
+					
+					{
+						World.worldHandle[worldHandle.intCoordinate] = worldHandle;
+					}
+				} while (true);
+			}
 		}
 		
 		{
@@ -97,62 +114,128 @@ var World = {
 		}
 		
 		{
-		    for (var intCoordinate in World.strType) {
-				var strType = World.strType[intCoordinate];
-
-				var intCoordinateX = JSON.parse('[' + intCoordinate + ']')[0];
-				var intCoordinateY = JSON.parse('[' + intCoordinate + ']')[1];
-				var intCoordinateZ = JSON.parse('[' + intCoordinate + ']')[2];
+		    for (var intCoordinate in World.worldHandle) {
+				var worldHandle = World.worldHandle[intCoordinate];
 				
 				{
-					if (strType === 'voxelSpawnRed') {
-						World.intSpawnRed.push([ intCoordinateX, intCoordinateY, intCoordinateZ ]);
+					if (worldHandle.strType === 'voxelSpawnRed') {
+						World.intSpawnRed.push(worldHandle.intCoordinate);
 						
-					} else if (strType === 'voxelSpawnBlue') {
-						World.intSpawnBlue.push([ intCoordinateX, intCoordinateY, intCoordinateZ ]);
+					} else if (worldHandle.strType === 'voxelSpawnBlue') {
+						World.intSpawnBlue.push(worldHandle.intCoordinate);
 						
-					} else if (strType === 'voxelFlagRed') {
-						World.intFlagRed.push([ intCoordinateX, intCoordinateY, intCoordinateZ ]);
+					} else if (worldHandle.strType === 'voxelFlagRed') {
+						World.intFlagRed.push(worldHandle.intCoordinate);
 						
-						delete World.strType[[ intCoordinateX, intCoordinateY, intCoordinateZ ]];
+					} else if (worldHandle.strType === 'voxelFlagBlue') {
+						World.intFlagBlue.push(worldHandle.intCoordinate);
 						
-					} else if (strType === 'voxelFlagBlue') {
-						World.intFlagBlue.push([ intCoordinateX, intCoordinateY, intCoordinateZ ]);
-						
-						delete World.strType[[ intCoordinateX, intCoordinateY, intCoordinateZ ]];
-						
-					} else if (strType === 'voxelSeparator') {
-						World.intSeparator.push([ intCoordinateX, intCoordinateY, intCoordinateZ ]);
+					} else if (worldHandle.strType === 'voxelSeparator') {
+						World.intSeparator.push(worldHandle.intCoordinate);
 						
 					}
 				}
 		    }
 		}
+	},
+	
+	saveBufferpart: function(worldHandle, bufferHandle, intBuffer) {
+		{
+			bufferHandle.writeInt16LE(worldHandle.intCoordinate[0], intBuffer + 0);
+			bufferHandle.writeInt16LE(worldHandle.intCoordinate[1], intBuffer + 2);
+			bufferHandle.writeInt16LE(worldHandle.intCoordinate[2], intBuffer + 4);
+			
+			intBuffer += 6;
+		}
+
+		{
+			bufferHandle.writeInt16LE(worldHandle.strType.length, intBuffer);
+			
+			intBuffer += 2;
+			
+			bufferHandle.write(worldHandle.strType, intBuffer, worldHandle.strType.length, 'ascii');
+			
+			intBuffer += worldHandle.strType.length;
+		}
 		
 		{
-		    for (var intCoordinate in World.strType) {
-				var strType = World.strType[intCoordinate];
+			bufferHandle.writeInt16LE(worldHandle.boolBlocked === true ? 1 : 0, intBuffer);
+			
+			intBuffer += 2;
+		}
+		
+		return intBuffer;
+	},
+	
+	loadBufferpart: function(worldHandle, bufferHandle, intBuffer) {
+		{
+			worldHandle.intCoordinate = [ 0, 0, 0 ];
+			
+			worldHandle.intCoordinate[0] = bufferHandle.readInt16LE(intBuffer + 0);
+			worldHandle.intCoordinate[1] = bufferHandle.readInt16LE(intBuffer + 2);
+			worldHandle.intCoordinate[2] = bufferHandle.readInt16LE(intBuffer + 4);
+			
+			intBuffer += 6;
+		}
+		
+		{
+			var intLength = bufferHandle.readInt16LE(intBuffer);
 
-				var intCoordinateX = JSON.parse('[' + intCoordinate + ']')[0];
-				var intCoordinateY = JSON.parse('[' + intCoordinate + ']')[1];
-				var intCoordinateZ = JSON.parse('[' + intCoordinate + ']')[2];
+			intBuffer += 2;
+			
+			worldHandle.strType = bufferHandle.toString('ascii', intBuffer, intBuffer + intLength);
+			
+			intBuffer += intLength;
+		}
+		
+		{
+			worldHandle.boolBlocked = bufferHandle.readInt16LE(intBuffer) === 1 ? true : false;
+			
+			intBuffer += 2;
+		}
+		
+		return intBuffer;
+	},
+	
+	update: function() {
+		if (Voxel === null) {
+			return;
+		}
+		
+		{
+			if (World.worldPast !== null) {
+				{
+				    for (var intCoordinate in World.worldPast) {
+						var worldHandle = World.worldPast[intCoordinate];
+						
+						{
+							Voxel.voxelengineHandle.setBlock(worldHandle.intCoordinate, 0);	
+						}
+				    }
+				    
+				    for (var intCoordinate in World.worldHandle) {
+						var worldHandle = World.worldHandle[intCoordinate];
+						
+						{
+							Voxel.voxelengineHandle.setBlock(worldHandle.intCoordinate, Voxel.voxelengineHandle.materials.find(worldHandle.strType));	
+						}
+				    }
+			    }
 				
 				{
-					World.updateType([ intCoordinateX, intCoordinateY, intCoordinateZ ], strType);
+					World.worldPast = null;
 				}
-		    }
+			}
 		}
 	},
 	
-	updateType: function(intCoordinate, strType) {
+	updateCreate: function(intCoordinate, strType, boolBlocked) {
 		{
-			if (strType === '') {
-				delete World.strType[intCoordinate];
-				
-			} else if (strType !== '') {
-				World.strType[intCoordinate] = strType;
-				
-			}
+			World.worldHandle[intCoordinate] = {
+				'intCoordinate': intCoordinate,
+				'strType': strType,
+				'boolBlocked': boolBlocked
+			};
 		}
 		
 		if (Voxel === null) {
@@ -164,10 +247,26 @@ var World = {
 		}
 	},
 	
+	updateDestroy: function(intCoordinate) {
+		{
+			delete World.worldHandle[intCoordinate];
+		}
+		
+		if (Voxel === null) {
+			return;
+		}
+		
+		{
+			Voxel.voxelengineHandle.setBlock(intCoordinate, 0);	
+		}
+	},
+	
 	updateBlocked: function(intCoordinate) {
 		{
-			if (World.strOrigtype[intCoordinate] !== undefined) {
-				return true;
+			if (World.worldHandle[intCoordinate] !== undefined) {
+				if (World.worldHandle[intCoordinate].boolBlocked === true) {
+					return true;
+				}
 			}
 		}
 

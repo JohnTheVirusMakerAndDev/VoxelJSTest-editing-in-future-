@@ -122,14 +122,14 @@ var Physics = {
 			var dblVerletX = dblPositionX - (physicsHandle.dblPosition[0] - physicsHandle.dblVerlet[0]);
 			var dblVerletY = dblPositionY - (physicsHandle.dblPosition[1] - physicsHandle.dblVerlet[1]);
 			var dblVerletZ = dblPositionZ - (physicsHandle.dblPosition[2] - physicsHandle.dblVerlet[2]);
+
+			physicsHandle.dblPosition[0] = dblPositionX;
+			physicsHandle.dblPosition[1] = dblPositionY;
+			physicsHandle.dblPosition[2] = dblPositionZ;
 			
-			physicsHandle.dblPositionX = dblPositionX;
-			physicsHandle.dblPositionY = dblPositionY;
-			physicsHandle.dblPositionZ = dblPositionZ;
-			
-			physicsHandle.dblVerletX = dblVerletX;
-			physicsHandle.dblVerletY = dblVerletY;
-			physicsHandle.dblVerletZ = dblVerletZ;
+			physicsHandle.dblVerlet[0] = dblVerletX;
+			physicsHandle.dblVerlet[1] = dblVerletY;
+			physicsHandle.dblVerlet[2] = dblVerletZ;
 		}
 	},
 	

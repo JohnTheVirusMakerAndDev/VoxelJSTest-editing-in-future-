@@ -61,7 +61,7 @@ var Player = {
 			
 			Player.playerHandle[strIdent] = {
 				'strIdent': strIdent,
-				'strTeam': 'teamLogin',
+				'strTeam': '',
 				'strItem': '',
 				'strName': '',
 				'intScore': 0,
@@ -99,7 +99,54 @@ var Player = {
 		}
 	},
 	
-	saveBuffer: function(playerHandle, bufferHandle, intBuffer) {
+	saveBuffer: function() {
+		var bufferHandle = new Buffer(256 * Object.keys(Player.playerHandle).length);
+		var intBuffer = 0;
+
+		{
+			for (var strIdent in Player.playerHandle) {
+				var playerHandle = Player.playerHandle[strIdent];
+				
+				{
+					intBuffer = Player.saveBufferpart(playerHandle, bufferHandle, intBuffer);
+				}
+		    }
+	    }
+
+		return bufferHandle.slice(0, intBuffer).toString('base64');
+	},
+	
+	loadBuffer: function(strBuffer) {
+		var bufferHandle = new Buffer(strBuffer, 'base64');
+		
+		{
+			Player.playerHandle = {};
+		}
+		
+		{
+			var intBuffer = 0;
+			
+			{
+				do {
+					if (intBuffer >= bufferHandle.length) {
+						break;
+					}
+					
+					var playerHandle = {};
+					
+					{
+						intBuffer = Player.loadBufferpart(playerHandle, bufferHandle, intBuffer);
+					}
+					
+					{
+						Player.playerHandle[playerHandle.strIdent] = playerHandle;
+					}
+				} while (true);
+			}
+		}
+	},
+	
+	saveBufferpart: function(playerHandle, bufferHandle, intBuffer) {
 		{
 			bufferHandle.writeInt16LE(playerHandle.strIdent.length, intBuffer);
 			
@@ -113,14 +160,11 @@ var Player = {
 		{
 			var intTeam = 0;
 			
-			if (playerHandle.strTeam === 'teamLogin') {
+			if (playerHandle.strTeam === 'teamRed') {
 				intTeam = 1;
 				
-			} else if (playerHandle.strTeam === 'teamRed') {
-				intTeam = 2;
-				
 			} else if (playerHandle.strTeam === 'teamBlue') {
-				intTeam = 3;
+				intTeam = 2;
 				
 			}
 			
@@ -235,7 +279,7 @@ var Player = {
 		return intBuffer;
 	},
 	
-	load: function(playerHandle, bufferHandle, intBuffer) {
+	loadBufferpart: function(playerHandle, bufferHandle, intBuffer) {
 		{
 			var intLength = bufferHandle.readInt16LE(intBuffer);
 
@@ -252,12 +296,9 @@ var Player = {
 			var intTeam = bufferHandle.readInt16LE(intBuffer);
 			
 			if (intTeam === 1) {
-				playerHandle.strTeam = 'teamLogin';
-				
-			} else if (intTeam === 2) {
 				playerHandle.strTeam = 'teamRed';
 				
-			} else if (intTeam === 3) {
+			} else if (intTeam === 2) {
 				playerHandle.strTeam = 'teamBlue';
 				
 			}

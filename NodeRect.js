@@ -294,7 +294,8 @@ var Express = {
 					},
 					'store': new Express.connectmongoHandle({
 						'url': NodeConf.strMongoServer,
-						'collection': 'collectionSession'
+						'collection': 'collectionSession',
+						'auto_reconnect': true
 					}),
 	                'resave': true,
 	                'saveUninitialized': true

@@ -21,6 +21,60 @@ var Xml = NodeRect.Xml;
 var VoxConf = require(__dirname + '/VoxConf.js')();
 
 {
+	Express.serverHandle.use(function(requestHandle, responseHandle, functionNext) {
+		{
+			if (VoxConf.strLoginPassword === '') {
+				functionNext();
+				
+				return;
+			}
+		}
+		
+		{
+			var strCredentials = function() {
+				var strAuthorization = requestHandle.get('Authorization');
+				
+				if (strAuthorization === undefined) {
+					return [ '', '' ];
+				}
+				
+				var strEncoded = strAuthorization.split(' ');
+				
+				if (strEncoded.length !== 2) {
+					return [ '', '' ];
+					
+				} else if (strEncoded[0] !== 'Basic') {
+					return [ '', '' ];
+					
+				}
+				
+				var strDecoded = new Buffer(strEncoded[1], 'base64').toString().split(':');
+				
+				if (strDecoded.length !== 2) {
+					return [ '', '' ];
+				}
+
+				return [ strDecoded[0], strDecoded[1] ];
+			}();
+			
+			if (strCredentials[1] === VoxConf.strLoginPassword) {
+				functionNext();
+				
+				return;
+			}
+		}
+		
+		{
+			responseHandle.status(401);
+			
+			responseHandle.set({
+				'WWW-Authenticate': 'Basic realm="' + VoxConf.strName + '"'
+			});
+			
+			responseHandle.end();
+		}
+	});
+	
 	Express.serverHandle.get('/', function(requestHandle, responseHandle) {
 		responseHandle.status(302);
 		
@@ -116,7 +170,7 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 			
 			Player.playerHandle[strIdent] = {
 				'strIdent': strIdent,
-				'strTeam': 'teamLogin',
+				'strTeam': '',
 				'strItem': '',
 				'strName': '',
 				'intScore': 0,
@@ -138,6 +192,12 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 		}
 		
 		{
+			socketHandle.emit('worldHandle', {
+				'strBuffer': World.saveBuffer()
+			});
+		}
+		
+		{
 			socketHandle.emit('loginHandle', {
 				'strType': 'typeReject',
 				'strMessage': ''
@@ -149,18 +209,12 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 				if (jsonHandle.strName === undefined) {
 					return;
 					
-				} else if (jsonHandle.strPassword === undefined) {
-					return;
-					
 				} else if (jsonHandle.strTeam === undefined) {
 					return;
 					
 				}
 				
 				if (Player.playerHandle[socketHandle.strIdent] === undefined) {
-					return;
-					
-				} else if (Player.playerHandle[socketHandle.strIdent].strTeam !== 'teamLogin') {
 					return;
 					
 				} else if (jsonHandle.strTeam.match(new RegExp('(teamRed)|(teamBlue)', 'g')) === null) {
@@ -181,14 +235,6 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 						socketHandle.emit('loginHandle', {
 							'strType': 'typeReject',
 							'strMessage': 'name invalid'
-						});
-						
-						return;
-						
-					} else if (jsonHandle.strPassword !== Gameserver.strLoginPassword) {
-						socketHandle.emit('loginHandle', {
-							'strType': 'typeReject',
-							'strMessage': 'password wrong'
 						});
 						
 						return;
@@ -216,12 +262,6 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 				}
 				
 				{
-					socketHandle.emit('worldHandle', {
-						'strWorld': World.save()
-					});
-				}
-				
-				{
 					Gameserver.playerRespawn(Player.playerHandle[socketHandle.strIdent]);
 				}
 			});
@@ -233,10 +273,6 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 				
 				if (Player.playerHandle[socketHandle.strIdent] === undefined) {
 					return;
-					
-				} else if (Player.playerHandle[socketHandle.strIdent].strTeam === 'teamLogin') {
-					return;
-					
 				}
 				
 				{
@@ -262,9 +298,6 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 				if (Player.playerHandle[socketHandle.strIdent] === undefined) {
 					return;
 					
-				} else if (Player.playerHandle[socketHandle.strIdent].strTeam === 'teamLogin') {
-					return;
-					
 				} else if (jsonHandle.strMessage === '') {
 					return;
 					
@@ -277,24 +310,14 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 				}
 				
 				{
-					for (var strIdent in Player.playerHandle) {
-						var playerHandle = Player.playerHandle[strIdent];
-						
-						if (playerHandle.strTeam === 'teamLogin') {
-							continue;
-						}
-						
-						{
-							playerHandle.socketHandle.emit('chatHandle', {
-								'strName': Player.playerHandle[socketHandle.strIdent].strName,
-								'strMessage': jsonHandle.strMessage
-							});
-						}
-					}
+					Socket.serverHandle.emit('chatHandle', {
+						'strName': Player.playerHandle[socketHandle.strIdent].strName,
+						'strMessage': jsonHandle.strMessage
+					});
 				}
 			});
 			
-			socketHandle.on('worldType', function(jsonHandle) {
+			socketHandle.on('worldCreate', function(jsonHandle) {
 				if (jsonHandle.intCoordinate === undefined) {
 					return;
 					
@@ -304,12 +327,12 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 				} else if (jsonHandle.strType === undefined) {
 					return;
 					
+				} else if (jsonHandle.boolBlocked === undefined) {
+					return;
+					
 				}
 				
 				if (Player.playerHandle[socketHandle.strIdent] === undefined) {
-					return;
-					
-				} else if (Player.playerHandle[socketHandle.strIdent].strTeam === 'teamLogin') {
 					return;
 					
 				} else if (Player.playerHandle[socketHandle.strIdent].intInteractionWeapon > 0) {
@@ -358,10 +381,6 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 									return null;
 								}
 								
-								if (playerHandle.strTeam === 'teamLogin') {
-									continue;
-								}
-								
 								break;
 							} while (true);
 						}
@@ -374,36 +393,70 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 					}, function(physicsHandle) {
 						{
 							jsonHandle.strType = '';
+							
+							jsonHandle.boolBlocked = true;
 						}
 					});
 				}
+
+				if (jsonHandle.strType !== 'voxelDirt') {
+					return;
+					
+				} else if (jsonHandle.boolBlocked !== false) {
+					return;
+					
+				}
 				
 				{
-					World.updateType(jsonHandle.intCoordinate, jsonHandle.strType);
+					World.updateCreate(jsonHandle.intCoordinate, jsonHandle.strType, jsonHandle.boolBlocked);
 				}
 	
 				{
-					for (var strIdent in Player.playerHandle) {
-						var playerHandle = Player.playerHandle[strIdent];
-						
-						if (playerHandle.strTeam === 'teamLogin') {
-							continue;
-						}
-						
-						{
-							playerHandle.socketHandle.emit('worldType', {
-								'intCoordinate': jsonHandle.intCoordinate,
-								'strType': jsonHandle.strType
-							});
-						}
-					}
+					Socket.serverHandle.emit('worldCreate', {
+						'intCoordinate': jsonHandle.intCoordinate,
+						'strType': jsonHandle.strType,
+						'boolBlocked': jsonHandle.boolBlocked
+					});
 				}
 			});
 			
-			socketHandle.on('playerHandle', function(bufferHandle) {
-				{
-					bufferHandle = new Buffer(new Uint8Array(bufferHandle.data));
+			socketHandle.on('worldDestroy', function(jsonHandle) {
+				if (jsonHandle.intCoordinate === undefined) {
+					return;
+					
+				} else if (jsonHandle.intCoordinate.length !== 3) {
+					return;
+					
 				}
+				
+				if (Player.playerHandle[socketHandle.strIdent] === undefined) {
+					return;
+					
+				} else if (Player.playerHandle[socketHandle.strIdent].intInteractionWeapon > 0) {
+					return;
+					
+				} else if (World.updateBlocked(jsonHandle.intCoordinate) === true) {
+					return;
+					
+				}
+				
+				{
+					Player.playerHandle[socketHandle.strIdent].intInteractionWeapon = Constants.intInteractionPickaxeDuration;
+				}
+				
+				{
+					World.updateDestroy(jsonHandle.intCoordinate);
+				}
+	
+				{
+					Socket.serverHandle.emit('worldDestroy', {
+						'intCoordinate': jsonHandle.intCoordinate
+					});
+				}
+			});
+			
+			socketHandle.on('playerHandle', function(jsonHandle) {
+				var bufferHandle = new Buffer(jsonHandle.strBuffer, 'base64');
 				
 				{
 					// TODO: check bufferHandle for validity (wahrscheinlich einfach innerhalb der load und dann hier noch attribute checken)
@@ -411,21 +464,13 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 				
 				if (Player.playerHandle[socketHandle.strIdent] === undefined) {
 					return;
-					
-				} else if (Player.playerHandle[socketHandle.strIdent].strTeam === 'teamLogin') {
-					return;
-					
 				}
 
 				{
 					var playerHandle = {};
 					
 					{
-						var intBuffer = 0;
-						
-						{
-							intBuffer += Player.load(playerHandle, bufferHandle, intBuffer);
-						}
+						Player.loadBufferpart(playerHandle, bufferHandle, 0);
 					}
 
 					{
@@ -445,9 +490,6 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 				if (Player.playerHandle[socketHandle.strIdent] === undefined) {
 					return;
 					
-				} else if (Player.playerHandle[socketHandle.strIdent].strTeam === 'teamLogin') {
-					return;
-
 				} else if (jsonHandle.strItem.match(new RegExp('(itemPickaxe)|(itemSword)|(itemBow)', 'g')) === null) {
 					return;
 					
@@ -464,9 +506,6 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 				}
 				
 				if (Player.playerHandle[socketHandle.strIdent] === undefined) {
-					return;
-					
-				} else if (Player.playerHandle[socketHandle.strIdent].strTeam === 'teamLogin') {
 					return;
 					
 				} else if (Player.playerHandle[socketHandle.strIdent].intInteractionWeapon > 0) {
@@ -540,12 +579,8 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 											return null;
 										}
 
-										if (playerHandle.strTeam === 'teamLogin') {
+										if (playerHandle.strIdent === itemHandle.strPlayer) {
 											continue;
-											
-										} else if (playerHandle.strIdent === itemHandle.strPlayer) {
-											continue;
-											
 										}
 										
 										var dblDistanceX = playerHandle.dblPosition[0] - itemHandle.dblPosition[0];
@@ -762,6 +797,10 @@ var Gameserver = {
 	
 	phaseUpdate: function() {
 		{
+			// TODO: reset if no player left
+		}
+		
+		{
 			Gameserver.intPhaseRemaining = Math.max(0, Gameserver.intPhaseRemaining - Constants.intGameLoop);
 		}
 		
@@ -820,7 +859,25 @@ var Gameserver = {
 				}
 				
 				{
-					World.load(Node.fsHandle.readFileSync(__dirname + '/worlds/' + Gameserver.strWorldActive + '.json').toString());
+					World.loadBuffer(Node.fsHandle.readFileSync(__dirname + '/worlds/' + Gameserver.strWorldActive + '.txt').toString());
+				}
+				
+				{
+				    for (var intFor1 = 0; intFor1 < World.intFlagRed.length; intFor1 += 1) {
+						var intCoordinate = World.intFlagRed[intFor1];
+						
+						{
+							World.updateDestroy(intCoordinate);
+						}
+				    }
+
+				    for (var intFor1 = 0; intFor1 < World.intFlagBlue.length; intFor1 += 1) {
+						var intCoordinate = World.intFlagRed[intFor1];
+						
+						{
+							World.updateDestroy(intCoordinate);
+						}
+				    }
 				}
 				
 			} else if (Gameserver.strWorldFingerprint.indexOf(Gameserver.strWorldActive + ' - ' + Gameserver.strPhaseActive) !== 0) {
@@ -834,7 +891,7 @@ var Gameserver = {
 							var intCoordinate = World.intSeparator[intFor1];
 							
 							{
-								World.updateType(intCoordinate, 'voxelSeparator');
+								World.updateCreate(intCoordinate, 'voxelSeparator', true);
 							}
 					    }
 						
@@ -843,7 +900,7 @@ var Gameserver = {
 							var intCoordinate = World.intSeparator[intFor1];
 							
 							{
-								World.updateType(intCoordinate, '');
+								World.updateDestroy(intCoordinate);
 							}
 					    }
 						
@@ -862,18 +919,14 @@ var Gameserver = {
 				}
 				
 				{
+					Socket.serverHandle.emit('worldHandle', {
+						'strBuffer': World.saveBuffer()
+					});
+				}
+				
+				{
 					for (var strIdent in Player.playerHandle) {
 						var playerHandle = Player.playerHandle[strIdent];
-						
-						if (playerHandle.strTeam === 'teamLogin') {
-							continue;
-						}
-						
-						{
-							playerHandle.socketHandle.emit('worldHandle', {
-								'strWorld': World.save()
-							});
-						}
 						
 						{
 							Gameserver.playerRespawn(playerHandle);
@@ -886,20 +939,12 @@ var Gameserver = {
 	
 	playerUpdate: function() {
 		{
-			Gameserver.intPlayerActive = 0;
+			Gameserver.intPlayerActive = Object.keys(Player.playerHandle).length;
 		}
 		
 		{
 			for (var strIdent in Player.playerHandle) {
 				var playerHandle = Player.playerHandle[strIdent];
-				
-				if (playerHandle.strTeam === 'teamLogin') {
-					continue;
-				}
-
-				{
-					Gameserver.intPlayerActive += 1;
-				}
 				
 				{
 					if (playerHandle.boolCollisionBottom === true) {
@@ -1034,12 +1079,8 @@ var Gameserver = {
 									return null;
 								}
 								
-								if (playerHandle.strTeam === 'teamLogin') {
+								if (playerHandle.strIdent === itemHandle.strPlayer) {
 									continue;
-									
-								} else if (playerHandle.strIdent === itemHandle.strPlayer) {
-									continue;
-									
 								}
 								
 								break;
@@ -1082,7 +1123,7 @@ var Item = require(__dirname + '/libs/Item.js')(Constants, null, Physics);
 		if (intCoordinateY === 0) {
 			return true;
 
-		} else if (World.strType[[ intCoordinateX, intCoordinateY, intCoordinateZ ]] !== undefined) {
+		} else if (World.worldHandle[[ intCoordinateX, intCoordinateY, intCoordinateZ ]] !== undefined) {
 			return true;
 			
 		}
@@ -1122,6 +1163,8 @@ var Item = require(__dirname + '/libs/Item.js')(Constants, null, Physics);
 		}
 		
 		{
+			World.update();
+			
 			Gameserver.worldUpdate();
 		}
 		
@@ -1138,61 +1181,13 @@ var Item = require(__dirname + '/libs/Item.js')(Constants, null, Physics);
 		}
 		
 		{
-			var bufferHandle = new Buffer(256 * Object.keys(Player.playerHandle).length);
-			var intBuffer = 0;
-
-			for (var strIdent in Player.playerHandle) {
-				var playerHandle = Player.playerHandle[strIdent];
-				
-				if (playerHandle.strTeam === 'teamLogin') {
-					continue;
-				}
-				
-				{
-					intBuffer += Player.saveBuffer(playerHandle, bufferHandle, intBuffer);
-				}
-		    }
+			Socket.serverHandle.emit('playerHandle', {
+				'strBuffer': Player.saveBuffer()
+			});
 			
-			bufferHandle = bufferHandle.slice(0, intBuffer);
-		    
-			for (var strIdent in Player.playerHandle) {
-				var playerHandle = Player.playerHandle[strIdent];
-				
-				if (playerHandle.strTeam === 'teamLogin') {
-					continue;
-				}
-				
-				{
-					playerHandle.socketHandle.emit('playerHandle', bufferHandle);
-				}
-			}
-		}
-		
-		{
-			var bufferHandle = new Buffer(256 * Object.keys(Item.itemHandle).length);
-			var intBuffer = 0;
-			
-			for (var strIdent in Item.itemHandle) {
-				var itemHandle = Item.itemHandle[strIdent];
-
-				{
-					intBuffer += Item.saveBuffer(itemHandle, bufferHandle, intBuffer);
-				}
-		    }
-
-			bufferHandle = bufferHandle.slice(0, intBuffer);
-		    
-			for (var strIdent in Player.playerHandle) {
-				var playerHandle = Player.playerHandle[strIdent];
-				
-				if (playerHandle.strTeam === 'teamLogin') {
-					continue;
-				}
-				
-				{
-					playerHandle.socketHandle.emit('itemHandle', bufferHandle);
-				}
-			}
+			Socket.serverHandle.emit('itemHandle', {
+				'strBuffer': Item.saveBuffer()
+			});
 		}
 		
 		{

@@ -127,7 +127,54 @@ var Item = {
 		}
 	},
 	
-	saveBuffer: function(itemHandle, bufferHandle, intBuffer) {
+	saveBuffer: function() {
+		var bufferHandle = new Buffer(256 * Object.keys(Item.itemHandle).length);
+		var intBuffer = 0;
+
+		{
+			for (var strIdent in Item.itemHandle) {
+				var itemHandle = Item.itemHandle[strIdent];
+				
+				{
+					intBuffer = Item.saveBufferpart(itemHandle, bufferHandle, intBuffer);
+				}
+		    }
+	    }
+
+		return bufferHandle.slice(0, intBuffer).toString('base64');
+	},
+	
+	loadBuffer: function(strBuffer) {
+		var bufferHandle = new Buffer(strBuffer, 'base64');
+		
+		{
+			Item.itemHandle = {};
+		}
+		
+		{
+			var intBuffer = 0;
+			
+			{
+				do {
+					if (intBuffer >= bufferHandle.length) {
+						break;
+					}
+					
+					var itemHandle = {};
+					
+					{
+						intBuffer = Item.loadBufferpart(itemHandle, bufferHandle, intBuffer);
+					}
+					
+					{
+						Item.itemHandle[itemHandle.strIdent] = itemHandle;
+					}
+				} while (true);
+			}
+		}
+	},
+	
+	saveBufferpart: function(itemHandle, bufferHandle, intBuffer) {
 		{
 			bufferHandle.writeInt16LE(itemHandle.strIdent.length, intBuffer);
 			
@@ -183,7 +230,7 @@ var Item = {
 		return intBuffer;
 	},
 	
-	load: function(itemHandle, bufferHandle, intBuffer) {
+	loadBufferpart: function(itemHandle, bufferHandle, intBuffer) {
 		{
 			var intLength = bufferHandle.readInt16LE(intBuffer);
 

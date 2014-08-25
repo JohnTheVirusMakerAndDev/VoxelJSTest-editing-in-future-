@@ -35,6 +35,8 @@ var Constants = {
 	dblArrowFriction: [ 1.0, 1.0, 1.0 ]
 };
 
+require('buffer');
+
 var Voxel = require('../libs/Voxel.js')(Constants);
 var Input = require('../libs/Input.js')(Constants);
 var Physics = require('../libs/Physics.js')(Constants);
@@ -107,7 +109,6 @@ var Gui = {
 					{
 						Socket.socketHandle.emit('loginHandle', {
 							'strName': jQuery('#idLogin_Name').val(),
-							'strPassword': jQuery('#idLogin_Password').val(),
 							'strTeam': jQuery('#idLogin_Team').val()
 						});
 					}
@@ -573,77 +574,73 @@ var Socket = {
 					
 					Socket.socketHandle.on('worldHandle', function(jsonHandle) {
 						{
-						    World.load(jsonHandle.strWorld);
+						    World.loadBuffer(jsonHandle.strBuffer);
 						}
 					});
 					
-					Socket.socketHandle.on('worldType', function(jsonHandle) {
+					Socket.socketHandle.on('worldCreate', function(jsonHandle) {
 						{
-							World.updateType(jsonHandle.intCoordinate, jsonHandle.strType);
+							World.updateCreate(jsonHandle.intCoordinate, jsonHandle.strType, jsonHandle.boolBlocked);
 						}
 					});
 					
-					Socket.socketHandle.on('playerHandle', function(bufferHandle) {
+					Socket.socketHandle.on('worldDestroy', function(jsonHandle) {
 						{
-							require('buffer');
-							
-							bufferHandle = new Buffer(new Uint8Array(bufferHandle));
+							World.updateDestroy(jsonHandle.intCoordinate);
 						}
-						
+					});
+					
+					Socket.socketHandle.on('playerHandle', function(jsonHandle) {
 						{
-							var playerOverwrite = {
-								'1': Player.playerHandle['1']
-							};
+							var playerOverwrite = JSON.parse(JSON.stringify(Player.playerHandle));
 							
 							{
-								var intBuffer = 0;
-								
-								do {
-									if (intBuffer >= bufferHandle.length) {
-										break;
-									}
-									
-									var playerHandle = {};
-									
-									{
-										intBuffer += Player.load(playerHandle, bufferHandle, intBuffer);
-									}
-	
-									{
-										if (playerHandle.strIdent === Socket.socketHandle.strIdent) {
-											{
-												playerOverwrite['1'].strTeam = playerHandle.strTeam;
-												playerOverwrite['1'].strItem = playerHandle.strItem;
-												playerOverwrite['1'].strName = playerHandle.strName;
-												playerOverwrite['1'].intScore = playerHandle.intScore;
-												playerOverwrite['1'].intKills = playerHandle.intKills;
-												playerOverwrite['1'].intDeaths = playerHandle.intDeaths;
-												playerOverwrite['1'].intHealth = playerHandle.intHealth;
-											}
-											
-										} else if (playerHandle.strIdent !== Socket.socketHandle.strIdent) {
-											{
-												if (Player.playerHandle[playerHandle.strIdent] !== undefined) {
-													Physics.updateOverwrite(playerHandle, Player.playerHandle[playerHandle.strIdent]);
-												}
-											}
-											
-											{
-												playerOverwrite[playerHandle.strIdent] = playerHandle;
-											}
-											
-											{
-												if (Player.playerHandle[playerHandle.strIdent] !== undefined) {
-													playerOverwrite[playerHandle.strIdent].intInteractionWalk = Player.playerHandle[playerHandle.strIdent].intInteractionWalk;
-												}
-											}
-											
-										}
-									}
-								} while (true);
+								Player.loadBuffer(jsonHandle.strBuffer);
 							}
 							
-							Player.playerHandle = playerOverwrite;
+							{
+								{
+									Player.playerHandle['1'] = playerOverwrite['1'];
+								}
+								
+								{
+									if (Player.playerHandle[Socket.socketHandle.strIdent] !== undefined) {
+										Player.playerHandle['1'].strTeam = Player.playerHandle[Socket.socketHandle.strIdent].strTeam;
+										Player.playerHandle['1'].strItem = Player.playerHandle[Socket.socketHandle.strIdent].strItem;
+										Player.playerHandle['1'].strName = Player.playerHandle[Socket.socketHandle.strIdent].strName;
+										Player.playerHandle['1'].intScore = Player.playerHandle[Socket.socketHandle.strIdent].intScore;
+										Player.playerHandle['1'].intKills = Player.playerHandle[Socket.socketHandle.strIdent].intKills;
+										Player.playerHandle['1'].intDeaths = Player.playerHandle[Socket.socketHandle.strIdent].intDeaths;
+										Player.playerHandle['1'].intHealth = Player.playerHandle[Socket.socketHandle.strIdent].intHealth;
+									}
+								}
+								
+								{
+									delete Player.playerHandle[Socket.socketHandle.strIdent];
+								}
+							}
+							
+							{
+								for (var strIdent in Player.playerHandle) {
+									var playerHandle = Player.playerHandle[strIdent];
+									
+									if (playerHandle.strIdent === '1') {
+										continue;
+										
+									} else if (playerOverwrite[playerHandle.strIdent] === undefined) {
+										continue;
+										
+									}
+									
+									{
+										Physics.updateOverwrite(playerHandle, playerOverwrite[playerHandle.strIdent]);
+									}
+									
+									{
+										playerHandle.intInteractionWalk = playerOverwrite[playerHandle.strIdent].intInteractionWalk;
+									}
+							    }
+							}
 						}
 					});
 					
@@ -671,43 +668,27 @@ var Socket = {
 						}
 					});
 					
-					Socket.socketHandle.on('itemHandle', function(bufferHandle) {
+					Socket.socketHandle.on('itemHandle', function(jsonHandle) {
 						{
-							require('buffer');
-							
-							bufferHandle = new Buffer(new Uint8Array(bufferHandle));
-						}
-						
-						{
-							var itemOverwrite = {};
+							var itemOverwrite = JSON.parse(JSON.stringify(Item.itemHandle));
 							
 							{
-								var intBuffer = 0;
-								
-								do {
-									if (intBuffer >= bufferHandle.length) {
-										break;
-									}
-									
-									var itemHandle = {};
-									
-									{
-										intBuffer += Item.load(itemHandle, bufferHandle, intBuffer);
-									}
-	
-									{
-										if (Item.itemHandle[itemHandle.strIdent] !== undefined) {
-											Physics.updateOverwrite(itemHandle, Item.itemHandle[itemHandle.strIdent]);
-										}
-									}
-									
-									{
-										itemOverwrite[itemHandle.strIdent] = itemHandle;
-									}
-								} while (true);
+								Item.loadBuffer(jsonHandle.strBuffer);
 							}
-
-							Item.itemHandle = itemOverwrite;
+							
+							{
+								for (var strIdent in Item.itemHandle) {
+									var itemHandle = Item.itemHandle[strIdent];
+									
+									if (itemOverwrite[itemHandle.strIdent] === undefined) {
+										continue;
+									}
+									
+									{
+										Physics.updateOverwrite(itemHandle, itemOverwrite[itemHandle.strIdent]);
+									}
+							    }
+							}
 						}
 					});
 				}
@@ -764,9 +745,10 @@ window.addEventListener('load', function () {
 					}
 					
 					{
-						Socket.socketHandle.emit('worldType', {
+						Socket.socketHandle.emit('worldCreate', {
 							'intCoordinate': Voxel.voxelhighlightHandle.positionCreate,
-							'strType': 'voxelDirt'
+							'strType': 'voxelDirt',
+							'boolBlocked': false
 						});
 					}
 				}
@@ -786,9 +768,8 @@ window.addEventListener('load', function () {
 					}
 					
 					{
-						Socket.socketHandle.emit('worldType', {
-							'intCoordinate': Voxel.voxelhighlightHandle.positionDestroy,
-							'strType': ''
+						Socket.socketHandle.emit('worldDestroy', {
+							'intCoordinate': Voxel.voxelhighlightHandle.positionDestroy
 						});
 					}
 				}
@@ -840,6 +821,10 @@ window.addEventListener('load', function () {
 			
 			{
 				Input.update();
+			}
+			
+			{
+				World.update();
 			}
 			
 			{
@@ -895,13 +880,15 @@ window.addEventListener('load', function () {
 				var intBuffer = 0;
 				
 				{
-					intBuffer += Player.saveBuffer(Player.playerHandle['1'], bufferHandle, intBuffer);
+					intBuffer = Player.saveBufferpart(Player.playerHandle['1'], bufferHandle, intBuffer);
 				}
 				
-				bufferHandle = bufferHandle.slice(0, intBuffer);
+				var strBuffer = bufferHandle.slice(0, intBuffer).toString('base64');
 			    
 				{
-					Socket.socketHandle.emit('playerHandle', bufferHandle);
+					Socket.socketHandle.emit('playerHandle', {
+						'strBuffer': strBuffer
+					});
 				}
 			}
 		});
@@ -935,9 +922,6 @@ window.addEventListener('load', function () {
 				return true;
 				
 			} else if (jQuery('#idLogin_Name').is(':focus') === true) {
-				return true;
-				
-			} else if (jQuery('#idLogin_Password').is(':focus') === true) {
 				return true;
 				
 			}
@@ -991,7 +975,7 @@ window.addEventListener('load', function () {
 			if (intCoordinateY === 0) {
 				return true;
 
-			} else if (World.strType[[ intCoordinateX, intCoordinateY, intCoordinateZ ]] !== undefined) {
+			} else if (World.worldHandle[[ intCoordinateX, intCoordinateY, intCoordinateZ ]] !== undefined) {
 				return true;
 				
 			}
