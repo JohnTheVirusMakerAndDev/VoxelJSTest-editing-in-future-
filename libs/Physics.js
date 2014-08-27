@@ -60,12 +60,12 @@ var Physics = {
 					{
 						var dblLength = Math.sqrt((dblVelocityX * dblVelocityX) + (dblVelocityY * dblVelocityY) + (dblVelocityZ * dblVelocityZ));
 						
-						if (Math.abs(dblLength) > physicsHandle.dblMaxvel[0]) {
+						if (dblLength > physicsHandle.dblMaxvel[0]) {
 							dblVelocityX *= physicsHandle.dblMaxvel[0] / dblLength;
 							dblVelocityY *= physicsHandle.dblMaxvel[0] / dblLength;
 							dblVelocityZ *= physicsHandle.dblMaxvel[0] / dblLength;
 							
-						} else if (Math.abs(dblLength) < 0.0001) {
+						} else if (dblLength < 0.0001) {
 							dblVelocityX = 0.0;
 							dblVelocityY = 0.0;
 							dblVelocityZ = 0.0;

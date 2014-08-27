@@ -432,6 +432,10 @@ var Player = {
 		{
 			for (var strIdent in Player.playerHandle) {
 				var playerHandle = Player.playerHandle[strIdent];
+
+				if (playerHandle.strTeam === '') {
+					continue;
+				}
 				
 				{
 					playerHandle.dblSize = Constants.dblPlayerSize;
@@ -498,6 +502,10 @@ var Player = {
 		{
 			for (var strIdent in Player.playerHandle) {
 				var playerHandle = Player.playerHandle[strIdent];
+
+				if (playerHandle.strTeam === '') {
+					continue;
+				}
 				
 				{
 					var minecraftskinHandle = null;

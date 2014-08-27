@@ -7,7 +7,8 @@ var Physics = {};
 var Item = {
 	itemHandle: {},
 	
-	functionFlag: null,
+	functionFlagInit: null,
+	functionFlagPlayer: null,
 	meshFlagRed: null,
 	meshFlagBlue: null,
 	
@@ -23,14 +24,12 @@ var Item = {
 		}
 		
 		{
-			Item.functionFlag = function(strFlag) {
-				if (strFlag === 'flagRed') {
-					return [ 0, 0, 0 ];
-					
-				} else if (strFlag === 'flagBlue') {
-					return [ 0, 0, 0 ];
-					
-				}
+			Item.functionFlagInit = function(itemHandle) {
+				
+			};
+			
+			Item.functionFlagPlayer = function(itemHandle) {
+				
 			};
 			
 			Item.meshFlagRed = Voxel.minecraftitemCreate('itemFlagRed', Constants.dblGameScale);
@@ -59,7 +58,9 @@ var Item = {
 		}
 		
 		{
-			Item.functionFlag = null;
+			Item.functionFlagInit = null;
+			
+			Item.functionFlagPlayer = null;
 			
 			Item.meshFlagRed = null;
 			
@@ -71,59 +72,45 @@ var Item = {
 		}
 	},
 	
-	initFlags: function() {
+	initFlag: function(itemHandle) {
 		{
-			var strIdent = 'itemFlag - Red';
-			var dblPosition = [ 0.0, 0.0, 0.0 ];
-			var dblVerlet = [ 0.0, 0.0, 0.0 ];
-			
-			{
-				var intFlag = Item.functionFlag('flagRed');
+			if (Item.itemHandle['itemFlag - teamRed'] === undefined) {
+				var strIdent = 'itemFlag - teamRed';
 				
-				dblPosition[0] = intFlag[0] + 0.5;
-				dblPosition[1] = intFlag[1] + 1.5;
-				dblPosition[2] = intFlag[2] + 0.5;
-
-				dblVerlet[0] = dblPosition[0];
-				dblVerlet[1] = dblPosition[1];
-				dblVerlet[2] = dblPosition[2];
+				Item.itemHandle[strIdent] = {
+					'strIdent': strIdent,
+					'strPlayer': 'playerBase',
+					'dblPosition': [ 0.0, 0.0, 0.0 ],
+					'dblVerlet': [ 0.0, 0.0, 0.0 ],
+					'dblAcceleration': [ 0.0, 0.0, 0.0 ],
+					'dblRotation': [ 0.0, 0.0, 0.0 ]
+				};
+				
+				Item.functionFlagInit(Item.itemHandle[strIdent]);
 			}
-			
-			Item.itemHandle[strIdent] = {
-				'strIdent': strIdent,
-				'strPlayer': '',
-				'dblPosition': dblPosition,
-				'dblVerlet': dblVerlet,
-				'dblAcceleration': [ 0.0, 0.0, 0.0 ],
-				'dblRotation': [ 0.0, 0.0, 0.0 ]
-			};
+
+			if (Item.itemHandle['itemFlag - teamBlue'] === undefined) {
+				var strIdent = 'itemFlag - teamBlue';
+				
+				Item.itemHandle[strIdent] = {
+					'strIdent': strIdent,
+					'strPlayer': 'playerBase',
+					'dblPosition': [ 0.0, 0.0, 0.0 ],
+					'dblVerlet': [ 0.0, 0.0, 0.0 ],
+					'dblAcceleration': [ 0.0, 0.0, 0.0 ],
+					'dblRotation': [ 0.0, 0.0, 0.0 ]
+				};
+				
+				Item.functionFlagInit(Item.itemHandle[strIdent]);
+			}	
 		}
 		
 		{
-			var strIdent = 'itemFlag - Blue';
-			var dblPosition = [ 0.0, 0.0, 0.0 ];
-			var dblVerlet = [ 0.0, 0.0, 0.0 ];
-			
-			{
-				var intFlag = Item.functionFlag('flagBlue');
-
-				dblPosition[0] = intFlag[0] + 0.5;
-				dblPosition[1] = intFlag[1] + 1.5;
-				dblPosition[2] = intFlag[2] + 0.5;
-
-				dblVerlet[0] = dblPosition[0];
-				dblVerlet[1] = dblPosition[1];
-				dblVerlet[2] = dblPosition[2];
+			if (itemHandle !== undefined) {
+				itemHandle.strPlayer = 'playerBase';
+				
+				Item.functionFlagInit(itemHandle);
 			}
-			
-			Item.itemHandle[strIdent] = {
-				'strIdent': strIdent,
-				'strPlayer': '',
-				'dblPosition': dblPosition,
-				'dblVerlet': dblVerlet,
-				'dblAcceleration': [ 0.0, 0.0, 0.0 ],
-				'dblRotation': [ 0.0, 0.0, 0.0 ]
-			};
 		}
 	},
 	
@@ -315,6 +302,10 @@ var Item = {
 							itemHandle.dblRotation[1] = (itemHandle.dblRotation[1] + Constants.dblFlagRotate) % (2.0 * Math.PI);
 						}
 						
+						{
+							Item.functionFlagPlayer(itemHandle);
+						}
+						
 					} else if (itemHandle.strIdent.indexOf('itemArrow') === 0) {
 						{
 							itemHandle.dblSize = Constants.dblArrowSize;
@@ -380,10 +371,10 @@ var Item = {
 					var meshHandle = null;
 					
 					{
-						if (itemHandle.strIdent === 'itemFlag - Red') {
+						if (itemHandle.strIdent === 'itemFlag - teamRed') {
 							meshHandle = Item.meshFlagRed;
 							
-						} else if (itemHandle.strIdent === 'itemFlag - Blue') {
+						} else if (itemHandle.strIdent === 'itemFlag - teamBlue') {
 							meshHandle = Item.meshFlagBlue;
 							
 						} else if (itemHandle.strIdent.indexOf('itemArrow') === 0) {

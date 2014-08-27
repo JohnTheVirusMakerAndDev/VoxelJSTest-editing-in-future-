@@ -458,8 +458,10 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 			socketHandle.on('playerHandle', function(jsonHandle) {
 				var bufferHandle = new Buffer(jsonHandle.strBuffer, 'base64');
 				
-				{
-					// TODO: check bufferHandle for validity (wahrscheinlich einfach innerhalb der load und dann hier noch attribute checken)
+				try {
+					Player.loadBufferpart({}, bufferHandle, 0);
+				} catch (errorHandle) {
+					return;
 				}
 				
 				if (Player.playerHandle[socketHandle.strIdent] === undefined) {
@@ -797,10 +799,6 @@ var Gameserver = {
 	
 	phaseUpdate: function() {
 		{
-			// TODO: reset if no player left
-		}
-		
-		{
 			Gameserver.intPhaseRemaining = Math.max(0, Gameserver.intPhaseRemaining - Constants.intGameLoop);
 		}
 		
@@ -872,7 +870,7 @@ var Gameserver = {
 				    }
 
 				    for (var intFor1 = 0; intFor1 < World.intFlagBlue.length; intFor1 += 1) {
-						var intCoordinate = World.intFlagRed[intFor1];
+						var intCoordinate = World.intFlagBlue[intFor1];
 						
 						{
 							World.updateDestroy(intCoordinate);
@@ -915,7 +913,7 @@ var Gameserver = {
 				}
 				
 				{
-					Item.initFlags();
+					Item.initFlag();
 				}
 				
 				{
@@ -927,6 +925,10 @@ var Gameserver = {
 				{
 					for (var strIdent in Player.playerHandle) {
 						var playerHandle = Player.playerHandle[strIdent];
+
+						if (playerHandle.strTeam === '') {
+							continue;
+						}
 						
 						{
 							Gameserver.playerRespawn(playerHandle);
@@ -946,17 +948,29 @@ var Gameserver = {
 			for (var strIdent in Player.playerHandle) {
 				var playerHandle = Player.playerHandle[strIdent];
 				
+				if (playerHandle.strTeam === '') {
+					continue;
+				}
+				
 				{
-					if (playerHandle.boolCollisionBottom === true) {
-						if (Math.floor(playerHandle.dblPosition[1]) === 1) {
-							{
-								playerHandle.intDeaths += 1;
-							}
-							
-							{
-								Gameserver.playerRespawn(playerHandle);
-							}
+					if (playerHandle.intHealth < 1) {
+						{
+							playerHandle.intDeaths += 1;
 						}
+						
+						{
+							Gameserver.playerRespawn(playerHandle);
+						}
+						
+					} else if (playerHandle.dblPosition[1] < Constants.dblWorldBlocksize) {
+						{
+							playerHandle.intDeaths += 1;
+						}
+						
+						{
+							Gameserver.playerRespawn(playerHandle);
+						}
+						
 					}
 				}
 			}
@@ -1012,41 +1026,31 @@ var Gameserver = {
 		}
 		
 		{
-			if (playerHandle.intHealth >= 1) {
-				{
-					if (itemHandle.strIdent.indexOf('itemSword') === 0) {
-						playerHandle.dblAcceleration[0] = -1.0 * Constants.dblInteractionSwordImpact[0] * Math.sin(itemHandle.dblRotation[1]) * Math.cos(itemHandle.dblRotation[2]);
-						playerHandle.dblAcceleration[1] = -1.0 * Constants.dblInteractionSwordImpact[1] * Math.sin(itemHandle.dblRotation[2] + (1.0 * Math.PI));
-						playerHandle.dblAcceleration[2] = -1.0 * Constants.dblInteractionSwordImpact[2] * Math.cos(itemHandle.dblRotation[1]) * Math.cos(itemHandle.dblRotation[2]);
-
-					} else if (itemHandle.strIdent.indexOf('itemArrow') === 0) {
-						playerHandle.dblAcceleration[0] = -1.0 * Constants.dblInteractionBowImpact[0] * Math.sin(itemHandle.dblRotation[1]) * Math.cos(itemHandle.dblRotation[2]);
-						playerHandle.dblAcceleration[1] = -1.0 * Constants.dblInteractionBowImpact[1] * Math.sin(itemHandle.dblRotation[2] + (1.0 * Math.PI));
-						playerHandle.dblAcceleration[2] = -1.0 * Constants.dblInteractionBowImpact[2] * Math.cos(itemHandle.dblRotation[1]) * Math.cos(itemHandle.dblRotation[2]);
-						
-					}
-				}
-				
-				{
-					playerHandle.socketHandle.emit('playerHit', {
-						'dblAcceleration': playerHandle.dblAcceleration
-					});
-				}
-				
-			} else if (playerHandle.intHealth < 1) {
-				{
+			if (playerHandle.intHealth < 1) {
+				if (Player.playerHandle[itemHandle.strPlayer] !== undefined) {
 					Player.playerHandle[itemHandle.strPlayer].intKills += 1;
 				}
-				
-				{
-					playerHandle.intDeaths += 1;
-				}
-				
-				{
-					Gameserver.playerRespawn(playerHandle);
-				}
+			}
+		}
+		
+		{
+			if (itemHandle.strIdent.indexOf('itemSword') === 0) {
+				playerHandle.dblAcceleration[0] = -1.0 * Constants.dblInteractionSwordImpact[0] * Math.sin(itemHandle.dblRotation[1]) * Math.cos(itemHandle.dblRotation[2]);
+				playerHandle.dblAcceleration[1] = -1.0 * Constants.dblInteractionSwordImpact[1] * Math.sin(itemHandle.dblRotation[2] + (1.0 * Math.PI));
+				playerHandle.dblAcceleration[2] = -1.0 * Constants.dblInteractionSwordImpact[2] * Math.cos(itemHandle.dblRotation[1]) * Math.cos(itemHandle.dblRotation[2]);
+
+			} else if (itemHandle.strIdent.indexOf('itemArrow') === 0) {
+				playerHandle.dblAcceleration[0] = -1.0 * Constants.dblInteractionBowImpact[0] * Math.sin(itemHandle.dblRotation[1]) * Math.cos(itemHandle.dblRotation[2]);
+				playerHandle.dblAcceleration[1] = -1.0 * Constants.dblInteractionBowImpact[1] * Math.sin(itemHandle.dblRotation[2] + (1.0 * Math.PI));
+				playerHandle.dblAcceleration[2] = -1.0 * Constants.dblInteractionBowImpact[2] * Math.cos(itemHandle.dblRotation[1]) * Math.cos(itemHandle.dblRotation[2]);
 				
 			}
+		}
+		
+		{
+			playerHandle.socketHandle.emit('playerHit', {
+				'dblAcceleration': playerHandle.dblAcceleration
+			});
 		}
 	},
 	
@@ -1055,52 +1059,164 @@ var Gameserver = {
 			for (var strIdent in Item.itemHandle) {
 				var itemHandle = Item.itemHandle[strIdent];
 				
-				if (itemHandle.strIdent.indexOf('itemArrow') !== 0) {
-					continue;
-				}
-
 				{
-					itemHandle.dblSize = Constants.dblArrowSize;
-					
-					Physics.updateObjectcol(itemHandle, function(functionObjectcol) {
-						var playerHandle = null;
-						
-						{
-							if (functionObjectcol.strIdent === undefined) {
-								functionObjectcol.strIdent = Object.keys(Player.playerHandle);
+					if (itemHandle.strPlayer !== 'playerBase') {
+						if (itemHandle.strPlayer !== 'playerDropped') {
+							if (Player.playerHandle[itemHandle.strPlayer] === undefined) {
+								itemHandle.strPlayer = 'playerDropped';
 							}
 						}
-						
+					}
+				}
+				
+				{
+					if (itemHandle.strIdent.indexOf('itemFlag') === 0) {
 						{
-							do {
-								playerHandle = Player.playerHandle[functionObjectcol.strIdent.pop()];
+							itemHandle.dblSize = Constants.dblFlagSize;
+							
+							Physics.updateObjectcol(itemHandle, function(functionObjectcol) {
+								var playerHandle = null;
 								
-								if (playerHandle === undefined) {
-									return null;
+								{
+									if (functionObjectcol.strIdent === undefined) {
+										functionObjectcol.strIdent = Object.keys(Player.playerHandle);
+									}
 								}
 								
-								if (playerHandle.strIdent === itemHandle.strPlayer) {
-									continue;
+								{
+									do {
+										playerHandle = Player.playerHandle[functionObjectcol.strIdent.pop()];
+										
+										if (playerHandle === undefined) {
+											return null;
+										}
+										
+										if (playerHandle.strTeam === '') {
+											continue;
+										}
+										
+										break;
+									} while (true);
 								}
 								
-								break;
-							} while (true);
+								{
+									playerHandle.dblSize = Constants.dblPlayerHitbox;
+								}
+								
+								return playerHandle;
+							}, function(physicsHandle) {
+								{
+									if (itemHandle.strPlayer === 'playerBase') {
+										if (itemHandle.strIdent.indexOf(physicsHandle.strTeam) === -1) {
+											{
+												itemHandle.strPlayer = physicsHandle.strIdent;
+											}
+											
+										} else if (itemHandle.strIdent.indexOf(physicsHandle.strTeam) !== -1) {
+											{
+												if (physicsHandle.strTeam === 'teamRed') {
+													if (Item.itemHandle['itemFlag - teamBlue'].strPlayer === physicsHandle.strIdent) {
+														{
+															Item.initFlag(Item.itemHandle['itemFlag - teamBlue']);
+														}
+														
+														{
+															physicsHandle.intScore += 1;
+														}
+														
+														{
+															Gameserver.intScoreRed += 1;	
+														}
+													}
+													
+												} else if (physicsHandle.strTeam === 'teamBlue') {
+													if (Item.itemHandle['itemFlag - teamRed'].strPlayer === physicsHandle.strIdent) {
+														{
+															Item.initFlag(Item.itemHandle['itemFlag - teamRed']);
+														}
+														
+														{
+															physicsHandle.intScore += 1;
+														}
+														
+														{
+															Gameserver.intScoreBlue += 1;	
+														}
+													}
+													
+												}
+											}
+											
+										}
+										
+									} else if (itemHandle.strPlayer === 'playerDropped') {
+										if (itemHandle.strIdent.indexOf(physicsHandle.strTeam) === -1) {
+											{
+												itemHandle.strPlayer = physicsHandle.strIdent;
+											}
+											
+										} else if (itemHandle.strIdent.indexOf(physicsHandle.strTeam) !== -1) {
+											{
+												Item.initFlag(itemHandle);
+											}
+	
+										}
+										
+									}
+								}
+							});
 						}
 						
+					} else if (itemHandle.strIdent.indexOf('itemArrow') === 0) {
 						{
-							playerHandle.dblSize = Constants.dblPlayerHitbox;
+							itemHandle.dblSize = Constants.dblArrowSize;
+							
+							Physics.updateObjectcol(itemHandle, function(functionObjectcol) {
+								var playerHandle = null;
+								
+								{
+									if (functionObjectcol.strIdent === undefined) {
+										functionObjectcol.strIdent = Object.keys(Player.playerHandle);
+									}
+								}
+								
+								{
+									do {
+										playerHandle = Player.playerHandle[functionObjectcol.strIdent.pop()];
+										
+										if (playerHandle === undefined) {
+											return null;
+										}
+										
+										if (playerHandle.strTeam === '') {
+											continue;
+											
+										} else if (playerHandle.strIdent === itemHandle.strPlayer) {
+											continue;
+											
+										}
+										
+										break;
+									} while (true);
+								}
+								
+								{
+									playerHandle.dblSize = Constants.dblPlayerHitbox;
+								}
+								
+								return playerHandle;
+							}, function(physicsHandle) {
+								{
+									Gameserver.playerHit(physicsHandle, itemHandle);
+								}
+								
+								{
+									delete Item.itemHandle[itemHandle.strIdent];
+								}
+							});
 						}
 						
-						return playerHandle;
-					}, function(physicsHandle) {
-						{
-							Gameserver.playerHit(physicsHandle, itemHandle);
-						}
-						
-						{
-							delete Item.itemHandle[itemHandle.strIdent];
-						}
-					});
+					}
 				}
 			}
 		}
@@ -1143,13 +1259,51 @@ var Item = require(__dirname + '/libs/Item.js')(Constants, null, Physics);
 {
 	Item.init();
 	
-	Item.functionFlag = function(strFlag) {
-		if (strFlag === 'flagRed') {
-			return World.intFlagRed[Math.floor(Math.random() * World.intFlagRed.length)];
+	Item.functionFlagInit = function(itemHandle) {
+		{
+			var intCoordinate = [ 0, 0, 0 ];
 			
-		} else if (strFlag === 'flagBlue') {
-			return World.intFlagBlue[Math.floor(Math.random() * World.intFlagBlue.length)];
+			if (itemHandle.strIdent.indexOf('teamRed') !== -1) {
+				intCoordinate = World.intFlagRed[Math.floor(Math.random() * World.intFlagRed.length)];
+				
+			} else if (itemHandle.strIdent.indexOf('teamBlue') !== -1) {
+				intCoordinate = World.intFlagBlue[Math.floor(Math.random() * World.intFlagBlue.length)];
+				
+			}
 			
+			itemHandle.dblPosition[0] = intCoordinate[0] + 0.5;
+			itemHandle.dblPosition[1] = intCoordinate[1] + 0.5;
+			itemHandle.dblPosition[2] = intCoordinate[2] + 0.5;
+			
+			itemHandle.dblVerlet[0] = itemHandle.dblPosition[0];
+			itemHandle.dblVerlet[1] = itemHandle.dblPosition[1];
+			itemHandle.dblVerlet[2] = itemHandle.dblPosition[2];
+		}
+	};
+	
+	Item.functionFlagPlayer = function(itemHandle) {
+		{
+			if (Player.playerHandle[itemHandle.strPlayer] !== undefined) {
+				var dblDistanceX = itemHandle.dblPosition[0] - Player.playerHandle[itemHandle.strPlayer].dblPosition[0];
+				var dblDistanceY = itemHandle.dblPosition[1] - Player.playerHandle[itemHandle.strPlayer].dblPosition[1];
+				var dblDistanceZ = itemHandle.dblPosition[2] - Player.playerHandle[itemHandle.strPlayer].dblPosition[2];
+				
+				if (Math.sqrt((dblDistanceX * dblDistanceX) + (dblDistanceY * dblDistanceY) + (dblDistanceZ * dblDistanceZ)) > (2.0 * Constants.dblWorldBlocksize)) {
+					itemHandle.strPlayer = 'playerDropped';
+				}
+			}
+		}
+		
+		{
+			if (Player.playerHandle[itemHandle.strPlayer] !== undefined) {
+				itemHandle.dblPosition[0] = Player.playerHandle[itemHandle.strPlayer].dblPosition[0];
+				itemHandle.dblPosition[1] = Player.playerHandle[itemHandle.strPlayer].dblPosition[1] + 1.0;
+				itemHandle.dblPosition[2] = Player.playerHandle[itemHandle.strPlayer].dblPosition[2];
+				
+				itemHandle.dblVerlet[0] = itemHandle.dblPosition[0];
+				itemHandle.dblVerlet[1] = itemHandle.dblPosition[1];
+				itemHandle.dblVerlet[2] = itemHandle.dblPosition[2];
+			}
 		}
 	};
 }
@@ -1159,13 +1313,31 @@ var Item = require(__dirname + '/libs/Item.js')(Constants, null, Physics);
 	
 	var functionAnimationframe = function() {
 		{
-			Gameserver.phaseUpdate();
-		}
-		
-		{
-			World.update();
-			
-			Gameserver.worldUpdate();
+			if (Gameserver.intPlayerActive === 0) {
+				{
+					Gameserver.strPhaseActive = 'Build';
+					
+					Gameserver.intPhaseRound = VoxConf.intPhaseRound;
+					
+					Gameserver.intPhaseRemaining = VoxConf.intPhaseRemaining;
+				}
+				
+				{
+					Gameserver.strWorldFingerprint = '';
+				}
+				
+			} else if (Gameserver.intPlayerActive !== 0) {
+				{
+					Gameserver.phaseUpdate();
+				}
+				
+				{
+					World.update();
+					
+					Gameserver.worldUpdate();
+				}
+	
+			}
 		}
 		
 		{
@@ -1211,9 +1383,17 @@ var Item = require(__dirname + '/libs/Item.js')(Constants, null, Physics);
 }
 
 {
-	// TODO: VoxConf.boolAdvertise
-	
 	var functionInterval = function() {
+		var functionAdvertise = function() {
+			if (VoxConf.boolAdvertise === true) {
+				functionRequest();
+
+			} else if (VoxConf.boolAdvertise === true) {
+				functionSuccess();
+				
+			}
+		};
+		
 		var functionRequest = function() {
 			var requestHttp = Node.httpHandle.request({
 				'host': 'www.voxel-warriors.com',
@@ -1271,7 +1451,7 @@ var Item = require(__dirname + '/libs/Item.js')(Constants, null, Physics);
 			console.log('------------------------------------------------------------');
 		};
 		
-		functionRequest();
+		functionAdvertise();
 	};
 	
 	setInterval(functionInterval, 5 * 60 * 1000);

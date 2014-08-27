@@ -996,6 +996,48 @@ window.addEventListener('load', function () {
 	
 	{
 		Item.init();
+		
+		Item.functionFlagInit = function(itemHandle) {
+			
+		};
+		
+		Item.functionFlagPlayer = function(itemHandle) {
+			{
+				if (Player.playerHandle[itemHandle.strPlayer] !== undefined) {
+					var dblDistanceX = itemHandle.dblPosition[0] - Player.playerHandle[itemHandle.strPlayer].dblPosition[0];
+					var dblDistanceY = itemHandle.dblPosition[1] - Player.playerHandle[itemHandle.strPlayer].dblPosition[1];
+					var dblDistanceZ = itemHandle.dblPosition[2] - Player.playerHandle[itemHandle.strPlayer].dblPosition[2];
+					
+					if (Math.sqrt((dblDistanceX * dblDistanceX) + (dblDistanceY * dblDistanceY) + (dblDistanceZ * dblDistanceZ)) > (2.0 * Constants.dblWorldBlocksize)) {
+						itemHandle.strPlayer = 'playerDropped';
+					}
+				}
+			}
+			
+			{
+				if (Player.playerHandle[itemHandle.strPlayer] !== undefined) {
+					itemHandle.dblPosition[0] = Player.playerHandle[itemHandle.strPlayer].dblPosition[0];
+					itemHandle.dblPosition[1] = Player.playerHandle[itemHandle.strPlayer].dblPosition[1] + 1.0;
+					itemHandle.dblPosition[2] = Player.playerHandle[itemHandle.strPlayer].dblPosition[2];
+					
+					itemHandle.dblVerlet[0] = itemHandle.dblPosition[0];
+					itemHandle.dblVerlet[1] = itemHandle.dblPosition[1];
+					itemHandle.dblVerlet[2] = itemHandle.dblPosition[2];
+				}
+			}
+			
+			{
+				if (itemHandle.strPlayer === Socket.socketHandle.strIdent) {
+					itemHandle.dblPosition[0] = Player.playerHandle['1'].dblPosition[0];
+					itemHandle.dblPosition[1] = Player.playerHandle['1'].dblPosition[1] + 1.0;
+					itemHandle.dblPosition[2] = Player.playerHandle['1'].dblPosition[2];
+					
+					itemHandle.dblVerlet[0] = itemHandle.dblPosition[0];
+					itemHandle.dblVerlet[1] = itemHandle.dblPosition[1];
+					itemHandle.dblVerlet[2] = itemHandle.dblPosition[2];
+				}
+			}
+		};
 	}
 	
 	{
