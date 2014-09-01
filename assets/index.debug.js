@@ -17,11 +17,11 @@ var Constants = {
 	intInteractionPickaxeDuration: 30,
 	intInteractionSwordDuration: 30,
 	intInteractionSwordDamage: 20,
-	dblInteractionSwordImpact: [ 0.09, 0.09, 0.09 ],
+	dblInteractionSwordImpact: [ 0.11, 0.11, 0.11 ],
 	dblInteractionSwordRange: 2.0,
 	intInteractionBowDuration: 30,
 	intInteractionBowDamage: 20,
-	dblInteractionBowImpact: [ 0.09, 0.09, 0.09 ],
+	dblInteractionBowImpact: [ 0.11, 0.11, 0.11 ],
 	
 	dblFlagSize: [ 1.0, 1.0, 1.0 ],
 	dblFlagGravity: [ 0.0, -0.01, 0.0 ],
@@ -37,12 +37,12 @@ var Constants = {
 
 require('buffer');
 
-var Voxel = require('../libs/Voxel.js')(Constants);
-var Input = require('../libs/Input.js')(Constants);
-var Physics = require('../libs/Physics.js')(Constants);
-var World = require('../libs/World.js')(Constants, Voxel);
-var Player = require('../libs/Player.js')(Constants, Voxel, Physics);
-var Item = require('../libs/Item.js')(Constants, Voxel, Physics);
+var Voxel = require('./libVoxel.js')(Constants);
+var Input = require('./libInput.js')(Constants);
+var Physics = require('./libPhysics.js')(Constants);
+var World = require('./libWorld.js')(Constants, Voxel);
+var Player = require('./libPlayer.js')(Constants, Voxel, Physics);
+var Item = require('./libItem.js')(Constants, Voxel, Physics);
 
 var Gui = {
 	strMode: '',
@@ -1002,18 +1002,6 @@ window.addEventListener('load', function () {
 		};
 		
 		Item.functionFlagPlayer = function(itemHandle) {
-			{
-				if (Player.playerHandle[itemHandle.strPlayer] !== undefined) {
-					var dblDistanceX = itemHandle.dblPosition[0] - Player.playerHandle[itemHandle.strPlayer].dblPosition[0];
-					var dblDistanceY = itemHandle.dblPosition[1] - Player.playerHandle[itemHandle.strPlayer].dblPosition[1];
-					var dblDistanceZ = itemHandle.dblPosition[2] - Player.playerHandle[itemHandle.strPlayer].dblPosition[2];
-					
-					if (Math.sqrt((dblDistanceX * dblDistanceX) + (dblDistanceY * dblDistanceY) + (dblDistanceZ * dblDistanceZ)) > (2.0 * Constants.dblWorldBlocksize)) {
-						itemHandle.strPlayer = 'playerDropped';
-					}
-				}
-			}
-			
 			{
 				if (Player.playerHandle[itemHandle.strPlayer] !== undefined) {
 					itemHandle.dblPosition[0] = Player.playerHandle[itemHandle.strPlayer].dblPosition[0];

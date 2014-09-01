@@ -79,7 +79,7 @@ var Item = {
 				
 				Item.itemHandle[strIdent] = {
 					'strIdent': strIdent,
-					'strPlayer': 'playerBase',
+					'strPlayer': 'playerInitial',
 					'dblPosition': [ 0.0, 0.0, 0.0 ],
 					'dblVerlet': [ 0.0, 0.0, 0.0 ],
 					'dblAcceleration': [ 0.0, 0.0, 0.0 ],
@@ -94,7 +94,7 @@ var Item = {
 				
 				Item.itemHandle[strIdent] = {
 					'strIdent': strIdent,
-					'strPlayer': 'playerBase',
+					'strPlayer': 'playerInitial',
 					'dblPosition': [ 0.0, 0.0, 0.0 ],
 					'dblVerlet': [ 0.0, 0.0, 0.0 ],
 					'dblAcceleration': [ 0.0, 0.0, 0.0 ],
@@ -107,7 +107,7 @@ var Item = {
 		
 		{
 			if (itemHandle !== undefined) {
-				itemHandle.strPlayer = 'playerBase';
+				itemHandle.strPlayer = 'playerInitial';
 				
 				Item.functionFlagInit(itemHandle);
 			}

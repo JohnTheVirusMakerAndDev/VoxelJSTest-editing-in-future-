@@ -15,11 +15,11 @@ var Constants = {
 	dblPlayerHitbox: [ 0.4, 0.9, 0.4 ]
 };
 
-var Voxel = require('../libs/Voxel.js')(Constants);
-var Input = require('../libs/Input.js')(Constants);
-var Physics = require('../libs/Physics.js')(Constants);
-var World = require('../libs/World.js')(Constants, Voxel);
-var Player = require('../libs/Player.js')(Constants, Voxel, Physics);
+var Voxel = require('./libVoxel.js')(Constants);
+var Input = require('./libInput.js')(Constants);
+var Physics = require('./libPhysics.js')(Constants);
+var World = require('./libWorld.js')(Constants, Voxel);
+var Player = require('./libPlayer.js')(Constants, Voxel, Physics);
 
 var Gui = {
 	strMode: '',

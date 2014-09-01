@@ -216,8 +216,8 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 				
 				if (Player.playerHandle[socketHandle.strIdent] === undefined) {
 					return;
-					
-				} else if (jsonHandle.strTeam.match(new RegExp('(teamRed)|(teamBlue)', 'g')) === null) {
+
+				} else if (jsonHandle.strTeam.replace(new RegExp('(teamRed)|(teamBlue)', ''), '') !== '') {
 					return;
 					
 				}
@@ -390,7 +390,7 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 						}
 						
 						return playerHandle;
-					}, function(physicsHandle) {
+					}, function(playerHandle) {
 						{
 							jsonHandle.strType = '';
 							
@@ -492,7 +492,7 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 				if (Player.playerHandle[socketHandle.strIdent] === undefined) {
 					return;
 					
-				} else if (jsonHandle.strItem.match(new RegExp('(itemPickaxe)|(itemSword)|(itemBow)', 'g')) === null) {
+				} else if (jsonHandle.strItem.replace(new RegExp('(itemPickaxe)|(itemSword)|(itemBow)', ''), '') !== '') {
 					return;
 					
 				}
@@ -602,9 +602,9 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 								}
 								
 								return playerHandle;
-							}, function(physicsHandle) {
+							}, function(playerHandle) {
 								{
-									Gameserver.playerHit(physicsHandle, itemHandle);
+									Gameserver.playerHit(playerHandle, itemHandle);
 								}
 							});
 						}
@@ -674,11 +674,11 @@ var Constants = {
 	intInteractionPickaxeDuration: 30,
 	intInteractionSwordDuration: 30,
 	intInteractionSwordDamage: 20,
-	dblInteractionSwordImpact: [ 0.09, 0.09, 0.09 ],
+	dblInteractionSwordImpact: [ 0.11, 0.11, 0.11 ],
 	dblInteractionSwordRange: 2.0,
 	intInteractionBowDuration: 30,
 	intInteractionBowDamage: 20,
-	dblInteractionBowImpact: [ 0.09, 0.09, 0.09 ],
+	dblInteractionBowImpact: [ 0.11, 0.11, 0.11 ],
 	
 	dblFlagSize: [ 1.0, 1.0, 1.0 ],
 	dblFlagGravity: [ 0.0, -0.01, 0.0 ],
@@ -841,6 +841,12 @@ var Gameserver = {
 							
 							Gameserver.strWorldFingerprint = '';
 						}
+						
+						{
+							Gameserver.intScoreRed = 0;
+							
+							Gameserver.intScoreBlue = 0;
+						}
 					}
 				}
 			}
@@ -913,7 +919,9 @@ var Gameserver = {
 				}
 				
 				{
-					Item.initFlag();
+					Item.initFlag(Item.itemHandle['itemFlag - teamRed']);
+					
+					Item.initFlag(Item.itemHandle['itemFlag - teamBlue']);
 				}
 				
 				{
@@ -953,6 +961,7 @@ var Gameserver = {
 				}
 				
 				{
+					console.log(playerHandle.dblPosition[1]);
 					if (playerHandle.intHealth < 1) {
 						{
 							playerHandle.intDeaths += 1;
@@ -962,7 +971,7 @@ var Gameserver = {
 							Gameserver.playerRespawn(playerHandle);
 						}
 						
-					} else if (playerHandle.dblPosition[1] < Constants.dblWorldBlocksize) {
+					} else if (playerHandle.dblPosition[1] < (2.0 * Constants.dblWorldBlocksize)) {
 						{
 							playerHandle.intDeaths += 1;
 						}
@@ -1012,6 +1021,20 @@ var Gameserver = {
 				'dblVerlet': playerHandle.dblVerlet
 			});
 		}
+		
+		{
+			if (Item.itemHandle['itemFlag - teamRed'].strPlayer === playerHandle.strIdent) {
+				{
+					Item.itemHandle['itemFlag - teamRed'].strPlayer = 'playerDropped';
+				}
+				
+			} else if (Item.itemHandle['itemFlag - teamBlue'].strPlayer === playerHandle.strIdent) {
+				{
+					Item.itemHandle['itemFlag - teamBlue'].strPlayer = 'playerDropped';
+				}
+				
+			}
+		}
 	},
 	
 	playerHit: function(playerHandle, itemHandle) {
@@ -1022,14 +1045,6 @@ var Gameserver = {
 			} else if (itemHandle.strIdent.indexOf('itemArrow') === 0) {
 				playerHandle.intHealth -= Constants.intInteractionBowDamage;
 				
-			}
-		}
-		
-		{
-			if (playerHandle.intHealth < 1) {
-				if (Player.playerHandle[itemHandle.strPlayer] !== undefined) {
-					Player.playerHandle[itemHandle.strPlayer].intKills += 1;
-				}
 			}
 		}
 		
@@ -1052,6 +1067,14 @@ var Gameserver = {
 				'dblAcceleration': playerHandle.dblAcceleration
 			});
 		}
+		
+		{
+			if (playerHandle.intHealth < 1) {
+				if (Player.playerHandle[itemHandle.strPlayer] !== undefined) {
+					Player.playerHandle[itemHandle.strPlayer].intKills += 1;
+				}
+			}
+		}
 	},
 	
 	itemUpdate: function() {
@@ -1060,7 +1083,7 @@ var Gameserver = {
 				var itemHandle = Item.itemHandle[strIdent];
 				
 				{
-					if (itemHandle.strPlayer !== 'playerBase') {
+					if (itemHandle.strPlayer !== 'playerInitial') {
 						if (itemHandle.strPlayer !== 'playerDropped') {
 							if (Player.playerHandle[itemHandle.strPlayer] === undefined) {
 								itemHandle.strPlayer = 'playerDropped';
@@ -1104,44 +1127,36 @@ var Gameserver = {
 								}
 								
 								return playerHandle;
-							}, function(physicsHandle) {
+							}, function(playerHandle) {
 								{
-									if (itemHandle.strPlayer === 'playerBase') {
-										if (itemHandle.strIdent.indexOf(physicsHandle.strTeam) === -1) {
+									if (itemHandle.strPlayer === 'playerInitial') {
+										if (itemHandle.strIdent.indexOf(playerHandle.strTeam) === -1) {
 											{
-												itemHandle.strPlayer = physicsHandle.strIdent;
+												itemHandle.strPlayer = playerHandle.strIdent;
 											}
 											
-										} else if (itemHandle.strIdent.indexOf(physicsHandle.strTeam) !== -1) {
+										} else if (itemHandle.strIdent.indexOf(playerHandle.strTeam) !== -1) {
 											{
-												if (physicsHandle.strTeam === 'teamRed') {
-													if (Item.itemHandle['itemFlag - teamBlue'].strPlayer === physicsHandle.strIdent) {
-														{
-															Item.initFlag(Item.itemHandle['itemFlag - teamBlue']);
-														}
-														
-														{
-															physicsHandle.intScore += 1;
-														}
-														
-														{
-															Gameserver.intScoreRed += 1;	
-														}
+												if (Item.itemHandle['itemFlag - teamBlue'].strPlayer === playerHandle.strIdent) {
+													{
+														Item.initFlag(Item.itemHandle['itemFlag - teamBlue']);
 													}
 													
-												} else if (physicsHandle.strTeam === 'teamBlue') {
-													if (Item.itemHandle['itemFlag - teamRed'].strPlayer === physicsHandle.strIdent) {
-														{
-															Item.initFlag(Item.itemHandle['itemFlag - teamRed']);
-														}
+													{
+														Gameserver.intScoreRed += 1;
 														
-														{
-															physicsHandle.intScore += 1;
-														}
+														playerHandle.intScore += 1;	
+													}
+													
+												} else if (Item.itemHandle['itemFlag - teamRed'].strPlayer === playerHandle.strIdent) {
+													{
+														Item.initFlag(Item.itemHandle['itemFlag - teamRed']);
+													}
+													
+													{
+														Gameserver.intScoreBlue += 1;
 														
-														{
-															Gameserver.intScoreBlue += 1;	
-														}
+														playerHandle.intScore += 1;	
 													}
 													
 												}
@@ -1150,12 +1165,12 @@ var Gameserver = {
 										}
 										
 									} else if (itemHandle.strPlayer === 'playerDropped') {
-										if (itemHandle.strIdent.indexOf(physicsHandle.strTeam) === -1) {
+										if (itemHandle.strIdent.indexOf(playerHandle.strTeam) === -1) {
 											{
-												itemHandle.strPlayer = physicsHandle.strIdent;
+												itemHandle.strPlayer = playerHandle.strIdent;
 											}
 											
-										} else if (itemHandle.strIdent.indexOf(physicsHandle.strTeam) !== -1) {
+										} else if (itemHandle.strIdent.indexOf(playerHandle.strTeam) !== -1) {
 											{
 												Item.initFlag(itemHandle);
 											}
@@ -1205,9 +1220,9 @@ var Gameserver = {
 								}
 								
 								return playerHandle;
-							}, function(physicsHandle) {
+							}, function(playerHandle) {
 								{
-									Gameserver.playerHit(physicsHandle, itemHandle);
+									Gameserver.playerHit(playerHandle, itemHandle);
 								}
 								
 								{
@@ -1223,10 +1238,10 @@ var Gameserver = {
 	}
 };
 
-var Physics = require(__dirname + '/libs/Physics.js')(Constants);
-var World = require(__dirname + '/libs/World.js')(Constants, null);
-var Player = require(__dirname + '/libs/Player.js')(Constants, null, Physics);
-var Item = require(__dirname + '/libs/Item.js')(Constants, null, Physics);
+var Physics = require(__dirname + '/assets/libPhysics.js')(Constants);
+var World = require(__dirname + '/assets/libWorld.js')(Constants, null);
+var Player = require(__dirname + '/assets/libPlayer.js')(Constants, null, Physics);
+var Item = require(__dirname + '/assets/libItem.js')(Constants, null, Physics);
 
 {
 	Gameserver.init();
@@ -1284,18 +1299,6 @@ var Item = require(__dirname + '/libs/Item.js')(Constants, null, Physics);
 	Item.functionFlagPlayer = function(itemHandle) {
 		{
 			if (Player.playerHandle[itemHandle.strPlayer] !== undefined) {
-				var dblDistanceX = itemHandle.dblPosition[0] - Player.playerHandle[itemHandle.strPlayer].dblPosition[0];
-				var dblDistanceY = itemHandle.dblPosition[1] - Player.playerHandle[itemHandle.strPlayer].dblPosition[1];
-				var dblDistanceZ = itemHandle.dblPosition[2] - Player.playerHandle[itemHandle.strPlayer].dblPosition[2];
-				
-				if (Math.sqrt((dblDistanceX * dblDistanceX) + (dblDistanceY * dblDistanceY) + (dblDistanceZ * dblDistanceZ)) > (2.0 * Constants.dblWorldBlocksize)) {
-					itemHandle.strPlayer = 'playerDropped';
-				}
-			}
-		}
-		
-		{
-			if (Player.playerHandle[itemHandle.strPlayer] !== undefined) {
 				itemHandle.dblPosition[0] = Player.playerHandle[itemHandle.strPlayer].dblPosition[0];
 				itemHandle.dblPosition[1] = Player.playerHandle[itemHandle.strPlayer].dblPosition[1] + 1.0;
 				itemHandle.dblPosition[2] = Player.playerHandle[itemHandle.strPlayer].dblPosition[2];
@@ -1324,6 +1327,12 @@ var Item = require(__dirname + '/libs/Item.js')(Constants, null, Physics);
 				
 				{
 					Gameserver.strWorldFingerprint = '';
+				}
+				
+				{
+					Gameserver.intScoreRed = 0;
+					
+					Gameserver.intScoreBlue = 0;
 				}
 				
 			} else if (Gameserver.intPlayerActive !== 0) {
