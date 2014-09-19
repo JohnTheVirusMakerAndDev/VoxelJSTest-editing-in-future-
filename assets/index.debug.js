@@ -94,12 +94,6 @@ var Gui = {
 		
 		{
 			jQuery('#idLogin_Login')
-				.button({
-					'disabled': false,
-					'icons': {
-						'primary': 'ui-icon-check'
-					}
-				})
 				.off('click')
 				.on('click', function() {
 					{
@@ -113,28 +107,6 @@ var Gui = {
 						});
 					}
 				});
-			;
-		}
-		
-		{
-			jQuery('#idLogin_Switch')
-				.button({
-					'disabled': false,
-					'icons': {
-						'primary': 'ui-icon-triangle-2-e-w'
-					}
-				})
-			;
-		}
-		
-		{
-			jQuery('#idLogin_Esc')
-				.button({
-					'disabled': false,
-					'icons': {
-						'primary': 'ui-icon-close'
-					}
-				})
 			;
 		}
 		
@@ -254,44 +226,29 @@ var Gui = {
 		
 		{
 			{
-				jQuery('#idPhaseBuild_Chooser').find('button')
-					.css({
-						'background': 'none',
-						'background-color': '#F2F2F2'
-					})
+				jQuery('#idPhaseBuild').find('a')
+					.removeClass('btn-primary')
 				;
 				
-				jQuery('#idPhaseCombat_Chooser').find('button')
-					.css({
-						'background': 'none',
-						'background-color': '#F2F2F2'
-					})
+				jQuery('#idPhaseCombat').find('a')
+					.removeClass('btn-primary')
 				;
 			}
 			
 			{
 				if (Gui.strChooserCategory === 'categoryCreate') {
-					jQuery('#idPhaseBuild_Chooser').find('button').eq(Gui.intChooserType + 0)
-						.css({
-							'background': 'none',
-							'background-color': '#FFFFFF'
-						})
+					jQuery('#idPhaseBuild').find('a').eq(Gui.intChooserType + 0)
+						.addClass('btn-primary')
 					;
 					
 				} else if (Gui.strChooserCategory === 'categoryDestroy') {
-					jQuery('#idPhaseBuild_Chooser').find('button').eq(Gui.intChooserType + 1)
-						.css({
-							'background': 'none',
-							'background-color': '#FFFFFF'
-						})
+					jQuery('#idPhaseBuild').find('a').eq(Gui.intChooserType + 1)
+						.addClass('btn-primary')
 					;
 					
 				} else if (Gui.strChooserCategory === 'categoryWeapon') {
-					jQuery('#idPhaseCombat_Chooser').find('button').eq(Gui.intChooserType + 0)
-						.css({
-							'background': 'none',
-							'background-color': '#FFFFFF'
-						})
+					jQuery('#idPhaseCombat').find('a').eq(Gui.intChooserType + 0)
+						.addClass('btn-primary')
 					;
 					
 				}
@@ -389,24 +346,20 @@ var Socket = {
 								}
 								
 								{
-									jQuery('#idLogin_Message')
-										.text(jsonHandle.strMessage)
-									;
-								}
-								
-								{
 									if (jsonHandle.strMessage === '') {
-										jQuery('#idLogin').find('.ui-dialog-content').children().slice(0, 2)
+										jQuery('#idLogin_Message')
 											.css({
 												'display': 'none'
 											})
+											.text(jsonHandle.strMessage)
 										;
 										
 									} else if (jsonHandle.strMessage !== '') {
-										jQuery('#idLogin').find('.ui-dialog-content').children().slice(0, 2)
+										jQuery('#idLogin_Message')
 											.css({
 												'display': 'block'
 											})
+											.text(jsonHandle.strMessage)
 										;
 										
 									}
@@ -433,37 +386,37 @@ var Socket = {
 						
 						{
 							jQuery('#idServer_Ping')
-								.val(new Date().getTime() - Socket.intPing)
+								.text(new Date().getTime() - Socket.intPing)
 							;
 							
 							jQuery('#idServer_Phase')
-								.html(jsonHandle.strPhaseActive + '<div style="padding:0.8em 0.0em 0.0em 0.0em; font-size:10px;">with ' + Math.floor(jsonHandle.intPhaseRemaining / 1000) + ' seconds remainin and ' + jsonHandle.intPhaseRound + ' rounds left</div>')
+								.html(jsonHandle.strPhaseActive + '<div style="padding:5px 0px 0px 0px; font-size:10px;">with ' + Math.floor(jsonHandle.intPhaseRemaining / 1000) + ' seconds remainin and ' + jsonHandle.intPhaseRound + ' rounds left</div>')
 							;
 							
 							jQuery('#idServer_World')
-								.val(jsonHandle.strWorldActive)
+								.text(jsonHandle.strWorldActive)
 							;
 							
 							jQuery('#idServer_Players')
-								.val(jsonHandle.intPlayerActive + ' / ' + jsonHandle.intPlayerCapacity)
+								.text(jsonHandle.intPlayerActive + ' / ' + jsonHandle.intPlayerCapacity)
 							;
 							
 							jQuery('#idTeamRed_Score')
-								.val(jsonHandle.intScoreRed)
+								.text(jsonHandle.intScoreRed)
 							;
 							
 							jQuery('#idTeamBlue_Score')
-								.val(jsonHandle.intScoreBlue)
+								.text(jsonHandle.intScoreBlue)
 							;
 						}
 						
 						{
-							jQuery('#idTeamRed_Table').find('tr').slice(1)
-								.remove()
+							jQuery('#idTeamRed_Table').find('tbody')
+								.empty()
 							;
 	
-							jQuery('#idTeamBlue_Table').find('tr').slice(1)
-								.remove()
+							jQuery('#idTeamBlue_Table').find('tbody')
+								.empty()
 							;
 						}
 						
@@ -482,7 +435,7 @@ var Socket = {
 										
 									}
 									
-									jQuery(strIdent)
+									jQuery(strIdent).find('tbody')
 										.append(jQuery('<tr></tr>')
 											.append(jQuery('<td></td>')
 												.text(playerHandle.strName)
@@ -504,11 +457,11 @@ var Socket = {
 						
 						{
 							jQuery('#idTeamRed_Players')
-								.val(jQuery('#idTeamRed_Table').find('tr').size() - 1)
+								.text(jQuery('#idTeamRed_Table').find('tbody').find('tr').size())
 							;
 							
 							jQuery('#idTeamBlue_Players')
-								.val(jQuery('#idTeamBlue_Table').find('tr').size() - 1)
+								.text(jQuery('#idTeamBlue_Table').find('tbody').find('tr').size())
 							;
 						}
 						
@@ -531,14 +484,14 @@ var Socket = {
 								if (jsonHandle.strPhaseActive === 'Build') {
 									jQuery('#idPhaseBuild')
 										.css({
-											'display': 'inline-block'
+											'display': 'block'
 										})
 									;
 									
 								} else if (jsonHandle.strPhaseActive === 'Combat') {
 									jQuery('#idPhaseCombat')
 										.css({
-											'display': 'inline-block'
+											'display': 'block'
 										})
 									;
 									
@@ -551,16 +504,13 @@ var Socket = {
 						{
 							jQuery('#idMessagebox_Log')
 								.append(jQuery('<div></div>')
-									.css({
-										'margin': '0.8em 1.0em 0.8em 1em'
-									})
-									.append(jQuery('<a></a>')
+									.append(jQuery('<span></span>')
 										.css({
 											'font-weight': 'bold'
 										})
 										.text(jsonHandle.strName + ':' + ' ')
 									)
-									.append(jQuery('<a></a>')
+									.append(jQuery('<span></span>')
 										.text(jsonHandle.strMessage)
 									)
 								)
@@ -706,7 +656,7 @@ var Socket = {
 						}
 					};
 					
-					setInterval(functionInterval, 1000);
+					window.setInterval(functionInterval, 1000);
 				}
 			});
 		}
@@ -940,7 +890,7 @@ window.addEventListener('load', function () {
 					Gui.updateMode('modeMenu');
 				}
 				
-				if (jQuery('#idPhaseBuild').css('display') === 'inline-block') {
+				if (jQuery('#idPhaseBuild').css('display') === 'block') {
 					if (eventHandle.keyCode === 49) {
 						Gui.updateChooser('categoryCreate', 0);
 						
@@ -949,7 +899,7 @@ window.addEventListener('load', function () {
 						
 					}
 					
-				} else if (jQuery('#idPhaseCombat').css('display') === 'inline-block') {
+				} else if (jQuery('#idPhaseCombat').css('display') === 'block') {
 					if (eventHandle.keyCode === 49) {
 						Gui.updateChooser('categoryWeapon', 0);
 						

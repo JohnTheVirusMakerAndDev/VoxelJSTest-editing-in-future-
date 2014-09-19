@@ -9,7 +9,7 @@ since this game is purely multiplayer based, it is required to join a server. in
 ##server setup
 make sure to have `node` and `npm` installed. navigate to `nodejs.org` otherwise, in order to download the latest binaries.
 
-a prebuilt version of `VoxRect-40` can then be obtained through the associated [link](dhiont4yb3hlc.cloudfront.net/VoxRect/VoxRect-40.zip). after unpacking it, go ahead and navigate to the root folder of the archive. before `node` is being used to start the server, the dependencies can then be installed by calling `npm` within a console.
+a prebuilt version of `VoxRect-52` can then be obtained through the associated [link](dhiont4yb3hlc.cloudfront.net/VoxRect/VoxRect-52.zip). after unpacking it, go ahead and navigate to the root folder of the archive. before `node` is being used to start the server, the dependencies can then be installed by calling `npm` within a console.
 
 ```
 npm install

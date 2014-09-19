@@ -26,8 +26,6 @@ var NodeConf = {};
 
 {
 	NodeConf.boolSocket = true;
-	
-	NodeConf.intSocketPort = 0;
 }
 
 module.exports = function() {

@@ -40,12 +40,6 @@ var Gui = {
 		
 		{
 			jQuery('#idWorld_Save')
-				.button({
-					'disabled': false,
-					'icons': {
-						'primary': 'ui-icon-disk'
-					}
-				})
 				.off('click')
 				.on('click', function() {
 					{
@@ -59,12 +53,6 @@ var Gui = {
 		
 		{
 			jQuery('#idWorld_Load')
-				.button({
-					'disabled': false,
-					'icons': {
-						'primary': 'ui-icon-folder-open'
-					}
-				})
 				.off('click')
 				.on('click', function() {
 					{
@@ -140,56 +128,41 @@ var Gui = {
 		
 		{
 			{
-				jQuery('#idPhaseBuild_Chooser').find('select')
-					.css({
-						'background': 'none',
-						'background-color': '#F2F2F2'
-					})
+				jQuery('#idPhaseBuild').find('select')
+					.removeClass('btn-primary')
 				;
 				
-				jQuery('#idPhaseBuild_Chooser').find('button')
-					.css({
-						'background': 'none',
-						'background-color': '#F2F2F2'
-					})
+				jQuery('#idPhaseBuild').find('a')
+					.removeClass('btn-primary')
 				;
 			}
 			
 			{
 				if (Gui.strChooserCategory === 'categoryCreate') {
-					jQuery('#idPhaseBuild_Chooser').find('select').eq(0)
-						.css({
-							'background': 'none',
-							'background-color': '#FFFFFF'
-						})
+					jQuery('#idPhaseBuild').find('select').eq(0)
+						.addClass('btn-primary')
 					;
 					
-					jQuery('#idPhaseBuild_Chooser').find('select').eq(0).find('option').eq(Gui.intChooserType + 0)
+					jQuery('#idPhaseBuild').find('select').eq(0).find('option').eq(Gui.intChooserType + 0)
 					    .prop({
 					        'selected': true
 					    })
 					;
 					
 				} else if (Gui.strChooserCategory === 'categorySpecial') {
-					jQuery('#idPhaseBuild_Chooser').find('select').eq(1)
-						.css({
-							'background': 'none',
-							'background-color': '#FFFFFF'
-						})
+					jQuery('#idPhaseBuild').find('select').eq(1)
+						.addClass('btn-primary')
 					;
 					
-					jQuery('#idPhaseBuild_Chooser').find('select').eq(1).find('option').eq(Gui.intChooserType + 0)
+					jQuery('#idPhaseBuild').find('select').eq(1).find('option').eq(Gui.intChooserType + 0)
 					    .prop({
 					        'selected': true
 					    })
 					;
 					
 				} else if (Gui.strChooserCategory === 'categoryDestroy') {
-					jQuery('#idPhaseBuild_Chooser').find('button').eq(Gui.intChooserType + 0)
-						.css({
-							'background': 'none',
-							'background-color': '#FFFFFF'
-						})
+					jQuery('#idPhaseBuild').find('a').eq(Gui.intChooserType + 0)
+						.addClass('btn-primary')
 					;
 					
 				}
@@ -405,12 +378,24 @@ window.addEventListener('load', function () {
 					Gui.updateMode('modeMenu');
 				}
 
-				if (jQuery('#idPhaseBuild').css('display') === 'inline-block') {
+				if (jQuery('#idPhaseBuild').css('display') === 'block') {
 					if (eventHandle.keyCode === 49) {
-						Gui.updateChooser('categoryCreate', (Gui.intChooserType + 1) % 5);
+						if (Gui.strChooserCategory === 'categoryCreate') {
+							Gui.updateChooser('categoryCreate', (Gui.intChooserType + 1) % 5);
+							
+						} else if (Gui.strChooserCategory !== 'categoryCreate') {
+							Gui.updateChooser('categoryCreate', 0);
+							
+						}
 						
 					} else if (eventHandle.keyCode === 50) {
-						Gui.updateChooser('categorySpecial', (Gui.intChooserType + 1) % 5);
+						if (Gui.strChooserCategory === 'categorySpecial') {
+							Gui.updateChooser('categorySpecial', (Gui.intChooserType + 1) % 5);
+							
+						} else if (Gui.strChooserCategory !== 'categorySpecial') {
+							Gui.updateChooser('categorySpecial', 0);
+							
+						}
 						
 					} else if (eventHandle.keyCode === 51) {
 						Gui.updateChooser('categoryDestroy', 0);
@@ -453,6 +438,8 @@ window.addEventListener('load', function () {
 	}
 	
 	{
+		Player.playerHandle['1'].strTeam = 'teamRed';
+		
 		Player.playerHandle['1'].dblPosition[0] = 0.0;
 		Player.playerHandle['1'].dblPosition[1] = 8.0;
 		Player.playerHandle['1'].dblPosition[2] = 0.0;

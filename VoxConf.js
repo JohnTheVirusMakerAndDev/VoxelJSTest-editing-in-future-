@@ -5,7 +5,7 @@ var VoxConf = {};
 }
 
 {
-	VoxConf.strName = 'voxel-warriors'; // name of the server, which is being displayed in the server browser
+	VoxConf.strName = ''; // name of the server, which is being displayed in the server browser
 }
 
 {	

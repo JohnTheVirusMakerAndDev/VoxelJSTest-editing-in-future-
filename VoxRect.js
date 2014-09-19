@@ -75,6 +75,12 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 		}
 	});
 	
+	Express.serverHandle.use(function(requestHandle, responseHandle, functionNext) {
+		responseHandle.header('Access-Control-Allow-Origin', '*');
+		
+		functionNext();
+	});
+	
 	Express.serverHandle.get('/', function(requestHandle, responseHandle) {
 		responseHandle.status(302);
 		
@@ -244,7 +250,7 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 				
 				{
 					if (jsonHandle.strName.length > 20) {
-						jsonHandle.strName = jsonHandle.strName.substr(1, 20);
+						jsonHandle.strName = jsonHandle.strName.substr(1, 20) + ' ... ';
 					}
 				}
 				
@@ -305,7 +311,7 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 				
 				{
 					if (jsonHandle.strMessage.length > 140) {
-						jsonHandle.strMessage = jsonHandle.strMessage.substr(1, 140);
+						jsonHandle.strMessage = jsonHandle.strMessage.substr(1, 140) + ' ... ';
 					}
 				}
 				
@@ -961,7 +967,6 @@ var Gameserver = {
 				}
 				
 				{
-					console.log(playerHandle.dblPosition[1]);
 					if (playerHandle.intHealth < 1) {
 						{
 							playerHandle.intDeaths += 1;

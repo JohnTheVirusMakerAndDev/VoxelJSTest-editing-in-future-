@@ -9,71 +9,9 @@
 		
 		<link rel="icon" type="image/png" href="http://dhiont4yb3hlc.cloudfront.net/WebsiteRect/bodyFavicon.png" />
 		
-		<link rel="stylesheet" type="text/css" href="http://cdn.jsdelivr.net/jquery.ui/1.11.0/themes/smoothness/jquery-ui.min.css" />
-		<style type="text/css">
-			.ui-dialog .ui-dialog-titlebar {
-				line-height:125%;
-			}
-			
-			.no-titlebar .ui-dialog-titlebar {
-				display:none;
-			}
-			
-			.no-close .ui-dialog-titlebar-close {
-				display:none;
-			}
-		</style>
-		
-		<style type="text/css">
-			body {
-				cursor:default;
-				
-				margin:0px;
-				border:none;
-				border-spacing:0px;
-				padding:0px;
-				
-				overflow:hidden;
-				
-				color:#000000;
-				font-size:12px;
-				font-weight:normal;
-				font-family:Tahoma;
-				text-decoration:none;
-				text-align:left;
-				line-height:1;
-				white-space:normal;
-			}
-			
-			.cssTable {
-				width:100%;
-				
-				margin:0px;
-				border:none;
-				border-spacing:0px;
-				padding:0px;
-			}
-			
-			.cssTable tr th {
-				padding:4px 8px 4px 8px;
-				
-				border-bottom:1px solid #D3D3D3;
-			}
-			
-			.cssTable tr td {
-				padding:4px 8px 4px 8px;
-				
-				border-bottom:1px solid #D3D3D3;
-			}
-			
-			.cssTable tr:last-child td {
-				border-bottom:none;
-			}
-		</style>
+		<link rel="stylesheet" type="text/css" href="http://cdn.jsdelivr.net/bootstrap/3.2.0/css/bootstrap.min.css" />
 		
 		<script type="text/javascript" src="http://cdn.jsdelivr.net/jquery/2.1.1/jquery.min.js"></script>
-		
-		<script type="text/javascript" src="http://cdn.jsdelivr.net/jquery.ui/1.11.0/jquery-ui.min.js"></script>
 		
 		<script type="text/javascript" src="http://cdn.jsdelivr.net/momentjs/2.7.0/moment.min.js"></script>
 		
@@ -97,40 +35,50 @@
 		</div>
 		
 		<div id="idToolbar" style="position:fixed; left:0px; right:0px; bottom:0px; height:100px; text-align:center;">
-			<div id="idPhaseBuild" class="ui-dialog ui-widget ui-widget-content ui-corner-all" style="display:inline-block; position:static;">
-				<div class="ui-dialog-content ui-widget-content" style="padding:1em;">
-					<div id="idPhaseBuild_Chooser">
-						<select class="ui-widget ui-state-default ui-corner-all" style="width:200px; padding:0.4em 1.0em 0.4em 1em; background:none;">
-							<option>Brick</option>
-							<option>Dirt</option>
-							<option>Grass</option>
-							<option>Plank</option>
-							<option>Stone</option>
-						</select>
-						<select class="ui-widget ui-state-default ui-corner-all" style="width:200px; padding:0.4em 1.0em 0.4em 1em; background:none;">
-							<option>Spawn Red</option>
-							<option>Spawn Blue</option>
-							<option>Flag Red</option>
-							<option>Flag Blue</option>
-							<option>Separator</option>
-						</select>
-						<button role="button" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
-							<span class="ui-button-text">Destroy</span>
-						</button>
+			<div class="panel panel-default modal-content" style="display:inline-block;">
+				<div class="panel-body">
+					<div id="idPhaseBuild">
+						<div id="idPhaseBuild_Chooser">
+							<select class="form-control" style="display:inline-block; width:200px;">
+								<option>Brick</option>
+								<option>Dirt</option>
+								<option>Grass</option>
+								<option>Plank</option>
+								<option>Stone</option>
+							</select>
+							
+							<select class="form-control" style="display:inline-block; width:200px;">
+								<option>Spawn Red</option>
+								<option>Spawn Blue</option>
+								<option>Flag Red</option>
+								<option>Flag Blue</option>
+								<option>Separator</option>
+							</select>
+							
+							<a class="btn btn-default" stlye="display:inline-block;">
+								Destroy
+							</a>
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 		
-		<div id="idWorld" class="ui-dialog ui-widget ui-widget-content ui-corner-all" style="position:fixed;left:50%; top:50%; width:800px; margin:-275px 0px 0px -400px;">
-			<div class="ui-dialog-content ui-widget-content" style="padding:1em;">
-				<textarea id="idWorld_Json" class="ui-widget ui-state-default ui-corner-all" style="width:100%; box-sizing:border-box; height:500px; padding:0.8em 1.0em 0.8em 1em; background:none; overflow-y:scroll; font-family:Courier; word-wrap:break-word;"></textarea>
-				
-				<div style="height:8px;"></div>
-	
-				<button id="idWorld_Save">Save</button>
-	
-				<button id="idWorld_Load">Load</button>
+		<div id="idWorld" style="position:fixed; left:50%; top:50%; width:490px; margin:-290px 0px 0px -245px;">
+			<div class="panel panel-default modal-content">
+				<div class="panel-body">
+					<textarea class="form-control" id="idWorld_Json" style="height:500px; overflow-y:scroll; font-family:Courier;"></textarea>
+					
+					<div style="height:15px;"></div>
+					
+					<a class="btn btn-primary" id="idWorld_Save">
+						Save
+					</a>
+					
+					<a class="btn btn-primary" id="idWorld_Load">
+						Load
+					</a>
+				</div>
 			</div>
 		</div>
 	</body>

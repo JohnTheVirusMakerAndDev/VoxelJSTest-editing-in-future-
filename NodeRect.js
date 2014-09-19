@@ -591,34 +591,9 @@ var Socket = {
 	
 	run: function() {
 		{
-			if (Express.serverHandle === null) {
-				{
-					Socket.httpHandle = Node.httpHandle.createServer(function(requestHandle, responseHandle) {
-						responseHandle.writeHead(200, {
-							'Access-Control-Allow-Origin': '*',
-							'Access-Control-Allow-Methods': 'POST, GET'
-						});
-						
-						responseHandle.end();
-					});
-					
-					{
-						Socket.serverHandle.attach(Socket.httpHandle);
-						
-						Socket.serverHandle.origins('*:*');
-					}
-					
-					Socket.httpHandle.listen(NodeConf.intSocketPort);
-				}
-				
-			} else if (Express.serverHandle !== null) {
-				{
-					Socket.serverHandle.attach(Express.httpHandle);
-					
-					Socket.serverHandle.origins('*:*');
-				}
-		
-			}
+			Socket.serverHandle.attach(Express.httpHandle);
+			
+			Socket.serverHandle.origins('*:*');
 		}
 	}
 };
