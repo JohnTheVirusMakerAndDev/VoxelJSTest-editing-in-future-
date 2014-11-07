@@ -1,10 +1,10 @@
 #voxel-warriors
-this project aims to develop a game voxel based graphics and a gameplay similar to capture the flag.
+this project aims to develop a game with voxel based graphics and a gameplay similar to capture the flag.
 
 ##play game
 since this game is purely multiplayer based, it is required to join a server. in order to find a list of active servers, simply navigate to `www.voxel-warriors.com`. it is also possible to setup a new server, what is further described below.
 
-![ThumbScreenshot](http://dhiont4yb3hlc.cloudfront.net/VoxRect/ThumbScreenshot.png)
+![ThumbScreenshot](http://dhiont4yb3hlc.cloudfront.net/VoxRect/ScreenshotThumb.png)
 
 ##server setup
 make sure to have `node` and `npm` installed. navigate to `nodejs.org` otherwise, in order to download the latest binaries.
