@@ -358,13 +358,13 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 					var dblSize = [ 0.0, 0.0, 0.0 ];
 					
 					{
-						dblPosition[0] = jsonHandle.intCoordinate[0] + (0.5 * Constants.dblWorldBlocksize);
-						dblPosition[1] = jsonHandle.intCoordinate[1] + (0.5 * Constants.dblWorldBlocksize);
-						dblPosition[2] = jsonHandle.intCoordinate[2] + (0.5 * Constants.dblWorldBlocksize);
+						dblPosition[0] = jsonHandle.intCoordinate[0] + (0.5 * Constants.dblGameBlocksize);
+						dblPosition[1] = jsonHandle.intCoordinate[1] + (0.5 * Constants.dblGameBlocksize);
+						dblPosition[2] = jsonHandle.intCoordinate[2] + (0.5 * Constants.dblGameBlocksize);
 						
-						dblSize[0] = 1.25 * Constants.dblWorldBlocksize;
-						dblSize[1] = 1.25 * Constants.dblWorldBlocksize;
-						dblSize[2] = 1.25 * Constants.dblWorldBlocksize;
+						dblSize[0] = 1.25 * Constants.dblGameBlocksize;
+						dblSize[1] = 1.25 * Constants.dblGameBlocksize;
+						dblSize[2] = 1.25 * Constants.dblGameBlocksize;
 					}
 					
 					Physics.updateObjectcol({
@@ -666,8 +666,7 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 var Constants = {
 	intGameLoop: 16,
 	dblGameScale: 0.04,
-	
-	dblWorldBlocksize: 1.0,
+	dblGameBlocksize: 1.0,
 	
 	intPlayerHealth: 100,
 	dblPlayerMovement: [ 0.03, 0.18, 0.03 ],
@@ -976,7 +975,7 @@ var Gameserver = {
 							Gameserver.playerRespawn(playerHandle);
 						}
 						
-					} else if (playerHandle.dblPosition[1] < (2.0 * Constants.dblWorldBlocksize)) {
+					} else if (playerHandle.dblPosition[1] < (2.0 * Constants.dblGameBlocksize)) {
 						{
 							playerHandle.intDeaths += 1;
 						}

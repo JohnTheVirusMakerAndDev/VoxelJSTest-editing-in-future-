@@ -3,8 +3,7 @@
 var Constants = {
 	intGameLoop: 16,
 	dblGameScale: 0.04,
-	
-	dblWorldBlocksize: 1.0,
+	dblGameBlocksize: 1.0,
 	
 	intPlayerHealth: 100,
 	dblPlayerMovement: [ 0.03, 0.18, 0.03 ],

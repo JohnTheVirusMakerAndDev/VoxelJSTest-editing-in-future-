@@ -1,0 +1,1 @@
+gpp -n -o ./assets/libPhysics.js ./assets/libPhysics.debug.js
