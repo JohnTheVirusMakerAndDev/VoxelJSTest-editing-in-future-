@@ -53,7 +53,7 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 				if (strDecoded.length !== 2) {
 					return [ '', '' ];
 				}
-
+				
 				return [ strDecoded[0], strDecoded[1] ];
 			}();
 			
@@ -122,7 +122,7 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 		
 		var functionSuccess = function() {
 			var strData = FilesystemRead_bufferHandle.toString();
-
+			
 			{
 				strData = Mustache.mustacheHandle.render(strData, Mustache_objectHandle);
 				
@@ -222,7 +222,7 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 				
 				if (Player.playerHandle[socketHandle.strIdent] === undefined) {
 					return;
-
+					
 				} else if (jsonHandle.strTeam.replace(new RegExp('(teamRed)|(teamBlue)', ''), '') !== '') {
 					return;
 					
@@ -404,7 +404,7 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 						}
 					});
 				}
-
+				
 				if (jsonHandle.strType !== 'voxelDirt') {
 					return;
 					
@@ -416,7 +416,7 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 				{
 					World.updateCreate(jsonHandle.intCoordinate, jsonHandle.strType, jsonHandle.boolBlocked);
 				}
-	
+				
 				{
 					Socket.serverHandle.emit('worldCreate', {
 						'intCoordinate': jsonHandle.intCoordinate,
@@ -453,7 +453,7 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 				{
 					World.updateDestroy(jsonHandle.intCoordinate);
 				}
-	
+				
 				{
 					Socket.serverHandle.emit('worldDestroy', {
 						'intCoordinate': jsonHandle.intCoordinate
@@ -473,14 +473,14 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 				if (Player.playerHandle[socketHandle.strIdent] === undefined) {
 					return;
 				}
-
+				
 				{
 					var playerHandle = {};
 					
 					{
 						Player.loadBufferpart(playerHandle, bufferHandle, 0);
 					}
-
+					
 					{
 						Player.playerHandle[socketHandle.strIdent].dblPosition = playerHandle.dblPosition;
 						Player.playerHandle[socketHandle.strIdent].dblVerlet = playerHandle.dblVerlet;
@@ -586,7 +586,7 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 										if (playerHandle === undefined) {
 											return null;
 										}
-
+										
 										if (playerHandle.strIdent === itemHandle.strPlayer) {
 											continue;
 										}
@@ -879,7 +879,7 @@ var Gameserver = {
 							World.updateDestroy(intCoordinate);
 						}
 				    }
-
+					
 				    for (var intFor1 = 0; intFor1 < World.intFlagBlue.length; intFor1 += 1) {
 						var intCoordinate = World.intFlagBlue[intFor1];
 						
@@ -938,7 +938,7 @@ var Gameserver = {
 				{
 					for (var strIdent in Player.playerHandle) {
 						var playerHandle = Player.playerHandle[strIdent];
-
+						
 						if (playerHandle.strTeam === '') {
 							continue;
 						}
@@ -1009,11 +1009,11 @@ var Gameserver = {
 				intSpawn = World.intSpawnBlue[Math.floor(Math.random() * World.intSpawnBlue.length)];
 				
 			}
-
+			
 			playerHandle.dblPosition[0] = intSpawn[0] + 0.5;
 			playerHandle.dblPosition[1] = intSpawn[1] + 2.0;
 			playerHandle.dblPosition[2] = intSpawn[2] + 0.5;
-
+			
 			playerHandle.dblVerlet[0] = playerHandle.dblPosition[0];
 			playerHandle.dblVerlet[1] = playerHandle.dblPosition[1];
 			playerHandle.dblVerlet[2] = playerHandle.dblPosition[2];
@@ -1057,7 +1057,7 @@ var Gameserver = {
 				playerHandle.dblAcceleration[0] = -1.0 * Constants.dblInteractionSwordImpact[0] * Math.sin(itemHandle.dblRotation[1]) * Math.cos(itemHandle.dblRotation[2]);
 				playerHandle.dblAcceleration[1] = -1.0 * Constants.dblInteractionSwordImpact[1] * Math.sin(itemHandle.dblRotation[2] + (1.0 * Math.PI));
 				playerHandle.dblAcceleration[2] = -1.0 * Constants.dblInteractionSwordImpact[2] * Math.cos(itemHandle.dblRotation[1]) * Math.cos(itemHandle.dblRotation[2]);
-
+				
 			} else if (itemHandle.strIdent.indexOf('itemArrow') === 0) {
 				playerHandle.dblAcceleration[0] = -1.0 * Constants.dblInteractionBowImpact[0] * Math.sin(itemHandle.dblRotation[1]) * Math.cos(itemHandle.dblRotation[2]);
 				playerHandle.dblAcceleration[1] = -1.0 * Constants.dblInteractionBowImpact[1] * Math.sin(itemHandle.dblRotation[2] + (1.0 * Math.PI));
@@ -1178,7 +1178,7 @@ var Gameserver = {
 											{
 												Item.initFlag(itemHandle);
 											}
-	
+											
 										}
 										
 									}
@@ -1257,7 +1257,7 @@ var Item = require(__dirname + '/assets/libItem.js')(Constants, null, Physics);
 	Physics.functionWorldcol = function(intCoordinateX, intCoordinateY, intCoordinateZ) {
 		if (intCoordinateY === 0) {
 			return true;
-
+			
 		} else if (World.worldHandle[[ intCoordinateX, intCoordinateY, intCoordinateZ ]] !== undefined) {
 			return true;
 			
@@ -1349,7 +1349,7 @@ var Item = require(__dirname + '/assets/libItem.js')(Constants, null, Physics);
 					
 					Gameserver.worldUpdate();
 				}
-	
+				
 			}
 		}
 		
@@ -1400,7 +1400,7 @@ var Item = require(__dirname + '/assets/libItem.js')(Constants, null, Physics);
 		var functionAdvertise = function() {
 			if (VoxConf.boolAdvertise === true) {
 				functionRequest();
-
+				
 			} else if (VoxConf.boolAdvertise === true) {
 				functionSuccess();
 				

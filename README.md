@@ -75,14 +75,18 @@ since the project consists of several components and each component has individu
 * `node` / `npm`
 * `socket.io`
 * `voxel-engine` / `voxel-highlight` / `minecraft-skin`
-* `browserify` / `uglifyify`
-* `jquery` / `jquery.ui` / `moment`
+* `browserify` / `uglify-js`
+* `bootstrap` / `jquery` / `moment`
+*
 
 ###`editor.debug.js`
 * `node` / `npm`
 * `voxel-engine` / `voxel-highlight` / `minecraft-skin`
-* `browserify` / `uglifyify`
-* `jquery` / `jquery.ui` / `moment`
+* `browserify` / `uglify-js`
+* `bootstrap` / `jquery` / `moment`
+
+###`libPhysics.debug.js`
+* `gpp`
 
 ##image credits
 * [joedeluxe](http://www.minecraftforum.net/forums/mapping-and-modding/resource-packs/1244027-64x-1-7-2-traditional-beauty/)

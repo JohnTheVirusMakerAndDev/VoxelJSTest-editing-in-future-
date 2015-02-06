@@ -302,7 +302,7 @@ var Voxel = {
 			{
 				for (var intFor1 = 0; intFor1 < 16; intFor1 += 1) {
 					for (var intFor2 = 0; intFor2 < 16; intFor2 += 1) {
-						var intColor = contextHandle.getImageData(intFor1, intFor2, intFor1 + 1, intFor2 + 1).data
+						var intColor = contextHandle.getImageData(intFor1, intFor2, 1, 1).data
 
 						if (intColor[3] === 0) {
 							continue;

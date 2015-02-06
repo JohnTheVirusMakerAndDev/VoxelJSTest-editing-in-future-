@@ -1,5 +1,5 @@
 :: to install browserify: npm install browserify -g
-:: to install uglifyify: npm install uglifyify -g
+:: to install uglifyjs: npm install uglify-js -g
 
-start cmd /k browserify -t uglifyify ./assets/editor.debug.js -o ./assets/editor.js
-start cmd /k browserify -t uglifyify ./assets/index.debug.js -o ./assets/index.js
+browserify ./assets/editor.debug.js | uglifyjs -o ./assets/editor.js
+browserify ./assets/index.debug.js | uglifyjs -o ./assets/index.js
