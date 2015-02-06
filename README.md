@@ -77,7 +77,6 @@ since the project consists of several components and each component has individu
 * `voxel-engine` / `voxel-highlight` / `minecraft-skin`
 * `browserify` / `uglify-js`
 * `bootstrap` / `jquery` / `moment`
-*
 
 ###`editor.debug.js`
 * `node` / `npm`
