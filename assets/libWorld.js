@@ -58,8 +58,8 @@ var World = {
 		var intBuffer = 0;
 		
 		{
-		    for (var intCoordinate in World.worldHandle) {
-				var worldHandle = World.worldHandle[intCoordinate];
+		    for (var strCoordinate in World.worldHandle) {
+				var worldHandle = World.worldHandle[strCoordinate];
 				
 				{
 					intBuffer = World.saveBufferpart(worldHandle, bufferHandle, intBuffer);
@@ -95,7 +95,7 @@ var World = {
 					}
 					
 					{
-						World.worldHandle[worldHandle.intCoordinate] = worldHandle;
+						World.worldHandle[worldHandle.intCoordinate[0] + ' - ' + worldHandle.intCoordinate[1] + ' - ' + worldHandle.intCoordinate[2]] = worldHandle;
 					}
 				} while (true);
 			}
@@ -114,8 +114,8 @@ var World = {
 		}
 		
 		{
-		    for (var intCoordinate in World.worldHandle) {
-				var worldHandle = World.worldHandle[intCoordinate];
+		    for (var strCoordinate in World.worldHandle) {
+				var worldHandle = World.worldHandle[strCoordinate];
 				
 				{
 					if (worldHandle.strType === 'voxelSpawnRed') {
@@ -205,16 +205,16 @@ var World = {
 		{
 			if (World.worldPast !== null) {
 				{
-				    for (var intCoordinate in World.worldPast) {
-						var worldHandle = World.worldPast[intCoordinate];
+				    for (var strCoordinate in World.worldPast) {
+						var worldHandle = World.worldPast[strCoordinate];
 						
 						{
 							Voxel.voxelengineHandle.setBlock(worldHandle.intCoordinate, 0);	
 						}
 				    }
 				    
-				    for (var intCoordinate in World.worldHandle) {
-						var worldHandle = World.worldHandle[intCoordinate];
+				    for (var strCoordinate in World.worldHandle) {
+						var worldHandle = World.worldHandle[strCoordinate];
 						
 						{
 							Voxel.voxelengineHandle.setBlock(worldHandle.intCoordinate, Voxel.voxelengineHandle.materials.find(worldHandle.strType));	
@@ -231,7 +231,7 @@ var World = {
 	
 	updateCreate: function(intCoordinate, strType, boolBlocked) {
 		{
-			World.worldHandle[intCoordinate] = {
+			World.worldHandle[intCoordinate[0] + ' - ' + intCoordinate[1] + ' - ' + intCoordinate[2]] = {
 				'intCoordinate': intCoordinate,
 				'strType': strType,
 				'boolBlocked': boolBlocked
@@ -249,7 +249,7 @@ var World = {
 	
 	updateDestroy: function(intCoordinate) {
 		{
-			delete World.worldHandle[intCoordinate];
+			delete World.worldHandle[intCoordinate[0] + ' - ' + intCoordinate[1] + ' - ' + intCoordinate[2]];
 		}
 		
 		if (Voxel === null) {
@@ -263,8 +263,8 @@ var World = {
 	
 	updateBlocked: function(intCoordinate) {
 		{
-			if (World.worldHandle[intCoordinate] !== undefined) {
-				if (World.worldHandle[intCoordinate].boolBlocked === true) {
+			if (World.worldHandle[intCoordinate[0] + ' - ' + intCoordinate[1] + ' - ' + intCoordinate[2]] !== undefined) {
+				if (World.worldHandle[intCoordinate[0] + ' - ' + intCoordinate[1] + ' - ' + intCoordinate[2]].boolBlocked === true) {
 					return true;
 				}
 			}
