@@ -198,10 +198,22 @@ var World = {
 	},
 	
 	update: function() {
-		if (Voxel === null) {
-			return;
+		{
+			World.updateLogic();
 		}
 		
+		{
+			if (Voxel !== null) {
+				World.updateGraphics();
+			}
+		}
+	},
+		
+	updateLogic: function() {
+		
+	},
+	
+	updateGraphics: function() {
 		{
 			if (World.worldPast !== null) {
 				{
@@ -238,12 +250,10 @@ var World = {
 			};
 		}
 		
-		if (Voxel === null) {
-			return;
-		}
-		
 		{
-			Voxel.voxelengineHandle.setBlock(intCoordinate, Voxel.voxelengineHandle.materials.find(strType));	
+			if (Voxel !== null) {
+				Voxel.voxelengineHandle.setBlock(intCoordinate, Voxel.voxelengineHandle.materials.find(strType));
+			}
 		}
 	},
 	
@@ -252,12 +262,10 @@ var World = {
 			delete World.worldHandle[intCoordinate[0] + ' - ' + intCoordinate[1] + ' - ' + intCoordinate[2]];
 		}
 		
-		if (Voxel === null) {
-			return;
-		}
-		
 		{
-			Voxel.voxelengineHandle.setBlock(intCoordinate, 0);	
+			if (Voxel !== null) {
+				Voxel.voxelengineHandle.setBlock(intCoordinate, 0);
+			}
 		}
 	},
 	

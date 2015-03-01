@@ -15,13 +15,13 @@ var Player = {
 		{
 			Player.playerHandle = {};
 		}
-
-		if (Voxel === null) {
-			return;
-		}
 		
 		{
-			var minecraftskinHandle = Voxel.minecraftskinCreate();
+			var minecraftskinHandle = {};
+			
+			if (Voxel !== null) {
+				minecraftskinHandle = Voxel.minecraftskinCreate();
+			}
 			
 			Player.minecraftskinController = minecraftskinHandle;
 		}
@@ -29,7 +29,11 @@ var Player = {
 		{
 			for (var intFor1 = 0; intFor1 < 32; intFor1 += 1) {
 				{
-					var minecraftskinHandle = Voxel.minecraftskinCreate();
+					var minecraftskinHandle = {};
+					
+					if (Voxel !== null) {
+						minecraftskinHandle = Voxel.minecraftskinCreate();
+					}
 					
 					Player.minecraftskinEnemy.push(minecraftskinHandle);
 				}
@@ -40,10 +44,6 @@ var Player = {
 	dispel: function() {
 		{
 			Player.playerHandle = {};
-		}
-
-		if (Voxel === null) {
-			return;
 		}
 		
 		{
@@ -422,6 +422,18 @@ var Player = {
 	
 	update: function() {
 		{
+			Player.updateLogic();
+		}
+		
+		{
+			if (Voxel !== null) {
+				Player.updateGraphics();
+			}
+		}
+	},
+		
+	updateLogic: function() {
+		{
 			if (Player.playerHandle['1'] !== undefined) {
 				Player.playerHandle['1'].dblRotation[0] = 0.0;
 				Player.playerHandle['1'].dblRotation[1] = Player.minecraftskinController.mesh.rotation.y;
@@ -480,11 +492,10 @@ var Player = {
 				}
 			}
 		}
-
-		if (Voxel === null) {
-			return;
-		}
 		
+	},
+	
+	updateGraphics: function() {
 		{
 			for (var intFor1 = 0; intFor1 < Player.minecraftskinEnemy.length; intFor1 += 1) {
 				var minecraftskinHandle = Player.minecraftskinEnemy[intFor1];

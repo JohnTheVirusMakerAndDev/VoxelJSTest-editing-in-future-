@@ -2,14 +2,14 @@
 	"name": "VoxRect",
 	"version": "1.0.0",
 	"engines": {
-		"node": "0.10.x",
-		"npm": "1.4.x"
+		"node": "0.12.x",
+		"npm": "2.6.x"
 	},
 	"dependencies": {
-		"express": "4.10.x", "compression": "1.2.x", "cookie-parser": "1.3.x",
-		"html-minifier": "0.6.x",
-		"mime": "1.2.x",
-		"mustache": "1.0.x",
-		"socket.io": "1.2.x"
+		"express": "4.12.x", "compression": "1.4.x", "cookie-parser": "1.3.x",
+		"html-minifier": "0.7.x",
+		"mime": "1.3.x",
+		"mustache": "1.1.x",
+		"socket.io": "1.3.x"
 	}
 }

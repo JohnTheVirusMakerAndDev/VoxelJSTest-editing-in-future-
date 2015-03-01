@@ -9,8 +9,7 @@ var Item = {
 	
 	functionFlagInit: null,
 	functionFlagPlayer: null,
-	meshFlagRed: null,
-	meshFlagBlue: null,
+	meshFlag: [],
 	
 	meshArrow: [],
 	
@@ -32,15 +31,33 @@ var Item = {
 				
 			};
 			
-			Item.meshFlagRed = Voxel.minecraftitemCreate('itemFlagRed', Constants.dblGameScale);
-			
-			Item.meshFlagBlue = Voxel.minecraftitemCreate('itemFlagBlue', Constants.dblGameScale);
+			for (var intFor1 = 0; intFor1 < 2; intFor1 += 1) {
+				{
+					var meshHandle = {};
+					
+					if (Voxel !== null) {
+						if (intFor1 === 0) {
+							meshHandle = Voxel.minecraftitemCreate('itemFlagRed', Constants.dblGameScale);
+							
+						} else if (intFor1 === 1) {
+							meshHandle = Voxel.minecraftitemCreate('itemFlagBlue', Constants.dblGameScale);
+							
+						}
+					}
+					
+					Item.meshFlag.push(meshHandle);
+				}
+			}
 		}
 		
 		{
 			for (var intFor1 = 0; intFor1 < 32; intFor1 += 1) {
 				{
-					var meshHandle = Voxel.minecraftitemCreate('itemArrow', Constants.dblGameScale);
+					var meshHandle = {};
+					
+					if (Voxel !== null) {
+						meshHandle = Voxel.minecraftitemCreate('itemArrow', Constants.dblGameScale);
+					}
 					
 					Item.meshArrow.push(meshHandle);
 				}
@@ -52,19 +69,13 @@ var Item = {
 		{
 			Item.itemHandle = {};
 		}
-
-		if (Voxel === null) {
-			return;
-		}
 		
 		{
 			Item.functionFlagInit = null;
 			
 			Item.functionFlagPlayer = null;
 			
-			Item.meshFlagRed = null;
-			
-			Item.meshFlagBlue = null;
+			Item.meshFlag = [];
 		}
 		
 		{
@@ -283,6 +294,18 @@ var Item = {
 	
 	update: function() {
 		{
+			Item.updateLogic();
+		}
+		
+		{
+			if (Voxel !== null) {
+				Item.updateGraphics();
+			}
+		}
+	},
+		
+	updateLogic: function() {
+		{
 			for (var strIdent in Item.itemHandle) {
 				var itemHandle = Item.itemHandle[strIdent];
 				
@@ -343,12 +366,10 @@ var Item = {
 					}
 				}
 			}
-		}
-
-		if (Voxel === null) {
-			return;
-		}
-		
+		}	
+	},
+	
+	updateGraphics: function() {
 		{
 			for (var intFor1 = 0; intFor1 < Item.meshArrow.length; intFor1 += 1) {
 				var meshHandle = Item.meshArrow[intFor1];
@@ -372,10 +393,10 @@ var Item = {
 					
 					{
 						if (itemHandle.strIdent === 'itemFlag - teamRed') {
-							meshHandle = Item.meshFlagRed;
+							meshHandle = Item.meshFlag[0];
 							
 						} else if (itemHandle.strIdent === 'itemFlag - teamBlue') {
-							meshHandle = Item.meshFlagBlue;
+							meshHandle = Item.meshFlag[1];
 							
 						} else if (itemHandle.strIdent.indexOf('itemArrow') === 0) {
 							for (var intFor1 = 0; intFor1 < Item.meshArrow.length; intFor1 += 1) {

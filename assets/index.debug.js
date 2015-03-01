@@ -84,7 +84,7 @@ var Gui = {
 		}
 
 		{
-			jQuery('#idLogin_Team').find('option').eq(Math.round(Math.random()))
+			jQuery('#idLogin_Team').find('option:eq(' + Math.round(Math.random()) + ')')
 			    .prop({
 			        'selected': true
 			    })
@@ -236,17 +236,17 @@ var Gui = {
 			
 			{
 				if (Gui.strChooserCategory === 'categoryCreate') {
-					jQuery('#idPhaseBuild').find('a').eq(Gui.intChooserType + 0)
+					jQuery('#idPhaseBuild').find('a:eq(' + (Gui.intChooserType + 0) + ')')
 						.addClass('btn-primary')
 					;
 					
 				} else if (Gui.strChooserCategory === 'categoryDestroy') {
-					jQuery('#idPhaseBuild').find('a').eq(Gui.intChooserType + 1)
+					jQuery('#idPhaseBuild').find('a:eq(' + (Gui.intChooserType + 1) + ')')
 						.addClass('btn-primary')
 					;
 					
 				} else if (Gui.strChooserCategory === 'categoryWeapon') {
-					jQuery('#idPhaseCombat').find('a').eq(Gui.intChooserType + 0)
+					jQuery('#idPhaseCombat').find('a:eq(' + (Gui.intChooserType + 0) + ')')
 						.addClass('btn-primary')
 					;
 					
@@ -322,7 +322,7 @@ var Socket = {
 		
 		{
 			jQuery.getScript('/socket.io/socket.io.js', function() {
-				Socket.socketHandle = io('/', {
+				Socket.socketHandle = io({
 					'reconnection': true,
 					'reconnectionDelay': 1000,
 					'reconnectionDelayMax': 5000,
