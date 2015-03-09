@@ -3,6 +3,7 @@
 var Constants = {};
 
 #define PHYSICS_3D
+#define PHYSICS_WORLDCOL_NAIVE
 
 var Physics = {
 	functionWorldcol: null,
@@ -260,140 +261,248 @@ var Physics = {
 		
 		{
 			#ifdef PHYSICS_2D
-			for (var intFor1 = 0; intFor1 < 3; intFor1 += 1) {
-				for (var intFor2 = 0; intFor2 < 3; intFor2 += 1) {
-					var intCoordinateX = Math.floor(physicsHandle.dblPosition[0] / Constants.dblGameBlocksize) + [ 0, -1, 1 ][intFor1];
-					var intCoordinateY = Math.floor(physicsHandle.dblPosition[1] / Constants.dblGameBlocksize) + [ 1, 0, -1 ][intFor2];
-					
-					var dblPositionX = (intCoordinateX * Constants.dblGameBlocksize) + (0.5 * Constants.dblGameBlocksize);
-					var dblPositionY = (intCoordinateY * Constants.dblGameBlocksize) + (0.5 * Constants.dblGameBlocksize);
-					
-					if (Physics.functionWorldcol(intCoordinateX, intCoordinateY) === false) {
-						continue;
+			var intCoordinate = [];
+			
+			#ifdef PHYSICS_WORLDCOL_NAIVE
+			{
+				var intCoordinateX = Math.floor(physicsHandle.dblPosition[0] / Constants.dblGameBlocksize);
+				var intCoordinateY = Math.floor(physicsHandle.dblPosition[1] / Constants.dblGameBlocksize);
+				
+				for (var intFor1 = 0; intFor1 < 3; intFor1 += 1) {
+					for (var intFor2 = 0; intFor2 < 3; intFor2 += 1) {
+						intCoordinate.push([ intCoordinateX + [ 0, -1, 1 ][intFor1], intCoordinateY + [ 1, 0, -1 ][intFor2] ]);
 					}
+				}
+			}
+			#endif
+			
+			#ifdef PHYSICS_WORLDCOL_OPTIMIZATION
+			{
+				var dblCoordinateX = physicsHandle.dblPosition[0] / Constants.dblGameBlocksize;
+				var dblCoordinateY = physicsHandle.dblPosition[1] / Constants.dblGameBlocksize;
+				
+				var intCoordinateX = Math.floor(dblCoordinateX);
+				var intCoordinateY = Math.floor(dblCoordinateY);
+				
+				var intShiftX = 0;
+				var intShiftY = 0;
+				
+				if ((dblCoordinateX % 1) < 0.5) {
+					intShiftX = -1;
+					
+				} else if ((dblCoordinateX % 1) >= 0.5) {
+					intShiftX = 1;
+					
+				}
+				
+				if ((dblCoordinateY % 1) < 0.5) {
+					intShiftY = -1;
+					
+				} else if ((dblCoordinateY % 1) >= 0.5) {
+					intShiftY = 1;
+					
+				}
+				
+				intCoordinate.push([ intCoordinateX + intShiftX, intCoordinateY ]);
+				intCoordinate.push([ intCoordinateX, intCoordinateY + intShiftY ]);
+				intCoordinate.push([ intCoordinateX + intShiftX, intCoordinateY + intShiftY ]);
+			}
+			#endif
+			
+			for (var intFor1 = 0; intFor1 < intCoordinate.length; intFor1 += 1) {
+				var intCoordinateX = intCoordinate[intFor1][0];
+				var intCoordinateY = intCoordinate[intFor1][1];
+				
+				var dblPositionX = (intCoordinateX * Constants.dblGameBlocksize) + (0.5 * Constants.dblGameBlocksize);
+				var dblPositionY = (intCoordinateY * Constants.dblGameBlocksize) + (0.5 * Constants.dblGameBlocksize);
+				
+				if (Physics.functionWorldcol(intCoordinateX, intCoordinateY) === false) {
+					continue;
+				}
+				
+				{
+					var dblIntersectX = 0.0;
+					var dblIntersectY = 0.0;
 					
 					{
-						var dblIntersectX = 0.0;
-						var dblIntersectY = 0.0;
+						dblIntersectX = Math.abs(physicsHandle.dblPosition[0] - dblPositionX) - (0.5 * physicsHandle.dblSize[0]) - (0.5 * Constants.dblGameBlocksize);
+						dblIntersectY = Math.abs(physicsHandle.dblPosition[1] - dblPositionY) - (0.5 * physicsHandle.dblSize[1]) - (0.5 * Constants.dblGameBlocksize);
 						
-						{
-							dblIntersectX = Math.abs(physicsHandle.dblPosition[0] - dblPositionX) - (0.5 * physicsHandle.dblSize[0]) - (0.5 * Constants.dblGameBlocksize);
-							dblIntersectY = Math.abs(physicsHandle.dblPosition[1] - dblPositionY) - (0.5 * physicsHandle.dblSize[1]) - (0.5 * Constants.dblGameBlocksize);
+						if (dblIntersectX >= 0.0) {
+							continue;
 							
-							if (dblIntersectX >= 0.0) {
-								continue;
-								
-							} else if (dblIntersectY >= 0.0) {
-								continue;
-								
-							}
-						}
-						
-						if (Math.max(dblIntersectX, dblIntersectY) === dblIntersectX) {
-							if ((physicsHandle.dblPosition[0] - dblPositionX) > 0.0) {
-								physicsHandle.dblPosition[0] -= dblIntersectX;
-								
-								physicsHandle.boolCollisionLeft = true;
-								
-							} else if ((physicsHandle.dblPosition[0] - dblPositionX) < 0.0) {
-								physicsHandle.dblPosition[0] += dblIntersectX;
-								
-								physicsHandle.boolCollisionRight = true;
-								
-							}
-							
-						} else if (Math.max(dblIntersectX, dblIntersectY) === dblIntersectY) {
-							if ((physicsHandle.dblPosition[1] - dblPositionY) > 0.0) {
-								physicsHandle.dblPosition[1] -= dblIntersectY;
-								
-								physicsHandle.boolCollisionTop = true;
-								
-							} else if ((physicsHandle.dblPosition[1] - dblPositionY) < 0.0) {
-								physicsHandle.dblPosition[1] += dblIntersectY;
-								
-								physicsHandle.boolCollisionBottom = true;
-								
-							}
+						} else if (dblIntersectY >= 0.0) {
+							continue;
 							
 						}
+					}
+					
+					if (Math.max(dblIntersectX, dblIntersectY) === dblIntersectX) {
+						if ((physicsHandle.dblPosition[0] - dblPositionX) > 0.0) {
+							physicsHandle.dblPosition[0] -= dblIntersectX;
+							
+							physicsHandle.boolCollisionLeft = true;
+							
+						} else if ((physicsHandle.dblPosition[0] - dblPositionX) < 0.0) {
+							physicsHandle.dblPosition[0] += dblIntersectX;
+							
+							physicsHandle.boolCollisionRight = true;
+							
+						}
+						
+					} else if (Math.max(dblIntersectX, dblIntersectY) === dblIntersectY) {
+						if ((physicsHandle.dblPosition[1] - dblPositionY) > 0.0) {
+							physicsHandle.dblPosition[1] -= dblIntersectY;
+							
+							physicsHandle.boolCollisionTop = true;
+							
+						} else if ((physicsHandle.dblPosition[1] - dblPositionY) < 0.0) {
+							physicsHandle.dblPosition[1] += dblIntersectY;
+							
+							physicsHandle.boolCollisionBottom = true;
+							
+						}
+						
 					}
 				}
 			}
 			#endif
 			
 			#ifdef PHYSICS_3D
-			for (var intFor1 = 0; intFor1 < 3; intFor1 += 1) {
-				for (var intFor2 = 0; intFor2 < 3; intFor2 += 1) {
-					for (var intFor3 = 0; intFor3 < 3; intFor3 += 1) {
-						var intCoordinateX = Math.floor(physicsHandle.dblPosition[0] / Constants.dblGameBlocksize) + [ 0, -1, 1 ][intFor1];
-						var intCoordinateY = Math.floor(physicsHandle.dblPosition[1] / Constants.dblGameBlocksize) + [ -1, 0, 1 ][intFor2];
-						var intCoordinateZ = Math.floor(physicsHandle.dblPosition[2] / Constants.dblGameBlocksize) + [ 0, -1, 1 ][intFor3];
+			var intCoordinate = [];
+			
+			#ifdef PHYSICS_WORLDCOL_NAIVE
+			{
+				var intCoordinateX = Math.floor(physicsHandle.dblPosition[0] / Constants.dblGameBlocksize);
+				var intCoordinateY = Math.floor(physicsHandle.dblPosition[1] / Constants.dblGameBlocksize);
+				var intCoordinateZ = Math.floor(physicsHandle.dblPosition[2] / Constants.dblGameBlocksize);
+				
+				for (var intFor1 = 0; intFor1 < 3; intFor1 += 1) {
+					for (var intFor2 = 0; intFor2 < 3; intFor2 += 1) {
+						for (var intFor3 = 0; intFor3 < 3; intFor3 += 1) {
+							intCoordinate.push([ intCoordinateX + [ 0, -1, 1 ][intFor1], intCoordinateY + [ -1, 0, 1 ][intFor2], intCoordinateZ + [ 0, -1, 1 ][intFor3] ]);
+						}
+					}
+				}
+			}
+			#endif
+			
+			#ifdef PHYSICS_WORLDCOL_OPTIMIZATION
+			{
+				var dblCoordinateX = physicsHandle.dblPosition[0] / Constants.dblGameBlocksize;
+				var dblCoordinateY = physicsHandle.dblPosition[1] / Constants.dblGameBlocksize;
+				var dblCoordinateZ = physicsHandle.dblPosition[2] / Constants.dblGameBlocksize;
+				
+				var intCoordinateX = Math.floor(dblCoordinateX);
+				var intCoordinateY = Math.floor(dblCoordinateY);
+				var intCoordinateZ = Math.floor(dblCoordinateZ);
+				
+				var intShiftX = 0;
+				var intShiftY = 0;
+				var intShiftZ = 0;
+				
+				if ((dblCoordinateX % 1) < 0.5) {
+					intShiftX = -1;
+					
+				} else if ((dblCoordinateX % 1) >= 0.5) {
+					intShiftX = 1;
+					
+				}
+				
+				if ((dblCoordinateY % 1) < 0.5) {
+					intShiftY = -1;
+					
+				} else if ((dblCoordinateY % 1) >= 0.5) {
+					intShiftY = 1;
+					
+				}
+				
+				if ((dblCoordinateZ % 1) < 0.5) {
+					intShiftZ = -1;
+					
+				} else if ((dblCoordinateZ % 1) >= 0.5) {
+					intShiftZ = 1;
+					
+				}
+				
+				intCoordinate.push([ intCoordinateX + intShiftX, intCoordinateY, intCoordinateZ ]);
+				intCoordinate.push([ intCoordinateX, intCoordinateY + intShiftY, intCoordinateZ ]);
+				intCoordinate.push([ intCoordinateX, intCoordinateY, intCoordinateZ + intShiftZ ]);
+				intCoordinate.push([ intCoordinateX + intShiftX, intCoordinateY + intShiftY, intCoordinateZ ]);
+				intCoordinate.push([ intCoordinateX, intCoordinateY + intShiftY, intCoordinateZ + intShiftZ ]);
+				intCoordinate.push([ intCoordinateX + intShiftX, intCoordinateY, intCoordinateZ + intShiftZ ]);
+				intCoordinate.push([ intCoordinateX + intShiftX, intCoordinateY + intShiftY, intCoordinateZ + intShiftZ ]);
+			}
+			#endif
+			
+			for (var intFor1 = 0; intFor1 < intCoordinate.length; intFor1 += 1) {
+				var intCoordinateX = intCoordinate[intFor1][0];
+				var intCoordinateY = intCoordinate[intFor1][1];
+				var intCoordinateZ = intCoordinate[intFor1][2];
+				
+				var dblPositionX = intCoordinateX + (0.5 * Constants.dblGameBlocksize);
+				var dblPositionY = intCoordinateY + (0.5 * Constants.dblGameBlocksize);
+				var dblPositionZ = intCoordinateZ + (0.5 * Constants.dblGameBlocksize);
+				
+				if (Physics.functionWorldcol(intCoordinateX, intCoordinateY, intCoordinateZ) === false) {
+					continue;
+				}
+				
+				{
+					var dblIntersectX = Math.abs(physicsHandle.dblPosition[0] - dblPositionX) - (0.5 * physicsHandle.dblSize[0]) - (0.5 * Constants.dblGameBlocksize);
+					var dblIntersectY = Math.abs(physicsHandle.dblPosition[1] - dblPositionY) - (0.5 * physicsHandle.dblSize[1]) - (0.5 * Constants.dblGameBlocksize);
+					var dblIntersectZ = Math.abs(physicsHandle.dblPosition[2] - dblPositionZ) - (0.5 * physicsHandle.dblSize[2]) - (0.5 * Constants.dblGameBlocksize);
+					
+					if (dblIntersectX >= 0.0) {
+						continue;
 						
-						var dblPositionX = intCoordinateX + (0.5 * Constants.dblGameBlocksize);
-						var dblPositionY = intCoordinateY + (0.5 * Constants.dblGameBlocksize);
-						var dblPositionZ = intCoordinateZ + (0.5 * Constants.dblGameBlocksize);
+					} else if (dblIntersectY >= 0.0) {
+						continue;
 						
-						if (Physics.functionWorldcol(intCoordinateX, intCoordinateY, intCoordinateZ) === false) {
-							continue;
+					} else if (dblIntersectZ >= 0.0) {
+						continue;
+						
+					}
+					
+					if (Math.max(dblIntersectX, dblIntersectY, dblIntersectZ) === dblIntersectX) {
+						if ((physicsHandle.dblPosition[0] - dblPositionX) > 0.0) {
+							physicsHandle.dblPosition[0] -= dblIntersectX;
+							
+							physicsHandle.boolCollisionSide = true;
+							
+						} else if ((physicsHandle.dblPosition[0] - dblPositionX) < 0.0) {
+							physicsHandle.dblPosition[0] += dblIntersectX;
+							
+							physicsHandle.boolCollisionSide = true;
+							
 						}
 						
-						{
-							var dblIntersectX = Math.abs(physicsHandle.dblPosition[0] - dblPositionX) - (0.5 * physicsHandle.dblSize[0]) - (0.5 * Constants.dblGameBlocksize);
-							var dblIntersectY = Math.abs(physicsHandle.dblPosition[1] - dblPositionY) - (0.5 * physicsHandle.dblSize[1]) - (0.5 * Constants.dblGameBlocksize);
-							var dblIntersectZ = Math.abs(physicsHandle.dblPosition[2] - dblPositionZ) - (0.5 * physicsHandle.dblSize[2]) - (0.5 * Constants.dblGameBlocksize);
+					} else if (Math.max(dblIntersectX, dblIntersectY, dblIntersectZ) === dblIntersectY) {
+						if ((physicsHandle.dblPosition[1] - dblPositionY) > 0.0) {
+							physicsHandle.dblPosition[1] -= dblIntersectY;
 							
-							if (dblIntersectX >= 0.0) {
-								continue;
-								
-							} else if (dblIntersectY >= 0.0) {
-								continue;
-								
-							} else if (dblIntersectZ >= 0.0) {
-								continue;
-								
-							}
+							physicsHandle.boolCollisionBottom = true;
 							
-							if (Math.max(dblIntersectX, dblIntersectY, dblIntersectZ) === dblIntersectX) {
-								if ((physicsHandle.dblPosition[0] - dblPositionX) > 0.0) {
-									physicsHandle.dblPosition[0] -= dblIntersectX;
-									
-									physicsHandle.boolCollisionSide = true;
-									
-								} else if ((physicsHandle.dblPosition[0] - dblPositionX) < 0.0) {
-									physicsHandle.dblPosition[0] += dblIntersectX;
-									
-									physicsHandle.boolCollisionSide = true;
-									
-								}
-								
-							} else if (Math.max(dblIntersectX, dblIntersectY, dblIntersectZ) === dblIntersectY) {
-								if ((physicsHandle.dblPosition[1] - dblPositionY) > 0.0) {
-									physicsHandle.dblPosition[1] -= dblIntersectY;
-									
-									physicsHandle.boolCollisionBottom = true;
-									
-								} else if ((physicsHandle.dblPosition[1] - dblPositionY) < 0.0) {
-									physicsHandle.dblPosition[1] += dblIntersectY;
-									
-									physicsHandle.boolCollisionTop = true;
-									
-								}
-								
-							} else if (Math.max(dblIntersectX, dblIntersectY, dblIntersectZ) === dblIntersectZ) {
-								if ((physicsHandle.dblPosition[2] - dblPositionZ) > 0.0) {
-									physicsHandle.dblPosition[2] -= dblIntersectZ;
-									
-									physicsHandle.boolCollisionSide = true;
-									
-								} else if ((physicsHandle.dblPosition[2] - dblPositionZ) < 0.0) {
-									physicsHandle.dblPosition[2] += dblIntersectZ;
-									
-									physicsHandle.boolCollisionSide = true;
-									
-								}
-								
-							}
+						} else if ((physicsHandle.dblPosition[1] - dblPositionY) < 0.0) {
+							physicsHandle.dblPosition[1] += dblIntersectY;
+							
+							physicsHandle.boolCollisionTop = true;
+							
 						}
+						
+					} else if (Math.max(dblIntersectX, dblIntersectY, dblIntersectZ) === dblIntersectZ) {
+						if ((physicsHandle.dblPosition[2] - dblPositionZ) > 0.0) {
+							physicsHandle.dblPosition[2] -= dblIntersectZ;
+							
+							physicsHandle.boolCollisionSide = true;
+							
+						} else if ((physicsHandle.dblPosition[2] - dblPositionZ) < 0.0) {
+							physicsHandle.dblPosition[2] += dblIntersectZ;
+							
+							physicsHandle.boolCollisionSide = true;
+							
+						}
+						
 					}
 				}
 			}

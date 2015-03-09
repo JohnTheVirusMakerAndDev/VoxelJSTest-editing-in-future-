@@ -26,6 +26,8 @@ var Gui = {
 	strChooserCategory: '',
 	intChooserType: '',
 	
+	strFingerprint: '',
+	
 	init: function() {
 		{
 			Gui.strMode = 'modeMenu';
@@ -35,6 +37,10 @@ var Gui = {
 			Gui.strChooserCategory = '';
 			
 			Gui.intChooserType = 0;
+		}
+		
+		{
+			Gui.strFingerprint = '';
 		}
 		
 		{
@@ -60,10 +66,6 @@ var Gui = {
 				})
 			;
 		}
-		
-		{
-			Gui.update();
-		}
 	},
 	
 	dispel: function() {
@@ -76,9 +78,27 @@ var Gui = {
 			
 			Gui.intChooserType = 0;
 		}
+		
+		{
+			Gui.strFingerprint = '';
+		}
 	},
 	
 	update: function() {
+		{
+			var strFingerprint = '';
+			
+			strFingerprint += Gui.strMode + ';';
+			strFingerprint += Gui.strChooserCategory + ';';
+			strFingerprint += Gui.intChooserType + ';';
+			
+			if (strFingerprint === Gui.strFingerprint) {
+				return;
+			}
+			
+			Gui.strFingerprint = strFingerprint;
+		}
+		
 		{
 			{
 				jQuery('#idCrosshair')
@@ -173,10 +193,6 @@ var Gui = {
 		{
 			Gui.strMode = strMode;
 		}
-		
-		{
-			Gui.update();
-		}
 	},
 	
 	updateChooser: function(strChooserCategory, intChooserType) {
@@ -184,10 +200,6 @@ var Gui = {
 			Gui.strChooserCategory = strChooserCategory;
 			
 			Gui.intChooserType = intChooserType;
-		}
-		
-		{
-			Gui.update();
 		}
 		
 		{
@@ -324,6 +336,10 @@ window.addEventListener('load', function () {
 			
 			{
 				Player.update();
+			}
+			
+			{
+				Gui.update();
 			}
 		});
 		
