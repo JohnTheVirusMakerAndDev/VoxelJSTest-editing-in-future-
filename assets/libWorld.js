@@ -4,6 +4,11 @@ var Constants = {};
 var Voxel = {};
 
 var World = {
+	browserify: function(constantsHandle, voxelHandle) {
+		Constants = constantsHandle;
+		Voxel = voxelHandle;
+	},
+	
 	worldPast: {},
 	worldHandle: {},
 	
@@ -352,9 +357,4 @@ var World = {
 	}
 };
 
-module.exports = function(constantsHandle, voxelHandle) {
-	Constants = constantsHandle;
-	Voxel = voxelHandle;
-	
-	return World;
-};
+module.exports = World;

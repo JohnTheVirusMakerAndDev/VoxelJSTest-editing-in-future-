@@ -3,6 +3,10 @@
 var Constants = {};
 
 var Input = {
+	browserify: function(constantsHandle) {
+		Constants = constantsHandle;
+	},
+	
 	functionException: null,
 	functionKeyup: null,
 	functionKeydown: null,
@@ -305,8 +309,4 @@ var Input = {
 	}
 };
 
-module.exports = function(constantsHandle) {
-	Constants = constantsHandle;
-	
-	return Input;
-};
+module.exports = Input;

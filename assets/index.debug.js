@@ -36,12 +36,21 @@ var Constants = {
 
 require('buffer');
 
-var Voxel = require('./libVoxel.js')(Constants);
-var Input = require('./libInput.js')(Constants);
-var Physics = require('./libPhysics.js')(Constants);
-var World = require('./libWorld.js')(Constants, Voxel);
-var Player = require('./libPlayer.js')(Constants, Voxel, Physics);
-var Item = require('./libItem.js')(Constants, Voxel, Physics);
+var Voxel = require('./libVoxel.js');
+var Physics = require('./libPhysics.js');
+var Input = require('./libInput.js');
+
+Voxel.browserify(Constants);
+Physics.browserify(Constants);
+Input.browserify(Constants);
+
+var World = require('./libWorld.js');
+var Player = require('./libPlayer.js');
+var Item = require('./libItem.js');
+
+World.browserify(Constants, Voxel);
+Player.browserify(Constants, Voxel, Physics);
+Item.browserify(Constants, Voxel, Physics);
 
 var Gui = {
 	strMode: '',
@@ -279,6 +288,10 @@ var Gui = {
 		{
 			Gui.strMode = strMode;
 		}
+		
+		{
+			Gui.update();
+		}
 	},
 	
 	updateChooser: function(strChooserCategory, intChooserType) {
@@ -314,6 +327,10 @@ var Gui = {
 			Socket.socketHandle.emit('itemHandle', {
 				'strItem': Player.playerHandle['1'].strItem
 			});
+		}
+		
+		{
+			Gui.update();
 		}
 	}
 };
@@ -785,10 +802,6 @@ window.addEventListener('load', function () {
 			}
 			
 			{
-				World.update();
-			}
-			
-			{
 				if (Input.boolUp === true) {
 					Player.playerHandle['1'].dblAcceleration[0] -= Constants.dblPlayerMovement[0] * Math.sin(Player.playerHandle['1'].dblRotation[1]);
 					Player.playerHandle['1'].dblAcceleration[1] -= 0.0;
@@ -826,6 +839,10 @@ window.addEventListener('load', function () {
 						}
 					}
 				}
+			}
+			
+			{
+				World.update();
 			}
 			
 			{
@@ -880,6 +897,22 @@ window.addEventListener('load', function () {
 	}
 	
 	{
+		Physics.init();
+		
+		Physics.functionWorldcol = function(intCoordinateX, intCoordinateY, intCoordinateZ) {
+			if (intCoordinateY === 0) {
+				return true;
+
+			} else if (World.worldHandle[intCoordinateX + ' - ' + intCoordinateY + ' - ' + intCoordinateZ] !== undefined) {
+				return true;
+				
+			}
+			
+			return false;
+		}
+	}
+	
+	{
 		Input.init();
 		
 		Input.functionException = function() {
@@ -931,22 +964,6 @@ window.addEventListener('load', function () {
 		Input.functionKeyup = function(eventHandle) {
 			
 		};
-	}
-	
-	{
-		Physics.init();
-		
-		Physics.functionWorldcol = function(intCoordinateX, intCoordinateY, intCoordinateZ) {
-			if (intCoordinateY === 0) {
-				return true;
-
-			} else if (World.worldHandle[intCoordinateX + ' - ' + intCoordinateY + ' - ' + intCoordinateZ] !== undefined) {
-				return true;
-				
-			}
-			
-			return false;
-		}
 	}
 	
 	{

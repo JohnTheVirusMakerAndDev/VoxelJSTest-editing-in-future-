@@ -5,6 +5,12 @@ var Voxel = {};
 var Physics = {};
 
 var Player = {
+	browserify: function(constantsHandle, voxelHandle, physicsHandle) {
+		Constants = constantsHandle;
+		Voxel = voxelHandle;
+		Physics = physicsHandle;
+	},
+	
 	playerHandle: {},
 	
 	minecraftskinController: null,
@@ -456,12 +462,12 @@ var Player = {
 					playerHandle.dblFriction = Constants.dblPlayerFriction;
 					
 					Physics.update(playerHandle);
-					Physics.updateWorldcol(playerHandle);
+					Physics.updateWorldcol(playerHandle, false);
 				}
 				
 				{
 					if (playerHandle.boolCollisionBottom === true) {
-						if (Math.abs(playerHandle.dblPosition[1] - playerHandle.dblVerlet[1]) < 0.001) {
+						if (Math.abs(playerHandle.dblPosition[1] - playerHandle.dblVerlet[1]) < 0.0001) {
 							playerHandle.intJumpcount = 1;
 						}
 					}
@@ -576,10 +582,4 @@ var Player = {
 	}
 };
 
-module.exports = function(constantsHandle, voxelHandle, physicsHandle) {
-	Constants = constantsHandle;
-	Voxel = voxelHandle;
-	Physics = physicsHandle;
-	
-	return Player;
-}
+module.exports = Player;

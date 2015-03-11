@@ -3,6 +3,10 @@
 var Constants = {};
 
 var Voxel = {
+	browserify: function(constantsHandle) {
+		Constants = constantsHandle;
+	},
+	
 	voxelengineHandle: null,
 	
 	voxelhighlightHandle: null,
@@ -348,8 +352,4 @@ var Voxel = {
 	}
 };
 
-module.exports = function(constantsHandle) {
-	Constants = constantsHandle;
-	
-	return Voxel;
-};
+module.exports = Voxel;

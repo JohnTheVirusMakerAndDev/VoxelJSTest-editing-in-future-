@@ -3,9 +3,12 @@
 var Constants = {};
 
 #define PHYSICS_3D
-#define PHYSICS_WORLDCOL_NAIVE
 
 var Physics = {
+	browserify: function(constantsHandle) {
+		Constants = constantsHandle;
+	},
+	
 	functionWorldcol: null,
 	
 	init: function() {
@@ -238,7 +241,7 @@ var Physics = {
 		}
 	},
 	
-	updateWorldcol: function(physicsHandle) {
+	updateWorldcol: function(physicsHandle, boolSmall) {
 		{
 			#ifdef PHYSICS_2D
 			physicsHandle.boolCollisionTop = false;
@@ -263,21 +266,7 @@ var Physics = {
 			#ifdef PHYSICS_2D
 			var intCoordinate = [];
 			
-			#ifdef PHYSICS_WORLDCOL_NAIVE
-			{
-				var intCoordinateX = Math.floor(physicsHandle.dblPosition[0] / Constants.dblGameBlocksize);
-				var intCoordinateY = Math.floor(physicsHandle.dblPosition[1] / Constants.dblGameBlocksize);
-				
-				for (var intFor1 = 0; intFor1 < 3; intFor1 += 1) {
-					for (var intFor2 = 0; intFor2 < 3; intFor2 += 1) {
-						intCoordinate.push([ intCoordinateX + [ 0, -1, 1 ][intFor1], intCoordinateY + [ 1, 0, -1 ][intFor2] ]);
-					}
-				}
-			}
-			#endif
-			
-			#ifdef PHYSICS_WORLDCOL_OPTIMIZATION
-			{
+			if (boolSmall === true) {
 				var dblCoordinateX = physicsHandle.dblPosition[0] / Constants.dblGameBlocksize;
 				var dblCoordinateY = physicsHandle.dblPosition[1] / Constants.dblGameBlocksize;
 				
@@ -306,8 +295,18 @@ var Physics = {
 				intCoordinate.push([ intCoordinateX + intShiftX, intCoordinateY ]);
 				intCoordinate.push([ intCoordinateX, intCoordinateY + intShiftY ]);
 				intCoordinate.push([ intCoordinateX + intShiftX, intCoordinateY + intShiftY ]);
+				
+			} else if (boolSmall === false) {
+				var intCoordinateX = Math.floor(physicsHandle.dblPosition[0] / Constants.dblGameBlocksize);
+				var intCoordinateY = Math.floor(physicsHandle.dblPosition[1] / Constants.dblGameBlocksize);
+				
+				for (var intFor1 = 0; intFor1 < 3; intFor1 += 1) {
+					for (var intFor2 = 0; intFor2 < 3; intFor2 += 1) {
+						intCoordinate.push([ intCoordinateX + [ 0, -1, 1 ][intFor1], intCoordinateY + [ 1, 0, -1 ][intFor2] ]);
+					}
+				}
+				
 			}
-			#endif
 			
 			for (var intFor1 = 0; intFor1 < intCoordinate.length; intFor1 += 1) {
 				var intCoordinateX = intCoordinate[intFor1][0];
@@ -371,24 +370,7 @@ var Physics = {
 			#ifdef PHYSICS_3D
 			var intCoordinate = [];
 			
-			#ifdef PHYSICS_WORLDCOL_NAIVE
-			{
-				var intCoordinateX = Math.floor(physicsHandle.dblPosition[0] / Constants.dblGameBlocksize);
-				var intCoordinateY = Math.floor(physicsHandle.dblPosition[1] / Constants.dblGameBlocksize);
-				var intCoordinateZ = Math.floor(physicsHandle.dblPosition[2] / Constants.dblGameBlocksize);
-				
-				for (var intFor1 = 0; intFor1 < 3; intFor1 += 1) {
-					for (var intFor2 = 0; intFor2 < 3; intFor2 += 1) {
-						for (var intFor3 = 0; intFor3 < 3; intFor3 += 1) {
-							intCoordinate.push([ intCoordinateX + [ 0, -1, 1 ][intFor1], intCoordinateY + [ -1, 0, 1 ][intFor2], intCoordinateZ + [ 0, -1, 1 ][intFor3] ]);
-						}
-					}
-				}
-			}
-			#endif
-			
-			#ifdef PHYSICS_WORLDCOL_OPTIMIZATION
-			{
+			if (boolSmall === true) {
 				var dblCoordinateX = physicsHandle.dblPosition[0] / Constants.dblGameBlocksize;
 				var dblCoordinateY = physicsHandle.dblPosition[1] / Constants.dblGameBlocksize;
 				var dblCoordinateZ = physicsHandle.dblPosition[2] / Constants.dblGameBlocksize;
@@ -432,8 +414,21 @@ var Physics = {
 				intCoordinate.push([ intCoordinateX, intCoordinateY + intShiftY, intCoordinateZ + intShiftZ ]);
 				intCoordinate.push([ intCoordinateX + intShiftX, intCoordinateY, intCoordinateZ + intShiftZ ]);
 				intCoordinate.push([ intCoordinateX + intShiftX, intCoordinateY + intShiftY, intCoordinateZ + intShiftZ ]);
+				
+			} else if (boolSmall === false) {
+				var intCoordinateX = Math.floor(physicsHandle.dblPosition[0] / Constants.dblGameBlocksize);
+				var intCoordinateY = Math.floor(physicsHandle.dblPosition[1] / Constants.dblGameBlocksize);
+				var intCoordinateZ = Math.floor(physicsHandle.dblPosition[2] / Constants.dblGameBlocksize);
+				
+				for (var intFor1 = 0; intFor1 < 3; intFor1 += 1) {
+					for (var intFor2 = 0; intFor2 < 3; intFor2 += 1) {
+						for (var intFor3 = 0; intFor3 < 3; intFor3 += 1) {
+							intCoordinate.push([ intCoordinateX + [ 0, -1, 1 ][intFor1], intCoordinateY + [ -1, 0, 1 ][intFor2], intCoordinateZ + [ 0, -1, 1 ][intFor3] ]);
+						}
+					}
+				}
+				
 			}
-			#endif
 			
 			for (var intFor1 = 0; intFor1 < intCoordinate.length; intFor1 += 1) {
 				var intCoordinateX = intCoordinate[intFor1][0];
@@ -609,8 +604,4 @@ var Physics = {
 	}
 };
 
-module.exports = function(constantsHandle) {
-	Constants = constantsHandle;
-	
-	return Physics;
-};
+module.exports = Physics;

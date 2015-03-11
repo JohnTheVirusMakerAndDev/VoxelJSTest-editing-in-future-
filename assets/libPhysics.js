@@ -4,8 +4,11 @@ var Constants = {};
 
 
 
-
 var Physics = {
+	browserify: function(constantsHandle) {
+		Constants = constantsHandle;
+	},
+	
 	functionWorldcol: null,
 	
 	init: function() {
@@ -156,7 +159,7 @@ var Physics = {
 		}
 	},
 	
-	updateWorldcol: function(physicsHandle) {
+	updateWorldcol: function(physicsHandle, boolSmall) {
 		{
 			
 			
@@ -175,8 +178,52 @@ var Physics = {
 			
 			var intCoordinate = [];
 			
-			
-			{
+			if (boolSmall === true) {
+				var dblCoordinateX = physicsHandle.dblPosition[0] / Constants.dblGameBlocksize;
+				var dblCoordinateY = physicsHandle.dblPosition[1] / Constants.dblGameBlocksize;
+				var dblCoordinateZ = physicsHandle.dblPosition[2] / Constants.dblGameBlocksize;
+				
+				var intCoordinateX = Math.floor(dblCoordinateX);
+				var intCoordinateY = Math.floor(dblCoordinateY);
+				var intCoordinateZ = Math.floor(dblCoordinateZ);
+				
+				var intShiftX = 0;
+				var intShiftY = 0;
+				var intShiftZ = 0;
+				
+				if ((dblCoordinateX % 1) < 0.5) {
+					intShiftX = -1;
+					
+				} else if ((dblCoordinateX % 1) >= 0.5) {
+					intShiftX = 1;
+					
+				}
+				
+				if ((dblCoordinateY % 1) < 0.5) {
+					intShiftY = -1;
+					
+				} else if ((dblCoordinateY % 1) >= 0.5) {
+					intShiftY = 1;
+					
+				}
+				
+				if ((dblCoordinateZ % 1) < 0.5) {
+					intShiftZ = -1;
+					
+				} else if ((dblCoordinateZ % 1) >= 0.5) {
+					intShiftZ = 1;
+					
+				}
+				
+				intCoordinate.push([ intCoordinateX + intShiftX, intCoordinateY, intCoordinateZ ]);
+				intCoordinate.push([ intCoordinateX, intCoordinateY + intShiftY, intCoordinateZ ]);
+				intCoordinate.push([ intCoordinateX, intCoordinateY, intCoordinateZ + intShiftZ ]);
+				intCoordinate.push([ intCoordinateX + intShiftX, intCoordinateY + intShiftY, intCoordinateZ ]);
+				intCoordinate.push([ intCoordinateX, intCoordinateY + intShiftY, intCoordinateZ + intShiftZ ]);
+				intCoordinate.push([ intCoordinateX + intShiftX, intCoordinateY, intCoordinateZ + intShiftZ ]);
+				intCoordinate.push([ intCoordinateX + intShiftX, intCoordinateY + intShiftY, intCoordinateZ + intShiftZ ]);
+				
+			} else if (boolSmall === false) {
 				var intCoordinateX = Math.floor(physicsHandle.dblPosition[0] / Constants.dblGameBlocksize);
 				var intCoordinateY = Math.floor(physicsHandle.dblPosition[1] / Constants.dblGameBlocksize);
 				var intCoordinateZ = Math.floor(physicsHandle.dblPosition[2] / Constants.dblGameBlocksize);
@@ -188,10 +235,8 @@ var Physics = {
 						}
 					}
 				}
+				
 			}
-			
-			
-			
 			
 			for (var intFor1 = 0; intFor1 < intCoordinate.length; intFor1 += 1) {
 				var intCoordinateX = intCoordinate[intFor1][0];
@@ -354,8 +399,4 @@ var Physics = {
 	}
 };
 
-module.exports = function(constantsHandle) {
-	Constants = constantsHandle;
-	
-	return Physics;
-};
+module.exports = Physics;

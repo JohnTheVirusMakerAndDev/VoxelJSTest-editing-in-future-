@@ -5,6 +5,12 @@ var Voxel = {};
 var Physics = {};
 
 var Item = {
+	browserify: function(constantsHandle, voxelHandle, physicsHandle) {
+		Constants = constantsHandle;
+		Voxel = voxelHandle;
+		Physics = physicsHandle;
+	},
+	
 	itemHandle: {},
 	
 	functionFlagInit: null,
@@ -318,7 +324,7 @@ var Item = {
 							itemHandle.dblFriction = Constants.dblFlagFriction;
 	
 							Physics.update(itemHandle);
-							Physics.updateWorldcol(itemHandle);
+							Physics.updateWorldcol(itemHandle, false);
 						}
 						
 						{
@@ -337,7 +343,7 @@ var Item = {
 							itemHandle.dblFriction = Constants.dblArrowFriction;
 							
 							Physics.update(itemHandle);
-							Physics.updateWorldcol(itemHandle);
+							Physics.updateWorldcol(itemHandle, false);
 						}
 						
 						{
@@ -449,10 +455,4 @@ var Item = {
 	}
 };
 
-module.exports = function(constantsHandle, voxelHandle, physicsHandle) {
-	Constants = constantsHandle;
-	Voxel = voxelHandle;
-	Physics = physicsHandle;
-	
-	return Item;
-}
+module.exports = Item;

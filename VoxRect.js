@@ -1242,10 +1242,17 @@ var Gameserver = {
 	}
 };
 
-var Physics = require(__dirname + '/assets/libPhysics.js')(Constants);
-var World = require(__dirname + '/assets/libWorld.js')(Constants, null);
-var Player = require(__dirname + '/assets/libPlayer.js')(Constants, null, Physics);
-var Item = require(__dirname + '/assets/libItem.js')(Constants, null, Physics);
+var Physics = require(__dirname + '/assets/libPhysics.js');
+
+Physics.browserify(Constants);
+
+var World = require(__dirname + '/assets/libWorld.js');
+var Player = require(__dirname + '/assets/libPlayer.js');
+var Item = require(__dirname + '/assets/libItem.js');
+
+World.browserify(Constants, null);
+Player.browserify(Constants, null, Physics);
+Item.browserify(Constants, null, Physics);
 
 {
 	Gameserver.init();
