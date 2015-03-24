@@ -100,7 +100,7 @@ var World = {
 					}
 					
 					{
-						World.worldHandle[worldHandle.intCoordinate[0] + ' - ' + worldHandle.intCoordinate[1] + ' - ' + worldHandle.intCoordinate[2]] = worldHandle;
+						World.worldHandle[(worldHandle.intCoordinate[0] << 20) + (worldHandle.intCoordinate[1] << 10) + (worldHandle.intCoordinate[2] << 0)] = worldHandle;
 					}
 				} while (true);
 			}
@@ -248,7 +248,7 @@ var World = {
 	
 	updateCreate: function(intCoordinate, strType, boolBlocked) {
 		{
-			World.worldHandle[intCoordinate[0] + ' - ' + intCoordinate[1] + ' - ' + intCoordinate[2]] = {
+			World.worldHandle[(intCoordinate[0] << 20) + (intCoordinate[1] << 10) + (intCoordinate[2] << 0)] = {
 				'intCoordinate': intCoordinate,
 				'strType': strType,
 				'boolBlocked': boolBlocked
@@ -264,7 +264,7 @@ var World = {
 	
 	updateDestroy: function(intCoordinate) {
 		{
-			delete World.worldHandle[intCoordinate[0] + ' - ' + intCoordinate[1] + ' - ' + intCoordinate[2]];
+			delete World.worldHandle[(intCoordinate[0] << 20) + (intCoordinate[1] << 10) + (intCoordinate[2] << 0)];
 		}
 		
 		{
@@ -276,8 +276,8 @@ var World = {
 	
 	updateBlocked: function(intCoordinate) {
 		{
-			if (World.worldHandle[intCoordinate[0] + ' - ' + intCoordinate[1] + ' - ' + intCoordinate[2]] !== undefined) {
-				if (World.worldHandle[intCoordinate[0] + ' - ' + intCoordinate[1] + ' - ' + intCoordinate[2]].boolBlocked === true) {
+			if (World.worldHandle[(intCoordinate[0] << 20) + (intCoordinate[1] << 10) + (intCoordinate[2] << 0)] !== undefined) {
+				if (World.worldHandle[(intCoordinate[0] << 20) + (intCoordinate[1] << 10) + (intCoordinate[2] << 0)].boolBlocked === true) {
 					return true;
 				}
 			}

@@ -615,7 +615,7 @@ var Socket = {
 									}
 									
 									{
-										playerHandle.intInteractionWalk = playerOverwrite[playerHandle.strIdent].intInteractionWalk;
+										playerHandle.intWalk = playerOverwrite[playerHandle.strIdent].intWalk;
 									}
 							    }
 							}
@@ -714,12 +714,12 @@ window.addEventListener('load', function () {
 				}
 				
 				if (Gui.intChooserType === 0) {
-					if (Player.playerHandle['1'].intInteractionWeapon > 0) {
+					if (Player.playerHandle['1'].intWeapon > 0) {
 						return;
 					}
 					
 					{
-						Player.playerHandle['1'].intInteractionWeapon = Constants.intInteractionPickaxeDuration;
+						Player.playerHandle['1'].intWeapon = Constants.intInteractionPickaxeDuration;
 					}
 					
 					{
@@ -737,12 +737,12 @@ window.addEventListener('load', function () {
 				}
 				
 				if (Gui.intChooserType === 0) {
-					if (Player.playerHandle['1'].intInteractionWeapon > 0) {
+					if (Player.playerHandle['1'].intWeapon > 0) {
 						return;
 					}
 					
 					{
-						Player.playerHandle['1'].intInteractionWeapon = Constants.intInteractionPickaxeDuration;
+						Player.playerHandle['1'].intWeapon = Constants.intInteractionPickaxeDuration;
 					}
 					
 					{
@@ -754,12 +754,12 @@ window.addEventListener('load', function () {
 				
 			} else if (Gui.strChooserCategory === 'categoryWeapon') {
 				if (Gui.intChooserType === 0) {
-					if (Player.playerHandle['1'].intInteractionWeapon > 0) {
+					if (Player.playerHandle['1'].intWeapon > 0) {
 						return;
 					}
 					
 					{
-						Player.playerHandle['1'].intInteractionWeapon = Constants.intInteractionSwordDuration;
+						Player.playerHandle['1'].intWeapon = Constants.intInteractionSwordDuration;
 					}
 					
 					{
@@ -769,12 +769,12 @@ window.addEventListener('load', function () {
 					}
 					
 				} else if (Gui.intChooserType === 1) {
-					if (Player.playerHandle['1'].intInteractionWeapon > 0) {
+					if (Player.playerHandle['1'].intWeapon > 0) {
 						return;
 					}
 					
 					{
-						Player.playerHandle['1'].intInteractionWeapon = Constants.intInteractionBowDuration;
+						Player.playerHandle['1'].intWeapon = Constants.intInteractionBowDuration;
 					}
 					
 					{
@@ -903,7 +903,7 @@ window.addEventListener('load', function () {
 			if (intCoordinateY === 0) {
 				return true;
 
-			} else if (World.worldHandle[intCoordinateX + ' - ' + intCoordinateY + ' - ' + intCoordinateZ] !== undefined) {
+			} else if (World.worldHandle[(intCoordinateX << 20) + (intCoordinateY << 10) + (intCoordinateZ << 0)] !== undefined) {
 				return true;
 				
 			}

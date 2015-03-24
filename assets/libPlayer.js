@@ -79,8 +79,8 @@ var Player = {
 				'dblAcceleration': [ 0.0, 0.0, 0.0 ],
 				'dblRotation': [ 0.0, 0.0, 0.0 ],
 				'intJumpcount': 0,
-				'intInteractionWalk': 0,
-				'intInteractionWeapon': 0
+				'intWalk': 0,
+				'intWeapon': 0
 			};
 		}
 		
@@ -271,13 +271,13 @@ var Player = {
 		}
 		
 		{
-			bufferHandle.writeInt16LE(playerHandle.intInteractionWalk, intBuffer);
+			bufferHandle.writeInt16LE(playerHandle.intWalk, intBuffer);
 			
 			intBuffer += 2;
 		}
 		
 		{
-			bufferHandle.writeInt16LE(playerHandle.intInteractionWalk, intBuffer);
+			bufferHandle.writeInt16LE(playerHandle.intWalk, intBuffer);
 			
 			intBuffer += 2;
 		}
@@ -412,13 +412,13 @@ var Player = {
 		}
 		
 		{
-			playerHandle.intInteractionWalk = bufferHandle.readInt16LE(intBuffer);
+			playerHandle.intWalk = bufferHandle.readInt16LE(intBuffer);
 			
 			intBuffer += 2;
 		}
 		
 		{
-			playerHandle.intInteractionWalk = bufferHandle.readInt16LE(intBuffer);
+			playerHandle.intWalk = bufferHandle.readInt16LE(intBuffer);
 			
 			intBuffer += 2;
 		}
@@ -479,21 +479,21 @@ var Player = {
 					var dblVelocityZ = playerHandle.dblPosition[2] - playerHandle.dblVerlet[2];
 
 					if (Math.abs(dblVelocityX) > 0.01) {
-						playerHandle.intInteractionWalk += 1
+						playerHandle.intWalk += 1
 						
 					} else if (Math.abs(dblVelocityZ) > 0.01) {
-						playerHandle.intInteractionWalk += 1;
+						playerHandle.intWalk += 1;
 						
 					}
 					
 					if (Math.abs(dblVelocityX) < 0.01) {
 						if (Math.abs(dblVelocityZ) < 0.01) {
-							playerHandle.intInteractionWalk = 0;
+							playerHandle.intWalk = 0;
 						}
 					}
 					
-					if (playerHandle.intInteractionWeapon > 0) {
-						playerHandle.intInteractionWeapon -= 1;
+					if (playerHandle.intWeapon > 0) {
+						playerHandle.intWeapon -= 1;
 					}
 				}
 			}

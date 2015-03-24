@@ -394,7 +394,7 @@ window.addEventListener('load', function () {
 			if (intCoordinateY === 0) {
 				return true;
 				
-			} else if (World.worldHandle[intCoordinateX + ' - ' + intCoordinateY + ' - ' + intCoordinateZ] !== undefined) {
+			} else if (World.worldHandle[(intCoordinateX << 20) + (intCoordinateY << 10) + (intCoordinateZ << 0)] !== undefined) {
 				return true;
 				
 			}

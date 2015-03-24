@@ -190,20 +190,20 @@ var Voxel = {
 		
 		{
 			if (playerHandle.strItem === '') {
-				minecraftskinHandle.rightArm.rotation.z = 2.0 * Math.cos((0.08 * playerHandle.intInteractionWalk) + (1.5 * Math.PI));
-				minecraftskinHandle.leftArm.rotation.z = 2.0 * Math.cos((0.08 * playerHandle.intInteractionWalk) + (0.5 * Math.PI));
+				minecraftskinHandle.rightArm.rotation.z = 2.0 * Math.cos((0.08 * playerHandle.intWalk) + (1.5 * Math.PI));
+				minecraftskinHandle.leftArm.rotation.z = 2.0 * Math.cos((0.08 * playerHandle.intWalk) + (0.5 * Math.PI));
 				
-				minecraftskinHandle.rightLeg.rotation.z = 1.4 * Math.cos((0.08 * playerHandle.intInteractionWalk) + (0.5 * Math.PI));
-				minecraftskinHandle.leftLeg.rotation.z = 1.4 * Math.cos((0.08 * playerHandle.intInteractionWalk) + (1.5 * Math.PI));
+				minecraftskinHandle.rightLeg.rotation.z = 1.4 * Math.cos((0.08 * playerHandle.intWalk) + (0.5 * Math.PI));
+				minecraftskinHandle.leftLeg.rotation.z = 1.4 * Math.cos((0.08 * playerHandle.intWalk) + (1.5 * Math.PI));
 				
 			} else if (playerHandle.strItem === 'itemPickaxe') {
 				var dblWeapon = 0.0;
 				
-				if (playerHandle.intInteractionWeapon === 0) {
+				if (playerHandle.intWeapon === 0) {
 					dblWeapon = 0.47 * Math.PI;
 					
-				} else if (playerHandle.intInteractionWeapon !== 0) {
-					var dblProgress = 1.0 - (parseFloat(playerHandle.intInteractionWeapon) / parseFloat(Constants.intInteractionPickaxeDuration));
+				} else if (playerHandle.intWeapon !== 0) {
+					var dblProgress = 1.0 - (parseFloat(playerHandle.intWeapon) / parseFloat(Constants.intInteractionPickaxeDuration));
 					
 					if (dblProgress < 0.3) {
 						dblProgress = (dblProgress - 0.0) / 0.3;
@@ -225,19 +225,19 @@ var Voxel = {
 				}
 				
 				minecraftskinHandle.rightArm.rotation.z = minecraftskinHandle.mesh.head.rotation.x + dblWeapon;
-				minecraftskinHandle.leftArm.rotation.z = 2.0 * Math.cos((0.08 * playerHandle.intInteractionWalk) + (0.5 * Math.PI));
+				minecraftskinHandle.leftArm.rotation.z = 2.0 * Math.cos((0.08 * playerHandle.intWalk) + (0.5 * Math.PI));
 				
-				minecraftskinHandle.rightLeg.rotation.z = 1.4 * Math.cos((0.08 * playerHandle.intInteractionWalk) + (0.5 * Math.PI));
-				minecraftskinHandle.leftLeg.rotation.z = 1.4 * Math.cos((0.08 * playerHandle.intInteractionWalk) + (1.5 * Math.PI));
+				minecraftskinHandle.rightLeg.rotation.z = 1.4 * Math.cos((0.08 * playerHandle.intWalk) + (0.5 * Math.PI));
+				minecraftskinHandle.leftLeg.rotation.z = 1.4 * Math.cos((0.08 * playerHandle.intWalk) + (1.5 * Math.PI));
 				
 			} else if (playerHandle.strItem === 'itemSword') {
 				var dblWeapon = 0.0;
 				
-				if (playerHandle.intInteractionWeapon === 0) {
+				if (playerHandle.intWeapon === 0) {
 					dblWeapon = 0.47 * Math.PI;
 					
-				} else if (playerHandle.intInteractionWeapon !== 0) {
-					var dblProgress = 1.0 - (parseFloat(playerHandle.intInteractionWeapon) / parseFloat(Constants.intInteractionSwordDuration));
+				} else if (playerHandle.intWeapon !== 0) {
+					var dblProgress = 1.0 - (parseFloat(playerHandle.intWeapon) / parseFloat(Constants.intInteractionSwordDuration));
 					
 					if (dblProgress < 0.3) {
 						dblProgress = (dblProgress - 0.0) / 0.3;
@@ -259,24 +259,29 @@ var Voxel = {
 				}
 				
 				minecraftskinHandle.rightArm.rotation.z = minecraftskinHandle.mesh.head.rotation.x + dblWeapon;
-				minecraftskinHandle.leftArm.rotation.z = 2.0 * Math.cos((0.08 * playerHandle.intInteractionWalk) + (0.5 * Math.PI));
+				minecraftskinHandle.leftArm.rotation.z = 2.0 * Math.cos((0.08 * playerHandle.intWalk) + (0.5 * Math.PI));
 				
-				minecraftskinHandle.rightLeg.rotation.z = 1.4 * Math.cos((0.08 * playerHandle.intInteractionWalk) + (0.5 * Math.PI));
-				minecraftskinHandle.leftLeg.rotation.z = 1.4 * Math.cos((0.08 * playerHandle.intInteractionWalk) + (1.5 * Math.PI));
+				minecraftskinHandle.rightLeg.rotation.z = 1.4 * Math.cos((0.08 * playerHandle.intWalk) + (0.5 * Math.PI));
+				minecraftskinHandle.leftLeg.rotation.z = 1.4 * Math.cos((0.08 * playerHandle.intWalk) + (1.5 * Math.PI));
 				
 			} else if (playerHandle.strItem === 'itemBow') {
 				minecraftskinHandle.rightArm.rotation.z = minecraftskinHandle.mesh.head.rotation.x + (0.47 * Math.PI);
-				minecraftskinHandle.leftArm.rotation.z = 2.0 * Math.cos((0.08 * playerHandle.intInteractionWalk) + (0.5 * Math.PI));
+				minecraftskinHandle.leftArm.rotation.z = 2.0 * Math.cos((0.08 * playerHandle.intWalk) + (0.5 * Math.PI));
 				
-				minecraftskinHandle.rightLeg.rotation.z = 1.4 * Math.cos((0.08 * playerHandle.intInteractionWalk) + (0.5 * Math.PI));
-				minecraftskinHandle.leftLeg.rotation.z = 1.4 * Math.cos((0.08 * playerHandle.intInteractionWalk) + (1.5 * Math.PI));
+				minecraftskinHandle.rightLeg.rotation.z = 1.4 * Math.cos((0.08 * playerHandle.intWalk) + (0.5 * Math.PI));
+				minecraftskinHandle.leftLeg.rotation.z = 1.4 * Math.cos((0.08 * playerHandle.intWalk) + (1.5 * Math.PI));
 				
 			}
 		}
 	},
 	
 	minecraftitemCreate: function(strItem, dblScale) {
-		if (Voxel.minecraftitemHandle[strItem + ' - ' + dblScale] === undefined) {
+		var strFingerprint = '';
+		
+		strFingerprint += strItem + ';';
+		strFingerprint += dblScale + ';';
+		
+		if (Voxel.minecraftitemHandle[strFingerprint] === undefined) {
 			var contextHandle = document.createElement('canvas').getContext('2d');
 			
 			{
@@ -344,11 +349,11 @@ var Voxel = {
 			}
 			
 			{
-				Voxel.minecraftitemHandle[strItem + ' - ' + dblScale] = geometryHandle;
+				Voxel.minecraftitemHandle[strFingerprint] = geometryHandle;
 			}
 		}
 		
-		return new Voxel.voxelengineHandle.THREE.Mesh(Voxel.minecraftitemHandle[strItem + ' - ' + dblScale], Voxel.minecraftitemMaterial);
+		return new Voxel.voxelengineHandle.THREE.Mesh(Voxel.minecraftitemHandle[strFingerprint], Voxel.minecraftitemMaterial);
 	}
 };
 

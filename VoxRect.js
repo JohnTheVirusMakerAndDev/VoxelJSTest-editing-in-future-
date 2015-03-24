@@ -188,8 +188,8 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 				'dblAcceleration': [ 0.0, 0.0, 0.0 ],
 				'dblRotation': [ 0.0, 0.0, 0.0 ],
 				'intJumpcount': 0,
-				'intInteractionWalk': 0,
-				'intInteractionWeapon': 0
+				'intWalk': 0,
+				'intWeapon': 0
 			};
 		}
 		
@@ -341,7 +341,7 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 				if (Player.playerHandle[socketHandle.strIdent] === undefined) {
 					return;
 					
-				} else if (Player.playerHandle[socketHandle.strIdent].intInteractionWeapon > 0) {
+				} else if (Player.playerHandle[socketHandle.strIdent].intWeapon > 0) {
 					return;
 					
 				} else if (World.updateBlocked(jsonHandle.intCoordinate) === true) {
@@ -350,7 +350,7 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 				}
 				
 				{
-					Player.playerHandle[socketHandle.strIdent].intInteractionWeapon = Constants.intInteractionPickaxeDuration;
+					Player.playerHandle[socketHandle.strIdent].intWeapon = Constants.intInteractionPickaxeDuration;
 				}
 				
 				{
@@ -438,7 +438,7 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 				if (Player.playerHandle[socketHandle.strIdent] === undefined) {
 					return;
 					
-				} else if (Player.playerHandle[socketHandle.strIdent].intInteractionWeapon > 0) {
+				} else if (Player.playerHandle[socketHandle.strIdent].intWeapon > 0) {
 					return;
 					
 				} else if (World.updateBlocked(jsonHandle.intCoordinate) === true) {
@@ -447,7 +447,7 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 				}
 				
 				{
-					Player.playerHandle[socketHandle.strIdent].intInteractionWeapon = Constants.intInteractionPickaxeDuration;
+					Player.playerHandle[socketHandle.strIdent].intWeapon = Constants.intInteractionPickaxeDuration;
 				}
 				
 				{
@@ -516,17 +516,17 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 				if (Player.playerHandle[socketHandle.strIdent] === undefined) {
 					return;
 					
-				} else if (Player.playerHandle[socketHandle.strIdent].intInteractionWeapon > 0) {
+				} else if (Player.playerHandle[socketHandle.strIdent].intWeapon > 0) {
 					return;
 					
 				}
 				
 				{
 					if (jsonHandle.strWeapon === 'weaponSword') {
-						Player.playerHandle[socketHandle.strIdent].intInteractionWeapon = Constants.intInteractionSwordDuration;
+						Player.playerHandle[socketHandle.strIdent].intWeapon = Constants.intInteractionSwordDuration;
 						
 					} else if (jsonHandle.strWeapon === 'weaponBow') {
-						Player.playerHandle[socketHandle.strIdent].intInteractionWeapon = Constants.intInteractionBowDuration;
+						Player.playerHandle[socketHandle.strIdent].intWeapon = Constants.intInteractionBowDuration;
 						
 					}
 				}
@@ -1265,7 +1265,7 @@ Item.browserify(Constants, null, Physics);
 		if (intCoordinateY === 0) {
 			return true;
 			
-		} else if (World.worldHandle[intCoordinateX + ' - ' + intCoordinateY + ' - ' + intCoordinateZ] !== undefined) {
+		} else if (World.worldHandle[(intCoordinateX << 20) + (intCoordinateY << 10) + (intCoordinateZ << 0)] !== undefined) {
 			return true;
 			
 		}
