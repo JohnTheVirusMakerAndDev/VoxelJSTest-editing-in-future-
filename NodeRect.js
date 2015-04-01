@@ -124,37 +124,6 @@ var Aws = {
 	}
 };
 
-var Casable = {
-	// INFO: only the id must be read in Cas2ValidationReader
-	
-	casableHandle: null,
-	
-	clientHandle: null,
-	
-	init: function() {
-		{
-			Casable.casableHandle = require('casable');
-		}
-		
-		{
-			Casable.clientHandle = Casable.casableHandle.authentication(NodeConf.strCasableServer, {
-				'casVersion': NodeConf.strCasableVersion,
-				'logoutPath': NodeConf.strCasableLogout
-			});
-		}
-	},
-	
-	dispel: function() {
-		{
-			Casable.casableHandle = null;
-		}
-		
-		{
-			Casable.clientHandle = null;
-		}
-	}
-};
-
 var Express = {
 	expressHandle: null,
 	
@@ -168,7 +137,7 @@ var Express = {
 	
 	cookiesessionHandle: null,
 	
-	connectmongoHandle: null,
+	connectpostgresHandle: null,
 	
 	serverHandle: null,
 	
@@ -199,10 +168,10 @@ var Express = {
 				
 				Express.cookiesessionHandle = require('cookie-session');
 				
-			} else if (NodeConf.strExpressSession === 'sessionMongo') {
+			} else if (NodeConf.strExpressSession === 'sessionPostgres') {
 				Express.expresssessionHandle = require('express-session');
 				
-				Express.connectmongoHandle = require('connect-mongo')(Express.expresssessionHandle);
+				Express.connectpostgresHandle = require('connect-pg-simple')(Express.expresssessionHandle);
 				
 			}
 		}
@@ -242,7 +211,7 @@ var Express = {
 		}
 		
 		{
-			Express.connectmongoHandle = null;
+			Express.connectpostgresHandle = null;
 		}
 		
 		{
@@ -286,19 +255,17 @@ var Express = {
 					}
 				}));
 				
-			} else if (NodeConf.strExpressSession === 'sessionMongo') {
+			} else if (NodeConf.strExpressSession === 'sessionPostgres') {
 				Express.serverHandle.use(Express.expresssessionHandle({
 					'secret': NodeConf.strExpressSecret,
 					'cookie': {
 						'maxAge': 31 * 24 * 60 * 60 * 1000
 					},
-					'store': new Express.connectmongoHandle({
-						'url': NodeConf.strMongoServer,
-						'collection': 'collectionSession',
-						'auto_reconnect': true
-					}),
-	                'resave': true,
-	                'saveUninitialized': true
+					'store': new Express.connectpostgresHandle({
+						'pg': Postgres.postgresHandle,
+						'conString': NodeConf.strPostgresServer,
+						'tableName': 'Session'
+					})
 				}));
 				
 			}
@@ -466,34 +433,6 @@ var Mime = {
 	}
 };
 
-var Mongo = {
-	mongoHandle: null,
-	
-	clientHandle: null,
-	
-	init: function() {
-		{
-			Mongo.mongoHandle = require('mongodb');
-		}
-		
-		{
-			Mongo.mongoHandle.MongoClient.connect(NodeConf.strMongoServer, function(errorHandle, clientHandle) {
-				Mongo.clientHandle = clientHandle;
-			});
-		}
-	},
-	
-	dispel: function() {
-		{
-			Mongo.mongoHandle = null;
-		}
-		
-		{
-			Mongo.clientHandle = null;
-		}
-	}
-};
-
 var Mustache = {
 	mustacheHandle: null,
 	
@@ -524,6 +463,34 @@ var Phantom = {
 	dispel: function() {
 		{
 			Phantom.phantomjsHandle = null;
+		}
+	}
+};
+
+var Postgres = {
+	postgresHandle: null,
+	
+	clientHandle: null,
+	
+	init: function() {
+		{
+			Postgres.postgresHandle = require('pg');
+		}
+		
+		{
+			Postgres.postgresHandle.connect(NodeConf.strPostgresServer, function(errorHandle, clientHandle, functionDone) {
+				Postgres.clientHandle = clientHandle;
+			});
+		}
+	},
+	
+	dispel: function() {
+		{
+			Postgres.postgresHandle = null;
+		}
+		
+		{
+			Postgres.clientHandle = null;
 		}
 	}
 };
@@ -598,32 +565,6 @@ var Socket = {
 	}
 };
 
-var Sqlite = {
-	sqliteHandle: null,
-	
-	clientHandle: null,
-	
-	init: function() {
-		{
-			Sqlite.sqliteHandle = require('sqlite3');
-		}
-		
-		{
-			Sqlite.clientHandle = new Sqlite.sqliteHandle.Database(NodeConf.strSqliteDatabase);
-		}
-	},
-	
-	dispel: function() {
-		{
-			Sqlite.sqliteHandle = null;
-		}
-		
-		{
-			Sqlite.clientHandle = null;
-		}
-	}
-};
-
 var Xml = {
 	xmldocHandle: null,	
 	
@@ -660,10 +601,6 @@ module.exports = function() {
 			Aws.init();
 		}
 		
-		if (NodeConf.boolCasable === true) {
-			Casable.init();
-		}
-		
 		if (NodeConf.boolExpress === true) {
 			Express.init();
 		}
@@ -680,10 +617,6 @@ module.exports = function() {
 			Mime.init();
 		}
 		
-		if (NodeConf.boolMongo === true) {
-			Mongo.init();
-		}
-		
 		if (NodeConf.boolMustache === true) {
 			Mustache.init();
 		}
@@ -692,16 +625,16 @@ module.exports = function() {
 			Phantom.init();
 		}
 		
+		if (NodeConf.boolPostgres === true) {
+			Postgres.init();
+		}
+		
 		if (NodeConf.boolRecaptcha === true) {
 			Recaptcha.init();
 		}
 		
 		if (NodeConf.boolSocket === true) {
 			Socket.init();
-		}
-		
-		if (NodeConf.boolSqlite === true) {
-			Sqlite.init();
 		}
 		
 		if (NodeConf.boolXml === true) {
@@ -722,17 +655,15 @@ module.exports = function() {
 	return {
 		'Node': Node,
 		'Aws': Aws,
-		'Casable': Casable,
 		'Express': Express,
 		'Geoip': Geoip,
 		'Hypertextmin': Hypertextmin,
 		'Mime': Mime,
-		'Mongo': Mongo,
 		'Mustache': Mustache,
 		'Phantom': Phantom,
+		'Postgres': Postgres,
 		'Recaptcha': Recaptcha,
 		'Socket': Socket,
-		'Sqlite': Sqlite,
 		'Xml': Xml
 	};
 };

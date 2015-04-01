@@ -5,17 +5,15 @@ var NodeRect = require(__dirname + '/NodeRect.js')();
 
 var Node = NodeRect.Node;
 var Aws = NodeRect.Aws;
-var Casable = NodeRect.Casable;
 var Express = NodeRect.Express;
 var Geoip = NodeRect.Geoip;
 var Hypertextmin = NodeRect.Hypertextmin;
 var Mime = NodeRect.Mime;
-var Mongo = NodeRect.Mongo;
 var Mustache = NodeRect.Mustache;
 var Phantom = NodeRect.Phantom;
+var Postgres = NodeRect.Postgres;
 var Recaptcha = NodeRect.Recaptcha;
 var Socket = NodeRect.Socket;
-var Sqlite = NodeRect.Sqlite;
 var Xml = NodeRect.Xml;
 
 var VoxConf = require(__dirname + '/VoxConf.js')();
