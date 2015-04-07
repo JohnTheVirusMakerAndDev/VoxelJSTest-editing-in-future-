@@ -100,12 +100,20 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 			}
 		};
 		
+		var functionPreprocess = function() {
+			{
+				// ...
+			}
+			
+			functionFilesystemRead();
+		};
+		
 		var FilesystemRead_bufferHandle = null;
 		
 		var functionFilesystemRead = function() {
 			Node.fsHandle.readFile(__dirname + '/assets/index.html', function(errorHandle, bufferHandle) {
 				if (errorHandle !== null) {
-					responseHandle.end();
+					functionError();
 					
 					return;
 				}
@@ -116,6 +124,10 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 				
 				functionSuccess();
 			});
+		};
+		
+		var functionError = function() {
+			responseHandle.end();
 		};
 		
 		var functionSuccess = function() {
@@ -157,7 +169,7 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 			responseHandle.end();
 		};
 		
-		functionFilesystemRead();
+		functionPreprocess();
 	});
 	
 	Express.serverHandle.use('/', Express.expressHandle.static(__dirname + '/assets'));

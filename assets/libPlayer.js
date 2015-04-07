@@ -277,7 +277,7 @@ var Player = {
 		}
 		
 		{
-			bufferHandle.writeInt16LE(playerHandle.intWalk, intBuffer);
+			bufferHandle.writeInt16LE(playerHandle.intWeapon, intBuffer);
 			
 			intBuffer += 2;
 		}
@@ -418,7 +418,7 @@ var Player = {
 		}
 		
 		{
-			playerHandle.intWalk = bufferHandle.readInt16LE(intBuffer);
+			playerHandle.intWeapon = bufferHandle.readInt16LE(intBuffer);
 			
 			intBuffer += 2;
 		}

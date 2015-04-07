@@ -250,6 +250,8 @@ var Express = {
 			if (NodeConf.strExpressSession === 'sessionCookie') {
 				Express.serverHandle.use(Express.cookiesessionHandle({
 					'secret': NodeConf.strExpressSecret,
+					'resave': false,
+					'saveUninitialized': true,
 					'cookie': {
 						'maxAge': 31 * 24 * 60 * 60 * 1000
 					}
@@ -258,6 +260,8 @@ var Express = {
 			} else if (NodeConf.strExpressSession === 'sessionPostgres') {
 				Express.serverHandle.use(Express.expresssessionHandle({
 					'secret': NodeConf.strExpressSecret,
+					'resave': false,
+					'saveUninitialized': true,
 					'cookie': {
 						'maxAge': 31 * 24 * 60 * 60 * 1000
 					},
@@ -277,10 +281,10 @@ var Express = {
 		
 		{
 			var functionInterval = function() {
-				var FilesystemRead_strFile = [];
+				var FilesystemRead_strFiles = [];
 				
 				var functionFilesystemRead = function() {
-					Node.fsHandle.readdir(__dirname + '/tmp', function(errorHandle, dirHandle) {
+					Node.fsHandle.readdir(__dirname + '/tmp', function(errorHandle, strFiles) {
 						if (errorHandle !== null) {
 							functionError();
 							
@@ -288,8 +292,8 @@ var Express = {
 						}
 						
 						{
-							for (var intFor1 = 0; intFor1 < dirHandle.length; intFor1 += 1) {
-								FilesystemRead_strFile.push(dirHandle[intFor1]);
+							for (var intFor1 = 0; intFor1 < strFiles.length; intFor1 += 1) {
+								FilesystemRead_strFiles.push(strFiles[intFor1]);
 							}
 						}
 						
@@ -300,14 +304,10 @@ var Express = {
 				var FilesystemStatIterator_intIndex = 0;
 				
 				var functionFilesystemStatIteratorFirst = function() {
-					{
-						var intCount = Math.min(FilesystemRead_strFile.length);
+					if (FilesystemStatIterator_intIndex < FilesystemRead_strFiles.length) {
+						functionFilesystemStat();
 						
-						if (FilesystemStatIterator_intIndex < intCount) {
-							functionFilesystemStat();
-							
-							return;
-						}
+						return;
 					}
 					
 					functionSuccess();
@@ -322,7 +322,7 @@ var Express = {
 				};
 				
 				var functionFilesystemStat = function() {
-					Node.fsHandle.stat(__dirname + '/tmp/' + FilesystemRead_strFile[FilesystemStatIterator_intIndex], function(errorHandle, statHandle) {
+					Node.fsHandle.stat(__dirname + '/tmp/' + FilesystemRead_strFiles[FilesystemStatIterator_intIndex], function(errorHandle, statHandle) {
 						if (errorHandle !== null) {
 							functionError();
 							
@@ -340,7 +340,7 @@ var Express = {
 				};
 				
 				var functionFilesystemDelete = function() {
-					Node.fsHandle.unlink(__dirname + '/tmp/' + FilesystemRead_strFile[FilesystemStatIterator_intIndex], function(errorHandle) {
+					Node.fsHandle.unlink(__dirname + '/tmp/' + FilesystemRead_strFiles[FilesystemStatIterator_intIndex], function(errorHandle) {
 						if (errorHandle !== null) {
 							functionError();
 							
@@ -475,11 +475,35 @@ var Postgres = {
 	init: function() {
 		{
 			Postgres.postgresHandle = require('pg');
+			
+			Postgres.postgresHandle.defaults.parseInt8 = true;
 		}
 		
 		{
 			Postgres.postgresHandle.connect(NodeConf.strPostgresServer, function(errorHandle, clientHandle, functionDone) {
-				Postgres.clientHandle = clientHandle;
+				{
+					Postgres.clientHandle = clientHandle;
+				}
+				
+				{
+					Postgres.clientHandle.functionQuery = Postgres.clientHandle.query;
+					
+					Postgres.clientHandle.query = function(configHandle, functionCallback) {
+						Postgres.clientHandle.functionQuery(configHandle, function(errorHandle, resultHandle) {
+							{
+								if (errorHandle !== null) {
+									if (configHandle.log === true) {
+										console.dir(errorHandle);
+									}
+								}
+							}
+							
+							{
+								functionCallback(errorHandle, resultHandle);
+							}
+						});
+					}
+				}
 			});
 		}
 	},
