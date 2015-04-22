@@ -90,6 +90,50 @@ var Node = {
 		}
 		
 		return strBase;
+	},
+	
+	attrget: function(strStorage, strAttribute) {
+		var objectData = {};
+		
+		{
+			var strData = Node.fsHandle.readFileSync(__dirname + '/' + strStorage + '.attr').toString();
+			
+			if (strData === '') {
+				strData = '{}';
+			}
+			
+			objectData = JSON.parse(strData);
+		}
+		
+		return objectData[strAttribute];
+	},
+	
+	attrput: function(strStorage, strAttribute, objectValue) {
+		var objectData = {};
+		
+		{
+			var strData = Node.fsHandle.readFileSync(__dirname + '/' + strStorage + '.attr').toString();
+			
+			if (strData === '') {
+				strData = '{}';
+			}
+			
+			objectData = JSON.parse(strData);
+		}
+		
+		{
+			objectData[strAttribute] = objectValue;
+		}
+		
+		{
+			var strData = JSON.stringify(objectData);
+			
+			if (strData === '') {
+				strData = '{}';
+			}
+			
+			Node.fsHandle.writeFileSync(__dirname + '/' + strStorage + '.attr', strData);
+		}
 	}
 };
 
@@ -98,18 +142,25 @@ var Aws = {
 	
 	storageHandle: null,
 	
+	messageHandle: null,
+	
 	init: function() {
 		{
 			Aws.awsHandle = require('aws-sdk');
 			
 			Aws.awsHandle.config.update({
 				'accessKeyId': NodeConf.strAwsIdent,
-				'secretAccessKey': NodeConf.strAwsKey
+				'secretAccessKey': NodeConf.strAwsKey,
+				'region': 'us-east-1'
 			});
 		}
 		
 		{
 			Aws.storageHandle = new Aws.awsHandle.S3();
+		}
+		
+		{
+			Aws.messageHandle = new Aws.awsHandle.SES();
 		}
 	},
 	
@@ -120,6 +171,10 @@ var Aws = {
 		
 		{
 			Aws.storageHandle = null;
+		}
+		
+		{
+			Aws.messageHandle = null;
 		}
 	}
 };
@@ -239,6 +294,7 @@ var Express = {
 				Express.serverHandle.use(Express.multerHandle({
 					'dest': __dirname + '/tmp',
 					'limits': {
+						'fieldNameSize': 64,
 						'fileSize': 10 * 1024 * 1024,
 						'files': 1
 					}
@@ -493,6 +549,8 @@ var Postgres = {
 							{
 								if (errorHandle !== null) {
 									if (configHandle.log === true) {
+										console.log('ERROR');
+										console.dir(configHandle);
 										console.dir(errorHandle);
 									}
 								}
@@ -520,28 +578,57 @@ var Postgres = {
 };
 
 var Recaptcha = {
-	recaptchaHandle: null,
-	
-	clientHandle: null,
-	
 	init: function() {
-		{
-			Recaptcha.recaptchaHandle = require('re-captcha');
-		}
 		
-		{
-			Recaptcha.clientHandle = new Recaptcha.recaptchaHandle(NodeConf.strRecaptchaPublic, NodeConf.strRecaptchaPrivate);
-		}
 	},
 	
 	dispel: function() {
-		{
-			Recaptcha.recaptchaHandle = null;
-		}
 		
-		{
-			Recaptcha.clientHandle = null;
-		}
+	},
+	
+	verify: function(strResponse, strIp, functionError, functionSuccess) {
+		var requestHttp = Node.httpsHandle.request({
+			'host': 'www.google.com',
+			'port': 443,
+			'path': '/recaptcha/api/siteverify?secret=' + encodeURIComponent(NodeConf.strRecaptchaPrivate) + '&response=' + encodeURIComponent(strResponse) + '&remoteip=' + encodeURIComponent(strIp),
+			'method': 'GET'
+		}, function(responseHttp) {
+			var strContent = '';
+			
+			responseHttp.setEncoding('UTF-8');
+			
+			responseHttp.on('data', function(strData) {
+				strContent += strData;
+			});
+			
+			responseHttp.on('end', function() {
+				var objectContent = JSON.parse(strContent);
+				
+				if (objectContent.success === undefined) {
+					functionError();
+					
+					return;
+					
+				} else if (objectContent.success === false) {
+					functionError();
+					
+					return;
+					
+				}
+				
+				functionSuccess();
+			});
+		});
+		
+		requestHttp.on('error', function(errorHandle) {
+			functionError();
+		});
+		
+		requestHttp.setTimeout(3 * 1000, function() {
+			requestHttp.abort();
+		});
+		
+		requestHttp.end();	
 	}
 };
 
