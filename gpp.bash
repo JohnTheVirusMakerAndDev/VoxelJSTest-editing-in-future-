@@ -1,5 +1,6 @@
 #!/bin/bash
 
-GPP=./../GenRect/gpp
+DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+GPP="$DIR/../GenRect/gpp"
 
-$GPP -n -o ./assets/libPhysics.js ./assets/libPhysics.debug.js
+$GPP -n -o "$DIR/assets/libPhysics.js" "$DIR/assets/libPhysics.debug.js"

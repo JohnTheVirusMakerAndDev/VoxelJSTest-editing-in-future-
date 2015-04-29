@@ -1,7 +1,9 @@
 #!/bin/bash
 
+DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+
 # to install browserify: npm install browserify -g
 # to install uglifyjs: npm install uglify-js -g
 
-browserify ./assets/editor.debug.js | uglifyjs -o ./assets/editor.js
-browserify ./assets/index.debug.js | uglifyjs -o ./assets/index.js
+browserify "$DIR/assets/editor.debug.js" | uglifyjs -o "$DIR/assets/editor.js"
+browserify "$DIR/assets/index.debug.js" | uglifyjs -o "$DIR/assets/index.js"
