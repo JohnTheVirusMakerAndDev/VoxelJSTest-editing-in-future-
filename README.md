@@ -4,7 +4,7 @@ this project aims to develop a game with voxel based graphics and a gameplay sim
 ##play game
 since this game is purely multiplayer based, it is required to join a server. in order to find a list of active servers, simply navigate to `www.voxel-warriors.com`. it is also possible to setup a new server, what is further described below.
 
-![ThumbScreenshot](http://dhiont4yb3hlc.cloudfront.net/VoxRect/Desktop/ScreenshotThumb.png)
+![ThumbScreenshot](http://dhiont4yb3hlc.cloudfront.net/VoxRect/Website/ScreenshotThumb.png)
 
 ##server setup
 make sure to have `node` and `npm` installed. navigate to `nodejs.org` otherwise, in order to download the latest binaries.
@@ -53,7 +53,7 @@ after `browserify` and `uglifyify` are available, the batch files can be used in
 ##architecture outline
 in order to gain a quick overview of the architecture, the following diagram can be consulted. since it is only a sketch, it does not follow a specific format.
 
-![Architecture](http://dhiont4yb3hlc.cloudfront.net/VoxRect/Desktop/Architecture.png)
+![Architecture](http://dhiont4yb3hlc.cloudfront.net/VoxRect/Website/Architecture.png)
 
 `NoteGen.js` is a basic library that is also being used in other projects. it is therefore quite generic and developers can probably just ignore it.
 
