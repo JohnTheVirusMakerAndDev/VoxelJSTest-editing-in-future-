@@ -226,7 +226,7 @@ var World = {
 						var worldHandle = World.worldPast[strCoordinate];
 						
 						{
-							Voxel.voxelengineHandle.setBlock(worldHandle.intCoordinate, 0);	
+							Voxel.voxelengineHandle.setBlock(worldHandle.intCoordinate, 0);
 						}
 				    }
 				    
@@ -234,7 +234,7 @@ var World = {
 						var worldHandle = World.worldHandle[strCoordinate];
 						
 						{
-							Voxel.voxelengineHandle.setBlock(worldHandle.intCoordinate, Voxel.voxelengineHandle.materials.find(worldHandle.strType));	
+							Voxel.voxelengineHandle.setBlock(worldHandle.intCoordinate, Voxel.voxelengineHandle.materials.find(worldHandle.strType));
 						}
 				    }
 			    }

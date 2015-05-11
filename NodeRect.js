@@ -628,7 +628,7 @@ var Recaptcha = {
 			requestHttp.abort();
 		});
 		
-		requestHttp.end();	
+		requestHttp.end();
 	}
 };
 
@@ -683,7 +683,7 @@ var Xml = {
 	
 	init: function() {
 		{
-			Xml.xmldocHandle = require('xmldoc');	
+			Xml.xmldocHandle = require('xmldoc');
 		}
 		
 		{

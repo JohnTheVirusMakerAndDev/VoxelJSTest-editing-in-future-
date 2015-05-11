@@ -1159,7 +1159,7 @@ var Gameserver = {
 													{
 														Gameserver.intScoreRed += 1;
 														
-														playerHandle.intScore += 1;	
+														playerHandle.intScore += 1;
 													}
 													
 												} else if (Item.itemHandle['itemFlag - teamRed'].strPlayer === playerHandle.strIdent) {
@@ -1170,7 +1170,7 @@ var Gameserver = {
 													{
 														Gameserver.intScoreBlue += 1;
 														
-														playerHandle.intScore += 1;	
+														playerHandle.intScore += 1;
 													}
 													
 												}
