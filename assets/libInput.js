@@ -99,7 +99,7 @@ var Input = {
 		}
 		
 		{
-			jQuery(document.body)
+			jQuery(window.document.body)
 				.off('keydown')
 				.on('keydown', function(eventHandle) {
 					if (Input.functionException() === true) {

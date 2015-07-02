@@ -353,28 +353,32 @@ var Express = {
 							}
 						}
 						
-						functionFilesystemStatIteratorFirst();
+						functionFilesystemStatIterator(null);
 					});
 				};
 				
 				var FilesystemStatIterator_intIndex = 0;
 				
-				var functionFilesystemStatIteratorFirst = function() {
-					if (FilesystemStatIterator_intIndex < FilesystemRead_strFiles.length) {
-						functionFilesystemStat();
-						
-						return;
-					}
-					
-					functionSuccess();
-				};
-				
-				var functionFilesystemStatIteratorNext = function() {
+				var functionFilesystemStatIterator = function(intIncrement) {
 					{
-						FilesystemStatIterator_intIndex += 1;
+						if (intIncrement === null) {
+							FilesystemStatIterator_intIndex = 0;
+							
+						} else if (intIncrement !== null) {
+							FilesystemStatIterator_intIndex += intIncrement;
+							
+						}
 					}
 					
-					functionFilesystemStatIteratorFirst();
+					{
+						if (FilesystemStatIterator_intIndex < FilesystemRead_strFiles.length) {
+							functionFilesystemStat();
+							
+						} else if (FilesystemStatIterator_intIndex >= FilesystemRead_strFiles.length) {
+							functionSuccess();
+							
+						}
+					}
 				};
 				
 				var functionFilesystemStat = function() {
@@ -391,7 +395,7 @@ var Express = {
 							return;
 						}
 						
-						functionFilesystemStatIteratorNext();
+						functionFilesystemStatIterator(1);
 					});
 				};
 				
@@ -403,7 +407,7 @@ var Express = {
 							return;
 						}
 						
-						functionFilesystemStatIteratorNext();
+						functionFilesystemStatIterator(1);
 					});
 				};
 				
@@ -586,49 +590,57 @@ var Recaptcha = {
 		
 	},
 	
-	verify: function(strResponse, strIp, functionError, functionSuccess) {
-		var requestHttp = Node.httpsHandle.request({
-			'host': 'www.google.com',
-			'port': 443,
-			'path': '/recaptcha/api/siteverify?secret=' + encodeURIComponent(NodeConf.strRecaptchaPrivate) + '&response=' + encodeURIComponent(strResponse) + '&remoteip=' + encodeURIComponent(strIp),
-			'method': 'GET'
-		}, function(responseHttp) {
-			var strContent = '';
-			
-			responseHttp.setEncoding('UTF-8');
-			
-			responseHttp.on('data', function(strData) {
-				strContent += strData;
+	verify: function(objectArguments, functionCallback) {
+		var Request_strData = '';
+		
+		var functionRequest = function() {
+			var requestHttp = Node.httpsHandle.request({
+				'host': 'www.google.com',
+				'port': 443,
+				'path': '/recaptcha/api/siteverify?secret=' + encodeURIComponent(NodeConf.strRecaptchaPrivate) + '&response=' + encodeURIComponent(objectArguments.strResponse) + '&remoteip=' + encodeURIComponent(objectArguments.strIp),
+				'method': 'GET'
+			}, function(responseHttp) {
+				responseHttp.setEncoding('UTF-8');
+				
+				responseHttp.on('data', function(strData) {
+					Request_strData += strData;
+				});
+				
+				responseHttp.on('end', function() {
+					functionParse();
+				});
 			});
 			
-			responseHttp.on('end', function() {
-				var objectContent = JSON.parse(strContent);
-				
-				if (objectContent.success === undefined) {
-					functionError();
-					
-					return;
-					
-				} else if (objectContent.success === false) {
-					functionError();
-					
-					return;
-					
-				}
-				
-				functionSuccess();
+			requestHttp.on('error', function(errorHandle) {
+				functionCallback(null);
 			});
-		});
+			
+			requestHttp.setTimeout(3 * 1000, function() {
+				requestHttp.abort();
+			});
+			
+			requestHttp.end();
+		};
 		
-		requestHttp.on('error', function(errorHandle) {
-			functionError();
-		});
+		var functionParse = function() {
+			var objectData = JSON.parse(Request_strData);
+			
+			if (objectData.success === undefined) {
+				functionCallback(null);
+				
+				return;
+				
+			} else if (objectData.success === false) {
+				functionCallback(null);
+				
+				return;
+				
+			}
+			
+			functionCallback({});
+		};
 		
-		requestHttp.setTimeout(3 * 1000, function() {
-			requestHttp.abort();
-		});
-		
-		requestHttp.end();
+		functionRequest();
 	}
 };
 

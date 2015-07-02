@@ -166,29 +166,29 @@ var Gui = {
 			
 			{
 				if (Gui.strChooserCategory === 'categoryCreate') {
-					jQuery('#idPhaseBuild').find('select:eq(0)')
+					jQuery('#idPhaseBuild').find('select').eq(0)
 						.addClass('btn-primary')
 					;
 					
-					jQuery('#idPhaseBuild').find('select:eq(0)').find('option:eq(' + (Gui.intChooserType + 0) + ')')
+					jQuery('#idPhaseBuild').find('select').eq(0).find('option').eq(Gui.intChooserType + 0)
 					    .prop({
 					        'selected': true
 					    })
 					;
 					
 				} else if (Gui.strChooserCategory === 'categorySpecial') {
-					jQuery('#idPhaseBuild').find('select:eq(1)')
+					jQuery('#idPhaseBuild').find('select').eq(1)
 						.addClass('btn-primary')
 					;
 					
-					jQuery('#idPhaseBuild').find('select:eq(1)').find('option:eq(' + (Gui.intChooserType + 0) + ')')
+					jQuery('#idPhaseBuild').find('select').eq(1).find('option').eq(Gui.intChooserType + 0)
 					    .prop({
 					        'selected': true
 					    })
 					;
 					
 				} else if (Gui.strChooserCategory === 'categoryDestroy') {
-					jQuery('#idPhaseBuild').find('a:eq(' + (Gui.intChooserType + 0) + ')')
+					jQuery('#idPhaseBuild').find('a').eq(Gui.intChooserType + 0)
 						.addClass('btn-primary')
 					;
 					
@@ -407,7 +407,7 @@ window.addEventListener('load', function () {
 		Input.init();
 		
 		Input.functionException = function() {
-			if (jQuery('#idWorld_Json').is(':focus') === true) {
+			if (jQuery('#idWorld_Json').get(0) === document.activeElement) {
 				return true;
 			}
 			

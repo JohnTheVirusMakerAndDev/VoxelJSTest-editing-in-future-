@@ -172,7 +172,10 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 		functionPreprocess();
 	});
 	
-	Express.serverHandle.use('/', Express.expressHandle.static(__dirname + '/assets'));
+	Express.serverHandle.use('/', Express.expressHandle.static(__dirname + '/assets', {
+		'etag': false,
+		'lastModified': false
+	}));
 }
 
 {
@@ -1431,14 +1434,6 @@ Item.browserify(Constants, null, Physics);
 				'path': '/host.xml?intPort=' + encodeURIComponent(NodeConf.intExpressPort) + '&strName=' + encodeURIComponent(Gameserver.strName) + '&intLoginPassword=' + encodeURIComponent(Gameserver.intLoginPassword) + '&strWorldActive=' + encodeURIComponent(Gameserver.strWorldActive) + '&intPlayerCapacity=' + encodeURIComponent(Gameserver.intPlayerCapacity) + '&intPlayerActive=' + encodeURIComponent(Gameserver.intPlayerActive),
 				'method': 'GET'
 			}, function(responseHttp) {
-				var strContent = '';
-				
-				responseHttp.setEncoding('UTF-8');
-				
-				responseHttp.on('data', function(strData) {
-					strContent += strData;
-				});
-				
 				responseHttp.on('end', function() {
 					functionSuccess();
 				});

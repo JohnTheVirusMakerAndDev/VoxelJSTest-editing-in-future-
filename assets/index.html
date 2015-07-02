@@ -61,10 +61,7 @@
 					
 					<div style="height:15px;"></div>
 					
-					<div class="input-group">
-						<div class="input-group-addon">Message:</div>
-						<input class="form-control" id="idMessagebox_Chat" type="text" />
-					</div>
+					<input class="form-control" id="idMessagebox_Chat" type="text" placeholder="Message" />
 				</div>
 			</div>
 		</div>
@@ -75,31 +72,40 @@
 					Server
 				</div>
 				<div class="panel-body">
-					<div class="input-group">
-						<div class="input-group-addon" style="min-width:80px; text-align:right;">Ping:</div>
-						<div class="form-control" id="idServer_Ping"></div>
-					</div>
-					
-					<div style="height:15px;"></div>
-					
-					<div class="input-group">
-						<div class="input-group-addon" style="min-width:80px; text-align:right;">World:</div>
-						<div class="form-control" id="idServer_World"></div>
-					</div>
-					
-					<div style="height:15px;"></div>
-					
-					<div class="input-group">
-						<div class="input-group-addon" style="min-width:80px; padding-top:9px; text-align:right; vertical-align:top;">Phase:</div>
-						<div class="form-control" id="idServer_Phase" style="height:initial;"></div>
-					</div>
-					
-					<div style="height:15px;"></div>
-					
-					<div class="input-group">
-						<div class="input-group-addon" style="min-width:80px; text-align:right;">Players:</div>
-						<div class="form-control" id="idServer_Players"></div>
-					</div>
+					<table class="table" style="margin:0px;">
+						<tr>
+							<th style="width:1%; border:none; text-align:right; white-space:nowrap;">
+								Ping:
+							</th>
+							<td style="border:none;">
+								<span id="idServer_Ping"></span>
+							</td>
+						</tr>
+						<tr>
+							<th style="text-align:right; white-space:nowrap;">
+								World:
+							</th>
+							<td>
+								<span id="idServer_World"></span>
+							</td>
+						</tr>
+						<tr>
+							<th style="text-align:right; white-space:nowrap;">
+								Phase:
+							</th>
+							<td>
+								<span id="idServer_Phase"></span>
+							</td>
+						</tr>
+						<tr>
+							<th style="text-align:right; white-space:nowrap;">
+								Players:
+							</th>
+							<td>
+								<span id="idServer_Players"></span>
+							</td>
+						</tr>
+					</table>
 				</div>
 			</div>
 			
@@ -108,17 +114,24 @@
 					Red Team
 				</div>
 				<div class="panel-body">
-					<div class="input-group">
-						<div class="input-group-addon" style="min-width:80px; text-align:right;">Players:</div>
-						<div class="form-control" id="idTeamRed_Players"></div>
-					</div>
-					
-					<div style="height:15px;"></div>
-					
-					<div class="input-group">
-						<div class="input-group-addon" style="min-width:80px; text-align:right;">Score:</div>
-						<div class="form-control" id="idTeamRed_Score"></div>
-					</div>
+					<table class="table" style="margin:0px;">
+						<tr>
+							<th style="width:1%; border:none; text-align:right; white-space:nowrap;">
+								Players:
+							</th>
+							<td style="border:none;">
+								<span id="idTeamRed_Players"></span>
+							</td>
+						</tr>
+						<tr>
+							<th style="text-align:right; white-space:nowrap;">
+								Score:
+							</th>
+							<td>
+								<span id="idTeamRed_Score"></span>
+							</td>
+						</tr>
+					</table>
 					
 					<div style="height:15px;"></div>
 					
@@ -141,17 +154,24 @@
 					Blue Team
 				</div>
 				<div class="panel-body">
-					<div class="input-group">
-						<div class="input-group-addon" style="min-width:80px; text-align:right;">Players:</div>
-						<div class="form-control" id="idTeamBlue_Players"></div>
-					</div>
-					
-					<div style="height:15px;"></div>
-					
-					<div class="input-group">
-						<div class="input-group-addon" style="min-width:80px; text-align:right;">Score:</div>
-						<div class="form-control" id="idTeamBlue_Score"></div>
-					</div>
+					<table class="table" style="margin:0px;">
+						<tr>
+							<th style="width:1%; border:none; text-align:right; white-space:nowrap;">
+								Players:
+							</th>
+							<td style="border:none;">
+								<span id="idTeamBlue_Players"></span>
+							</td>
+						</tr>
+						<tr>
+							<th style="text-align:right; white-space:nowrap;">
+								Score:
+							</th>
+							<td>
+								<span id="idTeamBlue_Score"></span>
+							</td>
+						</tr>
+					</table>
 					
 					<div style="height:15px;"></div>
 					
@@ -214,26 +234,40 @@
 				<div class="panel-body">
 					<div class="alert alert-warning" id="idLogin_Message"></div>
 					
-					<div class="input-group">
-						<div class="input-group-addon" style="min-width:70px; text-align:right;">Name:</div>
-						<input class="form-control" id="idLogin_Name" type="text" />
-					</div>
+					<table class="table" style="margin:0px;">
+						<tr>
+							<th style="width:1%; border:none; padding-top:15px; text-align:right; white-space:nowrap;">
+								Name:
+							</th>
+							<td style="border:none;">
+								<input class="form-control" id="idLogin_Name" type="text" />
+							</td>
+						</tr>
+						<tr>
+							<th style="padding-top:15px; text-align:right; white-space:nowrap;">
+								Team:
+							</th>
+							<td>
+								<select class="form-control" id="idLogin_Team">
+									<option value="teamRed">Red</option>
+									<option value="teamBlue">Blue</option>
+								</select>
+							</td>
+						</tr>
+					</table>
 					
-					<div style="height:15px;"></div>
-					
-					<div class="input-group">
-						<div class="input-group-addon" style="min-width:70px; text-align:right;">Team:</div>
-						<select class="form-control" id="idLogin_Team">
-							<option value="teamRed">Red</option>
-							<option value="teamBlue">Blue</option>
-						</select>
-					</div>
-					
-					<div style="height:15px;"></div>
-					
-					<a class="btn btn-primary" id="idLogin_Login">
-						Login
-					</a>
+					<table class="table" style="margin:0px;">
+						<tr>
+							<th style="width:1%; border:none; padding-top:15px; text-align:right; white-space:nowrap;">
+								<div style="width:43px;"></div>
+							</th>
+							<td style="border:none;">
+								<a class="btn btn-primary" id="idLogin_Login">
+									Login
+								</a>
+							</td>
+						</tr>
+					</table>
 				</div>
 			</div>
 			

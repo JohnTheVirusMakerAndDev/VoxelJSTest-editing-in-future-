@@ -29,7 +29,7 @@ var Voxel = {
 				'statsDisabled': true
 			});
 			
-			Voxel.voxelengineHandle.appendTo(document.body);
+			Voxel.voxelengineHandle.appendTo(window.document.body);
 		}
 		
 		{
