@@ -53,7 +53,7 @@ after `browserify` and `uglifyify` are available, the batch files can be used in
 ##architecture outline
 in order to gain a quick overview of the architecture, the following diagram can be consulted. since it is only a sketch, it does not follow a specific format.
 
-![Architecture](http://dhiont4yb3hlc.cloudfront.net/VoxRect/Website/Architecture.png)
+![Architecture](http://content.coderect.com/VoxRect/Website/Architecture.png)
 
 `NoteGen.js` is a basic library that is also being used in other projects. it is therefore quite generic and developers can probably just ignore it.
 
