@@ -4,7 +4,7 @@ this project aims to develop a game with voxel based graphics and a gameplay sim
 ##play
 since this game is purely multiplayer based, it is required to join a server. you can therefore simply navigate to [www.voxel-warriors.com](http://www.voxel-warriors.com/) in order to find a list of active servers. it is also possible to setup a new server, what is further described below.
 
-<div style="text-align:center;"><img src="http://content.coderect.com/VoxRect/Website/ScreenshotThumb.png"></div>
+<img src="http://content.coderect.com/VoxRect/Website/ScreenshotThumb.png" align="middle">
 
 ##server
 make sure to have `node` and `npm` installed. otherwise navigate to [nodejs.org](https://nodejs.org/) in order to download the latest binaries.
@@ -53,7 +53,7 @@ after `browserify` and `uglifyify` are available, the batch files can be used in
 ##architecture
 in order to gain a quick overview of the architecture, the following diagram can be consulted. since it is only a sketch, it does not follow a specific format.
 
-<div style="text-align:center;"><img src="http://content.coderect.com/VoxRect/Website/Architecture.png"></div>
+<img src="http://content.coderect.com/VoxRect/Website/Architecture.png" align="middle">
 
 `NoteRect.js` is a basic library that is also being used in other projects. it is therefore quite generic and developers can probably just ignore it.
 
