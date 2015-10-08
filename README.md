@@ -4,12 +4,12 @@ this project aims to develop a game with voxel based graphics and a gameplay sim
 ##play
 since this game is purely multiplayer based, it is required to join a server. you can therefore simply navigate to [www.voxel-warriors.com](http://www.voxel-warriors.com/) in order to find a list of active servers. it is also possible to setup a new server, what is further described below.
 
-<center>![ScreenshotThumb](http://content.coderect.com/VoxRect/Website/ScreenshotThumb.png)</center>
+<div style="text-align:center;">![ScreenshotThumb](http://content.coderect.com/VoxRect/Website/ScreenshotThumb.png)</div>
 
 ##server
 make sure to have `node` and `npm` installed. otherwise navigate to [nodejs.org](https://nodejs.org/) in order to download the latest binaries.
 
-a prebuilt version can then be obtained through the associated [download](http://dhiont4yb3hlc.cloudfront.net/VoxRect/Desktop/VoxRect.zip) right here. after unpacking it, go ahead and navigate to the root folder of the archive. before `node` is being used to start the server, the dependencies can then be installed by calling `npm` within a console.
+a prebuilt version of the server is being provided and can be [downloaded](http://dhiont4yb3hlc.cloudfront.net/VoxRect/Desktop/VoxRect.zip) accordingly. after unpacking it, go ahead and navigate to the root folder of the archive. before `node` is being used to start the server, the dependencies can then be installed by calling `npm` within a console.
 
 ```
 npm install
@@ -53,7 +53,7 @@ after `browserify` and `uglifyify` are available, the batch files can be used in
 ##architecture
 in order to gain a quick overview of the architecture, the following diagram can be consulted. since it is only a sketch, it does not follow a specific format.
 
-<center>![Architecture](http://content.coderect.com/VoxRect/Website/Architecture.png)</center>
+<div style="text-align:center;">![Architecture](http://content.coderect.com/VoxRect/Website/Architecture.png)</div>
 
 `NoteRect.js` is a basic library that is also being used in other projects. it is therefore quite generic and developers can probably just ignore it.
 
