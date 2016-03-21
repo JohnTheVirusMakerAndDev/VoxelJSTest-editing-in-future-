@@ -362,38 +362,38 @@ var Socket = {
 				{
 					Socket.socketHandle.io.engine.on('open', function() {
 						{
-							Socket.socketHandle.strIdent = Socket.socketHandle.io.engine.id.substr(1, 8);
+							Socket.socketHandle.strIdent = Socket.socketHandle.io.engine.id.substr(0, 8);
 						}
 					});
 					
-					Socket.socketHandle.on('loginHandle', function(jsonHandle) {
+					Socket.socketHandle.on('loginHandle', function(objectData) {
 						{
-							if (jsonHandle.strType === 'typeReject') {
+							if (objectData.strType === 'typeReject') {
 								{
 									Gui.updateMode('modeLogin');
 								}
 								
 								{
-									if (jsonHandle.strMessage === '') {
+									if (objectData.strMessage === '') {
 										jQuery('#idLogin_Message')
 											.css({
 												'display': 'none'
 											})
-											.text(jsonHandle.strMessage)
+											.text(objectData.strMessage)
 										;
 										
-									} else if (jsonHandle.strMessage !== '') {
+									} else if (objectData.strMessage !== '') {
 										jQuery('#idLogin_Message')
 											.css({
 												'display': 'block'
 											})
-											.text(jsonHandle.strMessage)
+											.text(objectData.strMessage)
 										;
 										
 									}
 								}
 								
-							} else if (jsonHandle.strType === 'typeAccept') {
+							} else if (objectData.strType === 'typeAccept') {
 								{
 									Gui.updateMode('modeMenu');
 								}
@@ -402,7 +402,7 @@ var Socket = {
 						}
 					});
 					
-					Socket.socketHandle.on('pingHandle', function(jsonHandle) {
+					Socket.socketHandle.on('pingHandle', function(objectData) {
 						{
 							jQuery('#idHealth').children('div')
 								.css({
@@ -418,23 +418,23 @@ var Socket = {
 							;
 							
 							jQuery('#idServer_Phase')
-								.html(jsonHandle.strPhaseActive + '<div style="padding:5px 0px 0px 0px; font-size:10px;">with ' + Math.floor(jsonHandle.intPhaseRemaining / 1000) + ' seconds remainin and ' + jsonHandle.intPhaseRound + ' rounds left</div>')
+								.html(objectData.strPhaseActive + '<div style="padding:5px 0px 0px 0px; font-size:10px;">with ' + Math.floor(objectData.intPhaseRemaining / 1000) + ' seconds remainin and ' + objectData.intPhaseRound + ' rounds left</div>')
 							;
 							
 							jQuery('#idServer_World')
-								.text(jsonHandle.strWorldActive)
+								.text(objectData.strWorldActive)
 							;
 							
 							jQuery('#idServer_Players')
-								.text(jsonHandle.intPlayerActive + ' / ' + jsonHandle.intPlayerCapacity)
+								.text(objectData.intPlayerActive + ' / ' + objectData.intPlayerCapacity)
 							;
 							
 							jQuery('#idTeamRed_Score')
-								.text(jsonHandle.intScoreRed)
+								.text(objectData.intScoreRed)
 							;
 							
 							jQuery('#idTeamBlue_Score')
-								.text(jsonHandle.intScoreBlue)
+								.text(objectData.intScoreBlue)
 							;
 						}
 						
@@ -509,14 +509,14 @@ var Socket = {
 							}
 							
 							{
-								if (jsonHandle.strPhaseActive === 'Build') {
+								if (objectData.strPhaseActive === 'Build') {
 									jQuery('#idPhaseBuild')
 										.css({
 											'display': 'block'
 										})
 									;
 									
-								} else if (jsonHandle.strPhaseActive === 'Combat') {
+								} else if (objectData.strPhaseActive === 'Combat') {
 									jQuery('#idPhaseCombat')
 										.css({
 											'display': 'block'
@@ -528,7 +528,7 @@ var Socket = {
 						}
 					});
 					
-					Socket.socketHandle.on('chatHandle', function(jsonHandle) {
+					Socket.socketHandle.on('chatHandle', function(objectData) {
 						{
 							jQuery('#idMessagebox_Log')
 								.append(jQuery('<div></div>')
@@ -536,10 +536,10 @@ var Socket = {
 										.css({
 											'font-weight': 'bold'
 										})
-										.text(jsonHandle.strName + ':' + ' ')
+										.text(objectData.strName + ':' + ' ')
 									)
 									.append(jQuery('<span></span>')
-										.text(jsonHandle.strMessage)
+										.text(objectData.strMessage)
 									)
 								)
 							;
@@ -550,30 +550,30 @@ var Socket = {
 						}
 					});
 					
-					Socket.socketHandle.on('worldHandle', function(jsonHandle) {
+					Socket.socketHandle.on('worldHandle', function(objectData) {
 						{
-						    World.loadBuffer(jsonHandle.strBuffer);
+						    World.loadBuffer(objectData.strBuffer);
 						}
 					});
 					
-					Socket.socketHandle.on('worldCreate', function(jsonHandle) {
+					Socket.socketHandle.on('worldCreate', function(objectData) {
 						{
-							World.updateCreate(jsonHandle.intCoordinate, jsonHandle.strType, jsonHandle.boolBlocked);
+							World.updateCreate(objectData.intCoordinate, objectData.strType, objectData.boolBlocked);
 						}
 					});
 					
-					Socket.socketHandle.on('worldDestroy', function(jsonHandle) {
+					Socket.socketHandle.on('worldDestroy', function(objectData) {
 						{
-							World.updateDestroy(jsonHandle.intCoordinate);
+							World.updateDestroy(objectData.intCoordinate);
 						}
 					});
 					
-					Socket.socketHandle.on('playerHandle', function(jsonHandle) {
+					Socket.socketHandle.on('playerHandle', function(objectData) {
 						{
 							var playerOverwrite = JSON.parse(JSON.stringify(Player.playerHandle));
 							
 							{
-								Player.loadBuffer(jsonHandle.strBuffer);
+								Player.loadBuffer(objectData.strBuffer);
 							}
 							
 							{
@@ -622,15 +622,15 @@ var Socket = {
 						}
 					});
 					
-					Socket.socketHandle.on('playerRespawn', function(jsonHandle) {
+					Socket.socketHandle.on('playerRespawn', function(objectData) {
 						{
-							Player.playerHandle['1'].dblPosition[0] = jsonHandle.dblPosition[0];
-							Player.playerHandle['1'].dblPosition[1] = jsonHandle.dblPosition[1];
-							Player.playerHandle['1'].dblPosition[2] = jsonHandle.dblPosition[2];
+							Player.playerHandle['1'].dblPosition[0] = objectData.dblPosition[0];
+							Player.playerHandle['1'].dblPosition[1] = objectData.dblPosition[1];
+							Player.playerHandle['1'].dblPosition[2] = objectData.dblPosition[2];
 							
-							Player.playerHandle['1'].dblVerlet[0] = jsonHandle.dblVerlet[0];
-							Player.playerHandle['1'].dblVerlet[1] = jsonHandle.dblVerlet[1];
-							Player.playerHandle['1'].dblVerlet[2] = jsonHandle.dblVerlet[2];
+							Player.playerHandle['1'].dblVerlet[0] = objectData.dblVerlet[0];
+							Player.playerHandle['1'].dblVerlet[1] = objectData.dblVerlet[1];
+							Player.playerHandle['1'].dblVerlet[2] = objectData.dblVerlet[2];
 						}
 						
 						{
@@ -638,20 +638,20 @@ var Socket = {
 						}
 					});
 					
-					Socket.socketHandle.on('playerHit', function(jsonHandle) {
+					Socket.socketHandle.on('playerHit', function(objectData) {
 						{
-							Player.playerHandle['1'].dblAcceleration[0] = jsonHandle.dblAcceleration[0];
-							Player.playerHandle['1'].dblAcceleration[1] = jsonHandle.dblAcceleration[1];
-							Player.playerHandle['1'].dblAcceleration[2] = jsonHandle.dblAcceleration[2];
+							Player.playerHandle['1'].dblAcceleration[0] = objectData.dblAcceleration[0];
+							Player.playerHandle['1'].dblAcceleration[1] = objectData.dblAcceleration[1];
+							Player.playerHandle['1'].dblAcceleration[2] = objectData.dblAcceleration[2];
 						}
 					});
 					
-					Socket.socketHandle.on('itemHandle', function(jsonHandle) {
+					Socket.socketHandle.on('itemHandle', function(objectData) {
 						{
 							var itemOverwrite = JSON.parse(JSON.stringify(Item.itemHandle));
 							
 							{
-								Item.loadBuffer(jsonHandle.strBuffer);
+								Item.loadBuffer(objectData.strBuffer);
 							}
 							
 							{

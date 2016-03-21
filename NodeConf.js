@@ -5,8 +5,6 @@ var NodeConf = {};
 	
 	NodeConf.intExpressPort = 15897;
 	
-	NodeConf.boolExpressUpload = false;
-	
 	NodeConf.strExpressSession = '';
 	
 	NodeConf.strExpressSecret = '';

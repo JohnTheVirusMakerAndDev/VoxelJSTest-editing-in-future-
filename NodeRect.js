@@ -184,13 +184,7 @@ var Express = {
 	
 	compressionHandle: null,
 	
-	cookieparserHandle: null,
-	
-	multerHandle: null,
-	
 	expresssessionHandle: null,
-	
-	cookiesessionHandle: null,
 	
 	connectpostgresHandle: null,
 	
@@ -208,20 +202,8 @@ var Express = {
 		}
 		
 		{
-			Express.cookieparserHandle = require('cookie-parser');
-		}
-		
-		{
-			if (NodeConf.boolExpressUpload === true) {
-				Express.multerHandle = require('multer');
-			}
-		}
-		
-		{
-			if (NodeConf.strExpressSession === 'sessionCookie') {
+			if (NodeConf.strExpressSession === 'sessionMemory') {
 				Express.expresssessionHandle = require('express-session');
-				
-				Express.cookiesessionHandle = require('cookie-session');
 				
 			} else if (NodeConf.strExpressSession === 'sessionPostgres') {
 				Express.expresssessionHandle = require('express-session');
@@ -250,19 +232,7 @@ var Express = {
 		}
 		
 		{
-			Express.cookieparserHandle = null;
-		}
-		
-		{
-			Express.multerHandle = null;
-		}
-		
-		{
 			Express.expresssessionHandle = null;
-		}
-		
-		{
-			Express.cookiesessionHandle = null;
 		}
 		
 		{
@@ -285,26 +255,11 @@ var Express = {
 			Express.serverHandle.use(Express.compressionHandle({
 				'threshold': 0
 			}));
-			
-			Express.serverHandle.use(Express.cookieparserHandle());
 		}
 		
 		{
-			if (NodeConf.boolExpressUpload === true) {
-				Express.serverHandle.use(Express.multerHandle({
-					'dest': __dirname + '/tmp',
-					'limits': {
-						'fieldNameSize': 64,
-						'fileSize': 10 * 1024 * 1024,
-						'files': 1
-					}
-				}));
-			}
-		}
-		
-		{
-			if (NodeConf.strExpressSession === 'sessionCookie') {
-				Express.serverHandle.use(Express.cookiesessionHandle({
+			if (NodeConf.strExpressSession === 'sessionMemory') {
+				Express.serverHandle.use(Express.expresssessionHandle({
 					'secret': NodeConf.strExpressSecret,
 					'resave': false,
 					'saveUninitialized': true,
@@ -493,6 +448,29 @@ var Mime = {
 	}
 };
 
+var Multer = {
+	multerHandle: null,
+	
+	init: function() {
+		{
+			Multer.multerHandle = require('multer')({
+				'dest': __dirname + '/tmp',
+				'limits': {
+					'fieldNameSize': 64,
+					'fileSize': 10 * 1024 * 1024,
+					'files': 1
+				}
+			});
+		}
+	},
+	
+	dispel: function() {
+		{
+			Multer.multerHandle = null;
+		}
+	}
+};
+
 var Mustache = {
 	mustacheHandle: null,
 	
@@ -516,7 +494,7 @@ var Phantom = {
 	
 	init: function() {
 		{
-			Phantom.phantomjsHandle = require('phantomjs');
+			Phantom.phantomjsHandle = require('phantomjs-prebuilt');
 		}
 	},
 	
@@ -740,6 +718,10 @@ module.exports = function() {
 			Mime.init();
 		}
 		
+		if (NodeConf.boolMulter === true) {
+			Multer.init();
+		}
+		
 		if (NodeConf.boolMustache === true) {
 			Mustache.init();
 		}
@@ -782,6 +764,7 @@ module.exports = function() {
 		'Geoip': Geoip,
 		'Hypertextmin': Hypertextmin,
 		'Mime': Mime,
+		'Multer': Multer,
 		'Mustache': Mustache,
 		'Phantom': Phantom,
 		'Postgres': Postgres,

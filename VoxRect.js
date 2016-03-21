@@ -9,6 +9,7 @@ var Express = NodeRect.Express;
 var Geoip = NodeRect.Geoip;
 var Hypertextmin = NodeRect.Hypertextmin;
 var Mime = NodeRect.Mime;
+var Multer = NodeRect.Multer;
 var Mustache = NodeRect.Mustache;
 var Phantom = NodeRect.Phantom;
 var Postgres = NodeRect.Postgres;
@@ -143,16 +144,8 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 				strData = Hypertextmin.hypertextminHandle.minify(strData, {
 					'removeComments': true,
 					'removeCommentsFromCDATA': true,
-					'removeCDATASectionsFromCDATA': false,
 					'collapseWhitespace': true,
-					'conservativeCollapse': true,
-					'collapseBooleanAttributes': false,
-					'removeAttributeQuotes': false,
-					'removeRedundantAttributes': false,
-					'useShortDoctype': false,
-					'removeEmptyAttributes': false,
-					'removeOptionalTags': false,
-					'removeEmptyElements': false
+					'conservativeCollapse': true
 				});
 			}
 			
@@ -164,7 +157,7 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 				'Content-Disposition': 'inline; filename="' + requestHandle.path.substr(requestHandle.path.lastIndexOf('/') + 1) + '";'
 			});
 			
-			responseHandle.write(strData);
+			responseHandle.write(new Buffer(strData, 'utf-8'));
 			
 			responseHandle.end();
 		};
@@ -181,7 +174,7 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 {
 	Socket.serverHandle.on('connection', function(socketHandle) {
 		{
-			socketHandle.strIdent = socketHandle.id.substr(1, 8);
+			socketHandle.strIdent = socketHandle.id.substr(2, 8);
 		}
 		
 		{
@@ -224,11 +217,11 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 		}
 		
 		{
-			socketHandle.on('loginHandle', function(jsonHandle) {
-				if (jsonHandle.strName === undefined) {
+			socketHandle.on('loginHandle', function(objectData) {
+				if (objectData.strName === undefined) {
 					return;
 					
-				} else if (jsonHandle.strTeam === undefined) {
+				} else if (objectData.strTeam === undefined) {
 					return;
 					
 				}
@@ -236,7 +229,7 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 				if (Player.playerHandle[socketHandle.strIdent] === undefined) {
 					return;
 					
-				} else if (jsonHandle.strTeam.replace(new RegExp('(teamRed)|(teamBlue)', ''), '') !== '') {
+				} else if (objectData.strTeam.replace(new RegExp('(teamRed)|(teamBlue)', ''), '') !== '') {
 					return;
 					
 				}
@@ -250,7 +243,7 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 						
 						return;
 						
-					} else if (jsonHandle.strName === '') {
+					} else if (objectData.strName === '') {
 						socketHandle.emit('loginHandle', {
 							'strType': 'typeReject',
 							'strMessage': 'name invalid'
@@ -262,15 +255,15 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 				}
 				
 				{
-					if (jsonHandle.strName.length > 20) {
-						jsonHandle.strName = jsonHandle.strName.substr(1, 20) + ' ... ';
+					if (objectData.strName.length > 20) {
+						objectData.strName = objectData.strName.substr(1, 20) + ' ... ';
 					}
 				}
 				
 				{
-					Player.playerHandle[socketHandle.strIdent].strTeam = jsonHandle.strTeam;
+					Player.playerHandle[socketHandle.strIdent].strTeam = objectData.strTeam;
 					
-					Player.playerHandle[socketHandle.strIdent].strName = jsonHandle.strName;
+					Player.playerHandle[socketHandle.strIdent].strName = objectData.strName;
 				}
 				
 				{
@@ -285,8 +278,8 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 				}
 			});
 			
-			socketHandle.on('pingHandle', function(jsonHandle) {
-				if (jsonHandle.intTimestamp === undefined) {
+			socketHandle.on('pingHandle', function(objectData) {
+				if (objectData.intTimestamp === undefined) {
 					return;
 				}
 				
@@ -309,44 +302,44 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 				}
 			});
 			
-			socketHandle.on('chatHandle', function(jsonHandle) {
-				if (jsonHandle.strMessage === undefined) {
+			socketHandle.on('chatHandle', function(objectData) {
+				if (objectData.strMessage === undefined) {
 					return;
 				}
 				
 				if (Player.playerHandle[socketHandle.strIdent] === undefined) {
 					return;
 					
-				} else if (jsonHandle.strMessage === '') {
+				} else if (objectData.strMessage === '') {
 					return;
 					
 				}
 				
 				{
-					if (jsonHandle.strMessage.length > 140) {
-						jsonHandle.strMessage = jsonHandle.strMessage.substr(1, 140) + ' ... ';
+					if (objectData.strMessage.length > 140) {
+						objectData.strMessage = objectData.strMessage.substr(1, 140) + ' ... ';
 					}
 				}
 				
 				{
 					Socket.serverHandle.emit('chatHandle', {
 						'strName': Player.playerHandle[socketHandle.strIdent].strName,
-						'strMessage': jsonHandle.strMessage
+						'strMessage': objectData.strMessage
 					});
 				}
 			});
 			
-			socketHandle.on('worldCreate', function(jsonHandle) {
-				if (jsonHandle.intCoordinate === undefined) {
+			socketHandle.on('worldCreate', function(objectData) {
+				if (objectData.intCoordinate === undefined) {
 					return;
 					
-				} else if (jsonHandle.intCoordinate.length !== 3) {
+				} else if (objectData.intCoordinate.length !== 3) {
 					return;
 					
-				} else if (jsonHandle.strType === undefined) {
+				} else if (objectData.strType === undefined) {
 					return;
 					
-				} else if (jsonHandle.boolBlocked === undefined) {
+				} else if (objectData.boolBlocked === undefined) {
 					return;
 					
 				}
@@ -357,7 +350,7 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 				} else if (Player.playerHandle[socketHandle.strIdent].intWeapon > 0) {
 					return;
 					
-				} else if (World.updateBlocked(jsonHandle.intCoordinate) === true) {
+				} else if (World.updateBlocked(objectData.intCoordinate) === true) {
 					return;
 					
 				}
@@ -371,9 +364,9 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 					var dblSize = [ 0.0, 0.0, 0.0 ];
 					
 					{
-						dblPosition[0] = jsonHandle.intCoordinate[0] + (0.5 * Constants.dblGameBlocksize);
-						dblPosition[1] = jsonHandle.intCoordinate[1] + (0.5 * Constants.dblGameBlocksize);
-						dblPosition[2] = jsonHandle.intCoordinate[2] + (0.5 * Constants.dblGameBlocksize);
+						dblPosition[0] = objectData.intCoordinate[0] + (0.5 * Constants.dblGameBlocksize);
+						dblPosition[1] = objectData.intCoordinate[1] + (0.5 * Constants.dblGameBlocksize);
+						dblPosition[2] = objectData.intCoordinate[2] + (0.5 * Constants.dblGameBlocksize);
 						
 						dblSize[0] = 1.25 * Constants.dblGameBlocksize;
 						dblSize[1] = 1.25 * Constants.dblGameBlocksize;
@@ -411,39 +404,39 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 						return playerHandle;
 					}, function(playerHandle) {
 						{
-							jsonHandle.strType = '';
+							objectData.strType = '';
 							
-							jsonHandle.boolBlocked = true;
+							objectData.boolBlocked = true;
 						}
 					});
 				}
 				
-				if (jsonHandle.strType !== 'voxelDirt') {
+				if (objectData.strType !== 'voxelDirt') {
 					return;
 					
-				} else if (jsonHandle.boolBlocked !== false) {
+				} else if (objectData.boolBlocked !== false) {
 					return;
 					
 				}
 				
 				{
-					World.updateCreate(jsonHandle.intCoordinate, jsonHandle.strType, jsonHandle.boolBlocked);
+					World.updateCreate(objectData.intCoordinate, objectData.strType, objectData.boolBlocked);
 				}
 				
 				{
 					Socket.serverHandle.emit('worldCreate', {
-						'intCoordinate': jsonHandle.intCoordinate,
-						'strType': jsonHandle.strType,
-						'boolBlocked': jsonHandle.boolBlocked
+						'intCoordinate': objectData.intCoordinate,
+						'strType': objectData.strType,
+						'boolBlocked': objectData.boolBlocked
 					});
 				}
 			});
 			
-			socketHandle.on('worldDestroy', function(jsonHandle) {
-				if (jsonHandle.intCoordinate === undefined) {
+			socketHandle.on('worldDestroy', function(objectData) {
+				if (objectData.intCoordinate === undefined) {
 					return;
 					
-				} else if (jsonHandle.intCoordinate.length !== 3) {
+				} else if (objectData.intCoordinate.length !== 3) {
 					return;
 					
 				}
@@ -454,7 +447,7 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 				} else if (Player.playerHandle[socketHandle.strIdent].intWeapon > 0) {
 					return;
 					
-				} else if (World.updateBlocked(jsonHandle.intCoordinate) === true) {
+				} else if (World.updateBlocked(objectData.intCoordinate) === true) {
 					return;
 					
 				}
@@ -464,18 +457,18 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 				}
 				
 				{
-					World.updateDestroy(jsonHandle.intCoordinate);
+					World.updateDestroy(objectData.intCoordinate);
 				}
 				
 				{
 					Socket.serverHandle.emit('worldDestroy', {
-						'intCoordinate': jsonHandle.intCoordinate
+						'intCoordinate': objectData.intCoordinate
 					});
 				}
 			});
 			
-			socketHandle.on('playerHandle', function(jsonHandle) {
-				var bufferHandle = new Buffer(jsonHandle.strBuffer, 'base64');
+			socketHandle.on('playerHandle', function(objectData) {
+				var bufferHandle = new Buffer(objectData.strBuffer, 'base64');
 				
 				try {
 					Player.loadBufferpart({}, bufferHandle, 0);
@@ -503,26 +496,26 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 				}
 			});
 			
-			socketHandle.on('itemHandle', function(jsonHandle) {
-				if (jsonHandle.strItem === undefined) {
+			socketHandle.on('itemHandle', function(objectData) {
+				if (objectData.strItem === undefined) {
 					return;
 				}
 				
 				if (Player.playerHandle[socketHandle.strIdent] === undefined) {
 					return;
 					
-				} else if (jsonHandle.strItem.replace(new RegExp('(itemPickaxe)|(itemSword)|(itemBow)', ''), '') !== '') {
+				} else if (objectData.strItem.replace(new RegExp('(itemPickaxe)|(itemSword)|(itemBow)', ''), '') !== '') {
 					return;
 					
 				}
 				
 				{
-					Player.playerHandle[socketHandle.strIdent].strItem = jsonHandle.strItem;
+					Player.playerHandle[socketHandle.strIdent].strItem = objectData.strItem;
 				}
 			});
 			
-			socketHandle.on('weaponHandle', function(jsonHandle) {
-				if (jsonHandle.strWeapon === undefined) {
+			socketHandle.on('weaponHandle', function(objectData) {
+				if (objectData.strWeapon === undefined) {
 					return;
 				}
 				
@@ -535,17 +528,17 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 				}
 				
 				{
-					if (jsonHandle.strWeapon === 'weaponSword') {
+					if (objectData.strWeapon === 'weaponSword') {
 						Player.playerHandle[socketHandle.strIdent].intWeapon = Constants.intInteractionSwordDuration;
 						
-					} else if (jsonHandle.strWeapon === 'weaponBow') {
+					} else if (objectData.strWeapon === 'weaponBow') {
 						Player.playerHandle[socketHandle.strIdent].intWeapon = Constants.intInteractionBowDuration;
 						
 					}
 				}
 				
 				{
-					if (jsonHandle.strWeapon === 'weaponSword') {
+					if (objectData.strWeapon === 'weaponSword') {
 						var strIdent = 'itemSword' + ' - ' + Node.hashbase(Node.cryptoHandle.randomBytes(16)).substr(0, 8);
 						var strPlayer = Player.playerHandle[socketHandle.strIdent].strIdent;
 						var dblPosition = [ 0.0, 0.0, 0.0 ];
@@ -628,7 +621,7 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 							});
 						}
 						
-					} else if (jsonHandle.strWeapon === 'weaponBow') {
+					} else if (objectData.strWeapon === 'weaponBow') {
 						var strIdent = 'itemArrow' + ' - ' + Node.hashbase(Node.cryptoHandle.randomBytes(16)).substr(0, 8);
 						var strPlayer = Player.playerHandle[socketHandle.strIdent].strIdent;
 						var dblPosition = [ 0.0, 0.0, 0.0 ];
@@ -1434,6 +1427,12 @@ Item.browserify(Constants, null, Physics);
 				'path': '/host.xml?intPort=' + encodeURIComponent(NodeConf.intExpressPort) + '&strName=' + encodeURIComponent(Gameserver.strName) + '&intLoginPassword=' + encodeURIComponent(Gameserver.intLoginPassword) + '&strWorldActive=' + encodeURIComponent(Gameserver.strWorldActive) + '&intPlayerCapacity=' + encodeURIComponent(Gameserver.intPlayerCapacity) + '&intPlayerActive=' + encodeURIComponent(Gameserver.intPlayerActive),
 				'method': 'GET'
 			}, function(responseHttp) {
+				responseHttp.setEncoding('UTF-8');
+				
+				responseHttp.on('data', function(strData) {
+					
+				});
+				
 				responseHttp.on('end', function() {
 					functionSuccess();
 				});
@@ -1443,7 +1442,7 @@ Item.browserify(Constants, null, Physics);
 				functionError();
 			});
 			
-			requestHttp.setTimeout(3 * 1000, function() {
+			requestHttp.setTimeout(60 * 1000, function() {
 				requestHttp.abort();
 			});
 			
