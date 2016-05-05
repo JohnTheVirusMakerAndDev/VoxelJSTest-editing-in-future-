@@ -407,7 +407,7 @@ window.addEventListener('load', function () {
 		Input.init();
 		
 		Input.functionException = function() {
-			if (jQuery('#idWorld_Json').get(0) === document.activeElement) {
+			if (jQuery('#idWorld_Json').get(0) === window.document.activeElement) {
 				return true;
 			}
 			

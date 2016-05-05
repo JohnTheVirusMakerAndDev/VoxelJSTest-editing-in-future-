@@ -916,10 +916,10 @@ window.addEventListener('load', function () {
 		Input.init();
 		
 		Input.functionException = function() {
-			if (jQuery('#idMessagebox_Chat').get(0) === document.activeElement) {
+			if (jQuery('#idMessagebox_Chat').get(0) === window.document.activeElement) {
 				return true;
 				
-			} else if (jQuery('#idLogin_Name').get(0) === document.activeElement) {
+			} else if (jQuery('#idLogin_Name').get(0) === window.document.activeElement) {
 				return true;
 				
 			}

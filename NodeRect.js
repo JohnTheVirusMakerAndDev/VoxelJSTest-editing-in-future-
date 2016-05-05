@@ -255,6 +255,16 @@ var Express = {
 			Express.serverHandle.use(Express.compressionHandle({
 				'threshold': 0
 			}));
+			
+			Express.serverHandle.use(function(requestHandle, responseHandle, functionNext) {
+				requestHandle.strIp = requestHandle.ip;
+				
+				if (requestHandle.strIp.toLowerCase().indexOf('::ffff:') === 0) {
+					requestHandle.strIp = requestHandle.strIp.substr(7);
+				}
+				
+				functionNext();
+			});
 		}
 		
 		{

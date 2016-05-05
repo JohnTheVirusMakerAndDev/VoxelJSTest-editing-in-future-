@@ -25,7 +25,7 @@ several preferences of the game can furthermore be changed within `VoxConf.js`. 
 NodeConf.intExpressPort = 15897;
 ```
 
-to keep the server up and running, using `forever` is recommended. it can globally be installed through `npm` within a console and then simply be utilized to start the server and keep it running. it is therefore no longer necessary to call `node` directly.
+to keep the server up and running, using `forever` is recommended. it can globally be installed through `npm` within a console and can then simply be utilized to start the server and keep it running. it is therefore no longer necessary to call `node` directly.
 
 ```
 npm install forever -g
@@ -76,13 +76,15 @@ since the project consists of several components and each component has individu
 * `socket.io`
 * `voxel-engine` / `voxel-highlight` / `minecraft-skin`
 * `browserify` / `uglify-js`
-* `bootstrap` / `jquery` / `moment`
+* `jquery` / `moment`
+* `bootstrap`
 
 ###`editor.debug.js`
 * `node` / `npm`
 * `voxel-engine` / `voxel-highlight` / `minecraft-skin`
 * `browserify` / `uglify-js`
-* `bootstrap` / `jquery` / `moment`
+* `jquery` / `moment`
+* `bootstrap`
 
 ###`libPhysics.debug.js`
 * `gpp`

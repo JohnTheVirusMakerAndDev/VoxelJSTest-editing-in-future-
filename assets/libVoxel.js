@@ -282,7 +282,7 @@ var Voxel = {
 		strFingerprint += dblScale + ';';
 		
 		if (Voxel.minecraftitemHandle[strFingerprint] === undefined) {
-			var contextHandle = document.createElement('canvas').getContext('2d');
+			var contextHandle = window.document.createElement('canvas').getContext('2d');
 			
 			{
 				if (strItem === 'itemFlagRed') {
