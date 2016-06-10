@@ -9,7 +9,7 @@ since this game is purely multiplayer based, it is required to join a server. yo
 ##server
 make sure to have `node` and `npm` installed. otherwise navigate to [nodejs.org](https://nodejs.org/) in order to download the latest binaries.
 
-a prebuilt version of the server is being provided and can be [downloaded](http://dhiont4yb3hlc.cloudfront.net/VoxRect/Desktop/VoxRect.zip) accordingly. after unpacking it, go ahead and navigate to the root folder of the archive. before `node` is being used to start the server, the dependencies can then be installed by calling `npm` within a console.
+a prebuilt version of the server is being provided and can be [downloaded](http://content.coderect.com/VoxRect/Website/VoxRect.zip) accordingly. after unpacking it, go ahead and navigate to the root folder of the archive. before `node` is being used to start the server, the dependencies can then be installed by calling `npm` within a console.
 
 ```
 npm install
