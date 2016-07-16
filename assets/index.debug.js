@@ -485,11 +485,11 @@ var Socket = {
 						
 						{
 							jQuery('#idTeamRed_Players')
-								.text(jQuery('#idTeamRed_Table').find('tbody').find('tr').size())
+								.text(jQuery('#idTeamRed_Table').find('tbody').find('tr').length)
 							;
 							
 							jQuery('#idTeamBlue_Players')
-								.text(jQuery('#idTeamBlue_Table').find('tbody').find('tr').size())
+								.text(jQuery('#idTeamBlue_Table').find('tbody').find('tr').length)
 							;
 						}
 						

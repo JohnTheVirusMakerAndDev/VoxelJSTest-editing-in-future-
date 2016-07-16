@@ -21,45 +21,37 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 
 {
 	Express.serverHandle.use(function(requestHandle, responseHandle, functionNext) {
+		var strName = '';
+		var strPassword = '';
+		
+		{
+			var strAuthorization = requestHandle.get('Authorization');
+			
+			if (strAuthorization !== undefined) {
+				var strEncoded = strAuthorization.split(' ');
+				
+				if (strEncoded.length === 2) {
+					var strDecoded = new Buffer(strEncoded[1], 'base64').toString().split(':');
+					
+					if (strDecoded.length === 2) {
+						strName = strDecoded[0];
+						strPassword = strDecoded[1];
+					}
+				}
+			}
+		}
+		
 		{
 			if (VoxConf.strLoginPassword === '') {
 				functionNext();
 				
 				return;
-			}
-		}
-		
-		{
-			var strCredentials = function() {
-				var strAuthorization = requestHandle.get('Authorization');
 				
-				if (strAuthorization === undefined) {
-					return [ '', '' ];
-				}
-				
-				var strEncoded = strAuthorization.split(' ');
-				
-				if (strEncoded.length !== 2) {
-					return [ '', '' ];
-					
-				} else if (strEncoded[0] !== 'Basic') {
-					return [ '', '' ];
-					
-				}
-				
-				var strDecoded = new Buffer(strEncoded[1], 'base64').toString().split(':');
-				
-				if (strDecoded.length !== 2) {
-					return [ '', '' ];
-				}
-				
-				return [ strDecoded[0], strDecoded[1] ];
-			}();
-			
-			if (strCredentials[1] === VoxConf.strLoginPassword) {
+			} else if (VoxConf.strLoginPassword === strPassword) {
 				functionNext();
 				
 				return;
+				
 			}
 		}
 		
