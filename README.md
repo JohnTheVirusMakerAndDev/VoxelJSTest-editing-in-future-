@@ -68,11 +68,13 @@ since the project consists of several components and each component has individu
 
 ###`VoxRect.js`
 * `node` / `npm`
+* `schemapack`
 * `socket.io`
 * `express`
 
 ###`index.debug.js`
 * `node` / `npm`
+* `schemapack`
 * `socket.io`
 * `voxel-engine` / `voxel-highlight` / `minecraft-skin`
 * `browserify` / `uglify-js`
@@ -81,6 +83,7 @@ since the project consists of several components and each component has individu
 
 ###`editor.debug.js`
 * `node` / `npm`
+* `schemapack`
 * `voxel-engine` / `voxel-highlight` / `minecraft-skin`
 * `browserify` / `uglify-js`
 * `jquery` / `moment`

@@ -1,74 +1,92 @@
 'use strict';
 
-var Constants = {};
-var Voxel = {};
-var Physics = {};
-
 var Player = {
-	browserify: function(constantsHandle, voxelHandle, physicsHandle) {
-		Constants = constantsHandle;
-		Voxel = voxelHandle;
-		Physics = physicsHandle;
+	browserify: function(objectBrowserify) {
+		for (var strKey in objectBrowserify) {
+			global[strKey] = objectBrowserify[strKey];
+		}
 	},
+
+	requireSchemapack: null,
 	
-	playerHandle: {},
+	objectPlayer: {},
 	
-	minecraftskinController: null,
-	
-	minecraftskinEnemy: [],
+	objectRepository: {},
 	
 	init: function() {
 		{
-			Player.playerHandle = {};
+			Player.requireSchemapack = require('schemapack').build([{
+				'strIdent': 'string',
+				'intTeam': 'varint',
+				'intEntity': 'varint',
+				'strName': 'string',
+				'intScore': 'varint',
+				'intKills': 'varint',
+				'intDeaths': 'varint',
+				'intHealth': 'varint',
+				'dblPosition': [ 'float32' ],
+				'dblVerlet': [ 'float32' ],
+				'dblAcceleration': [ 'float32' ],
+				'dblRotation': [ 'float32' ],
+				'intJumpcount': 'varint',
+				'intWalk': 'varint',
+				'intWeapon': 'varint'
+			}]);
 		}
-		
+
 		{
-			var minecraftskinHandle = {};
-			
-			if (Voxel !== null) {
-				minecraftskinHandle = Voxel.minecraftskinCreate();
-			}
-			
-			Player.minecraftskinController = minecraftskinHandle;
+			Player.objectPlayer = {};
 		}
-		
+
+		if (Voxel === null) {
+			return;
+		}
+
 		{
-			for (var intFor1 = 0; intFor1 < 32; intFor1 += 1) {
-				{
-					var minecraftskinHandle = {};
-					
-					if (Voxel !== null) {
-						minecraftskinHandle = Voxel.minecraftskinCreate();
-					}
-					
-					Player.minecraftskinEnemy.push(minecraftskinHandle);
+			Player.objectRepository = {
+				'characterController': {
+					'intLength': 0,
+					'objectCharacter': []
+				},
+				'characterRed': {
+					'intLength': 0,
+					'objectCharacter': []
+				},
+				'characterBlue': {
+					'intLength': 0,
+					'objectCharacter': []
 				}
+			};
+
+			Player.objectRepository['characterController'].objectCharacter.push(Voxel.characterCreate('characterGreen'));
+
+			for (var intFor1 = 0; intFor1 < 16; intFor1 += 1) {
+				Player.objectRepository['characterRed'].objectCharacter.push(Voxel.characterCreate('characterRed'));
+				Player.objectRepository['characterBlue'].objectCharacter.push(Voxel.characterCreate('characterBlue'));
 			}
 		}
 	},
 	
 	dispel: function() {
 		{
-			Player.playerHandle = {};
+			Player.requireSchemapack = {};
 		}
 		
 		{
-			Player.minecraftskinController = null;
+			Player.objectPlayer = {};
 		}
 		
 		{
-			Player.minecraftskinEnemy = [];
+			Player.objectRepository = {};
 		}
 	},
 	
 	initController: function() {
 		{
-			var strIdent = '1';
-			
-			Player.playerHandle[strIdent] = {
-				'strIdent': strIdent,
+			Player.objectPlayer['1'] = {
+				'strIdent': '1',
 				'strTeam': '',
-				'strItem': '',
+				'strEntity': '',
 				'strName': '',
 				'intScore': 0,
 				'intKills': 0,
@@ -83,417 +101,222 @@ var Player = {
 				'intWeapon': 0
 			};
 		}
-		
+
 		{
-			Player.minecraftskinController.mesh.cameraInside.add(Voxel.voxelengineHandle.camera);
+			Player.objectRepository['characterController'].objectCharacter[0].mesh.cameraInside.add(Voxel.requireVoxelengine.camera);
 		}
-		
+
 		{
-			var physicsHandle = Voxel.voxelengineHandle.makePhysical(Player.minecraftskinController.mesh);
-			
+			var objectController = Voxel.requireVoxelengine.makePhysical(Player.objectRepository['characterController'].objectCharacter[0].mesh, null, true);
+
 			{
-				physicsHandle.blocksCreation = true;
-				
-				physicsHandle.position = Player.minecraftskinController.mesh.position;
-				
-				physicsHandle.roll = null;
-				physicsHandle.yaw = Player.minecraftskinController.mesh;
-				physicsHandle.pitch = Player.minecraftskinController.mesh.head;
+				objectController.position = Player.objectRepository['characterController'].objectCharacter[0].mesh.position;
+
+				objectController.roll = null;
+				objectController.yaw = Player.objectRepository['characterController'].objectCharacter[0].mesh;
+				objectController.pitch = Player.objectRepository['characterController'].objectCharacter[0].mesh.head;
 			}
-			
-			Voxel.voxelengineHandle.control(physicsHandle);
+
+			Voxel.requireVoxelengine.control(objectController);
 		}
 	},
 	
-	saveBuffer: function() {
-		var bufferHandle = new Buffer(256 * Object.keys(Player.playerHandle).length);
-		var intBuffer = 0;
+	saveBuffer: function(objectStorage) {
+		var objectBuffer = null;
 
 		{
-			for (var strIdent in Player.playerHandle) {
-				var playerHandle = Player.playerHandle[strIdent];
-				
-				{
-					intBuffer = Player.saveBufferpart(playerHandle, bufferHandle, intBuffer);
+			if (objectStorage === null) {
+				objectStorage = Player.objectPlayer;
+			}
+		}
+
+		{
+			var objectSchemapack = [];
+
+			for (var strIdent in objectStorage) {
+				var objectPlayer = {};
+
+				for (var strAttribute in objectStorage[strIdent]) {
+					var voidAttribute = objectStorage[strIdent][strAttribute];
+
+					if (typeof(voidAttribute) === 'object') {
+						if (Array.isArray(voidAttribute) === false) {
+							continue;
+						}
+					}
+
+					if (strAttribute === 'strTeam') {
+						strAttribute = 'intTeam';
+
+						if (voidAttribute === '') {
+							voidAttribute = 0;
+
+						} else if (voidAttribute === 'teamRed') {
+							voidAttribute = 1;
+
+						} else if (voidAttribute === 'teamBlue') {
+							voidAttribute = 2;
+
+						}
+
+					} else if (strAttribute === 'strEntity') {
+						strAttribute = 'intEntity';
+
+						if (voidAttribute === '') {
+							voidAttribute = 0;
+
+						} else if (voidAttribute === 'entityPickaxe') {
+							voidAttribute = 1;
+
+						} else if (voidAttribute === 'entitySword') {
+							voidAttribute = 2;
+
+						} else if (voidAttribute === 'entityBow') {
+							voidAttribute = 3;
+
+						}
+
+					}
+
+					objectPlayer[strAttribute] = voidAttribute;
 				}
-		    }
-	    }
 
-		return bufferHandle.slice(0, intBuffer).toString('base64');
+				objectSchemapack.push(objectPlayer);
+			}
+
+			objectBuffer = Player.requireSchemapack.encode(objectSchemapack).toString('base64');
+		}
+
+		return objectBuffer;
 	},
 	
-	loadBuffer: function(strBuffer) {
-		var bufferHandle = new Buffer(strBuffer, 'base64');
-		
+	loadBuffer: function(objectStorage, objectBuffer) {
 		{
-			Player.playerHandle = {};
-		}
-		
-		{
-			var intBuffer = 0;
-			
-			{
-				do {
-					if (intBuffer >= bufferHandle.length) {
-						break;
-					}
-					
-					var playerHandle = {};
-					
-					{
-						intBuffer = Player.loadBufferpart(playerHandle, bufferHandle, intBuffer);
-					}
-					
-					{
-						Player.playerHandle[playerHandle.strIdent] = playerHandle;
-					}
-				} while (true);
+			if (objectStorage === null) {
+				objectStorage = Player.objectPlayer;
 			}
 		}
-	},
-	
-	saveBufferpart: function(playerHandle, bufferHandle, intBuffer) {
-		{
-			bufferHandle.writeInt16LE(playerHandle.strIdent.length, intBuffer);
-			
-			intBuffer += 2;
-			
-			bufferHandle.write(playerHandle.strIdent, intBuffer, playerHandle.strIdent.length, 'ascii');
-			
-			intBuffer += playerHandle.strIdent.length;
-		}
-		
-		{
-			var intTeam = 0;
-			
-			if (playerHandle.strTeam === 'teamRed') {
-				intTeam = 1;
-				
-			} else if (playerHandle.strTeam === 'teamBlue') {
-				intTeam = 2;
-				
-			}
-			
-			bufferHandle.writeInt16LE(intTeam, intBuffer);
-			
-			intBuffer += 2;
-		}
-		
-		{
-			var intItem = 0;
-			
-			if (playerHandle.strItem === 'itemPickaxe') {
-				intItem = 1;
-				
-			} else if (playerHandle.strItem === 'itemSword') {
-				intItem = 2;
-				
-			} else if (playerHandle.strItem === 'itemBow') {
-				intItem = 3;
-				
-			}
-			
-			bufferHandle.writeInt16LE(intItem, intBuffer);
-			
-			intBuffer += 2;
-		}
-		
-		{
-			bufferHandle.writeInt16LE(playerHandle.strName.length, intBuffer);
-			
-			intBuffer += 2;
-			
-			bufferHandle.write(playerHandle.strName, intBuffer, playerHandle.strName.length, 'ascii');
-			
-			intBuffer += playerHandle.strName.length;
-		}
-		
-		{
-			bufferHandle.writeInt16LE(playerHandle.intScore, intBuffer);
-			
-			intBuffer += 2;
-		}
-		
-		{
-			bufferHandle.writeInt16LE(playerHandle.intKills, intBuffer);
-			
-			intBuffer += 2;
-		}
-		
-		{
-			bufferHandle.writeInt16LE(playerHandle.intDeaths, intBuffer);
-			
-			intBuffer += 2;
-		}
-		
-		{
-			bufferHandle.writeInt16LE(playerHandle.intHealth, intBuffer);
-			
-			intBuffer += 2;
-		}
-		
-		{
-			bufferHandle.writeFloatLE(playerHandle.dblPosition[0], intBuffer + 0);
-			bufferHandle.writeFloatLE(playerHandle.dblPosition[1], intBuffer + 4);
-			bufferHandle.writeFloatLE(playerHandle.dblPosition[2], intBuffer + 8);
-			
-			intBuffer += 12;
-		}
-		
-		{
-			bufferHandle.writeFloatLE(playerHandle.dblVerlet[0], intBuffer + 0);
-			bufferHandle.writeFloatLE(playerHandle.dblVerlet[1], intBuffer + 4);
-			bufferHandle.writeFloatLE(playerHandle.dblVerlet[2], intBuffer + 8);
-			
-			intBuffer += 12;
-		}
-		
-		{
-			bufferHandle.writeFloatLE(playerHandle.dblAcceleration[0], intBuffer + 0);
-			bufferHandle.writeFloatLE(playerHandle.dblAcceleration[1], intBuffer + 4);
-			bufferHandle.writeFloatLE(playerHandle.dblAcceleration[2], intBuffer + 8);
-			
-			intBuffer += 12;
-		}
-		
-		{
-			bufferHandle.writeFloatLE(playerHandle.dblRotation[0], intBuffer + 0);
-			bufferHandle.writeFloatLE(playerHandle.dblRotation[1], intBuffer + 4);
-			bufferHandle.writeFloatLE(playerHandle.dblRotation[2], intBuffer + 8);
-			
-			intBuffer += 12;
-		}
-		
-		{
-			bufferHandle.writeInt16LE(playerHandle.intJumpcount, intBuffer);
-			
-			intBuffer += 2;
-		}
-		
-		{
-			bufferHandle.writeInt16LE(playerHandle.intWalk, intBuffer);
-			
-			intBuffer += 2;
-		}
-		
-		{
-			bufferHandle.writeInt16LE(playerHandle.intWeapon, intBuffer);
-			
-			intBuffer += 2;
-		}
-		
-		return intBuffer;
-	},
-	
-	loadBufferpart: function(playerHandle, bufferHandle, intBuffer) {
-		{
-			var intLength = bufferHandle.readInt16LE(intBuffer);
 
-			intBuffer += 2;
-			
-			playerHandle.strIdent = bufferHandle.toString('ascii', intBuffer, intBuffer + intLength);
-			
-			intBuffer += intLength;
-		}
-		
 		{
-			playerHandle.strTeam = '';
-			
-			var intTeam = bufferHandle.readInt16LE(intBuffer);
-			
-			if (intTeam === 1) {
-				playerHandle.strTeam = 'teamRed';
-				
-			} else if (intTeam === 2) {
-				playerHandle.strTeam = 'teamBlue';
-				
-			}
-			
-			intBuffer += 2;
-		}
-		
-		{
-			playerHandle.strItem = '';
-			
-			var intItem = bufferHandle.readInt16LE(intBuffer);
-			
-			if (intItem === 1) {
-				playerHandle.strItem = 'itemPickaxe';
-				
-			} else if (intItem === 2) {
-				playerHandle.strItem = 'itemSword';
-				
-			} else if (intItem === 3) {
-				playerHandle.strItem = 'itemBow';
-				
-			}
-			
-			intBuffer += 2;
-		}
-		
-		{
-			var intLength = bufferHandle.readInt16LE(intBuffer);
+			var objectSchemapack = Player.requireSchemapack.decode(new Buffer(objectBuffer, 'base64'));
 
-			intBuffer += 2;
-			
-			playerHandle.strName = bufferHandle.toString('ascii', intBuffer, intBuffer + intLength);
-			
-			intBuffer += intLength;
+			for (var intFor1 = 0; intFor1 < objectSchemapack.length; intFor1 += 1) {
+				var objectPlayer = {};
+
+				for (var strAttribute in objectSchemapack[intFor1]) {
+					var voidAttribute = objectSchemapack[intFor1][strAttribute];
+
+					if (strAttribute === 'intTeam') {
+						strAttribute = 'strTeam';
+
+						if (voidAttribute === 0) {
+							voidAttribute = '';
+
+						} if (voidAttribute === 1) {
+							voidAttribute = 'teamRed';
+
+						} else if (voidAttribute === 2) {
+							voidAttribute = 'teamBlue';
+
+						}
+						
+					} else if (strAttribute === 'intEntity') {
+						strAttribute = 'strEntity';
+
+						if (voidAttribute === 0) {
+							voidAttribute = '';
+
+						} else if (voidAttribute === 1) {
+							voidAttribute = 'entityPickaxe';
+
+						} else if (voidAttribute === 2) {
+							voidAttribute = 'entitySword';
+
+						} else if (voidAttribute === 3) {
+							voidAttribute = 'entityBow';
+
+						}
+						
+					}
+
+					objectPlayer[strAttribute] = voidAttribute;
+				}
+
+				objectStorage[objectPlayer.strIdent] = objectPlayer;
+			}
 		}
-		
-		{
-			playerHandle.intScore = bufferHandle.readInt16LE(intBuffer);
-			
-			intBuffer += 2;
-		}
-		
-		{
-			playerHandle.intKills = bufferHandle.readInt16LE(intBuffer);
-			
-			intBuffer += 2;
-		}
-		
-		{
-			playerHandle.intDeaths = bufferHandle.readInt16LE(intBuffer);
-			
-			intBuffer += 2;
-		}
-		
-		{
-			playerHandle.intHealth = bufferHandle.readInt16LE(intBuffer);
-			
-			intBuffer += 2;
-		}
-		
-		{
-			playerHandle.dblPosition = [ 0.0, 0.0, 0.0 ];
-			
-			playerHandle.dblPosition[0] = bufferHandle.readFloatLE(intBuffer + 0);
-			playerHandle.dblPosition[1] = bufferHandle.readFloatLE(intBuffer + 4);
-			playerHandle.dblPosition[2] = bufferHandle.readFloatLE(intBuffer + 8);
-			
-			intBuffer += 12;
-		}
-		
-		{
-			playerHandle.dblVerlet = [ 0.0, 0.0, 0.0 ];
-			
-			playerHandle.dblVerlet[0] = bufferHandle.readFloatLE(intBuffer + 0);
-			playerHandle.dblVerlet[1] = bufferHandle.readFloatLE(intBuffer + 4);
-			playerHandle.dblVerlet[2] = bufferHandle.readFloatLE(intBuffer + 8);
-			
-			intBuffer += 12;
-		}
-		
-		{
-			playerHandle.dblAcceleration = [ 0.0, 0.0, 0.0 ];
-			
-			playerHandle.dblAcceleration[0] = bufferHandle.readFloatLE(intBuffer + 0);
-			playerHandle.dblAcceleration[1] = bufferHandle.readFloatLE(intBuffer + 4);
-			playerHandle.dblAcceleration[2] = bufferHandle.readFloatLE(intBuffer + 8);
-			
-			intBuffer += 12;
-		}
-		
-		{
-			playerHandle.dblRotation = [ 0.0, 0.0, 0.0 ];
-			
-			playerHandle.dblRotation[0] = bufferHandle.readFloatLE(intBuffer + 0);
-			playerHandle.dblRotation[1] = bufferHandle.readFloatLE(intBuffer + 4);
-			playerHandle.dblRotation[2] = bufferHandle.readFloatLE(intBuffer + 8);
-			
-			intBuffer += 12;
-		}
-		
-		{
-			playerHandle.intJumpcount = bufferHandle.readInt16LE(intBuffer);
-			
-			intBuffer += 2;
-		}
-		
-		{
-			playerHandle.intWalk = bufferHandle.readInt16LE(intBuffer);
-			
-			intBuffer += 2;
-		}
-		
-		{
-			playerHandle.intWeapon = bufferHandle.readInt16LE(intBuffer);
-			
-			intBuffer += 2;
-		}
-		
-		return intBuffer;
 	},
 	
 	update: function() {
 		{
 			Player.updateLogic();
 		}
+
+		if (Voxel === null) {
+			return;
+		}
 		
 		{
-			if (Voxel !== null) {
-				Player.updateGraphics();
-			}
+			Player.updateGraphics();
 		}
 	},
 		
 	updateLogic: function() {
 		{
-			if (Player.playerHandle['1'] !== undefined) {
-				Player.playerHandle['1'].dblRotation[0] = 0.0;
-				Player.playerHandle['1'].dblRotation[1] = Player.minecraftskinController.mesh.rotation.y;
-				Player.playerHandle['1'].dblRotation[2] = Player.minecraftskinController.mesh.head.rotation.x;
+			if (Player.objectPlayer['1'] !== undefined) {
+				Player.objectPlayer['1'].dblRotation[0] = 0.0;
+				Player.objectPlayer['1'].dblRotation[1] = Player.objectRepository['characterController'].objectCharacter[0].mesh.rotation.y;
+				Player.objectPlayer['1'].dblRotation[2] = Player.objectRepository['characterController'].objectCharacter[0].mesh.head.rotation.x;
 			}
 		}
 		
 		{
-			for (var strIdent in Player.playerHandle) {
-				var playerHandle = Player.playerHandle[strIdent];
+			for (var strIdent in Player.objectPlayer) {
+				var objectPlayer = Player.objectPlayer[strIdent];
 
-				if (playerHandle.strTeam === '') {
+				if (objectPlayer.strTeam === '') {
 					continue;
 				}
 				
 				{
-					playerHandle.dblSize = Constants.dblPlayerSize;
-					playerHandle.dblGravity = Constants.dblPlayerGravity;
-					playerHandle.dblMaxvel = Constants.dblPlayerMaxvel;
-					playerHandle.dblFriction = Constants.dblPlayerFriction;
+					objectPlayer.dblSize = Constants.dblPlayerSize;
+					objectPlayer.dblGravity = Constants.dblPlayerGravity;
+					objectPlayer.dblMaxvel = Constants.dblPlayerMaxvel;
+					objectPlayer.dblFriction = Constants.dblPlayerFriction;
 					
-					Physics.update(playerHandle);
-					Physics.updateWorldcol(playerHandle, false);
+					Physics.update(objectPlayer);
+					Physics.updateWorldcol(objectPlayer, false);
 				}
 				
 				{
-					if (playerHandle.boolCollisionBottom === true) {
-						if (Math.abs(playerHandle.dblPosition[1] - playerHandle.dblVerlet[1]) < 0.0001) {
-							playerHandle.intJumpcount = 1;
+					if (objectPlayer.boolCollisionBottom === true) {
+						if (Math.abs(objectPlayer.dblPosition[1] - objectPlayer.dblVerlet[1]) < 0.0001) {
+							objectPlayer.intJumpcount = 1;
 						}
 					}
 				}
 				
 				{
-					var dblVelocityX = playerHandle.dblPosition[0] - playerHandle.dblVerlet[0];
-					var dblVelocityY = playerHandle.dblPosition[1] - playerHandle.dblVerlet[1];
-					var dblVelocityZ = playerHandle.dblPosition[2] - playerHandle.dblVerlet[2];
+					var dblVelocityX = objectPlayer.dblPosition[0] - objectPlayer.dblVerlet[0];
+					var dblVelocityY = objectPlayer.dblPosition[1] - objectPlayer.dblVerlet[1];
+					var dblVelocityZ = objectPlayer.dblPosition[2] - objectPlayer.dblVerlet[2];
 
 					if (Math.abs(dblVelocityX) > 0.01) {
-						playerHandle.intWalk += 1
+						objectPlayer.intWalk += 1
 						
 					} else if (Math.abs(dblVelocityZ) > 0.01) {
-						playerHandle.intWalk += 1;
+						objectPlayer.intWalk += 1;
 						
 					}
 					
 					if (Math.abs(dblVelocityX) < 0.01) {
 						if (Math.abs(dblVelocityZ) < 0.01) {
-							playerHandle.intWalk = 0;
+							objectPlayer.intWalk = 0;
 						}
 					}
 					
-					if (playerHandle.intWeapon > 0) {
-						playerHandle.intWeapon -= 1;
+					if (objectPlayer.intWeapon > 0) {
+						objectPlayer.intWeapon -= 1;
 					}
 				}
 			}
@@ -503,78 +326,76 @@ var Player = {
 	
 	updateGraphics: function() {
 		{
-			for (var intFor1 = 0; intFor1 < Player.minecraftskinEnemy.length; intFor1 += 1) {
-				var minecraftskinHandle = Player.minecraftskinEnemy[intFor1];
+			Player.objectRepository['characterController'].intLength = 1;
 
-				if (minecraftskinHandle.mesh.parent === undefined) {
+			Player.objectRepository['characterRed'].intLength = 0;
+
+			Player.objectRepository['characterBlue'].intLength = 0;
+		}
+		
+		{
+			for (var strIdent in Player.objectPlayer) {
+				var objectPlayer = Player.objectPlayer[strIdent];
+
+				if (objectPlayer.strTeam === '') {
 					continue;
 				}
 				
 				{
-					Voxel.voxelengineHandle.scene.remove(minecraftskinHandle.mesh);
+					var objectCharacter = null;
+					
+					{
+						if (objectPlayer.strIdent === '1') {
+							objectCharacter = Player.objectRepository['characterController'].objectCharacter[0];
+
+						} else if (objectPlayer.strIdent !== '1') {
+							if (objectPlayer.strTeam === 'teamRed') {
+								objectCharacter = Player.objectRepository['characterRed'].objectCharacter[Player.objectRepository['characterRed'].intLength++];
+
+							} else if (objectPlayer.strTeam === 'teamBlue') {
+								objectCharacter = Player.objectRepository['characterBlue'].objectCharacter[Player.objectRepository['characterBlue'].intLength++];
+
+							}
+
+						}
+					}
+
+					{
+						if (objectPlayer.strIdent === '1') {
+							objectCharacter.mesh.position.x = objectPlayer.dblPosition[0];
+							objectCharacter.mesh.position.y = objectPlayer.dblPosition[1] - (0.5 * Constants.dblPlayerSize[1]);
+							objectCharacter.mesh.position.z = objectPlayer.dblPosition[2];
+							
+						} else if (objectPlayer.strIdent !== '1') {
+							objectCharacter.mesh.position.x = objectPlayer.dblPosition[0];
+							objectCharacter.mesh.position.y = objectPlayer.dblPosition[1] - (0.5 * Constants.dblPlayerSize[1]);
+							objectCharacter.mesh.position.z = objectPlayer.dblPosition[2];
+							
+							objectCharacter.mesh.rotation.y = objectPlayer.dblRotation[1];
+	
+							objectCharacter.mesh.head.rotation.x = objectPlayer.dblRotation[2];
+							
+						}
+					}
+					
+					{
+						Voxel.characterUpdate(objectCharacter, objectPlayer);
+					}
 				}
 			}
 		}
 		
 		{
-			for (var strIdent in Player.playerHandle) {
-				var playerHandle = Player.playerHandle[strIdent];
-
-				if (playerHandle.strTeam === '') {
-					continue;
+			for (var strCharacter in Player.objectRepository) {
+				for (var intFor1 = 0; intFor1 < Player.objectRepository[strCharacter].intLength; intFor1 += 1) {
+					if (Player.objectRepository[strCharacter].objectCharacter[intFor1].mesh.parent === undefined) {
+						Voxel.requireVoxelengine.scene.add(Player.objectRepository[strCharacter].objectCharacter[intFor1].mesh);
+					}
 				}
 				
-				{
-					var minecraftskinHandle = null;
-					
-					{
-						if (playerHandle.strIdent === '1') {
-							minecraftskinHandle = Player.minecraftskinController;
-							
-						} else if (playerHandle.strIdent !== '1') {
-							for (var intFor1 = 0; intFor1 < Player.minecraftskinEnemy.length; intFor1 += 1) {
-								if (Player.minecraftskinEnemy[intFor1].mesh.parent !== undefined) {
-									continue;
-								}
-								
-								{
-									minecraftskinHandle = Player.minecraftskinEnemy[intFor1];
-								}
-								
-								{
-									break;
-								}
-							}
-							
-						}
-					}
-					
-					{
-						if (minecraftskinHandle.mesh.parent === undefined) {
-							Voxel.voxelengineHandle.scene.add(minecraftskinHandle.mesh);
-						}
-					}
-
-					{
-						if (playerHandle.strIdent === '1') {
-							minecraftskinHandle.mesh.position.x = playerHandle.dblPosition[0];
-							minecraftskinHandle.mesh.position.y = playerHandle.dblPosition[1] - (0.5 * Constants.dblPlayerSize[1]);
-							minecraftskinHandle.mesh.position.z = playerHandle.dblPosition[2];
-							
-						} else if (playerHandle.strIdent !== '1') {
-							minecraftskinHandle.mesh.position.x = playerHandle.dblPosition[0];
-							minecraftskinHandle.mesh.position.y = playerHandle.dblPosition[1] - (0.5 * Constants.dblPlayerSize[1]);
-							minecraftskinHandle.mesh.position.z = playerHandle.dblPosition[2];
-							
-							minecraftskinHandle.mesh.rotation.y = playerHandle.dblRotation[1];
-	
-							minecraftskinHandle.mesh.head.rotation.x = playerHandle.dblRotation[2];
-							
-						}
-					}
-					
-					{
-						Voxel.minecraftskinUpdate(minecraftskinHandle, playerHandle);
+				for (var intFor1 = Player.objectRepository[strCharacter].intLength; intFor1 < Player.objectRepository[strCharacter].objectCharacter.length; intFor1 += 1) {
+					if (Player.objectRepository[strCharacter].objectCharacter[intFor1].mesh.parent !== undefined) {
+						Voxel.requireVoxelengine.scene.remove(Player.objectRepository[strCharacter].objectCharacter[intFor1].mesh);
 					}
 				}
 			}

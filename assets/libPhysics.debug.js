@@ -1,12 +1,12 @@
 'use strict';
 
-var Constants = {};
-
 #define PHYSICS_3D
 
 var Physics = {
-	browserify: function(constantsHandle) {
-		Constants = constantsHandle;
+	browserify: function(objectBrowserify) {
+		for (var strKey in objectBrowserify) {
+			global[strKey] = objectBrowserify[strKey];
+		}
 	},
 	
 	functionWorldcol: null,
@@ -33,72 +33,72 @@ var Physics = {
 		}
 	},
 	
-	update: function(physicsHandle) {
+	update: function(objectPhysics) {
 		{
 			#ifdef PHYSICS_2D
-			physicsHandle.dblAcceleration[0] += physicsHandle.dblGravity[0];
-			physicsHandle.dblAcceleration[1] += physicsHandle.dblGravity[1];
+			objectPhysics.dblAcceleration[0] += objectPhysics.dblGravity[0];
+			objectPhysics.dblAcceleration[1] += objectPhysics.dblGravity[1];
 			#endif
 			
 			#ifdef PHYSICS_3D
-			physicsHandle.dblAcceleration[0] += physicsHandle.dblGravity[0];
-			physicsHandle.dblAcceleration[1] += physicsHandle.dblGravity[1];
-			physicsHandle.dblAcceleration[2] += physicsHandle.dblGravity[2];
+			objectPhysics.dblAcceleration[0] += objectPhysics.dblGravity[0];
+			objectPhysics.dblAcceleration[1] += objectPhysics.dblGravity[1];
+			objectPhysics.dblAcceleration[2] += objectPhysics.dblGravity[2];
 			#endif
 		}
 		
 		{
 			#ifdef PHYSICS_2D
-			var dblVerletX = physicsHandle.dblPosition[0];
-			var dblVerletY = physicsHandle.dblPosition[1];
+			var dblVerletX = objectPhysics.dblPosition[0];
+			var dblVerletY = objectPhysics.dblPosition[1];
 			
-			physicsHandle.dblPosition[0] = physicsHandle.dblPosition[0] + (physicsHandle.dblPosition[0] - physicsHandle.dblVerlet[0]) + physicsHandle.dblAcceleration[0];
-			physicsHandle.dblPosition[1] = physicsHandle.dblPosition[1] + (physicsHandle.dblPosition[1] - physicsHandle.dblVerlet[1]) + physicsHandle.dblAcceleration[1];
+			objectPhysics.dblPosition[0] = objectPhysics.dblPosition[0] + (objectPhysics.dblPosition[0] - objectPhysics.dblVerlet[0]) + objectPhysics.dblAcceleration[0];
+			objectPhysics.dblPosition[1] = objectPhysics.dblPosition[1] + (objectPhysics.dblPosition[1] - objectPhysics.dblVerlet[1]) + objectPhysics.dblAcceleration[1];
 			
-			physicsHandle.dblVerlet[0] = dblVerletX;
-			physicsHandle.dblVerlet[1] = dblVerletY;
+			objectPhysics.dblVerlet[0] = dblVerletX;
+			objectPhysics.dblVerlet[1] = dblVerletY;
 			
-			physicsHandle.dblAcceleration[0] = 0.0;
-			physicsHandle.dblAcceleration[1] = 0.0;
+			objectPhysics.dblAcceleration[0] = 0.0;
+			objectPhysics.dblAcceleration[1] = 0.0;
 			#endif
 			
 			#ifdef PHYSICS_3D
-			var dblVerletX = physicsHandle.dblPosition[0];
-			var dblVerletY = physicsHandle.dblPosition[1];
-			var dblVerletZ = physicsHandle.dblPosition[2];
+			var dblVerletX = objectPhysics.dblPosition[0];
+			var dblVerletY = objectPhysics.dblPosition[1];
+			var dblVerletZ = objectPhysics.dblPosition[2];
 			
-			physicsHandle.dblPosition[0] = physicsHandle.dblPosition[0] + (physicsHandle.dblPosition[0] - physicsHandle.dblVerlet[0]) + physicsHandle.dblAcceleration[0];
-			physicsHandle.dblPosition[1] = physicsHandle.dblPosition[1] + (physicsHandle.dblPosition[1] - physicsHandle.dblVerlet[1]) + physicsHandle.dblAcceleration[1];
-			physicsHandle.dblPosition[2] = physicsHandle.dblPosition[2] + (physicsHandle.dblPosition[2] - physicsHandle.dblVerlet[2]) + physicsHandle.dblAcceleration[2];
+			objectPhysics.dblPosition[0] = objectPhysics.dblPosition[0] + (objectPhysics.dblPosition[0] - objectPhysics.dblVerlet[0]) + objectPhysics.dblAcceleration[0];
+			objectPhysics.dblPosition[1] = objectPhysics.dblPosition[1] + (objectPhysics.dblPosition[1] - objectPhysics.dblVerlet[1]) + objectPhysics.dblAcceleration[1];
+			objectPhysics.dblPosition[2] = objectPhysics.dblPosition[2] + (objectPhysics.dblPosition[2] - objectPhysics.dblVerlet[2]) + objectPhysics.dblAcceleration[2];
 			
-			physicsHandle.dblVerlet[0] = dblVerletX;
-			physicsHandle.dblVerlet[1] = dblVerletY;
-			physicsHandle.dblVerlet[2] = dblVerletZ;
+			objectPhysics.dblVerlet[0] = dblVerletX;
+			objectPhysics.dblVerlet[1] = dblVerletY;
+			objectPhysics.dblVerlet[2] = dblVerletZ;
 			
-			physicsHandle.dblAcceleration[0] = 0.0;
-			physicsHandle.dblAcceleration[1] = 0.0;
-			physicsHandle.dblAcceleration[2] = 0.0;
+			objectPhysics.dblAcceleration[0] = 0.0;
+			objectPhysics.dblAcceleration[1] = 0.0;
+			objectPhysics.dblAcceleration[2] = 0.0;
 			#endif
 		}
 		
 		{
 			#ifdef PHYSICS_2D
-			var dblVelocityX = physicsHandle.dblPosition[0] - physicsHandle.dblVerlet[0];
-			var dblVelocityY = physicsHandle.dblPosition[1] - physicsHandle.dblVerlet[1];
+			var dblVelocityX = objectPhysics.dblPosition[0] - objectPhysics.dblVerlet[0];
+			var dblVelocityY = objectPhysics.dblPosition[1] - objectPhysics.dblVerlet[1];
 			
 			{
-				dblVelocityX *= physicsHandle.dblFriction[0];
-				dblVelocityY *= physicsHandle.dblFriction[1];
+				dblVelocityX *= objectPhysics.dblFriction[0];
+				dblVelocityY *= objectPhysics.dblFriction[1];
 			}
 			
 			{
-				if (physicsHandle.dblMaxvel.length === 1) {
+				if (objectPhysics.dblMaxvel.length === 1) {
 					{
 						var dblLength = Math.sqrt((dblVelocityX * dblVelocityX) + (dblVelocityY * dblVelocityY));
 						
-						if (dblLength > physicsHandle.dblMaxvel[0]) {
-							dblVelocityX *= physicsHandle.dblMaxvel[0] / dblLength;
-							dblVelocityY *= physicsHandle.dblMaxvel[0] / dblLength;
+						if (dblLength > objectPhysics.dblMaxvel[0]) {
+							dblVelocityX *= objectPhysics.dblMaxvel[0] / dblLength;
+							dblVelocityY *= objectPhysics.dblMaxvel[0] / dblLength;
 							
 						} else if (dblLength < 0.0001) {
 							dblVelocityX = 0.0;
@@ -107,10 +107,10 @@ var Physics = {
 						}
 					}
 					
-				} else if (physicsHandle.dblMaxvel.length === 2) {
+				} else if (objectPhysics.dblMaxvel.length === 2) {
 					{
-						if (Math.abs(dblVelocityX) > physicsHandle.dblMaxvel[0]) {
-							dblVelocityX = (dblVelocityX > 0.0 ? 1.0 : -1.0) * physicsHandle.dblMaxvel[0];
+						if (Math.abs(dblVelocityX) > objectPhysics.dblMaxvel[0]) {
+							dblVelocityX = (dblVelocityX > 0.0 ? 1.0 : -1.0) * objectPhysics.dblMaxvel[0];
 							
 						} else if (Math.abs(dblVelocityX) < 0.0001) {
 							dblVelocityX = 0.0;
@@ -119,8 +119,8 @@ var Physics = {
 					}
 					
 					{
-						if (Math.abs(dblVelocityY) > physicsHandle.dblMaxvel[1]) {
-							dblVelocityY = (dblVelocityY > 0.0 ? 1.0 : -1.0) * physicsHandle.dblMaxvel[1];
+						if (Math.abs(dblVelocityY) > objectPhysics.dblMaxvel[1]) {
+							dblVelocityY = (dblVelocityY > 0.0 ? 1.0 : -1.0) * objectPhysics.dblMaxvel[1];
 							
 						} else if (Math.abs(dblVelocityY) < 0.0001) {
 							dblVelocityY = 0.0;
@@ -131,30 +131,30 @@ var Physics = {
 				}
 			}
 			
-			physicsHandle.dblPosition[0] = physicsHandle.dblVerlet[0] + dblVelocityX;
-			physicsHandle.dblPosition[1] = physicsHandle.dblVerlet[1] + dblVelocityY;
+			objectPhysics.dblPosition[0] = objectPhysics.dblVerlet[0] + dblVelocityX;
+			objectPhysics.dblPosition[1] = objectPhysics.dblVerlet[1] + dblVelocityY;
 			#endif
 			
 			#ifdef PHYSICS_3D
-			var dblVelocityX = physicsHandle.dblPosition[0] - physicsHandle.dblVerlet[0];
-			var dblVelocityY = physicsHandle.dblPosition[1] - physicsHandle.dblVerlet[1];
-			var dblVelocityZ = physicsHandle.dblPosition[2] - physicsHandle.dblVerlet[2];
+			var dblVelocityX = objectPhysics.dblPosition[0] - objectPhysics.dblVerlet[0];
+			var dblVelocityY = objectPhysics.dblPosition[1] - objectPhysics.dblVerlet[1];
+			var dblVelocityZ = objectPhysics.dblPosition[2] - objectPhysics.dblVerlet[2];
 			
 			{
-				dblVelocityX *= physicsHandle.dblFriction[0];
-				dblVelocityY *= physicsHandle.dblFriction[1];
-				dblVelocityZ *= physicsHandle.dblFriction[2];
+				dblVelocityX *= objectPhysics.dblFriction[0];
+				dblVelocityY *= objectPhysics.dblFriction[1];
+				dblVelocityZ *= objectPhysics.dblFriction[2];
 			}
 			
 			{
-				if (physicsHandle.dblMaxvel.length === 1) {
+				if (objectPhysics.dblMaxvel.length === 1) {
 					{
 						var dblLength = Math.sqrt((dblVelocityX * dblVelocityX) + (dblVelocityY * dblVelocityY) + (dblVelocityZ * dblVelocityZ));
 						
-						if (dblLength > physicsHandle.dblMaxvel[0]) {
-							dblVelocityX *= physicsHandle.dblMaxvel[0] / dblLength;
-							dblVelocityY *= physicsHandle.dblMaxvel[0] / dblLength;
-							dblVelocityZ *= physicsHandle.dblMaxvel[0] / dblLength;
+						if (dblLength > objectPhysics.dblMaxvel[0]) {
+							dblVelocityX *= objectPhysics.dblMaxvel[0] / dblLength;
+							dblVelocityY *= objectPhysics.dblMaxvel[0] / dblLength;
+							dblVelocityZ *= objectPhysics.dblMaxvel[0] / dblLength;
 							
 						} else if (dblLength < 0.0001) {
 							dblVelocityX = 0.0;
@@ -164,10 +164,10 @@ var Physics = {
 						}
 					}
 					
-				} else if (physicsHandle.dblMaxvel.length === 3) {
+				} else if (objectPhysics.dblMaxvel.length === 3) {
 					{
-						if (Math.abs(dblVelocityX) > physicsHandle.dblMaxvel[0]) {
-							dblVelocityX = (dblVelocityX > 0.0 ? 1.0 : -1.0) * physicsHandle.dblMaxvel[0];
+						if (Math.abs(dblVelocityX) > objectPhysics.dblMaxvel[0]) {
+							dblVelocityX = (dblVelocityX > 0.0 ? 1.0 : -1.0) * objectPhysics.dblMaxvel[0];
 							
 						} else if (Math.abs(dblVelocityX) < 0.0001) {
 							dblVelocityX = 0.0;
@@ -176,8 +176,8 @@ var Physics = {
 					}
 					
 					{
-						if (Math.abs(dblVelocityY) > physicsHandle.dblMaxvel[1]) {
-							dblVelocityY = (dblVelocityY > 0.0 ? 1.0 : -1.0) * physicsHandle.dblMaxvel[1];
+						if (Math.abs(dblVelocityY) > objectPhysics.dblMaxvel[1]) {
+							dblVelocityY = (dblVelocityY > 0.0 ? 1.0 : -1.0) * objectPhysics.dblMaxvel[1];
 							
 						} else if (Math.abs(dblVelocityY) < 0.0001) {
 							dblVelocityY = 0.0;
@@ -186,8 +186,8 @@ var Physics = {
 					}
 					
 					{
-						if (Math.abs(dblVelocityZ) > physicsHandle.dblMaxvel[2]) {
-							dblVelocityZ = (dblVelocityZ > 0.0 ? 1.0 : -1.0) * physicsHandle.dblMaxvel[2];
+						if (Math.abs(dblVelocityZ) > objectPhysics.dblMaxvel[2]) {
+							dblVelocityZ = (dblVelocityZ > 0.0 ? 1.0 : -1.0) * objectPhysics.dblMaxvel[2];
 							
 						} else if (Math.abs(dblVelocityZ) < 0.0001) {
 							dblVelocityZ = 0.0;
@@ -198,67 +198,67 @@ var Physics = {
 				}
 			}
 			
-			physicsHandle.dblPosition[0] = physicsHandle.dblVerlet[0] + dblVelocityX;
-			physicsHandle.dblPosition[1] = physicsHandle.dblVerlet[1] + dblVelocityY;
-			physicsHandle.dblPosition[2] = physicsHandle.dblVerlet[2] + dblVelocityZ;
+			objectPhysics.dblPosition[0] = objectPhysics.dblVerlet[0] + dblVelocityX;
+			objectPhysics.dblPosition[1] = objectPhysics.dblVerlet[1] + dblVelocityY;
+			objectPhysics.dblPosition[2] = objectPhysics.dblVerlet[2] + dblVelocityZ;
 			#endif
 		}
 	},
 	
-	updateOverwrite: function(physicsHandle, physicsOverwrite) {
+	updateOverwrite: function(objectPhysics, objectOverwrite) {
 		{
 			#ifdef PHYSICS_2D
-			var dblPositionX = 0.5 * (physicsHandle.dblPosition[0] + physicsOverwrite.dblPosition[0]);
-			var dblPositionY = 0.5 * (physicsHandle.dblPosition[1] + physicsOverwrite.dblPosition[1]);
+			var dblPositionX = 0.5 * (objectPhysics.dblPosition[0] + objectOverwrite.dblPosition[0]);
+			var dblPositionY = 0.5 * (objectPhysics.dblPosition[1] + objectOverwrite.dblPosition[1]);
 			
-			var dblVerletX = dblPositionX - (physicsHandle.dblPosition[0] - physicsHandle.dblVerlet[0]);
-			var dblVerletY = dblPositionY - (physicsHandle.dblPosition[1] - physicsHandle.dblVerlet[1]);
+			var dblVerletX = dblPositionX - (objectOverwrite.dblPosition[0] - objectOverwrite.dblVerlet[0]);
+			var dblVerletY = dblPositionY - (objectOverwrite.dblPosition[1] - objectOverwrite.dblVerlet[1]);
 			
-			physicsHandle.dblPosition[0] = dblPositionX;
-			physicsHandle.dblPosition[1] = dblPositionY;
+			objectPhysics.dblPosition[0] = dblPositionX;
+			objectPhysics.dblPosition[1] = dblPositionY;
 			
-			physicsHandle.dblVerlet[0] = dblVerletX;
-			physicsHandle.dblVerlet[1] = dblVerletY;
+			objectPhysics.dblVerlet[0] = dblVerletX;
+			objectPhysics.dblVerlet[1] = dblVerletY;
 			#endif
 			
 			#ifdef PHYSICS_3D
-			var dblPositionX = 0.5 * (physicsHandle.dblPosition[0] + physicsOverwrite.dblPosition[0]);
-			var dblPositionY = 0.5 * (physicsHandle.dblPosition[1] + physicsOverwrite.dblPosition[1]);
-			var dblPositionZ = 0.5 * (physicsHandle.dblPosition[2] + physicsOverwrite.dblPosition[2]);
+			var dblPositionX = 0.5 * (objectPhysics.dblPosition[0] + objectOverwrite.dblPosition[0]);
+			var dblPositionY = 0.5 * (objectPhysics.dblPosition[1] + objectOverwrite.dblPosition[1]);
+			var dblPositionZ = 0.5 * (objectPhysics.dblPosition[2] + objectOverwrite.dblPosition[2]);
 			
-			var dblVerletX = dblPositionX - (physicsHandle.dblPosition[0] - physicsHandle.dblVerlet[0]);
-			var dblVerletY = dblPositionY - (physicsHandle.dblPosition[1] - physicsHandle.dblVerlet[1]);
-			var dblVerletZ = dblPositionZ - (physicsHandle.dblPosition[2] - physicsHandle.dblVerlet[2]);
+			var dblVerletX = dblPositionX - (objectOverwrite.dblPosition[0] - objectOverwrite.dblVerlet[0]);
+			var dblVerletY = dblPositionY - (objectOverwrite.dblPosition[1] - objectOverwrite.dblVerlet[1]);
+			var dblVerletZ = dblPositionZ - (objectOverwrite.dblPosition[2] - objectOverwrite.dblVerlet[2]);
 			
-			physicsHandle.dblPosition[0] = dblPositionX;
-			physicsHandle.dblPosition[1] = dblPositionY;
-			physicsHandle.dblPosition[2] = dblPositionZ;
+			objectPhysics.dblPosition[0] = dblPositionX;
+			objectPhysics.dblPosition[1] = dblPositionY;
+			objectPhysics.dblPosition[2] = dblPositionZ;
 			
-			physicsHandle.dblVerlet[0] = dblVerletX;
-			physicsHandle.dblVerlet[1] = dblVerletY;
-			physicsHandle.dblVerlet[2] = dblVerletZ;
+			objectPhysics.dblVerlet[0] = dblVerletX;
+			objectPhysics.dblVerlet[1] = dblVerletY;
+			objectPhysics.dblVerlet[2] = dblVerletZ;
 			#endif
 		}
 	},
 	
-	updateWorldcol: function(physicsHandle, boolSmall) {
+	updateWorldcol: function(objectPhysics, boolSmall) {
 		{
 			#ifdef PHYSICS_2D
-			physicsHandle.boolCollisionTop = false;
+			objectPhysics.boolCollisionTop = false;
 			
-			physicsHandle.boolCollisionRight = false;
+			objectPhysics.boolCollisionRight = false;
 			
-			physicsHandle.boolCollisionBottom = false;
+			objectPhysics.boolCollisionBottom = false;
 			
-			physicsHandle.boolCollisionLeft = false;
+			objectPhysics.boolCollisionLeft = false;
 			#endif
 			
 			#ifdef PHYSICS_3D
-			physicsHandle.boolCollisionTop = false;
+			objectPhysics.boolCollisionTop = false;
 			
-			physicsHandle.boolCollisionSide = false;
+			objectPhysics.boolCollisionSide = false;
 			
-			physicsHandle.boolCollisionBottom = false;
+			objectPhysics.boolCollisionBottom = false;
 			#endif
 		}
 		
@@ -267,8 +267,8 @@ var Physics = {
 			var intCoordinate = [];
 			
 			if (boolSmall === true) {
-				var dblCoordinateX = physicsHandle.dblPosition[0] / Constants.dblGameBlocksize;
-				var dblCoordinateY = physicsHandle.dblPosition[1] / Constants.dblGameBlocksize;
+				var dblCoordinateX = objectPhysics.dblPosition[0] / Constants.dblGameBlocksize;
+				var dblCoordinateY = objectPhysics.dblPosition[1] / Constants.dblGameBlocksize;
 				
 				var intCoordinateX = Math.floor(dblCoordinateX);
 				var intCoordinateY = Math.floor(dblCoordinateY);
@@ -297,8 +297,8 @@ var Physics = {
 				intCoordinate.push([ intCoordinateX + intShiftX, intCoordinateY + intShiftY ]);
 				
 			} else if (boolSmall === false) {
-				var intCoordinateX = Math.floor(physicsHandle.dblPosition[0] / Constants.dblGameBlocksize);
-				var intCoordinateY = Math.floor(physicsHandle.dblPosition[1] / Constants.dblGameBlocksize);
+				var intCoordinateX = Math.floor(objectPhysics.dblPosition[0] / Constants.dblGameBlocksize);
+				var intCoordinateY = Math.floor(objectPhysics.dblPosition[1] / Constants.dblGameBlocksize);
 				
 				for (var intFor1 = 0; intFor1 < 3; intFor1 += 1) {
 					for (var intFor2 = 0; intFor2 < 3; intFor2 += 1) {
@@ -324,8 +324,8 @@ var Physics = {
 					var dblIntersectY = 0.0;
 					
 					{
-						dblIntersectX = Math.abs(physicsHandle.dblPosition[0] - dblPositionX) - (0.5 * physicsHandle.dblSize[0]) - (0.5 * Constants.dblGameBlocksize);
-						dblIntersectY = Math.abs(physicsHandle.dblPosition[1] - dblPositionY) - (0.5 * physicsHandle.dblSize[1]) - (0.5 * Constants.dblGameBlocksize);
+						dblIntersectX = Math.abs(objectPhysics.dblPosition[0] - dblPositionX) - (0.5 * objectPhysics.dblSize[0]) - (0.5 * Constants.dblGameBlocksize);
+						dblIntersectY = Math.abs(objectPhysics.dblPosition[1] - dblPositionY) - (0.5 * objectPhysics.dblSize[1]) - (0.5 * Constants.dblGameBlocksize);
 						
 						if (dblIntersectX >= 0.0) {
 							continue;
@@ -337,28 +337,28 @@ var Physics = {
 					}
 					
 					if (Math.max(dblIntersectX, dblIntersectY) === dblIntersectX) {
-						if ((physicsHandle.dblPosition[0] - dblPositionX) > 0.0) {
-							physicsHandle.dblPosition[0] -= dblIntersectX;
+						if ((objectPhysics.dblPosition[0] - dblPositionX) > 0.0) {
+							objectPhysics.dblPosition[0] -= dblIntersectX;
 							
-							physicsHandle.boolCollisionLeft = true;
+							objectPhysics.boolCollisionLeft = true;
 							
-						} else if ((physicsHandle.dblPosition[0] - dblPositionX) < 0.0) {
-							physicsHandle.dblPosition[0] += dblIntersectX;
+						} else if ((objectPhysics.dblPosition[0] - dblPositionX) < 0.0) {
+							objectPhysics.dblPosition[0] += dblIntersectX;
 							
-							physicsHandle.boolCollisionRight = true;
+							objectPhysics.boolCollisionRight = true;
 							
 						}
 						
 					} else if (Math.max(dblIntersectX, dblIntersectY) === dblIntersectY) {
-						if ((physicsHandle.dblPosition[1] - dblPositionY) > 0.0) {
-							physicsHandle.dblPosition[1] -= dblIntersectY;
+						if ((objectPhysics.dblPosition[1] - dblPositionY) > 0.0) {
+							objectPhysics.dblPosition[1] -= dblIntersectY;
 							
-							physicsHandle.boolCollisionTop = true;
+							objectPhysics.boolCollisionTop = true;
 							
-						} else if ((physicsHandle.dblPosition[1] - dblPositionY) < 0.0) {
-							physicsHandle.dblPosition[1] += dblIntersectY;
+						} else if ((objectPhysics.dblPosition[1] - dblPositionY) < 0.0) {
+							objectPhysics.dblPosition[1] += dblIntersectY;
 							
-							physicsHandle.boolCollisionBottom = true;
+							objectPhysics.boolCollisionBottom = true;
 							
 						}
 						
@@ -371,9 +371,9 @@ var Physics = {
 			var intCoordinate = [];
 			
 			if (boolSmall === true) {
-				var dblCoordinateX = physicsHandle.dblPosition[0] / Constants.dblGameBlocksize;
-				var dblCoordinateY = physicsHandle.dblPosition[1] / Constants.dblGameBlocksize;
-				var dblCoordinateZ = physicsHandle.dblPosition[2] / Constants.dblGameBlocksize;
+				var dblCoordinateX = objectPhysics.dblPosition[0] / Constants.dblGameBlocksize;
+				var dblCoordinateY = objectPhysics.dblPosition[1] / Constants.dblGameBlocksize;
+				var dblCoordinateZ = objectPhysics.dblPosition[2] / Constants.dblGameBlocksize;
 				
 				var intCoordinateX = Math.floor(dblCoordinateX);
 				var intCoordinateY = Math.floor(dblCoordinateY);
@@ -416,9 +416,9 @@ var Physics = {
 				intCoordinate.push([ intCoordinateX + intShiftX, intCoordinateY + intShiftY, intCoordinateZ + intShiftZ ]);
 				
 			} else if (boolSmall === false) {
-				var intCoordinateX = Math.floor(physicsHandle.dblPosition[0] / Constants.dblGameBlocksize);
-				var intCoordinateY = Math.floor(physicsHandle.dblPosition[1] / Constants.dblGameBlocksize);
-				var intCoordinateZ = Math.floor(physicsHandle.dblPosition[2] / Constants.dblGameBlocksize);
+				var intCoordinateX = Math.floor(objectPhysics.dblPosition[0] / Constants.dblGameBlocksize);
+				var intCoordinateY = Math.floor(objectPhysics.dblPosition[1] / Constants.dblGameBlocksize);
+				var intCoordinateZ = Math.floor(objectPhysics.dblPosition[2] / Constants.dblGameBlocksize);
 				
 				for (var intFor1 = 0; intFor1 < 3; intFor1 += 1) {
 					for (var intFor2 = 0; intFor2 < 3; intFor2 += 1) {
@@ -444,9 +444,9 @@ var Physics = {
 				}
 				
 				{
-					var dblIntersectX = Math.abs(physicsHandle.dblPosition[0] - dblPositionX) - (0.5 * physicsHandle.dblSize[0]) - (0.5 * Constants.dblGameBlocksize);
-					var dblIntersectY = Math.abs(physicsHandle.dblPosition[1] - dblPositionY) - (0.5 * physicsHandle.dblSize[1]) - (0.5 * Constants.dblGameBlocksize);
-					var dblIntersectZ = Math.abs(physicsHandle.dblPosition[2] - dblPositionZ) - (0.5 * physicsHandle.dblSize[2]) - (0.5 * Constants.dblGameBlocksize);
+					var dblIntersectX = Math.abs(objectPhysics.dblPosition[0] - dblPositionX) - (0.5 * objectPhysics.dblSize[0]) - (0.5 * Constants.dblGameBlocksize);
+					var dblIntersectY = Math.abs(objectPhysics.dblPosition[1] - dblPositionY) - (0.5 * objectPhysics.dblSize[1]) - (0.5 * Constants.dblGameBlocksize);
+					var dblIntersectZ = Math.abs(objectPhysics.dblPosition[2] - dblPositionZ) - (0.5 * objectPhysics.dblSize[2]) - (0.5 * Constants.dblGameBlocksize);
 					
 					if (dblIntersectX >= 0.0) {
 						continue;
@@ -460,41 +460,41 @@ var Physics = {
 					}
 					
 					if (Math.max(dblIntersectX, dblIntersectY, dblIntersectZ) === dblIntersectX) {
-						if ((physicsHandle.dblPosition[0] - dblPositionX) > 0.0) {
-							physicsHandle.dblPosition[0] -= dblIntersectX;
+						if ((objectPhysics.dblPosition[0] - dblPositionX) > 0.0) {
+							objectPhysics.dblPosition[0] -= dblIntersectX;
 							
-							physicsHandle.boolCollisionSide = true;
+							objectPhysics.boolCollisionSide = true;
 							
-						} else if ((physicsHandle.dblPosition[0] - dblPositionX) < 0.0) {
-							physicsHandle.dblPosition[0] += dblIntersectX;
+						} else if ((objectPhysics.dblPosition[0] - dblPositionX) < 0.0) {
+							objectPhysics.dblPosition[0] += dblIntersectX;
 							
-							physicsHandle.boolCollisionSide = true;
+							objectPhysics.boolCollisionSide = true;
 							
 						}
 						
 					} else if (Math.max(dblIntersectX, dblIntersectY, dblIntersectZ) === dblIntersectY) {
-						if ((physicsHandle.dblPosition[1] - dblPositionY) > 0.0) {
-							physicsHandle.dblPosition[1] -= dblIntersectY;
+						if ((objectPhysics.dblPosition[1] - dblPositionY) > 0.0) {
+							objectPhysics.dblPosition[1] -= dblIntersectY;
 							
-							physicsHandle.boolCollisionBottom = true;
+							objectPhysics.boolCollisionBottom = true;
 							
-						} else if ((physicsHandle.dblPosition[1] - dblPositionY) < 0.0) {
-							physicsHandle.dblPosition[1] += dblIntersectY;
+						} else if ((objectPhysics.dblPosition[1] - dblPositionY) < 0.0) {
+							objectPhysics.dblPosition[1] += dblIntersectY;
 							
-							physicsHandle.boolCollisionTop = true;
+							objectPhysics.boolCollisionTop = true;
 							
 						}
 						
 					} else if (Math.max(dblIntersectX, dblIntersectY, dblIntersectZ) === dblIntersectZ) {
-						if ((physicsHandle.dblPosition[2] - dblPositionZ) > 0.0) {
-							physicsHandle.dblPosition[2] -= dblIntersectZ;
+						if ((objectPhysics.dblPosition[2] - dblPositionZ) > 0.0) {
+							objectPhysics.dblPosition[2] -= dblIntersectZ;
 							
-							physicsHandle.boolCollisionSide = true;
+							objectPhysics.boolCollisionSide = true;
 							
-						} else if ((physicsHandle.dblPosition[2] - dblPositionZ) < 0.0) {
-							physicsHandle.dblPosition[2] += dblIntersectZ;
+						} else if ((objectPhysics.dblPosition[2] - dblPositionZ) < 0.0) {
+							objectPhysics.dblPosition[2] += dblIntersectZ;
 							
-							physicsHandle.boolCollisionSide = true;
+							objectPhysics.boolCollisionSide = true;
 							
 						}
 						
@@ -505,7 +505,7 @@ var Physics = {
 		}
 	},
 	
-	updateObjectcol: function(physicsHandle, functionObjectcol, functionCollision) {
+	updateObjectcol: function(objectPhysics, functionObjectcol, functionCollision) {
 		{
 			do {
 				var physicsObjectcol = functionObjectcol(functionObjectcol);
@@ -516,8 +516,8 @@ var Physics = {
 				
 				{
 					#ifdef PHYSICS_2D
-					var dblIntersectX = Math.abs(physicsHandle.dblPosition[0] - physicsObjectcol.dblPosition[0]) - (0.5 * physicsHandle.dblSize[0]) - (0.5 * physicsObjectcol.dblSize[0]);
-					var dblIntersectY = Math.abs(physicsHandle.dblPosition[1] - physicsObjectcol.dblPosition[1]) - (0.5 * physicsHandle.dblSize[1]) - (0.5 * physicsObjectcol.dblSize[1]);
+					var dblIntersectX = Math.abs(objectPhysics.dblPosition[0] - physicsObjectcol.dblPosition[0]) - (0.5 * objectPhysics.dblSize[0]) - (0.5 * physicsObjectcol.dblSize[0]);
+					var dblIntersectY = Math.abs(objectPhysics.dblPosition[1] - physicsObjectcol.dblPosition[1]) - (0.5 * objectPhysics.dblSize[1]) - (0.5 * physicsObjectcol.dblSize[1]);
 					
 					if (dblIntersectX >= 0.0) {
 						continue;
@@ -529,9 +529,9 @@ var Physics = {
 					#endif
 					
 					#ifdef PHYSICS_3D
-					var dblIntersectX = Math.abs(physicsHandle.dblPosition[0] - physicsObjectcol.dblPosition[0]) - (0.5 * physicsHandle.dblSize[0]) - (0.5 * physicsObjectcol.dblSize[0]);
-					var dblIntersectY = Math.abs(physicsHandle.dblPosition[1] - physicsObjectcol.dblPosition[1]) - (0.5 * physicsHandle.dblSize[1]) - (0.5 * physicsObjectcol.dblSize[1]);
-					var dblIntersectZ = Math.abs(physicsHandle.dblPosition[2] - physicsObjectcol.dblPosition[2]) - (0.5 * physicsHandle.dblSize[2]) - (0.5 * physicsObjectcol.dblSize[2]);
+					var dblIntersectX = Math.abs(objectPhysics.dblPosition[0] - physicsObjectcol.dblPosition[0]) - (0.5 * objectPhysics.dblSize[0]) - (0.5 * physicsObjectcol.dblSize[0]);
+					var dblIntersectY = Math.abs(objectPhysics.dblPosition[1] - physicsObjectcol.dblPosition[1]) - (0.5 * objectPhysics.dblSize[1]) - (0.5 * physicsObjectcol.dblSize[1]);
+					var dblIntersectZ = Math.abs(objectPhysics.dblPosition[2] - physicsObjectcol.dblPosition[2]) - (0.5 * objectPhysics.dblSize[2]) - (0.5 * physicsObjectcol.dblSize[2]);
 					
 					if (dblIntersectX >= 0.0) {
 						continue;
@@ -553,7 +553,7 @@ var Physics = {
 		}
 	},
 	
-	updateRaycol: function(physicsHandle, functionRaycol, functionCollision) {
+	updateRaycol: function(objectPhysics, functionRaycol, functionCollision) {
 		{
 			do {
 				var physicsRaycol = functionRaycol(functionRaycol);
@@ -575,7 +575,7 @@ var Physics = {
 					#endif
 					
 					for (var intFor1 = 0; intFor1 < intDimensions; intFor1 += 1) {
-						if (physicsHandle.dblAcceleration[intFor1] === 0.0) {
+						if (objectPhysics.dblAcceleration[intFor1] === 0.0) {
 							continue;
 						}
 						
@@ -583,8 +583,8 @@ var Physics = {
 							var dblBoxMin = physicsRaycol.dblPosition[intFor1] - (0.5 * physicsRaycol.dblSize[intFor1]);
 							var dblBoxMax = physicsRaycol.dblPosition[intFor1] + (0.5 * physicsRaycol.dblSize[intFor1]);
 							
-							var dblCandidateMin = (dblBoxMin - physicsHandle.dblPosition[intFor1]) / physicsHandle.dblAcceleration[intFor1];
-							var dblCandidateMax = (dblBoxMax - physicsHandle.dblPosition[intFor1]) / physicsHandle.dblAcceleration[intFor1];
+							var dblCandidateMin = (dblBoxMin - objectPhysics.dblPosition[intFor1]) / objectPhysics.dblAcceleration[intFor1];
+							var dblCandidateMax = (dblBoxMax - objectPhysics.dblPosition[intFor1]) / objectPhysics.dblAcceleration[intFor1];
 							
 							dblSlabMin = Math.max(dblSlabMin, Math.min(dblCandidateMin, dblCandidateMax));
 							dblSlabMax = Math.min(dblSlabMax, Math.max(dblCandidateMin, dblCandidateMax));

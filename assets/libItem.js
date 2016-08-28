@@ -1,27 +1,189 @@
 'use strict';
 
-var Constants = {};
-var Voxel = {};
-var Physics = {};
-
 var Item = {
-	browserify: function(constantsHandle, voxelHandle, physicsHandle) {
-		Constants = constantsHandle;
-		Voxel = voxelHandle;
-		Physics = physicsHandle;
+	browserify: function(objectBrowserify) {
+		for (var strKey in objectBrowserify) {
+			global[strKey] = objectBrowserify[strKey];
+		}
 	},
+
+	requireSchemapack: null,
 	
-	itemHandle: {},
+	objectItem: {},
+
+	objectRepository: {},
 	
 	functionFlagInit: null,
 	functionFlagPlayer: null,
-	meshFlag: [],
-	
-	meshArrow: [],
 	
 	init: function() {
 		{
-			Item.itemHandle = {};
+			Item.requireSchemapack = require('schemapack').build([{
+				'strIdent': 'string',
+				'strPlayer': 'string',
+				'dblPosition': [ 'float32' ],
+				'dblVerlet': [ 'float32' ],
+				'dblAcceleration': [ 'float32' ],
+				'dblRotation': [ 'float32' ]
+			}]);
+		}
+
+		{
+			Item.objectItem = {};
+		}
+
+		if (Voxel === null) {
+			return;
+		}
+
+		{
+			Item.objectRepository = {
+				'entityFlag': {
+					'intLength': 0,
+					'objectEntity': []
+				},
+				'entityArrow': {
+					'intLength': 0,
+					'objectEntity': []
+				}
+			};
+
+			Item.objectRepository['entityFlag'].objectEntity.push(Voxel.entityCreate('entityFlagRed', Constants.dblGameScale));
+			Item.objectRepository['entityFlag'].objectEntity.push(Voxel.entityCreate('entityFlagBlue', Constants.dblGameScale));
+
+			for (var intFor1 = 0; intFor1 < 32; intFor1 += 1) {
+				Item.objectRepository['entityArrow'].objectEntity.push(Voxel.entityCreate('entityArrow', Constants.dblGameScale));
+			}
+		}
+		
+		{
+			Item.functionFlagInit = function(objectItem) {
+				
+			};
+			
+			Item.functionFlagPlayer = function(objectItem) {
+				
+			};
+		}
+	},
+	
+	dispel: function() {
+		{
+			Item.requireSchemapack = {};
+		}
+		
+		{
+			Item.objectItem = {};
+		}
+		
+		{
+			Item.objectRepository = {};
+		}
+		
+		{
+			Item.functionFlagInit = null;
+			
+			Item.functionFlagPlayer = null;
+		}
+	},
+	
+	initFlag: function(objectItem) {
+		{
+			if (Item.objectItem['itemFlag - teamRed'] === undefined) {
+				Item.objectItem['itemFlag - teamRed'] = {
+					'strIdent': 'itemFlag - teamRed',
+					'strPlayer': 'playerInitial',
+					'dblPosition': [ 0.0, 0.0, 0.0 ],
+					'dblVerlet': [ 0.0, 0.0, 0.0 ],
+					'dblAcceleration': [ 0.0, 0.0, 0.0 ],
+					'dblRotation': [ 0.0, 0.0, 0.0 ]
+				};
+				
+				Item.functionFlagInit(Item.objectItem['itemFlag - teamRed']);
+			}
+
+			if (Item.objectItem['itemFlag - teamBlue'] === undefined) {
+				Item.objectItem['itemFlag - teamBlue'] = {
+					'strIdent': 'itemFlag - teamBlue',
+					'strPlayer': 'playerInitial',
+					'dblPosition': [ 0.0, 0.0, 0.0 ],
+					'dblVerlet': [ 0.0, 0.0, 0.0 ],
+					'dblAcceleration': [ 0.0, 0.0, 0.0 ],
+					'dblRotation': [ 0.0, 0.0, 0.0 ]
+				};
+				
+				Item.functionFlagInit(Item.objectItem['itemFlag - teamBlue']);
+			}	
+		}
+		
+		{
+			if (objectItem !== undefined) {
+				Item.functionFlagInit(objectItem);
+			}
+		}
+	},
+	
+	saveBuffer: function(objectStorage) {
+		var objectBuffer = null;
+
+		{
+			if (objectStorage === null) {
+				objectStorage = Item.objectItem;
+			}
+		}
+
+		{
+			var objectSchemapack = [];
+
+			for (var strIdent in objectStorage) {
+				var objectItem = {};
+
+				for (var strAttribute in objectStorage[strIdent]) {
+					var voidAttribute = objectStorage[strIdent][strAttribute];
+
+					if (typeof(voidAttribute) === 'object') {
+						if (Array.isArray(voidAttribute) === false) {
+							continue;
+						}
+					}
+
+					objectItem[strAttribute] = voidAttribute;
+				}
+
+				objectSchemapack.push(objectItem);
+			}
+
+			objectBuffer = Item.requireSchemapack.encode(objectSchemapack).toString('base64');
+		}
+
+		return objectBuffer;
+	},
+	
+	loadBuffer: function(objectStorage, objectBuffer) {
+		{
+			if (objectStorage === null) {
+				objectStorage = Item.objectItem;
+			}
+		}
+
+		{
+			var objectSchemapack = Item.requireSchemapack.decode(new Buffer(objectBuffer, 'base64'));
+
+			for (var intFor1 = 0; intFor1 < objectSchemapack.length; intFor1 += 1) {
+				var objectItem = {};
+
+				for (var strAttribute in objectSchemapack[intFor1]) {
+					objectItem[strAttribute] = objectSchemapack[intFor1][strAttribute];
+				}
+
+				objectStorage[objectItem.strIdent] = objectItem;
+			}
+		}
+	},
+	
+	update: function() {
+		{
+			Item.updateLogic();
 		}
 
 		if (Voxel === null) {
@@ -29,342 +191,65 @@ var Item = {
 		}
 		
 		{
-			Item.functionFlagInit = function(itemHandle) {
-				
-			};
-			
-			Item.functionFlagPlayer = function(itemHandle) {
-				
-			};
-			
-			for (var intFor1 = 0; intFor1 < 2; intFor1 += 1) {
-				{
-					var meshHandle = {};
-					
-					if (Voxel !== null) {
-						if (intFor1 === 0) {
-							meshHandle = Voxel.minecraftitemCreate('itemFlagRed', Constants.dblGameScale);
-							
-						} else if (intFor1 === 1) {
-							meshHandle = Voxel.minecraftitemCreate('itemFlagBlue', Constants.dblGameScale);
-							
-						}
-					}
-					
-					Item.meshFlag.push(meshHandle);
-				}
-			}
-		}
-		
-		{
-			for (var intFor1 = 0; intFor1 < 32; intFor1 += 1) {
-				{
-					var meshHandle = {};
-					
-					if (Voxel !== null) {
-						meshHandle = Voxel.minecraftitemCreate('itemArrow', Constants.dblGameScale);
-					}
-					
-					Item.meshArrow.push(meshHandle);
-				}
-			}
-		}
-	},
-	
-	dispel: function() {
-		{
-			Item.itemHandle = {};
-		}
-		
-		{
-			Item.functionFlagInit = null;
-			
-			Item.functionFlagPlayer = null;
-			
-			Item.meshFlag = [];
-		}
-		
-		{
-			Item.meshArrow = [];
-		}
-	},
-	
-	initFlag: function(itemHandle) {
-		{
-			if (Item.itemHandle['itemFlag - teamRed'] === undefined) {
-				var strIdent = 'itemFlag - teamRed';
-				
-				Item.itemHandle[strIdent] = {
-					'strIdent': strIdent,
-					'strPlayer': 'playerInitial',
-					'dblPosition': [ 0.0, 0.0, 0.0 ],
-					'dblVerlet': [ 0.0, 0.0, 0.0 ],
-					'dblAcceleration': [ 0.0, 0.0, 0.0 ],
-					'dblRotation': [ 0.0, 0.0, 0.0 ]
-				};
-				
-				Item.functionFlagInit(Item.itemHandle[strIdent]);
-			}
-
-			if (Item.itemHandle['itemFlag - teamBlue'] === undefined) {
-				var strIdent = 'itemFlag - teamBlue';
-				
-				Item.itemHandle[strIdent] = {
-					'strIdent': strIdent,
-					'strPlayer': 'playerInitial',
-					'dblPosition': [ 0.0, 0.0, 0.0 ],
-					'dblVerlet': [ 0.0, 0.0, 0.0 ],
-					'dblAcceleration': [ 0.0, 0.0, 0.0 ],
-					'dblRotation': [ 0.0, 0.0, 0.0 ]
-				};
-				
-				Item.functionFlagInit(Item.itemHandle[strIdent]);
-			}	
-		}
-		
-		{
-			if (itemHandle !== undefined) {
-				itemHandle.strPlayer = 'playerInitial';
-				
-				Item.functionFlagInit(itemHandle);
-			}
-		}
-	},
-	
-	saveBuffer: function() {
-		var bufferHandle = new Buffer(256 * Object.keys(Item.itemHandle).length);
-		var intBuffer = 0;
-
-		{
-			for (var strIdent in Item.itemHandle) {
-				var itemHandle = Item.itemHandle[strIdent];
-				
-				{
-					intBuffer = Item.saveBufferpart(itemHandle, bufferHandle, intBuffer);
-				}
-		    }
-	    }
-
-		return bufferHandle.slice(0, intBuffer).toString('base64');
-	},
-	
-	loadBuffer: function(strBuffer) {
-		var bufferHandle = new Buffer(strBuffer, 'base64');
-		
-		{
-			Item.itemHandle = {};
-		}
-		
-		{
-			var intBuffer = 0;
-			
-			{
-				do {
-					if (intBuffer >= bufferHandle.length) {
-						break;
-					}
-					
-					var itemHandle = {};
-					
-					{
-						intBuffer = Item.loadBufferpart(itemHandle, bufferHandle, intBuffer);
-					}
-					
-					{
-						Item.itemHandle[itemHandle.strIdent] = itemHandle;
-					}
-				} while (true);
-			}
-		}
-	},
-	
-	saveBufferpart: function(itemHandle, bufferHandle, intBuffer) {
-		{
-			bufferHandle.writeInt16LE(itemHandle.strIdent.length, intBuffer);
-			
-			intBuffer += 2;
-			
-			bufferHandle.write(itemHandle.strIdent, intBuffer, itemHandle.strIdent.length, 'ascii');
-			
-			intBuffer += itemHandle.strIdent.length;
-		}
-		
-		{
-			bufferHandle.writeInt16LE(itemHandle.strPlayer.length, intBuffer);
-			
-			intBuffer += 2;
-			
-			bufferHandle.write(itemHandle.strPlayer, intBuffer, itemHandle.strPlayer.length, 'ascii');
-			
-			intBuffer += itemHandle.strPlayer.length;
-		}
-		
-		{
-			bufferHandle.writeFloatLE(itemHandle.dblPosition[0], intBuffer + 0);
-			bufferHandle.writeFloatLE(itemHandle.dblPosition[1], intBuffer + 4);
-			bufferHandle.writeFloatLE(itemHandle.dblPosition[2], intBuffer + 8);
-			
-			intBuffer += 12;
-		}
-		
-		{
-			bufferHandle.writeFloatLE(itemHandle.dblVerlet[0], intBuffer + 0);
-			bufferHandle.writeFloatLE(itemHandle.dblVerlet[1], intBuffer + 4);
-			bufferHandle.writeFloatLE(itemHandle.dblVerlet[2], intBuffer + 8);
-			
-			intBuffer += 12;
-		}
-		
-		{
-			bufferHandle.writeFloatLE(itemHandle.dblAcceleration[0], intBuffer + 0);
-			bufferHandle.writeFloatLE(itemHandle.dblAcceleration[1], intBuffer + 4);
-			bufferHandle.writeFloatLE(itemHandle.dblAcceleration[2], intBuffer + 8);
-			
-			intBuffer += 12;
-		}
-		
-		{
-			bufferHandle.writeFloatLE(itemHandle.dblRotation[0], intBuffer + 0);
-			bufferHandle.writeFloatLE(itemHandle.dblRotation[1], intBuffer + 4);
-			bufferHandle.writeFloatLE(itemHandle.dblRotation[2], intBuffer + 8);
-			
-			intBuffer += 12;
-		}
-		
-		return intBuffer;
-	},
-	
-	loadBufferpart: function(itemHandle, bufferHandle, intBuffer) {
-		{
-			var intLength = bufferHandle.readInt16LE(intBuffer);
-
-			intBuffer += 2;
-			
-			itemHandle.strIdent = bufferHandle.toString('ascii', intBuffer, intBuffer + intLength);
-			
-			intBuffer += intLength;
-		}
-		
-		{
-			var intLength = bufferHandle.readInt16LE(intBuffer);
-
-			intBuffer += 2;
-			
-			itemHandle.strPlayer = bufferHandle.toString('ascii', intBuffer, intBuffer + intLength);
-			
-			intBuffer += intLength;
-		}
-		
-		{
-			itemHandle.dblPosition = [ 0.0, 0.0, 0.0 ];
-			
-			itemHandle.dblPosition[0] = bufferHandle.readFloatLE(intBuffer + 0);
-			itemHandle.dblPosition[1] = bufferHandle.readFloatLE(intBuffer + 4);
-			itemHandle.dblPosition[2] = bufferHandle.readFloatLE(intBuffer + 8);
-			
-			intBuffer += 12;
-		}
-		
-		{
-			itemHandle.dblVerlet = [ 0.0, 0.0, 0.0 ];
-			
-			itemHandle.dblVerlet[0] = bufferHandle.readFloatLE(intBuffer + 0);
-			itemHandle.dblVerlet[1] = bufferHandle.readFloatLE(intBuffer + 4);
-			itemHandle.dblVerlet[2] = bufferHandle.readFloatLE(intBuffer + 8);
-			
-			intBuffer += 12;
-		}
-		
-		{
-			itemHandle.dblAcceleration = [ 0.0, 0.0, 0.0 ];
-			
-			itemHandle.dblAcceleration[0] = bufferHandle.readFloatLE(intBuffer + 0);
-			itemHandle.dblAcceleration[1] = bufferHandle.readFloatLE(intBuffer + 4);
-			itemHandle.dblAcceleration[2] = bufferHandle.readFloatLE(intBuffer + 8);
-			
-			intBuffer += 12;
-		}
-		
-		{
-			itemHandle.dblRotation = [ 0.0, 0.0, 0.0 ];
-			
-			itemHandle.dblRotation[0] = bufferHandle.readFloatLE(intBuffer + 0);
-			itemHandle.dblRotation[1] = bufferHandle.readFloatLE(intBuffer + 4);
-			itemHandle.dblRotation[2] = bufferHandle.readFloatLE(intBuffer + 8);
-			
-			intBuffer += 12;
-		}
-		
-		return intBuffer;
-	},
-	
-	update: function() {
-		{
-			Item.updateLogic();
-		}
-		
-		{
-			if (Voxel !== null) {
-				Item.updateGraphics();
-			}
+			Item.updateGraphics();
 		}
 	},
 		
 	updateLogic: function() {
 		{
-			for (var strIdent in Item.itemHandle) {
-				var itemHandle = Item.itemHandle[strIdent];
+			for (var strIdent in Item.objectItem) {
+				var objectItem = Item.objectItem[strIdent];
 				
 				{
-					if (itemHandle.strIdent.indexOf('itemFlag') === 0) {
+					if (objectItem.strIdent.indexOf('itemFlag') === 0) {
 						{
-							itemHandle.dblSize = Constants.dblFlagSize;
-							itemHandle.dblGravity = Constants.dblFlagGravity;
-							itemHandle.dblMaxvel = Constants.dblFlagMaxvel;
-							itemHandle.dblFriction = Constants.dblFlagFriction;
+							objectItem.dblSize = Constants.dblFlagSize;
+							objectItem.dblGravity = Constants.dblFlagGravity;
+							objectItem.dblMaxvel = Constants.dblFlagMaxvel;
+							objectItem.dblFriction = Constants.dblFlagFriction;
 	
-							Physics.update(itemHandle);
-							Physics.updateWorldcol(itemHandle, false);
+							Physics.update(objectItem);
+							Physics.updateWorldcol(objectItem, false);
 						}
 						
 						{
-							itemHandle.dblRotation[1] = (itemHandle.dblRotation[1] + Constants.dblFlagRotate) % (2.0 * Math.PI);
+							objectItem.dblRotation[1] = (objectItem.dblRotation[1] + Constants.dblFlagRotate) % (2.0 * Math.PI);
 						}
 						
 						{
-							Item.functionFlagPlayer(itemHandle);
+							Item.functionFlagPlayer(objectItem);
 						}
 						
-					} else if (itemHandle.strIdent.indexOf('itemArrow') === 0) {
+					} else if (objectItem.strIdent.indexOf('itemArrow') === 0) {
 						{
-							itemHandle.dblSize = Constants.dblArrowSize;
-							itemHandle.dblGravity = Constants.dblArrowGravity;
-							itemHandle.dblMaxvel = Constants.dblArrowMaxvel;
-							itemHandle.dblFriction = Constants.dblArrowFriction;
+							objectItem.dblSize = Constants.dblArrowSize;
+							objectItem.dblGravity = Constants.dblArrowGravity;
+							objectItem.dblMaxvel = Constants.dblArrowMaxvel;
+							objectItem.dblFriction = Constants.dblArrowFriction;
 							
-							Physics.update(itemHandle);
-							Physics.updateWorldcol(itemHandle, false);
+							Physics.update(objectItem);
+							Physics.updateWorldcol(objectItem, false);
 						}
 						
 						{
-							var dblVelocityX = itemHandle.dblPosition[0] - itemHandle.dblVerlet[0];
-							var dblVelocityY = itemHandle.dblPosition[1] - itemHandle.dblVerlet[1];
-							var dblVelocityZ = itemHandle.dblPosition[2] - itemHandle.dblVerlet[2];
+							var dblVelocityX = objectItem.dblPosition[0] - objectItem.dblVerlet[0];
+							var dblVelocityY = objectItem.dblPosition[1] - objectItem.dblVerlet[1];
+							var dblVelocityZ = objectItem.dblPosition[2] - objectItem.dblVerlet[2];
 	
-							itemHandle.dblRotation[0] = 0.0;
-							itemHandle.dblRotation[1] = Math.atan2(dblVelocityX, dblVelocityZ) + (1.0 * Math.PI);
-							itemHandle.dblRotation[2] = Math.atan2(dblVelocityY, Math.sqrt((dblVelocityX * dblVelocityX) + (dblVelocityZ * dblVelocityZ)));
+							objectItem.dblRotation[0] = 0.0;
+							objectItem.dblRotation[1] = Math.atan2(dblVelocityX, dblVelocityZ) + (1.0 * Math.PI);
+							objectItem.dblRotation[2] = Math.atan2(dblVelocityY, Math.sqrt((dblVelocityX * dblVelocityX) + (dblVelocityZ * dblVelocityZ)));
 						}
 						
 						{
-							if (itemHandle.boolCollisionTop === true) {
-								delete Item.itemHandle[itemHandle.strIdent];
+							if (objectItem.boolCollisionTop === true) {
+								delete Item.objectItem[objectItem.strIdent];
 								
-							} else if (itemHandle.boolCollisionSide === true) {
-								delete Item.itemHandle[itemHandle.strIdent];
+							} else if (objectItem.boolCollisionSide === true) {
+								delete Item.objectItem[objectItem.strIdent];
 								
-							} else if (itemHandle.boolCollisionBottom === true) {
-								delete Item.itemHandle[itemHandle.strIdent];
+							} else if (objectItem.boolCollisionBottom === true) {
+								delete Item.objectItem[objectItem.strIdent];
 								
 							}
 						}
@@ -377,77 +262,67 @@ var Item = {
 	
 	updateGraphics: function() {
 		{
-			for (var intFor1 = 0; intFor1 < Item.meshArrow.length; intFor1 += 1) {
-				var meshHandle = Item.meshArrow[intFor1];
+			Item.objectRepository['entityFlag'].intLength = 2;
 
-				if (meshHandle.parent === undefined) {
-					continue;
-				}
+			Item.objectRepository['entityArrow'].intLength = 0;
+		}
+		
+		{
+			for (var strIdent in Item.objectItem) {
+				var objectItem = Item.objectItem[strIdent];
 				
 				{
-					Voxel.voxelengineHandle.scene.remove(meshHandle);
+					var objectEntity = null;
+					
+					{
+						if (objectItem.strIdent === 'itemFlag - teamRed') {
+							objectEntity = Item.objectRepository['entityFlag'].objectEntity[0];
+
+						} else if (objectItem.strIdent === 'itemFlag - teamBlue') {
+							objectEntity = Item.objectRepository['entityFlag'].objectEntity[1];
+
+						} else if (objectItem.strIdent.indexOf('itemArrow') === 0) {
+							objectEntity = Item.objectRepository['entityArrow'].objectEntity[Item.objectRepository['entityArrow'].intLength++];
+
+						}
+					}
+					
+					{
+						if (objectItem.strIdent.indexOf('itemFlag') === 0) {
+							objectEntity.position.x = objectItem.dblPosition[0];
+							objectEntity.position.y = objectItem.dblPosition[1];
+							objectEntity.position.z = objectItem.dblPosition[2];
+							
+							objectEntity.rotation.x = objectItem.dblRotation[0];
+							objectEntity.rotation.y = objectItem.dblRotation[1];
+							objectEntity.rotation.z = objectItem.dblRotation[2];
+
+						} else if (objectItem.strIdent.indexOf('itemArrow') === 0) {
+							objectEntity.position.x = objectItem.dblPosition[0];
+							objectEntity.position.y = objectItem.dblPosition[1];
+							objectEntity.position.z = objectItem.dblPosition[2];
+							
+							objectEntity.rotation.x = objectItem.dblRotation[0];
+							objectEntity.rotation.y = objectItem.dblRotation[1] + (0.5 * Math.PI);
+							objectEntity.rotation.z = objectItem.dblRotation[2] + (1.25 * Math.PI);
+							
+						}
+					}
 				}
 			}
 		}
 		
 		{
-			for (var strIdent in Item.itemHandle) {
-				var itemHandle = Item.itemHandle[strIdent];
+			for (var strEntity in Item.objectRepository) {
+				for (var intFor1 = 0; intFor1 < Item.objectRepository[strEntity].intLength; intFor1 += 1) {
+					if (Item.objectRepository[strEntity].objectEntity[intFor1].parent === undefined) {
+						Voxel.requireVoxelengine.scene.add(Item.objectRepository[strEntity].objectEntity[intFor1]);
+					}
+				}
 				
-				{
-					var meshHandle = null;
-					
-					{
-						if (itemHandle.strIdent === 'itemFlag - teamRed') {
-							meshHandle = Item.meshFlag[0];
-							
-						} else if (itemHandle.strIdent === 'itemFlag - teamBlue') {
-							meshHandle = Item.meshFlag[1];
-							
-						} else if (itemHandle.strIdent.indexOf('itemArrow') === 0) {
-							for (var intFor1 = 0; intFor1 < Item.meshArrow.length; intFor1 += 1) {
-								if (Item.meshArrow[intFor1].parent !== undefined) {
-									continue;
-								}
-								
-								{
-									meshHandle = Item.meshArrow[intFor1];
-								}
-								
-								{
-									break;
-								}
-							}
-							
-						}
-					}
-					
-					{
-						if (meshHandle.parent === undefined) {
-							Voxel.voxelengineHandle.scene.add(meshHandle);
-						}
-					}
-					
-					{
-						if (itemHandle.strIdent.indexOf('itemFlag') === 0) {
-							meshHandle.position.x = itemHandle.dblPosition[0];
-							meshHandle.position.y = itemHandle.dblPosition[1];
-							meshHandle.position.z = itemHandle.dblPosition[2];
-							
-							meshHandle.rotation.x = itemHandle.dblRotation[0];
-							meshHandle.rotation.y = itemHandle.dblRotation[1];
-							meshHandle.rotation.z = itemHandle.dblRotation[2];
-
-						} else if (itemHandle.strIdent.indexOf('itemArrow') === 0) {
-							meshHandle.position.x = itemHandle.dblPosition[0];
-							meshHandle.position.y = itemHandle.dblPosition[1];
-							meshHandle.position.z = itemHandle.dblPosition[2];
-							
-							meshHandle.rotation.x = itemHandle.dblRotation[0];
-							meshHandle.rotation.y = itemHandle.dblRotation[1] + (0.5 * Math.PI);
-							meshHandle.rotation.z = itemHandle.dblRotation[2] + (1.25 * Math.PI);
-							
-						}
+				for (var intFor1 = Item.objectRepository[strEntity].intLength; intFor1 < Item.objectRepository[strEntity].objectEntity.length; intFor1 += 1) {
+					if (Item.objectRepository[strEntity].objectEntity[intFor1].parent !== undefined) {
+						Voxel.requireVoxelengine.scene.remove(Item.objectRepository[strEntity].objectEntity[intFor1]);
 					}
 				}
 			}

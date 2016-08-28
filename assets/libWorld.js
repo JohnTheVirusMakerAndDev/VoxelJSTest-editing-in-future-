@@ -1,16 +1,16 @@
 'use strict';
 
-var Constants = {};
-var Voxel = {};
-
 var World = {
-	browserify: function(constantsHandle, voxelHandle) {
-		Constants = constantsHandle;
-		Voxel = voxelHandle;
+	browserify: function(objectBrowserify) {
+		for (var strKey in objectBrowserify) {
+			global[strKey] = objectBrowserify[strKey];
+		}
 	},
+
+	requireSchemapack: null,
 	
-	worldPast: {},
-	worldHandle: {},
+	objectPrevious: {},
+	objectWorld: {},
 	
 	intSpawnRed: [],
 	intSpawnBlue: [],
@@ -20,9 +20,17 @@ var World = {
 	
 	init: function() {
 		{
-			World.worldPast = {};
+			World.requireSchemapack = require('schemapack').build([{
+				'intCoordinate': [ 'varint' ],
+				'strType': 'string',
+				'boolBlocked': 'bool'
+			}]);
+		}
+
+		{
+			World.objectPrevious = {};
 			
-			World.worldHandle = {};
+			World.objectWorld = {};
 		}
 		
 		{
@@ -40,9 +48,13 @@ var World = {
 	
 	dispel: function() {
 		{
-			World.worldPast = {};
+			World.requireSchemapack = {};
+		}
+
+		{
+			World.objectPrevious = {};
 			
-			World.worldHandle = {};
+			World.objectWorld = {};
 		}
 		
 		{
@@ -58,159 +70,130 @@ var World = {
 		}
 	},
 	
-	saveBuffer: function() {
-		var bufferHandle = new Buffer(256 * Object.keys(World.worldHandle).length);
-		var intBuffer = 0;
-		
+	saveBuffer: function(objectStorage) {
+		var objectBuffer = null;
+
 		{
-		    for (var strCoordinate in World.worldHandle) {
-				var worldHandle = World.worldHandle[strCoordinate];
-				
-				{
-					intBuffer = World.saveBufferpart(worldHandle, bufferHandle, intBuffer);
-				}
-		    }
+			if (objectStorage === null) {
+				objectStorage = World.objectWorld;
+			}
 		}
-		
-		return bufferHandle.slice(0, intBuffer).toString('base64');
+
+		{
+			var objectSchemapack = [];
+
+			for (var strIdent in objectStorage) {
+				var objectWorld = {};
+
+				for (var strAttribute in objectStorage[strIdent]) {
+					var voidAttribute = objectStorage[strIdent][strAttribute];
+
+					if (typeof(voidAttribute) === 'object') {
+						if (Array.isArray(voidAttribute) === false) {
+							continue;
+						}
+					}
+
+					objectWorld[strAttribute] = voidAttribute;
+				}
+
+				objectSchemapack.push(objectWorld);
+			}
+
+			objectBuffer = World.requireSchemapack.encode(objectSchemapack).toString('base64');
+		}
+
+		return objectBuffer;
 	},
 	
-	loadBuffer: function(strBuffer) {
-		var bufferHandle = new Buffer(strBuffer, 'base64');
-		
+	loadBuffer: function(objectStorage, objectBuffer) {
 		{
-			World.worldPast = World.worldHandle;
-			
-			World.worldHandle = {};
+			if (objectStorage === null) {
+				objectStorage = World.objectWorld;
+			}
 		}
-		
+
 		{
-			var intBuffer = 0;
-			
-			{
-				do {
-					if (intBuffer >= bufferHandle.length) {
-						break;
-					}
+			if (objectStorage === World.objectWorld) {
+				{
+					World.objectPrevious = World.objectWorld;
 					
-					var worldHandle = {};
-					
-					{
-						intBuffer = World.loadBufferpart(worldHandle, bufferHandle, intBuffer);
-					}
-					
-					{
-						World.worldHandle[(worldHandle.intCoordinate[0] << 20) + (worldHandle.intCoordinate[1] << 10) + (worldHandle.intCoordinate[2] << 0)] = worldHandle;
-					}
-				} while (true);
+					World.objectWorld = {};
+				}
+
+				{
+					objectStorage = World.objectWorld;
+				}
+			}
+		}
+
+		{
+			var objectSchemapack = World.requireSchemapack.decode(new Buffer(objectBuffer, 'base64'));
+
+			for (var intFor1 = 0; intFor1 < objectSchemapack.length; intFor1 += 1) {
+				var objectWorld = {};
+
+				for (var strAttribute in objectSchemapack[intFor1]) {
+					objectWorld[strAttribute] = objectSchemapack[intFor1][strAttribute];
+				}
+
+				objectStorage[(objectWorld.intCoordinate[0] << 20) + (objectWorld.intCoordinate[1] << 10) + (objectWorld.intCoordinate[2] << 0)] = objectWorld;
 			}
 		}
 		
 		{
-			World.intSpawnRed = [];
-			
-			World.intSpawnBlue = [];
-			
-			World.intFlagRed = [];
-			
-			World.intFlagBlue = [];
-			
-			World.intSeparator = [];
-		}
-		
-		{
-		    for (var strCoordinate in World.worldHandle) {
-				var worldHandle = World.worldHandle[strCoordinate];
-				
+			if (objectStorage === World.objectWorld) {
 				{
-					if (worldHandle.strType === 'voxelSpawnRed') {
-						World.intSpawnRed.push(worldHandle.intCoordinate);
+					World.intSpawnRed = [];
+					
+					World.intSpawnBlue = [];
+					
+					World.intFlagRed = [];
+					
+					World.intFlagBlue = [];
+					
+					World.intSeparator = [];
+				}
+
+				{
+					for (var strCoordinate in World.objectWorld) {
+						var objectWorld = World.objectWorld[strCoordinate];
 						
-					} else if (worldHandle.strType === 'voxelSpawnBlue') {
-						World.intSpawnBlue.push(worldHandle.intCoordinate);
-						
-					} else if (worldHandle.strType === 'voxelFlagRed') {
-						World.intFlagRed.push(worldHandle.intCoordinate);
-						
-					} else if (worldHandle.strType === 'voxelFlagBlue') {
-						World.intFlagBlue.push(worldHandle.intCoordinate);
-						
-					} else if (worldHandle.strType === 'voxelSeparator') {
-						World.intSeparator.push(worldHandle.intCoordinate);
-						
+						{
+							if (objectWorld.strType === 'voxelSpawnRed') {
+								World.intSpawnRed.push(objectWorld.intCoordinate);
+								
+							} else if (objectWorld.strType === 'voxelSpawnBlue') {
+								World.intSpawnBlue.push(objectWorld.intCoordinate);
+								
+							} else if (objectWorld.strType === 'voxelFlagRed') {
+								World.intFlagRed.push(objectWorld.intCoordinate);
+								
+							} else if (objectWorld.strType === 'voxelFlagBlue') {
+								World.intFlagBlue.push(objectWorld.intCoordinate);
+								
+							} else if (objectWorld.strType === 'voxelSeparator') {
+								World.intSeparator.push(objectWorld.intCoordinate);
+								
+							}
+						}
 					}
 				}
-		    }
+			}
 		}
-	},
-	
-	saveBufferpart: function(worldHandle, bufferHandle, intBuffer) {
-		{
-			bufferHandle.writeInt16LE(worldHandle.intCoordinate[0], intBuffer + 0);
-			bufferHandle.writeInt16LE(worldHandle.intCoordinate[1], intBuffer + 2);
-			bufferHandle.writeInt16LE(worldHandle.intCoordinate[2], intBuffer + 4);
-			
-			intBuffer += 6;
-		}
-
-		{
-			bufferHandle.writeInt16LE(worldHandle.strType.length, intBuffer);
-			
-			intBuffer += 2;
-			
-			bufferHandle.write(worldHandle.strType, intBuffer, worldHandle.strType.length, 'ascii');
-			
-			intBuffer += worldHandle.strType.length;
-		}
-		
-		{
-			bufferHandle.writeInt16LE(worldHandle.boolBlocked === true ? 1 : 0, intBuffer);
-			
-			intBuffer += 2;
-		}
-		
-		return intBuffer;
-	},
-	
-	loadBufferpart: function(worldHandle, bufferHandle, intBuffer) {
-		{
-			worldHandle.intCoordinate = [ 0, 0, 0 ];
-			
-			worldHandle.intCoordinate[0] = bufferHandle.readInt16LE(intBuffer + 0);
-			worldHandle.intCoordinate[1] = bufferHandle.readInt16LE(intBuffer + 2);
-			worldHandle.intCoordinate[2] = bufferHandle.readInt16LE(intBuffer + 4);
-			
-			intBuffer += 6;
-		}
-		
-		{
-			var intLength = bufferHandle.readInt16LE(intBuffer);
-
-			intBuffer += 2;
-			
-			worldHandle.strType = bufferHandle.toString('ascii', intBuffer, intBuffer + intLength);
-			
-			intBuffer += intLength;
-		}
-		
-		{
-			worldHandle.boolBlocked = bufferHandle.readInt16LE(intBuffer) === 1 ? true : false;
-			
-			intBuffer += 2;
-		}
-		
-		return intBuffer;
 	},
 	
 	update: function() {
 		{
 			World.updateLogic();
 		}
+
+		if (Voxel === null) {
+			return;
+		}
 		
 		{
-			if (Voxel !== null) {
-				World.updateGraphics();
-			}
+			World.updateGraphics();
 		}
 	},
 		
@@ -220,27 +203,27 @@ var World = {
 	
 	updateGraphics: function() {
 		{
-			if (World.worldPast !== null) {
+			if (World.objectPrevious !== null) {
 				{
-				    for (var strCoordinate in World.worldPast) {
-						var worldHandle = World.worldPast[strCoordinate];
+					for (var strCoordinate in World.objectPrevious) {
+						var objectWorld = World.objectPrevious[strCoordinate];
 						
 						{
-							Voxel.voxelengineHandle.setBlock(worldHandle.intCoordinate, 0);
+							Voxel.requireVoxelengine.setBlock(objectWorld.intCoordinate, 0);
 						}
-				    }
-				    
-				    for (var strCoordinate in World.worldHandle) {
-						var worldHandle = World.worldHandle[strCoordinate];
+					}
+					
+					for (var strCoordinate in World.objectWorld) {
+						var objectWorld = World.objectWorld[strCoordinate];
 						
 						{
-							Voxel.voxelengineHandle.setBlock(worldHandle.intCoordinate, Voxel.voxelengineHandle.materials.find(worldHandle.strType));
+							Voxel.requireVoxelengine.setBlock(objectWorld.intCoordinate, Voxel.requireVoxelengine.materials.find(objectWorld.strType));
 						}
-				    }
-			    }
+					}
+				}
 				
 				{
-					World.worldPast = null;
+					World.objectPrevious = null;
 				}
 			}
 		}
@@ -248,109 +231,113 @@ var World = {
 	
 	updateCreate: function(intCoordinate, strType, boolBlocked) {
 		{
-			World.worldHandle[(intCoordinate[0] << 20) + (intCoordinate[1] << 10) + (intCoordinate[2] << 0)] = {
+			World.objectWorld[(intCoordinate[0] << 20) + (intCoordinate[1] << 10) + (intCoordinate[2] << 0)] = {
 				'intCoordinate': intCoordinate,
 				'strType': strType,
 				'boolBlocked': boolBlocked
 			};
 		}
+
+		if (Voxel === null) {
+			return;
+		}
 		
 		{
-			if (Voxel !== null) {
-				Voxel.voxelengineHandle.setBlock(intCoordinate, Voxel.voxelengineHandle.materials.find(strType));
-			}
+			Voxel.requireVoxelengine.setBlock(intCoordinate, Voxel.requireVoxelengine.materials.find(strType));
 		}
 	},
 	
 	updateDestroy: function(intCoordinate) {
 		{
-			delete World.worldHandle[(intCoordinate[0] << 20) + (intCoordinate[1] << 10) + (intCoordinate[2] << 0)];
+			delete World.objectWorld[(intCoordinate[0] << 20) + (intCoordinate[1] << 10) + (intCoordinate[2] << 0)];
+		}
+
+		if (Voxel === null) {
+			return;
 		}
 		
 		{
-			if (Voxel !== null) {
-				Voxel.voxelengineHandle.setBlock(intCoordinate, 0);
-			}
+			Voxel.requireVoxelengine.setBlock(intCoordinate, 0);
 		}
 	},
 	
 	updateBlocked: function(intCoordinate) {
 		{
-			if (World.worldHandle[(intCoordinate[0] << 20) + (intCoordinate[1] << 10) + (intCoordinate[2] << 0)] !== undefined) {
-				if (World.worldHandle[(intCoordinate[0] << 20) + (intCoordinate[1] << 10) + (intCoordinate[2] << 0)].boolBlocked === true) {
+			if (World.objectWorld[(intCoordinate[0] << 20) + (intCoordinate[1] << 10) + (intCoordinate[2] << 0)] !== undefined) {
+				if (World.objectWorld[(intCoordinate[0] << 20) + (intCoordinate[1] << 10) + (intCoordinate[2] << 0)].boolBlocked === true) {
 					return true;
 				}
 			}
 		}
 
 		{
-	    	for (var intFor1 = -1; intFor1 < 2; intFor1 += 1) {
-		    	for (var intFor2 = 1; intFor2 < 3; intFor2 += 1) {
-			    	for (var intFor3 = -1; intFor3 < 2; intFor3 += 1) {
-					    for (var intFor4 = 0; intFor4 < World.intSpawnRed.length; intFor4 += 1) {
-				    		var intCoordinateX = World.intSpawnRed[intFor4][0] + intFor1;
-				    		var intCoordinateY = World.intSpawnRed[intFor4][1] + intFor2;
-				    		var intCoordinateZ = World.intSpawnRed[intFor4][2] + intFor3;
+			for (var intFor1 = -1; intFor1 < 2; intFor1 += 1) {
+				for (var intFor2 = 1; intFor2 < 3; intFor2 += 1) {
+					for (var intFor3 = -1; intFor3 < 2; intFor3 += 1) {
+						for (var intFor4 = 0; intFor4 < World.intSpawnRed.length; intFor4 += 1) {
+							var intCoordinateX = World.intSpawnRed[intFor4][0] + intFor1;
+							var intCoordinateY = World.intSpawnRed[intFor4][1] + intFor2;
+							var intCoordinateZ = World.intSpawnRed[intFor4][2] + intFor3;
 		
-				    		if (intCoordinateX === intCoordinate[0]) {
-				    			if (intCoordinateY === intCoordinate[1]) {
-					    			if (intCoordinateZ === intCoordinate[2]) {
-					    				return true;
-						    		}
-					    		}
-				    		}
-					    }
-					    
-					    for (var intFor4 = 0; intFor4 < World.intSpawnBlue.length; intFor4 += 1) {
-				    		var intCoordinateX = World.intSpawnBlue[intFor4][0] + intFor1;
-				    		var intCoordinateY = World.intSpawnBlue[intFor4][1] + intFor2;
-				    		var intCoordinateZ = World.intSpawnBlue[intFor4][2] + intFor3;
+							if (intCoordinateX === intCoordinate[0]) {
+								if (intCoordinateY === intCoordinate[1]) {
+									if (intCoordinateZ === intCoordinate[2]) {
+										return true;
+									}
+								}
+							}
+						}
+						
+						for (var intFor4 = 0; intFor4 < World.intSpawnBlue.length; intFor4 += 1) {
+							var intCoordinateX = World.intSpawnBlue[intFor4][0] + intFor1;
+							var intCoordinateY = World.intSpawnBlue[intFor4][1] + intFor2;
+							var intCoordinateZ = World.intSpawnBlue[intFor4][2] + intFor3;
 		
-				    		if (intCoordinateX === intCoordinate[0]) {
-				    			if (intCoordinateY === intCoordinate[1]) {
-					    			if (intCoordinateZ === intCoordinate[2]) {
-					    				return true;
-						    		}
-					    		}
-				    		}
-					    }
-			    	}
-		    	}
-	    	}
+							if (intCoordinateX === intCoordinate[0]) {
+								if (intCoordinateY === intCoordinate[1]) {
+									if (intCoordinateZ === intCoordinate[2]) {
+										return true;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
 
-	    	for (var intFor1 = -1; intFor1 < 2; intFor1 += 1) {
-		    	for (var intFor2 = 0; intFor2 < 2; intFor2 += 1) {
-			    	for (var intFor3 = -1; intFor3 < 2; intFor3 += 1) {
-					    for (var intFor4 = 0; intFor4 < World.intFlagRed.length; intFor4 += 1) {
-				    		var intCoordinateX = World.intFlagRed[intFor4][0] + intFor1;
-				    		var intCoordinateY = World.intFlagRed[intFor4][1] + intFor2;
-				    		var intCoordinateZ = World.intFlagRed[intFor4][2] + intFor3;
+			for (var intFor1 = -1; intFor1 < 2; intFor1 += 1) {
+				for (var intFor2 = 0; intFor2 < 2; intFor2 += 1) {
+					for (var intFor3 = -1; intFor3 < 2; intFor3 += 1) {
+						for (var intFor4 = 0; intFor4 < World.intFlagRed.length; intFor4 += 1) {
+							var intCoordinateX = World.intFlagRed[intFor4][0] + intFor1;
+							var intCoordinateY = World.intFlagRed[intFor4][1] + intFor2;
+							var intCoordinateZ = World.intFlagRed[intFor4][2] + intFor3;
 		
-				    		if (intCoordinateX === intCoordinate[0]) {
-				    			if (intCoordinateY === intCoordinate[1]) {
-					    			if (intCoordinateZ === intCoordinate[2]) {
-					    				return true;
-						    		}
-					    		}
-				    		}
-					    }
-					    
-					    for (var intFor4 = 0; intFor4 < World.intFlagBlue.length; intFor4 += 1) {
-				    		var intCoordinateX = World.intFlagBlue[intFor4][0] + intFor1;
-				    		var intCoordinateY = World.intFlagBlue[intFor4][1] + intFor2;
-				    		var intCoordinateZ = World.intFlagBlue[intFor4][2] + intFor3;
+							if (intCoordinateX === intCoordinate[0]) {
+								if (intCoordinateY === intCoordinate[1]) {
+									if (intCoordinateZ === intCoordinate[2]) {
+										return true;
+									}
+								}
+							}
+						}
+						
+						for (var intFor4 = 0; intFor4 < World.intFlagBlue.length; intFor4 += 1) {
+							var intCoordinateX = World.intFlagBlue[intFor4][0] + intFor1;
+							var intCoordinateY = World.intFlagBlue[intFor4][1] + intFor2;
+							var intCoordinateZ = World.intFlagBlue[intFor4][2] + intFor3;
 		
-				    		if (intCoordinateX === intCoordinate[0]) {
-				    			if (intCoordinateY === intCoordinate[1]) {
-					    			if (intCoordinateZ === intCoordinate[2]) {
-					    				return true;
-						    		}
-					    		}
-				    		}
-					    }
-			    	}
-		    	}
-	    	}
+							if (intCoordinateX === intCoordinate[0]) {
+								if (intCoordinateY === intCoordinate[1]) {
+									if (intCoordinateZ === intCoordinate[2]) {
+										return true;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
 		}
 		
 		return false;

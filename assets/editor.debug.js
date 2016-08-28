@@ -18,15 +18,35 @@ var Voxel = require('./libVoxel.js');
 var Physics = require('./libPhysics.js');
 var Input = require('./libInput.js');
 
-Voxel.browserify(Constants);
-Physics.browserify(Constants);
-Input.browserify(Constants);
+{
+	var objectBrowserify = {
+		'Constants': Constants,
+		'Voxel': Voxel,
+		'Physics': Physics,
+		'Input': Input
+	};
+
+	Voxel.browserify(objectBrowserify);
+	Physics.browserify(objectBrowserify);
+	Input.browserify(objectBrowserify);
+}
 
 var World = require('./libWorld.js');
 var Player = require('./libPlayer.js');
 
-World.browserify(Constants, Voxel);
-Player.browserify(Constants, Voxel, Physics);
+{
+	var objectBrowserify = {
+		'Constants': Constants,
+		'Voxel': Voxel,
+		'Physics': Physics,
+		'Input': Input,
+		'World': World,
+		'Player': Player
+	};
+
+	World.browserify(objectBrowserify);
+	Player.browserify(objectBrowserify);
+}
 
 var Gui = {
 	strMode: '',
@@ -57,7 +77,7 @@ var Gui = {
 				.on('click', function() {
 					{
 						jQuery('#idWorld_Json')
-							.val(World.saveBuffer())
+							.val(World.saveBuffer(null))
 						;
 					}
 				})
@@ -69,7 +89,7 @@ var Gui = {
 				.off('click')
 				.on('click', function() {
 					{
-						World.loadBuffer(jQuery('#idWorld_Json').val());
+						World.loadBuffer(null, jQuery('#idWorld_Json').val());
 					}
 				})
 			;
@@ -171,9 +191,9 @@ var Gui = {
 					;
 					
 					jQuery('#idPhaseBuild').find('select').eq(0).find('option').eq(Gui.intChooserType + 0)
-					    .prop({
-					        'selected': true
-					    })
+						.prop({
+							'selected': true
+						})
 					;
 					
 				} else if (Gui.strChooserCategory === 'categorySpecial') {
@@ -182,9 +202,9 @@ var Gui = {
 					;
 					
 					jQuery('#idPhaseBuild').find('select').eq(1).find('option').eq(Gui.intChooserType + 0)
-					    .prop({
-					        'selected': true
-					    })
+						.prop({
+							'selected': true
+						})
 					;
 					
 				} else if (Gui.strChooserCategory === 'categoryDestroy') {
@@ -216,16 +236,16 @@ var Gui = {
 		
 		{
 			if (Gui.strChooserCategory === '') {
-				Player.playerHandle['1'].strItem = '';
+				Player.objectPlayer['1'].strEntity = '';
 				
 			} else if (Gui.strChooserCategory === 'categoryCreate') {
-				Player.playerHandle['1'].strItem = 'itemPickaxe';
+				Player.objectPlayer['1'].strEntity = 'entityPickaxe';
 				
 			} else if (Gui.strChooserCategory === 'categorySpecial') {
-				Player.playerHandle['1'].strItem = 'itemPickaxe';
+				Player.objectPlayer['1'].strEntity = 'entityPickaxe';
 				
 			} else if (Gui.strChooserCategory === 'categoryDestroy') {
-				Player.playerHandle['1'].strItem = 'itemPickaxe';
+				Player.objectPlayer['1'].strEntity = 'entityPickaxe';
 				
 			}
 		}
@@ -246,103 +266,103 @@ window.addEventListener('load', function () {
 			return 0;
 		});
 		
-		Voxel.voxelengineHandle.on('fire', function(targetHandle, stateHandle) {
+		Voxel.requireVoxelengine.on('fire', function(objectTarget, objectState) {
 			if (Gui.strChooserCategory === 'categoryCreate') {
-				if (Voxel.voxelhighlightHandle.positionCreate === null) {
+				if (Voxel.requireVoxelhighlight.intCreate === null) {
 					return;
 				}
 				
 				if (Gui.intChooserType === 0) {
-					World.updateCreate(Voxel.voxelhighlightHandle.positionCreate, 'voxelBrick', true);
+					World.updateCreate(Voxel.requireVoxelhighlight.intCreate, 'voxelBrick', true);
 					
 				} else if (Gui.intChooserType === 1) {
-					World.updateCreate(Voxel.voxelhighlightHandle.positionCreate, 'voxelDirt', true);
+					World.updateCreate(Voxel.requireVoxelhighlight.intCreate, 'voxelDirt', true);
 					
 				} else if (Gui.intChooserType === 2) {
-					World.updateCreate(Voxel.voxelhighlightHandle.positionCreate, 'voxelGrass', true);
+					World.updateCreate(Voxel.requireVoxelhighlight.intCreate, 'voxelGrass', true);
 					
 				} else if (Gui.intChooserType === 3) {
-					World.updateCreate(Voxel.voxelhighlightHandle.positionCreate, 'voxelPlank', true);
+					World.updateCreate(Voxel.requireVoxelhighlight.intCreate, 'voxelPlank', true);
 					
 				} else if (Gui.intChooserType === 4) {
-					World.updateCreate(Voxel.voxelhighlightHandle.positionCreate, 'voxelStone', true);
+					World.updateCreate(Voxel.requireVoxelhighlight.intCreate, 'voxelStone', true);
 					
 				}
 				
 			} else if (Gui.strChooserCategory === 'categorySpecial') {
-				if (Voxel.voxelhighlightHandle.positionCreate === null) {
+				if (Voxel.requireVoxelhighlight.intCreate === null) {
 					return;
 				}
 				
 				if (Gui.intChooserType === 0) {
-					World.updateCreate(Voxel.voxelhighlightHandle.positionCreate, 'voxelSpawnRed', true);
+					World.updateCreate(Voxel.requireVoxelhighlight.intCreate, 'voxelSpawnRed', true);
 					
 				} else if (Gui.intChooserType === 1) {
-					World.updateCreate(Voxel.voxelhighlightHandle.positionCreate, 'voxelSpawnBlue', true);
+					World.updateCreate(Voxel.requireVoxelhighlight.intCreate, 'voxelSpawnBlue', true);
 
 				} else if (Gui.intChooserType === 2) {
-					World.updateCreate(Voxel.voxelhighlightHandle.positionCreate, 'voxelFlagRed', true);
+					World.updateCreate(Voxel.requireVoxelhighlight.intCreate, 'voxelFlagRed', true);
 					
 				} else if (Gui.intChooserType === 3) {
-					World.updateCreate(Voxel.voxelhighlightHandle.positionCreate, 'voxelFlagBlue', true);
+					World.updateCreate(Voxel.requireVoxelhighlight.intCreate, 'voxelFlagBlue', true);
 					
 				} else if (Gui.intChooserType === 4) {
-					World.updateCreate(Voxel.voxelhighlightHandle.positionCreate, 'voxelSeparator', true);
+					World.updateCreate(Voxel.requireVoxelhighlight.intCreate, 'voxelSeparator', true);
 					
 				}
 				
 			} else if (Gui.strChooserCategory === 'categoryDestroy') {
-				if (Voxel.voxelhighlightHandle.positionDestroy === null) {
+				if (Voxel.requireVoxelhighlight.intDestroy === null) {
 					return;
 				}
 				
 				if (Gui.intChooserType === 0) {
-					World.updateDestroy(Voxel.voxelhighlightHandle.positionDestroy);
+					World.updateDestroy(Voxel.requireVoxelhighlight.intDestroy);
 				}
 				
 			}
 		});
 
-		Voxel.voxelengineHandle.on('tick', function(intDelta) {
+		Voxel.requireVoxelengine.on('tick', function(intDelta) {
 			{
 				Input.update();
 			}
 			
 			{
 				if (Input.boolUp === true) {
-					Player.playerHandle['1'].dblAcceleration[0] -= Constants.dblPlayerMovement[0] * Math.sin(Player.playerHandle['1'].dblRotation[1]);
-					Player.playerHandle['1'].dblAcceleration[1] -= 0.0;
-					Player.playerHandle['1'].dblAcceleration[2] -= Constants.dblPlayerMovement[0] * Math.cos(Player.playerHandle['1'].dblRotation[1]);
+					Player.objectPlayer['1'].dblAcceleration[0] -= Constants.dblPlayerMovement[0] * Math.sin(Player.objectPlayer['1'].dblRotation[1]);
+					Player.objectPlayer['1'].dblAcceleration[1] -= 0.0;
+					Player.objectPlayer['1'].dblAcceleration[2] -= Constants.dblPlayerMovement[0] * Math.cos(Player.objectPlayer['1'].dblRotation[1]);
 				}
 				
 				if (Input.boolDown === true) {
-					Player.playerHandle['1'].dblAcceleration[0] += Constants.dblPlayerMovement[0] * Math.sin(Player.playerHandle['1'].dblRotation[1]);
-					Player.playerHandle['1'].dblAcceleration[1] += 0.0;
-					Player.playerHandle['1'].dblAcceleration[2] += Constants.dblPlayerMovement[0] * Math.cos(Player.playerHandle['1'].dblRotation[1]);
+					Player.objectPlayer['1'].dblAcceleration[0] += Constants.dblPlayerMovement[0] * Math.sin(Player.objectPlayer['1'].dblRotation[1]);
+					Player.objectPlayer['1'].dblAcceleration[1] += 0.0;
+					Player.objectPlayer['1'].dblAcceleration[2] += Constants.dblPlayerMovement[0] * Math.cos(Player.objectPlayer['1'].dblRotation[1]);
 				}
 				
 				if (Input.boolLeft === true) {
-					Player.playerHandle['1'].dblAcceleration[0] -= Constants.dblPlayerMovement[2] * Math.sin(Player.playerHandle['1'].dblRotation[1] + (0.5 * Math.PI));
-					Player.playerHandle['1'].dblAcceleration[1] -= 0.0;
-					Player.playerHandle['1'].dblAcceleration[2] -= Constants.dblPlayerMovement[2] * Math.cos(Player.playerHandle['1'].dblRotation[1] + (0.5 * Math.PI));
+					Player.objectPlayer['1'].dblAcceleration[0] -= Constants.dblPlayerMovement[2] * Math.sin(Player.objectPlayer['1'].dblRotation[1] + (0.5 * Math.PI));
+					Player.objectPlayer['1'].dblAcceleration[1] -= 0.0;
+					Player.objectPlayer['1'].dblAcceleration[2] -= Constants.dblPlayerMovement[2] * Math.cos(Player.objectPlayer['1'].dblRotation[1] + (0.5 * Math.PI));
 				}
 				
 				if (Input.boolRight === true) {
-					Player.playerHandle['1'].dblAcceleration[0] += Constants.dblPlayerMovement[2] * Math.sin(Player.playerHandle['1'].dblRotation[1] + (0.5 * Math.PI));
-					Player.playerHandle['1'].dblAcceleration[1] += 0.0;
-					Player.playerHandle['1'].dblAcceleration[2] += Constants.dblPlayerMovement[2] * Math.cos(Player.playerHandle['1'].dblRotation[1] + (0.5 * Math.PI));
+					Player.objectPlayer['1'].dblAcceleration[0] += Constants.dblPlayerMovement[2] * Math.sin(Player.objectPlayer['1'].dblRotation[1] + (0.5 * Math.PI));
+					Player.objectPlayer['1'].dblAcceleration[1] += 0.0;
+					Player.objectPlayer['1'].dblAcceleration[2] += Constants.dblPlayerMovement[2] * Math.cos(Player.objectPlayer['1'].dblRotation[1] + (0.5 * Math.PI));
 				}
 				
 				if (Input.boolSpace === true) {
-					Player.playerHandle['1'].dblAcceleration[0] += 0.0;
-					Player.playerHandle['1'].dblAcceleration[1] += Constants.dblPlayerMovement[1];
-					Player.playerHandle['1'].dblAcceleration[2] += 0.0;
+					Player.objectPlayer['1'].dblAcceleration[0] += 0.0;
+					Player.objectPlayer['1'].dblAcceleration[1] += Constants.dblPlayerMovement[1];
+					Player.objectPlayer['1'].dblAcceleration[2] += 0.0;
 				}
 				
 				if (Input.boolShift === true) {
-					Player.playerHandle['1'].dblAcceleration[0] -= 0.0;
-					Player.playerHandle['1'].dblAcceleration[1] -= Constants.dblPlayerMovement[1];
-					Player.playerHandle['1'].dblAcceleration[2] += 0.0;
+					Player.objectPlayer['1'].dblAcceleration[0] -= 0.0;
+					Player.objectPlayer['1'].dblAcceleration[1] -= Constants.dblPlayerMovement[1];
+					Player.objectPlayer['1'].dblAcceleration[2] += 0.0;
 				}
 			}
 			
@@ -359,7 +379,7 @@ window.addEventListener('load', function () {
 			}
 		});
 		
-		Voxel.voxelhighlightHandle.enabled = function() {
+		Voxel.requireVoxelhighlight.enabled = function() {
 			if (Gui.strChooserCategory === 'categoryCreate') {
 				return true;
 				
@@ -374,7 +394,7 @@ window.addEventListener('load', function () {
 			return false;
 		};
 		
-		Voxel.voxelhighlightHandle.adjacentActive = function() {
+		Voxel.requireVoxelhighlight.adjacentActive = function() {
 			if (Gui.strChooserCategory === 'categoryCreate') {
 				return true;
 				
@@ -394,7 +414,7 @@ window.addEventListener('load', function () {
 			if (intCoordinateY === 0) {
 				return true;
 				
-			} else if (World.worldHandle[(intCoordinateX << 20) + (intCoordinateY << 10) + (intCoordinateZ << 0)] !== undefined) {
+			} else if (World.objectWorld[(intCoordinateX << 20) + (intCoordinateY << 10) + (intCoordinateZ << 0)] !== undefined) {
 				return true;
 				
 			}
@@ -414,19 +434,19 @@ window.addEventListener('load', function () {
 			return false;
 		};
 		
-		Input.functionKeydown = function(eventHandle) {
+		Input.functionKeydown = function(objectEvent) {
 			if (Gui.strMode === 'modeMenu') {
-				if (eventHandle.keyCode === 69) {
+				if (objectEvent.keyCode === 69) {
 					Gui.updateMode('modeGame');
 				}
 				
 			} else if (Gui.strMode === 'modeGame') {
-				if (eventHandle.keyCode === 69) {
+				if (objectEvent.keyCode === 69) {
 					Gui.updateMode('modeMenu');
 				}
 
 				if (jQuery('#idPhaseBuild').css('display') === 'block') {
-					if (eventHandle.keyCode === 49) {
+					if (objectEvent.keyCode === 49) {
 						if (Gui.strChooserCategory === 'categoryCreate') {
 							Gui.updateChooser('categoryCreate', (Gui.intChooserType + 1) % 5);
 							
@@ -435,7 +455,7 @@ window.addEventListener('load', function () {
 							
 						}
 						
-					} else if (eventHandle.keyCode === 50) {
+					} else if (objectEvent.keyCode === 50) {
 						if (Gui.strChooserCategory === 'categorySpecial') {
 							Gui.updateChooser('categorySpecial', (Gui.intChooserType + 1) % 5);
 							
@@ -444,7 +464,7 @@ window.addEventListener('load', function () {
 							
 						}
 						
-					} else if (eventHandle.keyCode === 51) {
+					} else if (objectEvent.keyCode === 51) {
 						Gui.updateChooser('categoryDestroy', 0);
 						
 					}
@@ -453,7 +473,7 @@ window.addEventListener('load', function () {
 			}
 		};
 		
-		Input.functionKeyup = function(eventHandle) {
+		Input.functionKeyup = function(objectEvent) {
 			
 		};
 	}
@@ -469,15 +489,15 @@ window.addEventListener('load', function () {
 	}
 	
 	{
-		Player.playerHandle['1'].strTeam = 'teamRed';
+		Player.objectPlayer['1'].strTeam = 'teamRed';
 		
-		Player.playerHandle['1'].dblPosition[0] = 0.0;
-		Player.playerHandle['1'].dblPosition[1] = 8.0;
-		Player.playerHandle['1'].dblPosition[2] = 0.0;
+		Player.objectPlayer['1'].dblPosition[0] = 0.0;
+		Player.objectPlayer['1'].dblPosition[1] = 8.0;
+		Player.objectPlayer['1'].dblPosition[2] = 0.0;
 		
-		Player.playerHandle['1'].dblVerlet[0] = Player.playerHandle['1'].dblPosition[0];
-		Player.playerHandle['1'].dblVerlet[1] = Player.playerHandle['1'].dblPosition[1];
-		Player.playerHandle['1'].dblVerlet[2] = Player.playerHandle['1'].dblPosition[2];
+		Player.objectPlayer['1'].dblVerlet[0] = Player.objectPlayer['1'].dblPosition[0];
+		Player.objectPlayer['1'].dblVerlet[1] = Player.objectPlayer['1'].dblPosition[1];
+		Player.objectPlayer['1'].dblVerlet[2] = Player.objectPlayer['1'].dblPosition[2];
 	}
 	
 	{

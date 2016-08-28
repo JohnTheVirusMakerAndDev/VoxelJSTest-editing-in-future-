@@ -40,17 +40,38 @@ var Voxel = require('./libVoxel.js');
 var Physics = require('./libPhysics.js');
 var Input = require('./libInput.js');
 
-Voxel.browserify(Constants);
-Physics.browserify(Constants);
-Input.browserify(Constants);
+{
+	var objectBrowserify = {
+		'Constants': Constants,
+		'Voxel': Voxel,
+		'Physics': Physics,
+		'Input': Input
+	};
+
+	Voxel.browserify(objectBrowserify);
+	Physics.browserify(objectBrowserify);
+	Input.browserify(objectBrowserify);
+}
 
 var World = require('./libWorld.js');
 var Player = require('./libPlayer.js');
 var Item = require('./libItem.js');
 
-World.browserify(Constants, Voxel);
-Player.browserify(Constants, Voxel, Physics);
-Item.browserify(Constants, Voxel, Physics);
+{
+	var objectBrowserify = {
+		'Constants': Constants,
+		'Voxel': Voxel,
+		'Physics': Physics,
+		'Input': Input,
+		'World': World,
+		'Player': Player,
+		'Item': Item
+	};
+
+	World.browserify(objectBrowserify);
+	Player.browserify(objectBrowserify);
+	Item.browserify(objectBrowserify);
+}
 
 var Gui = {
 	strMode: '',
@@ -78,13 +99,13 @@ var Gui = {
 		{
 			jQuery('#idMessagebox_Chat')
 				.off('keyup')
-				.on('keyup', function(eventHandle) {
-					if (eventHandle.keyCode !== 13) {
+				.on('keyup', function(objectEvent) {
+					if (objectEvent.keyCode !== 13) {
 						return;
 					}
 					
 					{
-						Socket.socketHandle.emit('chatHandle', {
+						Socket.objectSocket.emit('eventChat', {
 							'strMessage': jQuery('#idMessagebox_Chat').val()
 						});
 					}
@@ -115,7 +136,7 @@ var Gui = {
 					}
 					
 					{
-						Socket.socketHandle.emit('loginHandle', {
+						Socket.objectSocket.emit('eventLogin', {
 							'strName': jQuery('#idLogin_Name').val(),
 							'strTeam': jQuery('#idLogin_Team').val()
 						});
@@ -303,20 +324,20 @@ var Gui = {
 		
 		{
 			if (Gui.strChooserCategory === '') {
-				Player.playerHandle['1'].strItem = '';
+				Player.objectPlayer['1'].strEntity = '';
 				
 			} else if (Gui.strChooserCategory === 'categoryCreate') {
-				Player.playerHandle['1'].strItem = 'itemPickaxe';
+				Player.objectPlayer['1'].strEntity = 'entityPickaxe';
 				
 			} else if (Gui.strChooserCategory === 'categoryDestroy') {
-				Player.playerHandle['1'].strItem = 'itemPickaxe';
+				Player.objectPlayer['1'].strEntity = 'entityPickaxe';
 				
 			} else if (Gui.strChooserCategory === 'categoryWeapon') {
 				if (Gui.intChooserType === 0) {
-					Player.playerHandle['1'].strItem = 'itemSword';
+					Player.objectPlayer['1'].strEntity = 'entitySword';
 					
 				} else if (Gui.intChooserType === 1) {
-					Player.playerHandle['1'].strItem = 'itemBow';
+					Player.objectPlayer['1'].strEntity = 'entityBow';
 					
 				}
 				
@@ -324,8 +345,8 @@ var Gui = {
 		}
 		
 		{
-			Socket.socketHandle.emit('itemHandle', {
-				'strItem': Player.playerHandle['1'].strItem
+			Socket.objectSocket.emit('eventPlayerEntity', {
+				'strEntity': Player.objectPlayer['1'].strEntity
 			});
 		}
 		
@@ -336,13 +357,13 @@ var Gui = {
 };
 
 var Socket = {
-	socketHandle: null,
+	objectSocket: null,
 	
 	intPing: 0,
 	
 	init: function() {
 		{
-			Socket.socketHandle = null;
+			Socket.objectSocket = null;
 		}
 		
 		{
@@ -351,7 +372,7 @@ var Socket = {
 		
 		{
 			jQuery.getScript('/socket.io/socket.io.js', function() {
-				Socket.socketHandle = io({
+				Socket.objectSocket = io({
 					'reconnection': true,
 					'reconnectionDelay': 1000,
 					'reconnectionDelayMax': 5000,
@@ -360,13 +381,13 @@ var Socket = {
 				});
 				
 				{
-					Socket.socketHandle.io.engine.on('open', function() {
+					Socket.objectSocket.io.engine.on('open', function() {
 						{
-							Socket.socketHandle.strIdent = Socket.socketHandle.io.engine.id.substr(0, 8);
+							Socket.objectSocket.strIdent = Socket.objectSocket.io.engine.id.substr(0, 8);
 						}
 					});
 					
-					Socket.socketHandle.on('loginHandle', function(objectData) {
+					Socket.objectSocket.on('eventLogin', function(objectData) {
 						{
 							if (objectData.strType === 'typeReject') {
 								{
@@ -402,12 +423,12 @@ var Socket = {
 						}
 					});
 					
-					Socket.socketHandle.on('pingHandle', function(objectData) {
+					Socket.objectSocket.on('eventPing', function(objectData) {
 						{
 							jQuery('#idHealth').children('div')
 								.css({
-									'left': (0.5 * (100 - Player.playerHandle['1'].intHealth)) + '%',
-									'right': (0.5 * (100 - Player.playerHandle['1'].intHealth)) + '%'
+									'left': (0.5 * (100 - Player.objectPlayer['1'].intHealth)) + '%',
+									'right': (0.5 * (100 - Player.objectPlayer['1'].intHealth)) + '%'
 								})
 							;
 						}
@@ -449,16 +470,16 @@ var Socket = {
 						}
 						
 						{
-							for (var strIdent in Player.playerHandle) {
-								var playerHandle = Player.playerHandle[strIdent];
+							for (var strIdent in Player.objectPlayer) {
+								var objectPlayer = Player.objectPlayer[strIdent];
 								
 								{
 									var strIdent = '';
 									
-									if (playerHandle.strTeam === 'teamRed') {
+									if (objectPlayer.strTeam === 'teamRed') {
 										strIdent = '#idTeamRed_Table';
 										
-									} else if (playerHandle.strTeam === 'teamBlue') {
+									} else if (objectPlayer.strTeam === 'teamBlue') {
 										strIdent = '#idTeamBlue_Table';
 										
 									}
@@ -466,16 +487,16 @@ var Socket = {
 									jQuery(strIdent).find('tbody')
 										.append(jQuery('<tr></tr>')
 											.append(jQuery('<td></td>')
-												.text(playerHandle.strName)
+												.text(objectPlayer.strName)
 											)
 											.append(jQuery('<td></td>')
-												.text(playerHandle.intScore)
+												.text(objectPlayer.intScore)
 											)
 											.append(jQuery('<td></td>')
-												.text(playerHandle.intKills)
+												.text(objectPlayer.intKills)
 											)
 											.append(jQuery('<td></td>')
-												.text(playerHandle.intDeaths)
+												.text(objectPlayer.intDeaths)
 											)
 										)
 									;
@@ -528,7 +549,7 @@ var Socket = {
 						}
 					});
 					
-					Socket.socketHandle.on('chatHandle', function(objectData) {
+					Socket.objectSocket.on('eventChat', function(objectData) {
 						{
 							jQuery('#idMessagebox_Log')
 								.append(jQuery('<div></div>')
@@ -550,87 +571,100 @@ var Socket = {
 						}
 					});
 					
-					Socket.socketHandle.on('worldHandle', function(objectData) {
+					Socket.objectSocket.on('eventWorld', function(objectData) {
 						{
-						    World.loadBuffer(objectData.strBuffer);
+							World.loadBuffer(null, objectData.strBuffer);
 						}
 					});
 					
-					Socket.socketHandle.on('worldCreate', function(objectData) {
+					Socket.objectSocket.on('eventWorldCreate', function(objectData) {
 						{
 							World.updateCreate(objectData.intCoordinate, objectData.strType, objectData.boolBlocked);
 						}
 					});
 					
-					Socket.socketHandle.on('worldDestroy', function(objectData) {
+					Socket.objectSocket.on('eventWorldDestroy', function(objectData) {
 						{
 							World.updateDestroy(objectData.intCoordinate);
 						}
 					});
 					
-					Socket.socketHandle.on('playerHandle', function(objectData) {
+					Socket.objectSocket.on('eventPlayer', function(objectData) {
 						{
-							var playerOverwrite = JSON.parse(JSON.stringify(Player.playerHandle));
+							var objectOverwrite = {};
 							
+							try {
+								Player.loadBuffer(objectOverwrite, objectData.strBuffer);
+							} catch (objectError) {
+								objectOverwrite = {};
+							}
+								
 							{
-								Player.loadBuffer(objectData.strBuffer);
+								if (objectOverwrite[Socket.objectSocket.strIdent] !== undefined) {
+									Player.objectPlayer['1'].strTeam = objectOverwrite[Socket.objectSocket.strIdent].strTeam;
+									Player.objectPlayer['1'].strEntity = objectOverwrite[Socket.objectSocket.strIdent].strEntity;
+									Player.objectPlayer['1'].strName = objectOverwrite[Socket.objectSocket.strIdent].strName;
+									Player.objectPlayer['1'].intScore = objectOverwrite[Socket.objectSocket.strIdent].intScore;
+									Player.objectPlayer['1'].intKills = objectOverwrite[Socket.objectSocket.strIdent].intKills;
+									Player.objectPlayer['1'].intDeaths = objectOverwrite[Socket.objectSocket.strIdent].intDeaths;
+									Player.objectPlayer['1'].intHealth = objectOverwrite[Socket.objectSocket.strIdent].intHealth;
+								}
+							}
+
+							{
+								delete objectOverwrite[Socket.objectSocket.strIdent];
+							}
+
+							{
+								for (var strIdent in Player.objectPlayer) {
+									if (strIdent !== '1') {
+										if (objectOverwrite[strIdent] === undefined) {
+											delete Player.objectPlayer[strIdent];
+										}
+									}
+								}
 							}
 							
 							{
-								{
-									Player.playerHandle['1'] = playerOverwrite['1'];
+								for (var strIdent in objectOverwrite) {
+									if (Player.objectPlayer[strIdent] === undefined) {
+										Player.objectPlayer[strIdent] = {};
+									}
+
+									var objectTo = Player.objectPlayer[strIdent]
+									var objectFrom = objectOverwrite[strIdent];
+
+									objectTo.strIdent = objectFrom.strIdent;
+									objectTo.strTeam = objectFrom.strTeam;
+									objectTo.strEntity = objectFrom.strEntity;
+									objectTo.strName = objectFrom.strName;
+									objectTo.intScore = objectFrom.intScore;
+									objectTo.intKills = objectFrom.intKills;
+									objectTo.intDeaths = objectFrom.intDeaths;
+									objectTo.intHealth = objectFrom.intHealth;
+									objectTo.dblPosition = objectTo.dblPosition || objectFrom.dblPosition;
+									objectTo.dblVerlet = objectTo.dblVerlet || objectFrom.dblVerlet;
+									objectTo.dblAcceleration = objectTo.dblAcceleration || objectFrom.dblAcceleration;
+									objectTo.dblRotation = objectFrom.dblRotation;
+									objectTo.intJumpcount = objectFrom.intJumpcount;
+									objectTo.intWalk = objectTo.intWalk || objectFrom.intWalk;
+									objectTo.intWeapon = objectFrom.intWeapon;
+
+									Physics.updateOverwrite(objectTo, objectFrom);
 								}
-								
-								{
-									if (Player.playerHandle[Socket.socketHandle.strIdent] !== undefined) {
-										Player.playerHandle['1'].strTeam = Player.playerHandle[Socket.socketHandle.strIdent].strTeam;
-										Player.playerHandle['1'].strItem = Player.playerHandle[Socket.socketHandle.strIdent].strItem;
-										Player.playerHandle['1'].strName = Player.playerHandle[Socket.socketHandle.strIdent].strName;
-										Player.playerHandle['1'].intScore = Player.playerHandle[Socket.socketHandle.strIdent].intScore;
-										Player.playerHandle['1'].intKills = Player.playerHandle[Socket.socketHandle.strIdent].intKills;
-										Player.playerHandle['1'].intDeaths = Player.playerHandle[Socket.socketHandle.strIdent].intDeaths;
-										Player.playerHandle['1'].intHealth = Player.playerHandle[Socket.socketHandle.strIdent].intHealth;
-									}
-								}
-								
-								{
-									delete Player.playerHandle[Socket.socketHandle.strIdent];
-								}
-							}
-							
-							{
-								for (var strIdent in Player.playerHandle) {
-									var playerHandle = Player.playerHandle[strIdent];
-									
-									if (playerHandle.strIdent === '1') {
-										continue;
-										
-									} else if (playerOverwrite[playerHandle.strIdent] === undefined) {
-										continue;
-										
-									}
-									
-									{
-										Physics.updateOverwrite(playerHandle, playerOverwrite[playerHandle.strIdent]);
-									}
-									
-									{
-										playerHandle.intWalk = playerOverwrite[playerHandle.strIdent].intWalk;
-									}
-							    }
 							}
 						}
 					});
 					
-					Socket.socketHandle.on('playerRespawn', function(objectData) {
+					Socket.objectSocket.on('eventPlayerRespawn', function(objectData) {
 						{
-							Player.playerHandle['1'].dblPosition[0] = objectData.dblPosition[0];
-							Player.playerHandle['1'].dblPosition[1] = objectData.dblPosition[1];
-							Player.playerHandle['1'].dblPosition[2] = objectData.dblPosition[2];
+							Player.objectPlayer['1'].dblPosition[0] = objectData.dblPosition[0];
+							Player.objectPlayer['1'].dblPosition[1] = objectData.dblPosition[1];
+							Player.objectPlayer['1'].dblPosition[2] = objectData.dblPosition[2];
 							
-							Player.playerHandle['1'].dblVerlet[0] = objectData.dblVerlet[0];
-							Player.playerHandle['1'].dblVerlet[1] = objectData.dblVerlet[1];
-							Player.playerHandle['1'].dblVerlet[2] = objectData.dblVerlet[2];
+							Player.objectPlayer['1'].dblVerlet[0] = objectData.dblVerlet[0];
+							Player.objectPlayer['1'].dblVerlet[1] = objectData.dblVerlet[1];
+							Player.objectPlayer['1'].dblVerlet[2] = objectData.dblVerlet[2];
 						}
 						
 						{
@@ -638,34 +672,50 @@ var Socket = {
 						}
 					});
 					
-					Socket.socketHandle.on('playerHit', function(objectData) {
+					Socket.objectSocket.on('eventPlayerHit', function(objectData) {
 						{
-							Player.playerHandle['1'].dblAcceleration[0] = objectData.dblAcceleration[0];
-							Player.playerHandle['1'].dblAcceleration[1] = objectData.dblAcceleration[1];
-							Player.playerHandle['1'].dblAcceleration[2] = objectData.dblAcceleration[2];
+							Player.objectPlayer['1'].dblAcceleration[0] = objectData.dblAcceleration[0];
+							Player.objectPlayer['1'].dblAcceleration[1] = objectData.dblAcceleration[1];
+							Player.objectPlayer['1'].dblAcceleration[2] = objectData.dblAcceleration[2];
 						}
 					});
 					
-					Socket.socketHandle.on('itemHandle', function(objectData) {
+					Socket.objectSocket.on('eventItem', function(objectData) {
 						{
-							var itemOverwrite = JSON.parse(JSON.stringify(Item.itemHandle));
+							var objectOverwrite = {};
 							
+							try {
+								Item.loadBuffer(objectOverwrite, objectData.strBuffer);
+							} catch (objectError) {
+								objectOverwrite = {};
+							}
+
 							{
-								Item.loadBuffer(objectData.strBuffer);
+								for (var strIdent in Item.objectItem) {
+									if (objectOverwrite[strIdent] === undefined) {
+										delete Item.objectItem[strIdent];
+									}
+								}
 							}
 							
 							{
-								for (var strIdent in Item.itemHandle) {
-									var itemHandle = Item.itemHandle[strIdent];
-									
-									if (itemOverwrite[itemHandle.strIdent] === undefined) {
-										continue;
+								for (var strIdent in objectOverwrite) {
+									if (Item.objectItem[strIdent] === undefined) {
+										Item.objectItem[strIdent] = {};
 									}
-									
-									{
-										Physics.updateOverwrite(itemHandle, itemOverwrite[itemHandle.strIdent]);
-									}
-							    }
+
+									var objectTo = Item.objectItem[strIdent]
+									var objectFrom = objectOverwrite[strIdent];
+
+									objectTo.strIdent = objectFrom.strIdent;
+									objectTo.strPlayer = objectFrom.strPlayer;
+									objectTo.dblPosition = objectTo.dblPosition || objectFrom.dblPosition;
+									objectTo.dblVerlet = objectTo.dblVerlet || objectFrom.dblVerlet;
+									objectTo.dblAcceleration = objectTo.dblAcceleration || objectFrom.dblAcceleration;
+									objectTo.dblRotation = objectFrom.dblRotation;
+
+									Physics.updateOverwrite(objectTo, objectFrom);
+								}
 							}
 						}
 					});
@@ -678,7 +728,7 @@ var Socket = {
 						}
 						
 						{
-							Socket.socketHandle.emit('pingHandle', {
+							Socket.objectSocket.emit('eventPing', {
 								'intTimestamp': new Date().getTime()
 							});
 						}
@@ -692,7 +742,7 @@ var Socket = {
 	
 	dispel: function() {
 		{
-			Socket.socketHandle = null;
+			Socket.objectSocket = null;
 		}
 		
 		{
@@ -707,24 +757,24 @@ window.addEventListener('load', function () {
 			return 0;
 		});
 		
-		Voxel.voxelengineHandle.on('fire', function(targetHandle, stateHandle) {
+		Voxel.requireVoxelengine.on('fire', function(objectTarget, objectState) {
 			if (Gui.strChooserCategory === 'categoryCreate') {
-				if (Voxel.voxelhighlightHandle.positionCreate === null) {
+				if (Voxel.requireVoxelhighlight.intCreate === null) {
 					return;
 				}
 				
 				if (Gui.intChooserType === 0) {
-					if (Player.playerHandle['1'].intWeapon > 0) {
+					if (Player.objectPlayer['1'].intWeapon > 0) {
 						return;
 					}
 					
 					{
-						Player.playerHandle['1'].intWeapon = Constants.intInteractionPickaxeDuration;
+						Player.objectPlayer['1'].intWeapon = Constants.intInteractionPickaxeDuration;
 					}
 					
 					{
-						Socket.socketHandle.emit('worldCreate', {
-							'intCoordinate': Voxel.voxelhighlightHandle.positionCreate,
+						Socket.objectSocket.emit('eventWorldCreate', {
+							'intCoordinate': Voxel.requireVoxelhighlight.intCreate,
 							'strType': 'voxelDirt',
 							'boolBlocked': false
 						});
@@ -732,53 +782,53 @@ window.addEventListener('load', function () {
 				}
 				
 			} else if (Gui.strChooserCategory === 'categoryDestroy') {
-				if (Voxel.voxelhighlightHandle.positionDestroy === null) {
+				if (Voxel.requireVoxelhighlight.intDestroy === null) {
 					return;
 				}
 				
 				if (Gui.intChooserType === 0) {
-					if (Player.playerHandle['1'].intWeapon > 0) {
+					if (Player.objectPlayer['1'].intWeapon > 0) {
 						return;
 					}
 					
 					{
-						Player.playerHandle['1'].intWeapon = Constants.intInteractionPickaxeDuration;
+						Player.objectPlayer['1'].intWeapon = Constants.intInteractionPickaxeDuration;
 					}
 					
 					{
-						Socket.socketHandle.emit('worldDestroy', {
-							'intCoordinate': Voxel.voxelhighlightHandle.positionDestroy
+						Socket.objectSocket.emit('eventWorldDestroy', {
+							'intCoordinate': Voxel.requireVoxelhighlight.intDestroy
 						});
 					}
 				}
 				
 			} else if (Gui.strChooserCategory === 'categoryWeapon') {
 				if (Gui.intChooserType === 0) {
-					if (Player.playerHandle['1'].intWeapon > 0) {
+					if (Player.objectPlayer['1'].intWeapon > 0) {
 						return;
 					}
 					
 					{
-						Player.playerHandle['1'].intWeapon = Constants.intInteractionSwordDuration;
+						Player.objectPlayer['1'].intWeapon = Constants.intInteractionSwordDuration;
 					}
 					
 					{
-						Socket.socketHandle.emit('weaponHandle', {
+						Socket.objectSocket.emit('eventPlayerWeapon', {
 							'strWeapon': 'weaponSword'
 						});
 					}
 					
 				} else if (Gui.intChooserType === 1) {
-					if (Player.playerHandle['1'].intWeapon > 0) {
+					if (Player.objectPlayer['1'].intWeapon > 0) {
 						return;
 					}
 					
 					{
-						Player.playerHandle['1'].intWeapon = Constants.intInteractionBowDuration;
+						Player.objectPlayer['1'].intWeapon = Constants.intInteractionBowDuration;
 					}
 					
 					{
-						Socket.socketHandle.emit('weaponHandle', {
+						Socket.objectSocket.emit('eventPlayerWeapon', {
 							'strWeapon': 'weaponBow'
 						});
 					}
@@ -788,11 +838,11 @@ window.addEventListener('load', function () {
 			}
 		});
 		
-		Voxel.voxelengineHandle.on('tick', function(intDelta) {
+		Voxel.requireVoxelengine.on('tick', function(intDelta) {
 			if (Gui.strMode === 'modeLogin') {
 				return;
 				
-			} else if (Socket.socketHandle === null) {
+			} else if (Socket.objectSocket === null) {
 				return
 				
 			}
@@ -803,39 +853,39 @@ window.addEventListener('load', function () {
 			
 			{
 				if (Input.boolUp === true) {
-					Player.playerHandle['1'].dblAcceleration[0] -= Constants.dblPlayerMovement[0] * Math.sin(Player.playerHandle['1'].dblRotation[1]);
-					Player.playerHandle['1'].dblAcceleration[1] -= 0.0;
-					Player.playerHandle['1'].dblAcceleration[2] -= Constants.dblPlayerMovement[0] * Math.cos(Player.playerHandle['1'].dblRotation[1]);
+					Player.objectPlayer['1'].dblAcceleration[0] -= Constants.dblPlayerMovement[0] * Math.sin(Player.objectPlayer['1'].dblRotation[1]);
+					Player.objectPlayer['1'].dblAcceleration[1] -= 0.0;
+					Player.objectPlayer['1'].dblAcceleration[2] -= Constants.dblPlayerMovement[0] * Math.cos(Player.objectPlayer['1'].dblRotation[1]);
 				}
 				
 				if (Input.boolDown === true) {
-					Player.playerHandle['1'].dblAcceleration[0] += Constants.dblPlayerMovement[0] * Math.sin(Player.playerHandle['1'].dblRotation[1]);
-					Player.playerHandle['1'].dblAcceleration[1] += 0.0;
-					Player.playerHandle['1'].dblAcceleration[2] += Constants.dblPlayerMovement[0] * Math.cos(Player.playerHandle['1'].dblRotation[1]);
+					Player.objectPlayer['1'].dblAcceleration[0] += Constants.dblPlayerMovement[0] * Math.sin(Player.objectPlayer['1'].dblRotation[1]);
+					Player.objectPlayer['1'].dblAcceleration[1] += 0.0;
+					Player.objectPlayer['1'].dblAcceleration[2] += Constants.dblPlayerMovement[0] * Math.cos(Player.objectPlayer['1'].dblRotation[1]);
 				}
 				
 				if (Input.boolLeft === true) {
-					Player.playerHandle['1'].dblAcceleration[0] -= Constants.dblPlayerMovement[2] * Math.sin(Player.playerHandle['1'].dblRotation[1] + (0.5 * Math.PI));
-					Player.playerHandle['1'].dblAcceleration[1] -= 0.0;
-					Player.playerHandle['1'].dblAcceleration[2] -= Constants.dblPlayerMovement[2] * Math.cos(Player.playerHandle['1'].dblRotation[1] + (0.5 * Math.PI));
+					Player.objectPlayer['1'].dblAcceleration[0] -= Constants.dblPlayerMovement[2] * Math.sin(Player.objectPlayer['1'].dblRotation[1] + (0.5 * Math.PI));
+					Player.objectPlayer['1'].dblAcceleration[1] -= 0.0;
+					Player.objectPlayer['1'].dblAcceleration[2] -= Constants.dblPlayerMovement[2] * Math.cos(Player.objectPlayer['1'].dblRotation[1] + (0.5 * Math.PI));
 				}
 				
 				if (Input.boolRight === true) {
-					Player.playerHandle['1'].dblAcceleration[0] += Constants.dblPlayerMovement[2] * Math.sin(Player.playerHandle['1'].dblRotation[1] + (0.5 * Math.PI));
-					Player.playerHandle['1'].dblAcceleration[1] += 0.0;
-					Player.playerHandle['1'].dblAcceleration[2] += Constants.dblPlayerMovement[2] * Math.cos(Player.playerHandle['1'].dblRotation[1] + (0.5 * Math.PI));
+					Player.objectPlayer['1'].dblAcceleration[0] += Constants.dblPlayerMovement[2] * Math.sin(Player.objectPlayer['1'].dblRotation[1] + (0.5 * Math.PI));
+					Player.objectPlayer['1'].dblAcceleration[1] += 0.0;
+					Player.objectPlayer['1'].dblAcceleration[2] += Constants.dblPlayerMovement[2] * Math.cos(Player.objectPlayer['1'].dblRotation[1] + (0.5 * Math.PI));
 				}
 				
 				if (Input.boolSpace === true) {
-					if (Player.playerHandle['1'].intJumpcount > 0) {
+					if (Player.objectPlayer['1'].intJumpcount > 0) {
 						{
-							Player.playerHandle['1'].dblAcceleration[0] += 0.0;
-							Player.playerHandle['1'].dblAcceleration[1] += Constants.dblPlayerMovement[1];
-							Player.playerHandle['1'].dblAcceleration[2] += 0.0;
+							Player.objectPlayer['1'].dblAcceleration[0] += 0.0;
+							Player.objectPlayer['1'].dblAcceleration[1] += Constants.dblPlayerMovement[1];
+							Player.objectPlayer['1'].dblAcceleration[2] += 0.0;
 						}
 						
 						{
-							Player.playerHandle['1'].intJumpcount -= 1;
+							Player.objectPlayer['1'].intJumpcount -= 1;
 						}
 					}
 				}
@@ -858,24 +908,15 @@ window.addEventListener('load', function () {
 			}
 			
 			{
-				var bufferHandle = new Buffer(256);
-				var intBuffer = 0;
-				
-				{
-					intBuffer = Player.saveBufferpart(Player.playerHandle['1'], bufferHandle, intBuffer);
-				}
-				
-				var strBuffer = bufferHandle.slice(0, intBuffer).toString('base64');
-			    
-				{
-					Socket.socketHandle.emit('playerHandle', {
-						'strBuffer': strBuffer
-					});
-				}
+				Socket.objectSocket.emit('eventPlayer', {
+					'strBuffer': Player.saveBuffer({
+						'1': Player.objectPlayer['1']
+					})
+				});
 			}
 		});
 		
-		Voxel.voxelhighlightHandle.enabled = function() {
+		Voxel.requireVoxelhighlight.enabled = function() {
 			if (Gui.strChooserCategory === 'categoryCreate') {
 				return true;
 				
@@ -887,7 +928,7 @@ window.addEventListener('load', function () {
 			return false;
 		};
 		
-		Voxel.voxelhighlightHandle.adjacentActive = function() {
+		Voxel.requireVoxelhighlight.adjacentActive = function() {
 			if (Gui.strChooserCategory === 'categoryCreate') {
 				return true;
 			}
@@ -903,7 +944,7 @@ window.addEventListener('load', function () {
 			if (intCoordinateY === 0) {
 				return true;
 
-			} else if (World.worldHandle[(intCoordinateX << 20) + (intCoordinateY << 10) + (intCoordinateZ << 0)] !== undefined) {
+			} else if (World.objectWorld[(intCoordinateX << 20) + (intCoordinateY << 10) + (intCoordinateZ << 0)] !== undefined) {
 				return true;
 				
 			}
@@ -927,31 +968,31 @@ window.addEventListener('load', function () {
 			return false;
 		};
 		
-		Input.functionKeydown = function(eventHandle) {
+		Input.functionKeydown = function(objectEvent) {
 			if (Gui.strMode === 'modeMenu') {
-				if (eventHandle.keyCode === 69) {
+				if (objectEvent.keyCode === 69) {
 					Gui.updateMode('modeGame');
 				}
 				
 			} else if (Gui.strMode === 'modeGame') {
-				if (eventHandle.keyCode === 69) {
+				if (objectEvent.keyCode === 69) {
 					Gui.updateMode('modeMenu');
 				}
 				
 				if (jQuery('#idPhaseBuild').css('display') === 'block') {
-					if (eventHandle.keyCode === 49) {
+					if (objectEvent.keyCode === 49) {
 						Gui.updateChooser('categoryCreate', 0);
 						
-					} else if (eventHandle.keyCode === 50) {
+					} else if (objectEvent.keyCode === 50) {
 						Gui.updateChooser('categoryDestroy', 0);
 						
 					}
 					
 				} else if (jQuery('#idPhaseCombat').css('display') === 'block') {
-					if (eventHandle.keyCode === 49) {
+					if (objectEvent.keyCode === 49) {
 						Gui.updateChooser('categoryWeapon', 0);
 						
-					} else if (eventHandle.keyCode === 50) {
+					} else if (objectEvent.keyCode === 50) {
 						Gui.updateChooser('categoryWeapon', 1);
 						
 					}
@@ -961,7 +1002,7 @@ window.addEventListener('load', function () {
 			}
 		};
 		
-		Input.functionKeyup = function(eventHandle) {
+		Input.functionKeyup = function(objectEvent) {
 			
 		};
 	}
@@ -979,32 +1020,32 @@ window.addEventListener('load', function () {
 	{
 		Item.init();
 		
-		Item.functionFlagInit = function(itemHandle) {
+		Item.functionFlagInit = function(objectItem) {
 			
 		};
 		
-		Item.functionFlagPlayer = function(itemHandle) {
+		Item.functionFlagPlayer = function(objectItem) {
 			{
-				if (Player.playerHandle[itemHandle.strPlayer] !== undefined) {
-					itemHandle.dblPosition[0] = Player.playerHandle[itemHandle.strPlayer].dblPosition[0];
-					itemHandle.dblPosition[1] = Player.playerHandle[itemHandle.strPlayer].dblPosition[1] + 1.0;
-					itemHandle.dblPosition[2] = Player.playerHandle[itemHandle.strPlayer].dblPosition[2];
+				if (Player.objectPlayer[objectItem.strPlayer] !== undefined) {
+					objectItem.dblPosition[0] = Player.objectPlayer[objectItem.strPlayer].dblPosition[0];
+					objectItem.dblPosition[1] = Player.objectPlayer[objectItem.strPlayer].dblPosition[1] + 1.0;
+					objectItem.dblPosition[2] = Player.objectPlayer[objectItem.strPlayer].dblPosition[2];
 					
-					itemHandle.dblVerlet[0] = itemHandle.dblPosition[0];
-					itemHandle.dblVerlet[1] = itemHandle.dblPosition[1];
-					itemHandle.dblVerlet[2] = itemHandle.dblPosition[2];
+					objectItem.dblVerlet[0] = objectItem.dblPosition[0];
+					objectItem.dblVerlet[1] = objectItem.dblPosition[1];
+					objectItem.dblVerlet[2] = objectItem.dblPosition[2];
 				}
 			}
 			
 			{
-				if (itemHandle.strPlayer === Socket.socketHandle.strIdent) {
-					itemHandle.dblPosition[0] = Player.playerHandle['1'].dblPosition[0];
-					itemHandle.dblPosition[1] = Player.playerHandle['1'].dblPosition[1] + 1.0;
-					itemHandle.dblPosition[2] = Player.playerHandle['1'].dblPosition[2];
+				if (objectItem.strPlayer === Socket.objectSocket.strIdent) {
+					objectItem.dblPosition[0] = Player.objectPlayer['1'].dblPosition[0];
+					objectItem.dblPosition[1] = Player.objectPlayer['1'].dblPosition[1] + 1.0;
+					objectItem.dblPosition[2] = Player.objectPlayer['1'].dblPosition[2];
 					
-					itemHandle.dblVerlet[0] = itemHandle.dblPosition[0];
-					itemHandle.dblVerlet[1] = itemHandle.dblPosition[1];
-					itemHandle.dblVerlet[2] = itemHandle.dblPosition[2];
+					objectItem.dblVerlet[0] = objectItem.dblPosition[0];
+					objectItem.dblVerlet[1] = objectItem.dblPosition[1];
+					objectItem.dblVerlet[2] = objectItem.dblPosition[2];
 				}
 			}
 		};

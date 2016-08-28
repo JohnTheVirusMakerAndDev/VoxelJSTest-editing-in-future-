@@ -1,24 +1,23 @@
 'use strict';
 
-var Constants = {};
-
 var Voxel = {
-	browserify: function(constantsHandle) {
-		Constants = constantsHandle;
+	browserify: function(objectBrowserify) {
+		for (var strKey in objectBrowserify) {
+			global[strKey] = objectBrowserify[strKey];
+		}
 	},
 	
-	voxelengineHandle: null,
+	requireVoxelengine: null,
 	
-	voxelhighlightHandle: null,
+	requireVoxelhighlight: null,
 	
-	minecraftskinHandle: null,
+	requireMinecraftskin: null,
 	
-	minecraftitemHandle: {},
-	minecraftitemMaterial: null,
+	objectEntity: {},
 	
 	init: function(functionGenerate) {
 		{
-			Voxel.voxelengineHandle = require('voxel-engine')({
+			Voxel.requireVoxelengine = require('voxel-engine')({
 				'texturePath': './images/',
 				'generate': functionGenerate,
 				'materials': [ 'voxelVoid', 'voxelBrick', 'voxelDirt', 'voxelGrass', 'voxelPlank', 'voxelStone', 'voxelSpawnRed', 'voxelSpawnBlue', 'voxelFlagRed', 'voxelFlagBlue', 'voxelSeparator' ],
@@ -29,11 +28,11 @@ var Voxel = {
 				'statsDisabled': true
 			});
 			
-			Voxel.voxelengineHandle.appendTo(window.document.body);
+			Voxel.requireVoxelengine.appendTo(window.document.body);
 		}
 		
 		{
-			Voxel.voxelhighlightHandle = require('voxel-highlight')(Voxel.voxelengineHandle, {
+			Voxel.requireVoxelhighlight = require('voxel-highlight')(Voxel.requireVoxelengine, {
 				'enabled': function() {
 					return false;
 				},
@@ -49,161 +48,152 @@ var Voxel = {
 				}
 			});
 			
-			Voxel.voxelhighlightHandle.positionCreate = null;
-			Voxel.voxelhighlightHandle.positionDestroy = null;
+			Voxel.requireVoxelhighlight.intCreate = null;
+			Voxel.requireVoxelhighlight.intDestroy = null;
 			
-			Voxel.voxelhighlightHandle.on('highlight-adjacent', function(positionHandle) {
-				Voxel.voxelhighlightHandle.positionCreate = positionHandle;
+			Voxel.requireVoxelhighlight.on('highlight-adjacent', function(objectPosition) {
+				Voxel.requireVoxelhighlight.intCreate = objectPosition;
 			});
 			
-			Voxel.voxelhighlightHandle.on('remove-adjacent', function(positionHandle) {
-				Voxel.voxelhighlightHandle.positionCreate = null;
+			Voxel.requireVoxelhighlight.on('remove-adjacent', function(objectPosition) {
+				Voxel.requireVoxelhighlight.intCreate = null;
 			});
 			
-			Voxel.voxelhighlightHandle.on('highlight', function(positionHandle) {
-				Voxel.voxelhighlightHandle.positionDestroy = positionHandle;
+			Voxel.requireVoxelhighlight.on('highlight', function(objectPosition) {
+				Voxel.requireVoxelhighlight.intDestroy = objectPosition;
 			});
 			
-			Voxel.voxelhighlightHandle.on('remove', function(positionHandle) {
-				Voxel.voxelhighlightHandle.positionDestroy = null;
+			Voxel.requireVoxelhighlight.on('remove', function(objectPosition) {
+				Voxel.requireVoxelhighlight.intDestroy = null;
 			});
 		}
 		
 		{
-			Voxel.minecraftskinHandle = require('minecraft-skin');
+			Voxel.requireMinecraftskin = require('minecraft-skin');
 		}
 		
 		{
-			Voxel.minecraftitemHandle = {};
-			
-			Voxel.minecraftitemMaterial = new Voxel.voxelengineHandle.THREE.MeshBasicMaterial({
-				'vertexColors': Voxel.voxelengineHandle.THREE.FaceColors
-			});
+			Voxel.objectEntity = {};
 		}
 	},
 	
 	dispel: function() {
 		{
-			Voxel.voxelengineHandle = null;
+			Voxel.requireVoxelengine = null;
 		}
 		
 		{
-			Voxel.voxelhighlightHandle = null;
+			Voxel.requireVoxelhighlight = null;
 		}
 		
 		{
-			Voxel.minecraftskinHandle = null;
+			Voxel.requireMinecraftskin = null;
 		}
 		
 		{
-			Voxel.minecraftitemHandle = {};
-			
-			Voxel.minecraftitemMaterial = null;
+			Voxel.objectEntity = {};
 		}
 	},
 	
-	minecraftskinCreate: function() {
-		var minecraftskinHandle = Voxel.minecraftskinHandle(Voxel.voxelengineHandle.THREE, '', {
-			'scale': new Voxel.voxelengineHandle.THREE.Vector3(Constants.dblGameScale, Constants.dblGameScale, Constants.dblGameScale)
+	characterCreate: function(strCharacter) {
+		var objectCharacter = Voxel.requireMinecraftskin(Voxel.requireVoxelengine.THREE, '', {
+			'scale': new Voxel.requireVoxelengine.THREE.Vector3(Constants.dblGameScale, Constants.dblGameScale, Constants.dblGameScale)
 		});
-		
+
 		{
-			minecraftskinHandle.strTeam = '';
-			
-			minecraftskinHandle.strItem = '';
+			if (strCharacter === 'characterGreen') {
+				objectCharacter.setImage(jQuery('#idCharacterGreen').get(0));
+				
+			} else if (strCharacter === 'characterRed') {
+				objectCharacter.setImage(jQuery('#idCharacterRed').get(0));
+				
+			} else if (strCharacter === 'characterBlue') {
+				objectCharacter.setImage(jQuery('#idCharacterBlue').get(0));
+				
+			}
 		}
 		
 		{
-			minecraftskinHandle.meshPickaxe = Voxel.minecraftitemCreate('itemPickaxe', 1.0);
-			
-			minecraftskinHandle.meshPickaxe.position.x = 0.0 + 6.0;
-			minecraftskinHandle.meshPickaxe.position.y = 0.0 - 9.5;
-			minecraftskinHandle.meshPickaxe.position.z = 0.0;
-			
-			minecraftskinHandle.meshPickaxe.rotation.x = 0.0;
-			minecraftskinHandle.meshPickaxe.rotation.y = 0.0;
-			minecraftskinHandle.meshPickaxe.rotation.z = 1.25 * Math.PI;
+			objectCharacter.strEntity = '';
 		}
 		
 		{
-			minecraftskinHandle.meshSword = Voxel.minecraftitemCreate('itemSword', 1.0);
+			objectCharacter.objectPickaxe = Voxel.entityCreate('entityPickaxe', 1.0);
 			
-			minecraftskinHandle.meshSword.position.x = 0.0 + 7.0;
-			minecraftskinHandle.meshSword.position.y = 0.0 - 9.5;
-			minecraftskinHandle.meshSword.position.z = 0.0;
+			objectCharacter.objectPickaxe.position.x = 0.0 + 6.0;
+			objectCharacter.objectPickaxe.position.y = 0.0 - 9.5;
+			objectCharacter.objectPickaxe.position.z = 0.0;
 			
-			minecraftskinHandle.meshSword.rotation.x = 0.0;
-			minecraftskinHandle.meshSword.rotation.y = 0.0;
-			minecraftskinHandle.meshSword.rotation.z = 1.25 * Math.PI;
+			objectCharacter.objectPickaxe.rotation.x = 0.0;
+			objectCharacter.objectPickaxe.rotation.y = 0.0;
+			objectCharacter.objectPickaxe.rotation.z = 1.25 * Math.PI;
 		}
 		
 		{
-			minecraftskinHandle.meshBow = Voxel.minecraftitemCreate('itemBow', 1.0);
+			objectCharacter.objectSword = Voxel.entityCreate('entitySword', 1.0);
 			
-			minecraftskinHandle.meshBow.position.x = 0.0;
-			minecraftskinHandle.meshBow.position.y = 0.0 - 7.5;
-			minecraftskinHandle.meshBow.position.z = 0.0;
+			objectCharacter.objectSword.position.x = 0.0 + 7.0;
+			objectCharacter.objectSword.position.y = 0.0 - 9.5;
+			objectCharacter.objectSword.position.z = 0.0;
 			
-			minecraftskinHandle.meshBow.rotation.x = 0.0;
-			minecraftskinHandle.meshBow.rotation.y = 0.0;
-			minecraftskinHandle.meshBow.rotation.z = 1.25 * Math.PI;
+			objectCharacter.objectSword.rotation.x = 0.0;
+			objectCharacter.objectSword.rotation.y = 0.0;
+			objectCharacter.objectSword.rotation.z = 1.25 * Math.PI;
 		}
 		
-		return minecraftskinHandle;
+		{
+			objectCharacter.objectBow = Voxel.entityCreate('entityBow', 1.0);
+			
+			objectCharacter.objectBow.position.x = 0.0;
+			objectCharacter.objectBow.position.y = 0.0 - 7.5;
+			objectCharacter.objectBow.position.z = 0.0;
+			
+			objectCharacter.objectBow.rotation.x = 0.0;
+			objectCharacter.objectBow.rotation.y = 0.0;
+			objectCharacter.objectBow.rotation.z = 1.25 * Math.PI;
+		}
+		
+		return objectCharacter;
 	},
 	
-	minecraftskinUpdate: function(minecraftskinHandle, playerHandle) {
+	characterUpdate: function(objectCharacter, objectPlayer) {
 		{
-			if (minecraftskinHandle.strTeam !== playerHandle.strTeam) {
-				if (playerHandle.strTeam === 'teamRed') {
-					minecraftskinHandle.setImage(jQuery('#idSkinRed').get(0));
+			if (objectCharacter.strEntity !== objectPlayer.strEntity) {
+				objectCharacter.rightArm.remove(objectCharacter.objectPickaxe);
+				objectCharacter.rightArm.remove(objectCharacter.objectSword);
+				objectCharacter.rightArm.remove(objectCharacter.objectBow);
+				
+				if (objectPlayer.strEntity === 'entityPickaxe') {
+					objectCharacter.rightArm.add(objectCharacter.objectPickaxe);
 					
-				} else if (playerHandle.strTeam === 'teamBlue') {
-					minecraftskinHandle.setImage(jQuery('#idSkinBlue').get(0));
+				} else if (objectPlayer.strEntity === 'entitySword') {
+					objectCharacter.rightArm.add(objectCharacter.objectSword);
+					
+				} else if (objectPlayer.strEntity === 'entityBow') {
+					objectCharacter.rightArm.add(objectCharacter.objectBow);
 					
 				}
 				
-				minecraftskinHandle.strTeam = playerHandle.strTeam;
+				objectCharacter.strEntity = objectPlayer.strEntity;
 			}
 		}
 		
 		{
-			if (minecraftskinHandle.strItem !== playerHandle.strItem) {
-				minecraftskinHandle.rightArm.remove(minecraftskinHandle.meshPickaxe);
-				minecraftskinHandle.rightArm.remove(minecraftskinHandle.meshSword);
-				minecraftskinHandle.rightArm.remove(minecraftskinHandle.meshBow);
+			if (objectPlayer.strEntity === '') {
+				objectCharacter.rightArm.rotation.z = 2.0 * Math.cos((0.08 * objectPlayer.intWalk) + (1.5 * Math.PI));
+				objectCharacter.leftArm.rotation.z = 2.0 * Math.cos((0.08 * objectPlayer.intWalk) + (0.5 * Math.PI));
 				
-				if (playerHandle.strItem === 'itemPickaxe') {
-					minecraftskinHandle.rightArm.add(minecraftskinHandle.meshPickaxe);
-					
-				} else if (playerHandle.strItem === 'itemSword') {
-					minecraftskinHandle.rightArm.add(minecraftskinHandle.meshSword);
-					
-				} else if (playerHandle.strItem === 'itemBow') {
-					minecraftskinHandle.rightArm.add(minecraftskinHandle.meshBow);
-					
-				}
+				objectCharacter.rightLeg.rotation.z = 1.4 * Math.cos((0.08 * objectPlayer.intWalk) + (0.5 * Math.PI));
+				objectCharacter.leftLeg.rotation.z = 1.4 * Math.cos((0.08 * objectPlayer.intWalk) + (1.5 * Math.PI));
 				
-				minecraftskinHandle.strItem = playerHandle.strItem;
-			}
-		}
-		
-		{
-			if (playerHandle.strItem === '') {
-				minecraftskinHandle.rightArm.rotation.z = 2.0 * Math.cos((0.08 * playerHandle.intWalk) + (1.5 * Math.PI));
-				minecraftskinHandle.leftArm.rotation.z = 2.0 * Math.cos((0.08 * playerHandle.intWalk) + (0.5 * Math.PI));
-				
-				minecraftskinHandle.rightLeg.rotation.z = 1.4 * Math.cos((0.08 * playerHandle.intWalk) + (0.5 * Math.PI));
-				minecraftskinHandle.leftLeg.rotation.z = 1.4 * Math.cos((0.08 * playerHandle.intWalk) + (1.5 * Math.PI));
-				
-			} else if (playerHandle.strItem === 'itemPickaxe') {
+			} else if (objectPlayer.strEntity === 'entityPickaxe') {
 				var dblWeapon = 0.0;
 				
-				if (playerHandle.intWeapon === 0) {
+				if (objectPlayer.intWeapon === 0) {
 					dblWeapon = 0.47 * Math.PI;
 					
-				} else if (playerHandle.intWeapon !== 0) {
-					var dblProgress = 1.0 - (parseFloat(playerHandle.intWeapon) / parseFloat(Constants.intInteractionPickaxeDuration));
+				} else if (objectPlayer.intWeapon !== 0) {
+					var dblProgress = 1.0 - (parseFloat(objectPlayer.intWeapon) / parseFloat(Constants.intInteractionPickaxeDuration));
 					
 					if (dblProgress < 0.3) {
 						dblProgress = (dblProgress - 0.0) / 0.3;
@@ -224,20 +214,20 @@ var Voxel = {
 					
 				}
 				
-				minecraftskinHandle.rightArm.rotation.z = minecraftskinHandle.mesh.head.rotation.x + dblWeapon;
-				minecraftskinHandle.leftArm.rotation.z = 2.0 * Math.cos((0.08 * playerHandle.intWalk) + (0.5 * Math.PI));
+				objectCharacter.rightArm.rotation.z = objectCharacter.mesh.head.rotation.x + dblWeapon;
+				objectCharacter.leftArm.rotation.z = 2.0 * Math.cos((0.08 * objectPlayer.intWalk) + (0.5 * Math.PI));
 				
-				minecraftskinHandle.rightLeg.rotation.z = 1.4 * Math.cos((0.08 * playerHandle.intWalk) + (0.5 * Math.PI));
-				minecraftskinHandle.leftLeg.rotation.z = 1.4 * Math.cos((0.08 * playerHandle.intWalk) + (1.5 * Math.PI));
+				objectCharacter.rightLeg.rotation.z = 1.4 * Math.cos((0.08 * objectPlayer.intWalk) + (0.5 * Math.PI));
+				objectCharacter.leftLeg.rotation.z = 1.4 * Math.cos((0.08 * objectPlayer.intWalk) + (1.5 * Math.PI));
 				
-			} else if (playerHandle.strItem === 'itemSword') {
+			} else if (objectPlayer.strEntity === 'entitySword') {
 				var dblWeapon = 0.0;
 				
-				if (playerHandle.intWeapon === 0) {
+				if (objectPlayer.intWeapon === 0) {
 					dblWeapon = 0.47 * Math.PI;
 					
-				} else if (playerHandle.intWeapon !== 0) {
-					var dblProgress = 1.0 - (parseFloat(playerHandle.intWeapon) / parseFloat(Constants.intInteractionSwordDuration));
+				} else if (objectPlayer.intWeapon !== 0) {
+					var dblProgress = 1.0 - (parseFloat(objectPlayer.intWeapon) / parseFloat(Constants.intInteractionSwordDuration));
 					
 					if (dblProgress < 0.3) {
 						dblProgress = (dblProgress - 0.0) / 0.3;
@@ -258,102 +248,104 @@ var Voxel = {
 					
 				}
 				
-				minecraftskinHandle.rightArm.rotation.z = minecraftskinHandle.mesh.head.rotation.x + dblWeapon;
-				minecraftskinHandle.leftArm.rotation.z = 2.0 * Math.cos((0.08 * playerHandle.intWalk) + (0.5 * Math.PI));
+				objectCharacter.rightArm.rotation.z = objectCharacter.mesh.head.rotation.x + dblWeapon;
+				objectCharacter.leftArm.rotation.z = 2.0 * Math.cos((0.08 * objectPlayer.intWalk) + (0.5 * Math.PI));
 				
-				minecraftskinHandle.rightLeg.rotation.z = 1.4 * Math.cos((0.08 * playerHandle.intWalk) + (0.5 * Math.PI));
-				minecraftskinHandle.leftLeg.rotation.z = 1.4 * Math.cos((0.08 * playerHandle.intWalk) + (1.5 * Math.PI));
+				objectCharacter.rightLeg.rotation.z = 1.4 * Math.cos((0.08 * objectPlayer.intWalk) + (0.5 * Math.PI));
+				objectCharacter.leftLeg.rotation.z = 1.4 * Math.cos((0.08 * objectPlayer.intWalk) + (1.5 * Math.PI));
 				
-			} else if (playerHandle.strItem === 'itemBow') {
-				minecraftskinHandle.rightArm.rotation.z = minecraftskinHandle.mesh.head.rotation.x + (0.47 * Math.PI);
-				minecraftskinHandle.leftArm.rotation.z = 2.0 * Math.cos((0.08 * playerHandle.intWalk) + (0.5 * Math.PI));
+			} else if (objectPlayer.strEntity === 'entityBow') {
+				objectCharacter.rightArm.rotation.z = objectCharacter.mesh.head.rotation.x + (0.47 * Math.PI);
+				objectCharacter.leftArm.rotation.z = 2.0 * Math.cos((0.08 * objectPlayer.intWalk) + (0.5 * Math.PI));
 				
-				minecraftskinHandle.rightLeg.rotation.z = 1.4 * Math.cos((0.08 * playerHandle.intWalk) + (0.5 * Math.PI));
-				minecraftskinHandle.leftLeg.rotation.z = 1.4 * Math.cos((0.08 * playerHandle.intWalk) + (1.5 * Math.PI));
+				objectCharacter.rightLeg.rotation.z = 1.4 * Math.cos((0.08 * objectPlayer.intWalk) + (0.5 * Math.PI));
+				objectCharacter.leftLeg.rotation.z = 1.4 * Math.cos((0.08 * objectPlayer.intWalk) + (1.5 * Math.PI));
 				
 			}
 		}
 	},
 	
-	minecraftitemCreate: function(strItem, dblScale) {
+	entityCreate: function(strEntity, dblScale) {
 		var strFingerprint = '';
 		
-		strFingerprint += strItem + ';';
+		strFingerprint += strEntity + ';';
 		strFingerprint += dblScale + ';';
 		
-		if (Voxel.minecraftitemHandle[strFingerprint] === undefined) {
-			var contextHandle = window.document.createElement('canvas').getContext('2d');
+		if (Voxel.objectEntity[strFingerprint] === undefined) {
+			var objectContext = window.document.createElement('canvas').getContext('2d');
 			
 			{
-				if (strItem === 'itemFlagRed') {
-					contextHandle.drawImage(jQuery('#idItemFlagRed').get(0), 0, 0);
+				if (strEntity === 'entityFlagRed') {
+					objectContext.drawImage(jQuery('#idEntityFlagRed').get(0), 0, 0);
 
-				} else if (strItem === 'itemFlagBlue') {
-					contextHandle.drawImage(jQuery('#idItemFlagBlue').get(0), 0, 0);
+				} else if (strEntity === 'entityFlagBlue') {
+					objectContext.drawImage(jQuery('#idEntityFlagBlue').get(0), 0, 0);
 					
-				} else if (strItem === 'itemPickaxe') {
-					contextHandle.drawImage(jQuery('#idItemPickaxe').get(0), 0, 0);
+				} else if (strEntity === 'entityPickaxe') {
+					objectContext.drawImage(jQuery('#idEntityPickaxe').get(0), 0, 0);
 					
-				} else if (strItem === 'itemSword') {
-					contextHandle.drawImage(jQuery('#idItemSword').get(0), 0, 0);
+				} else if (strEntity === 'entitySword') {
+					objectContext.drawImage(jQuery('#idEntitySword').get(0), 0, 0);
 
-				} else if (strItem === 'itemBow') {
-					contextHandle.drawImage(jQuery('#idItemBow').get(0), 0, 0);
+				} else if (strEntity === 'entityBow') {
+					objectContext.drawImage(jQuery('#idEntityBow').get(0), 0, 0);
 
-				} else if (strItem === 'itemArrow') {
-					contextHandle.drawImage(jQuery('#idItemArrow').get(0), 0, 0);
+				} else if (strEntity === 'entityArrow') {
+					objectContext.drawImage(jQuery('#idEntityArrow').get(0), 0, 0);
 					
 				}
 			}
 			
-			var geometryHandle = new Voxel.voxelengineHandle.THREE.Geometry();
+			var objectEntity = new Voxel.requireVoxelengine.THREE.Geometry();
 			
 			{
 				for (var intFor1 = 0; intFor1 < 16; intFor1 += 1) {
 					for (var intFor2 = 0; intFor2 < 16; intFor2 += 1) {
-						var intColor = contextHandle.getImageData(intFor1, intFor2, 1, 1).data
+						var intColor = objectContext.getImageData(intFor1, intFor2, 1, 1).data
 
 						if (intColor[3] === 0) {
 							continue;
 						}
 						
 						{
-							var cubegeometryHandle = new Voxel.voxelengineHandle.THREE.CubeGeometry(dblScale, dblScale, dblScale);
+							var objectCube = new Voxel.requireVoxelengine.THREE.CubeGeometry(dblScale, dblScale, dblScale);
 							
-							for (var intFor3 = 0; intFor3 < cubegeometryHandle.faces.length; intFor3 += 1) {
-								if (cubegeometryHandle.faces[intFor3] === undefined) {
+							for (var intFor3 = 0; intFor3 < objectCube.faces.length; intFor3 += 1) {
+								if (objectCube.faces[intFor3] === undefined) {
 									continue;
 								}
 								
 								{
-									cubegeometryHandle.faces[intFor3].color = new Voxel.voxelengineHandle.THREE.Color((intColor[0] << 16) + (intColor[1] << 8) + (intColor[2] << 0));
+									objectCube.faces[intFor3].color = new Voxel.requireVoxelengine.THREE.Color((intColor[0] << 16) + (intColor[1] << 8) + (intColor[2] << 0));
 								}
 							}
 							
-							for (var intFor3 = 0; intFor3 < cubegeometryHandle.vertices.length; intFor3 += 1) {
-								if (cubegeometryHandle.vertices[intFor3] === undefined) {
+							for (var intFor3 = 0; intFor3 < objectCube.vertices.length; intFor3 += 1) {
+								if (objectCube.vertices[intFor3] === undefined) {
 									continue;
 								}
 								
 								{
-									cubegeometryHandle.vertices[intFor3].x += dblScale * (8 - intFor1);
-									cubegeometryHandle.vertices[intFor3].y += dblScale * (8 - intFor2);
-									cubegeometryHandle.vertices[intFor3].z += 0.0;
+									objectCube.vertices[intFor3].x += dblScale * (8 - intFor1);
+									objectCube.vertices[intFor3].y += dblScale * (8 - intFor2);
+									objectCube.vertices[intFor3].z += 0.0;
 								}
 							}
 							
-							Voxel.voxelengineHandle.THREE.GeometryUtils.merge(geometryHandle, cubegeometryHandle);
+							Voxel.requireVoxelengine.THREE.GeometryUtils.merge(objectEntity, objectCube);
 						}
 					}
 				}
 			}
 			
 			{
-				Voxel.minecraftitemHandle[strFingerprint] = geometryHandle;
+				Voxel.objectEntity[strFingerprint] = objectEntity;
 			}
 		}
 		
-		return new Voxel.voxelengineHandle.THREE.Mesh(Voxel.minecraftitemHandle[strFingerprint], Voxel.minecraftitemMaterial);
+		return new Voxel.requireVoxelengine.THREE.Mesh(Voxel.objectEntity[strFingerprint], new Voxel.requireVoxelengine.THREE.MeshBasicMaterial({
+			'vertexColors': Voxel.requireVoxelengine.THREE.FaceColors
+		}));
 	}
 };
 

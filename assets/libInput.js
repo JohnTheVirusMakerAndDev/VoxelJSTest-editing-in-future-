@@ -1,10 +1,10 @@
 'use strict';
 
-var Constants = {};
-
 var Input = {
-	browserify: function(constantsHandle) {
-		Constants = constantsHandle;
+	browserify: function(objectBrowserify) {
+		for (var strKey in objectBrowserify) {
+			global[strKey] = objectBrowserify[strKey];
+		}
 	},
 	
 	functionException: null,
@@ -41,11 +41,11 @@ var Input = {
 				return false;
 			};
 			
-			Input.functionKeyup = function(eventHandle) {
+			Input.functionKeyup = function(objectEvent) {
 				
 			};
 			
-			Input.functionKeydown = function(eventHandle) {
+			Input.functionKeydown = function(objectEvent) {
 				
 			};
 		}
@@ -101,75 +101,75 @@ var Input = {
 		{
 			jQuery(window.document)
 				.off('keydown')
-				.on('keydown', function(eventHandle) {
+				.on('keydown', function(objectEvent) {
 					if (Input.functionException() === true) {
 						return;
 					}
 					
 					{
-						eventHandle.preventDefault();
+						objectEvent.preventDefault();
 					}
 					
 					{
-						if ((eventHandle.keyCode === 38) | (eventHandle.keyCode === 87)) {
+						if ((objectEvent.keyCode === 38) | (objectEvent.keyCode === 87)) {
 							Input.boolUp = true;
 							
-						} else if ((eventHandle.keyCode === 37) | (eventHandle.keyCode === 65)) {
+						} else if ((objectEvent.keyCode === 37) | (objectEvent.keyCode === 65)) {
 							Input.boolLeft = true;
 							
-						} else if ((eventHandle.keyCode === 40) | (eventHandle.keyCode === 83)) {
+						} else if ((objectEvent.keyCode === 40) | (objectEvent.keyCode === 83)) {
 							Input.boolDown = true;
 							
-						} else if ((eventHandle.keyCode === 39) | (eventHandle.keyCode === 68)) {
+						} else if ((objectEvent.keyCode === 39) | (objectEvent.keyCode === 68)) {
 							Input.boolRight = true;
 							
-						} else if (eventHandle.keyCode === 32) {
+						} else if (objectEvent.keyCode === 32) {
 							Input.boolSpace = true;
 							
-						} else if (eventHandle.keyCode === 16) {
+						} else if (objectEvent.keyCode === 16) {
 							Input.boolShift = true;
 							
 						}
 					}
 					
 					{
-						Input.functionKeydown(eventHandle);
+						Input.functionKeydown(objectEvent);
 					}
 				})
 				.off('keyup')
-				.on('keyup', function(eventHandle) {
+				.on('keyup', function(objectEvent) {
 					if (Input.functionException() === true) {
 						return;
 					}
 					
 					{
-						eventHandle.preventDefault();
+						objectEvent.preventDefault();
 					}
 	
 					{
-						if ((eventHandle.keyCode === 38) | (eventHandle.keyCode === 87)) {
+						if ((objectEvent.keyCode === 38) | (objectEvent.keyCode === 87)) {
 							Input.boolUp = false;
 	
-						} else if ((eventHandle.keyCode === 37) | (eventHandle.keyCode === 65)) {
+						} else if ((objectEvent.keyCode === 37) | (objectEvent.keyCode === 65)) {
 							Input.boolLeft = false;
 	
-						} else if ((eventHandle.keyCode === 40) | (eventHandle.keyCode === 83)) {
+						} else if ((objectEvent.keyCode === 40) | (objectEvent.keyCode === 83)) {
 							Input.boolDown = false;
 	
-						} else if ((eventHandle.keyCode === 39) | (eventHandle.keyCode === 68)) {
+						} else if ((objectEvent.keyCode === 39) | (objectEvent.keyCode === 68)) {
 							Input.boolRight = false;
 							
-						} else if (eventHandle.keyCode === 32) {
+						} else if (objectEvent.keyCode === 32) {
 							Input.boolSpace = false;
 							
-						} else if (eventHandle.keyCode === 16) {
+						} else if (objectEvent.keyCode === 16) {
 							Input.boolShift = false;
 							
 						}
 					}
 					
 					{
-						Input.functionKeyup(eventHandle);
+						Input.functionKeyup(objectEvent);
 					}
 				})
 			;

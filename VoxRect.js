@@ -20,12 +20,12 @@ var Xml = NodeRect.Xml;
 var VoxConf = require(__dirname + '/VoxConf.js')();
 
 {
-	Express.serverHandle.use(function(requestHandle, responseHandle, functionNext) {
+	Express.objectServer.use(function(objectRequest, objectResponse, functionNext) {
 		var strName = '';
 		var strPassword = '';
 		
 		{
-			var strAuthorization = requestHandle.get('Authorization');
+			var strAuthorization = objectRequest.get('Authorization');
 			
 			if (strAuthorization !== undefined) {
 				var strEncoded = strAuthorization.split(' ');
@@ -56,36 +56,36 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 		}
 		
 		{
-			responseHandle.status(401);
+			objectResponse.status(401);
 			
-			responseHandle.set({
+			objectResponse.set({
 				'WWW-Authenticate': 'Basic realm="' + VoxConf.strName + '"'
 			});
 			
-			responseHandle.end();
+			objectResponse.end();
 		}
 	});
 	
-	Express.serverHandle.use(function(requestHandle, responseHandle, functionNext) {
-		responseHandle.header('Access-Control-Allow-Origin', '*');
+	Express.objectServer.use(function(objectRequest, objectResponse, functionNext) {
+		objectResponse.header('Access-Control-Allow-Origin', '*');
 		
 		functionNext();
 	});
 	
-	Express.serverHandle.get('/', function(requestHandle, responseHandle) {
-		responseHandle.status(302);
+	Express.objectServer.get('/', function(objectRequest, objectResponse) {
+		objectResponse.status(302);
 		
-		responseHandle.set({
+		objectResponse.set({
 			'Location': '/index.html'
 		});
 		
-		responseHandle.end();
+		objectResponse.end();
 	});
 	
-	Express.serverHandle.get('/index.html', function(requestHandle, responseHandle) {
-		var Mustache_objectHandle = {
+	Express.objectServer.get('/index.html', function(objectRequest, objectResponse) {
+		var Mustache_objectView = {
 			'objectMain': {
-				'strRandom': Node.hashbase(Node.cryptoHandle.randomBytes(64)).substr(0, 32)
+				'strRandom': Node.hashbase(Node.requireCrypto.randomBytes(64)).substr(0, 32)
 			},
 			'objectGameserver': {
 				'intLoginPassword': Gameserver.intLoginPassword,
@@ -101,18 +101,18 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 			functionFilesystemRead();
 		};
 		
-		var FilesystemRead_bufferHandle = null;
+		var FilesystemRead_objectBuffer = null;
 		
 		var functionFilesystemRead = function() {
-			Node.fsHandle.readFile(__dirname + '/assets/index.html', function(errorHandle, bufferHandle) {
-				if (errorHandle !== null) {
+			Node.requireFs.readFile(__dirname + '/assets/index.html', function(objectError, objectBuffer) {
+				if (objectError !== null) {
 					functionError();
 					
 					return;
 				}
 				
 				{
-					FilesystemRead_bufferHandle = bufferHandle;
+					FilesystemRead_objectBuffer = objectBuffer;
 				}
 				
 				functionSuccess();
@@ -120,62 +120,63 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 		};
 		
 		var functionError = function() {
-			responseHandle.end();
+			objectResponse.end();
 		};
 		
 		var functionSuccess = function() {
-			var strData = FilesystemRead_bufferHandle.toString();
+			var strData = FilesystemRead_objectBuffer.toString();
 			
 			{
-				strData = Mustache.mustacheHandle.render(strData, Mustache_objectHandle);
+				strData = Mustache.requireMustache.render(strData, Mustache_objectView);
 				
-				strData = Mustache.mustacheHandle.render(strData, Mustache_objectHandle);
+				strData = Mustache.requireMustache.render(strData, Mustache_objectView);
 			}
 			
 			{
-				strData = Hypertextmin.hypertextminHandle.minify(strData, {
-					'removeComments': true,
-					'removeCommentsFromCDATA': true,
+				strData = Hypertextmin.requireHtmlmin.minify(strData, {
 					'collapseWhitespace': true,
-					'conservativeCollapse': true
+					'conservativeCollapse': true,
+					'minifyCSS': true,
+					'minifyJS': true,
+					'removeComments': true
 				});
 			}
 			
-			responseHandle.status(200);
+			objectResponse.status(200);
 			
-			responseHandle.set({
+			objectResponse.set({
 				'Content-Length': Buffer.byteLength(strData, 'utf-8'),
-				'Content-Type': Mime.mimeHandle.lookup('html'),
-				'Content-Disposition': 'inline; filename="' + requestHandle.path.substr(requestHandle.path.lastIndexOf('/') + 1) + '";'
+				'Content-Type': Mime.requireMime.lookup('html'),
+				'Content-Disposition': 'inline; filename="' + objectRequest.path.substr(objectRequest.path.lastIndexOf('/') + 1) + '";'
 			});
 			
-			responseHandle.write(new Buffer(strData, 'utf-8'));
+			objectResponse.write(new Buffer(strData, 'utf-8'));
 			
-			responseHandle.end();
+			objectResponse.end();
 		};
 		
 		functionPreprocess();
 	});
 	
-	Express.serverHandle.use('/', Express.expressHandle.static(__dirname + '/assets', {
+	Express.objectServer.use('/', Express.requireExpress.static(__dirname + '/assets', {
 		'etag': false,
 		'lastModified': false
 	}));
 }
 
 {
-	Socket.serverHandle.on('connection', function(socketHandle) {
+	Socket.objectServer.on('connection', function(objectSocket) {
 		{
-			socketHandle.strIdent = socketHandle.id.substr(2, 8);
+			objectSocket.strIdent = objectSocket.id.substr(2, 8);
 		}
 		
 		{
-			var strIdent = socketHandle.strIdent;
+			var strIdent = objectSocket.strIdent;
 			
-			Player.playerHandle[strIdent] = {
+			Player.objectPlayer[strIdent] = {
 				'strIdent': strIdent,
 				'strTeam': '',
-				'strItem': '',
+				'strEntity': '',
 				'strName': '',
 				'intScore': 0,
 				'intKills': 0,
@@ -192,24 +193,24 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 		}
 		
 		{
-			Player.playerHandle[socketHandle.strIdent].socketHandle = socketHandle;
+			Player.objectPlayer[objectSocket.strIdent].objectSocket = objectSocket;
 		}
 		
 		{
-			socketHandle.emit('worldHandle', {
-				'strBuffer': World.saveBuffer()
+			objectSocket.emit('eventWorld', {
+				'strBuffer': World.saveBuffer(null)
 			});
 		}
 		
 		{
-			socketHandle.emit('loginHandle', {
+			objectSocket.emit('eventLogin', {
 				'strType': 'typeReject',
 				'strMessage': ''
 			});
 		}
 		
 		{
-			socketHandle.on('loginHandle', function(objectData) {
+			objectSocket.on('eventLogin', function(objectData) {
 				if (objectData.strName === undefined) {
 					return;
 					
@@ -218,7 +219,7 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 					
 				}
 				
-				if (Player.playerHandle[socketHandle.strIdent] === undefined) {
+				if (Player.objectPlayer[objectSocket.strIdent] === undefined) {
 					return;
 					
 				} else if (objectData.strTeam.replace(new RegExp('(teamRed)|(teamBlue)', ''), '') !== '') {
@@ -228,7 +229,7 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 				
 				{
 					if (Gameserver.intPlayerActive === Gameserver.intPlayerCapacity) {
-						socketHandle.emit('loginHandle', {
+						objectSocket.emit('eventLogin', {
 							'strType': 'typeReject',
 							'strMessage': 'server full'
 						});
@@ -236,7 +237,7 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 						return;
 						
 					} else if (objectData.strName === '') {
-						socketHandle.emit('loginHandle', {
+						objectSocket.emit('eventLogin', {
 							'strType': 'typeReject',
 							'strMessage': 'name invalid'
 						});
@@ -253,34 +254,34 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 				}
 				
 				{
-					Player.playerHandle[socketHandle.strIdent].strTeam = objectData.strTeam;
+					Player.objectPlayer[objectSocket.strIdent].strTeam = objectData.strTeam;
 					
-					Player.playerHandle[socketHandle.strIdent].strName = objectData.strName;
+					Player.objectPlayer[objectSocket.strIdent].strName = objectData.strName;
 				}
 				
 				{
-					socketHandle.emit('loginHandle', {
+					objectSocket.emit('eventLogin', {
 						'strType': 'typeAccept',
 						'strMessage': ''
 					});
 				}
 				
 				{
-					Gameserver.playerRespawn(Player.playerHandle[socketHandle.strIdent]);
+					Gameserver.playerRespawn(Player.objectPlayer[objectSocket.strIdent]);
 				}
 			});
 			
-			socketHandle.on('pingHandle', function(objectData) {
+			objectSocket.on('eventPing', function(objectData) {
 				if (objectData.intTimestamp === undefined) {
 					return;
 				}
 				
-				if (Player.playerHandle[socketHandle.strIdent] === undefined) {
+				if (Player.objectPlayer[objectSocket.strIdent] === undefined) {
 					return;
 				}
 				
 				{
-					socketHandle.emit('pingHandle', {
+					objectSocket.emit('eventPing', {
 						'strPhaseActive': Gameserver.strPhaseActive,
 						'intPhaseRound': Gameserver.intPhaseRound,
 						'intPhaseRemaining': Gameserver.intPhaseRemaining,
@@ -294,12 +295,12 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 				}
 			});
 			
-			socketHandle.on('chatHandle', function(objectData) {
+			objectSocket.on('eventChat', function(objectData) {
 				if (objectData.strMessage === undefined) {
 					return;
 				}
 				
-				if (Player.playerHandle[socketHandle.strIdent] === undefined) {
+				if (Player.objectPlayer[objectSocket.strIdent] === undefined) {
 					return;
 					
 				} else if (objectData.strMessage === '') {
@@ -314,14 +315,14 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 				}
 				
 				{
-					Socket.serverHandle.emit('chatHandle', {
-						'strName': Player.playerHandle[socketHandle.strIdent].strName,
+					Socket.objectServer.emit('eventChat', {
+						'strName': Player.objectPlayer[objectSocket.strIdent].strName,
 						'strMessage': objectData.strMessage
 					});
 				}
 			});
 			
-			socketHandle.on('worldCreate', function(objectData) {
+			objectSocket.on('eventWorldCreate', function(objectData) {
 				if (objectData.intCoordinate === undefined) {
 					return;
 					
@@ -336,10 +337,10 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 					
 				}
 				
-				if (Player.playerHandle[socketHandle.strIdent] === undefined) {
+				if (Player.objectPlayer[objectSocket.strIdent] === undefined) {
 					return;
 					
-				} else if (Player.playerHandle[socketHandle.strIdent].intWeapon > 0) {
+				} else if (Player.objectPlayer[objectSocket.strIdent].intWeapon > 0) {
 					return;
 					
 				} else if (World.updateBlocked(objectData.intCoordinate) === true) {
@@ -348,7 +349,7 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 				}
 				
 				{
-					Player.playerHandle[socketHandle.strIdent].intWeapon = Constants.intInteractionPickaxeDuration;
+					Player.objectPlayer[objectSocket.strIdent].intWeapon = Constants.intInteractionPickaxeDuration;
 				}
 				
 				{
@@ -369,19 +370,19 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 						'dblPosition': dblPosition,
 						'dblSize': dblSize
 					}, function(functionObjectcol) {
-						var playerHandle = null;
+						var objectPlayer = null;
 						
 						{
 							if (functionObjectcol.strIdent === undefined) {
-								functionObjectcol.strIdent = Object.keys(Player.playerHandle);
+								functionObjectcol.strIdent = Object.keys(Player.objectPlayer);
 							}
 						}
 						
 						{
 							do {
-								playerHandle = Player.playerHandle[functionObjectcol.strIdent.pop()];
+								objectPlayer = Player.objectPlayer[functionObjectcol.strIdent.pop()];
 								
-								if (playerHandle === undefined) {
+								if (objectPlayer === undefined) {
 									return null;
 								}
 								
@@ -390,11 +391,11 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 						}
 						
 						{
-							playerHandle.dblSize = Constants.dblPlayerHitbox;
+							objectPlayer.dblSize = Constants.dblPlayerHitbox;
 						}
 						
-						return playerHandle;
-					}, function(playerHandle) {
+						return objectPlayer;
+					}, function(objectPlayer) {
 						{
 							objectData.strType = '';
 							
@@ -416,7 +417,7 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 				}
 				
 				{
-					Socket.serverHandle.emit('worldCreate', {
+					Socket.objectServer.emit('eventWorldCreate', {
 						'intCoordinate': objectData.intCoordinate,
 						'strType': objectData.strType,
 						'boolBlocked': objectData.boolBlocked
@@ -424,7 +425,7 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 				}
 			});
 			
-			socketHandle.on('worldDestroy', function(objectData) {
+			objectSocket.on('eventWorldDestroy', function(objectData) {
 				if (objectData.intCoordinate === undefined) {
 					return;
 					
@@ -433,10 +434,10 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 					
 				}
 				
-				if (Player.playerHandle[socketHandle.strIdent] === undefined) {
+				if (Player.objectPlayer[objectSocket.strIdent] === undefined) {
 					return;
 					
-				} else if (Player.playerHandle[socketHandle.strIdent].intWeapon > 0) {
+				} else if (Player.objectPlayer[objectSocket.strIdent].intWeapon > 0) {
 					return;
 					
 				} else if (World.updateBlocked(objectData.intCoordinate) === true) {
@@ -445,7 +446,7 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 				}
 				
 				{
-					Player.playerHandle[socketHandle.strIdent].intWeapon = Constants.intInteractionPickaxeDuration;
+					Player.objectPlayer[objectSocket.strIdent].intWeapon = Constants.intInteractionPickaxeDuration;
 				}
 				
 				{
@@ -453,110 +454,106 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 				}
 				
 				{
-					Socket.serverHandle.emit('worldDestroy', {
+					Socket.objectServer.emit('eventWorldDestroy', {
 						'intCoordinate': objectData.intCoordinate
 					});
 				}
 			});
 			
-			socketHandle.on('playerHandle', function(objectData) {
-				var bufferHandle = new Buffer(objectData.strBuffer, 'base64');
-				
-				try {
-					Player.loadBufferpart({}, bufferHandle, 0);
-				} catch (errorHandle) {
+			objectSocket.on('eventPlayer', function(objectData) {
+				if (Player.objectPlayer[objectSocket.strIdent] === undefined) {
 					return;
 				}
-				
-				if (Player.playerHandle[socketHandle.strIdent] === undefined) {
-					return;
-				}
-				
+
 				{
-					var playerHandle = {};
+					var objectOverwrite = {};
 					
-					{
-						Player.loadBufferpart(playerHandle, bufferHandle, 0);
+					try {
+						Player.loadBuffer(objectOverwrite, objectData.strBuffer);
+					} catch (objectError) {
+						objectOverwrite = {};
 					}
-					
+
 					{
-						Player.playerHandle[socketHandle.strIdent].dblPosition = playerHandle.dblPosition;
-						Player.playerHandle[socketHandle.strIdent].dblVerlet = playerHandle.dblVerlet;
-						Player.playerHandle[socketHandle.strIdent].dblAcceleration = playerHandle.dblAcceleration;
-						Player.playerHandle[socketHandle.strIdent].dblRotation = playerHandle.dblRotation;
+						if (objectOverwrite['1'] !== undefined) {
+							Player.objectPlayer[objectSocket.strIdent].dblPosition = objectOverwrite['1'].dblPosition;
+							Player.objectPlayer[objectSocket.strIdent].dblVerlet = objectOverwrite['1'].dblVerlet;
+							Player.objectPlayer[objectSocket.strIdent].dblAcceleration = objectOverwrite['1'].dblAcceleration;
+							Player.objectPlayer[objectSocket.strIdent].dblRotation = objectOverwrite['1'].dblRotation;
+						}
 					}
 				}
 			});
 			
-			socketHandle.on('itemHandle', function(objectData) {
-				if (objectData.strItem === undefined) {
+			objectSocket.on('eventPlayerEntity', function(objectData) {
+				if (objectData.strEntity === undefined) {
 					return;
 				}
 				
-				if (Player.playerHandle[socketHandle.strIdent] === undefined) {
+				if (Player.objectPlayer[objectSocket.strIdent] === undefined) {
 					return;
 					
-				} else if (objectData.strItem.replace(new RegExp('(itemPickaxe)|(itemSword)|(itemBow)', ''), '') !== '') {
+				} else if (objectData.strEntity.replace(new RegExp('(entityPickaxe)|(entitySword)|(entityBow)', ''), '') !== '') {
 					return;
 					
 				}
 				
 				{
-					Player.playerHandle[socketHandle.strIdent].strItem = objectData.strItem;
+					Player.objectPlayer[objectSocket.strIdent].strEntity = objectData.strEntity;
 				}
 			});
 			
-			socketHandle.on('weaponHandle', function(objectData) {
+			objectSocket.on('eventPlayerWeapon', function(objectData) {
 				if (objectData.strWeapon === undefined) {
 					return;
 				}
 				
-				if (Player.playerHandle[socketHandle.strIdent] === undefined) {
+				if (Player.objectPlayer[objectSocket.strIdent] === undefined) {
 					return;
 					
-				} else if (Player.playerHandle[socketHandle.strIdent].intWeapon > 0) {
+				} else if (Player.objectPlayer[objectSocket.strIdent].intWeapon > 0) {
 					return;
 					
 				}
 				
 				{
 					if (objectData.strWeapon === 'weaponSword') {
-						Player.playerHandle[socketHandle.strIdent].intWeapon = Constants.intInteractionSwordDuration;
+						Player.objectPlayer[objectSocket.strIdent].intWeapon = Constants.intInteractionSwordDuration;
 						
 					} else if (objectData.strWeapon === 'weaponBow') {
-						Player.playerHandle[socketHandle.strIdent].intWeapon = Constants.intInteractionBowDuration;
+						Player.objectPlayer[objectSocket.strIdent].intWeapon = Constants.intInteractionBowDuration;
 						
 					}
 				}
 				
 				{
 					if (objectData.strWeapon === 'weaponSword') {
-						var strIdent = 'itemSword' + ' - ' + Node.hashbase(Node.cryptoHandle.randomBytes(16)).substr(0, 8);
-						var strPlayer = Player.playerHandle[socketHandle.strIdent].strIdent;
+						var strIdent = 'itemSword' + ' - ' + Node.hashbase(Node.requireCrypto.randomBytes(16)).substr(0, 8);
+						var strPlayer = Player.objectPlayer[objectSocket.strIdent].strIdent;
 						var dblPosition = [ 0.0, 0.0, 0.0 ];
 						var dblVerlet = [ 0.0, 0.0, 0.0 ];
 						var dblAcceleration = [ 0.0, 0.0, 0.0 ];
 						var dblRotation = [ 0.0, 0.0, 0.0 ];
 						
 						{
-							dblPosition[0] = Player.playerHandle[socketHandle.strIdent].dblPosition[0];
-							dblPosition[1] = Player.playerHandle[socketHandle.strIdent].dblPosition[1] + (0.25 * Constants.dblPlayerSize[1]);
-							dblPosition[2] = Player.playerHandle[socketHandle.strIdent].dblPosition[2];
+							dblPosition[0] = Player.objectPlayer[objectSocket.strIdent].dblPosition[0];
+							dblPosition[1] = Player.objectPlayer[objectSocket.strIdent].dblPosition[1] + (0.25 * Constants.dblPlayerSize[1]);
+							dblPosition[2] = Player.objectPlayer[objectSocket.strIdent].dblPosition[2];
 							
 							dblVerlet[0] = dblPosition[0];
 							dblVerlet[1] = dblPosition[1];
 							dblVerlet[2] = dblPosition[2];
 							
-							dblAcceleration[0] = -1.0 * Math.sin(Player.playerHandle[socketHandle.strIdent].dblRotation[1]) * Math.cos(Player.playerHandle[socketHandle.strIdent].dblRotation[2]);
-							dblAcceleration[1] = -1.0 * Math.sin(Player.playerHandle[socketHandle.strIdent].dblRotation[2] + (1.0 * Math.PI));
-							dblAcceleration[2] = -1.0 * Math.cos(Player.playerHandle[socketHandle.strIdent].dblRotation[1]) * Math.cos(Player.playerHandle[socketHandle.strIdent].dblRotation[2]);
+							dblAcceleration[0] = -1.0 * Math.sin(Player.objectPlayer[objectSocket.strIdent].dblRotation[1]) * Math.cos(Player.objectPlayer[objectSocket.strIdent].dblRotation[2]);
+							dblAcceleration[1] = -1.0 * Math.sin(Player.objectPlayer[objectSocket.strIdent].dblRotation[2] + (1.0 * Math.PI));
+							dblAcceleration[2] = -1.0 * Math.cos(Player.objectPlayer[objectSocket.strIdent].dblRotation[1]) * Math.cos(Player.objectPlayer[objectSocket.strIdent].dblRotation[2]);
 							
-							dblRotation[0] = Player.playerHandle[socketHandle.strIdent].dblRotation[0];
-							dblRotation[1] = Player.playerHandle[socketHandle.strIdent].dblRotation[1];
-							dblRotation[2] = Player.playerHandle[socketHandle.strIdent].dblRotation[2];
+							dblRotation[0] = Player.objectPlayer[objectSocket.strIdent].dblRotation[0];
+							dblRotation[1] = Player.objectPlayer[objectSocket.strIdent].dblRotation[1];
+							dblRotation[2] = Player.objectPlayer[objectSocket.strIdent].dblRotation[2];
 						}
 						
-						var itemHandle = {
+						var objectItem = {
 							'strIdent': strIdent,
 							'strPlayer': strPlayer,
 							'dblPosition': dblPosition,
@@ -566,32 +563,32 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 						};
 						
 						{
-							itemHandle.dblSize = [ 0.0, 0.0, 0.0 ];
+							objectItem.dblSize = [ 0.0, 0.0, 0.0 ];
 							
-							Physics.updateRaycol(itemHandle, function(functionRaycol) {
-								var playerHandle = null;
+							Physics.updateRaycol(objectItem, function(functionRaycol) {
+								var objectPlayer = null;
 								
 								{
 									if (functionRaycol.strIdent === undefined) {
-										functionRaycol.strIdent = Object.keys(Player.playerHandle);
+										functionRaycol.strIdent = Object.keys(Player.objectPlayer);
 									}
 								}
 								
 								{
 									do {
-										playerHandle = Player.playerHandle[functionRaycol.strIdent.pop()];
+										objectPlayer = Player.objectPlayer[functionRaycol.strIdent.pop()];
 										
-										if (playerHandle === undefined) {
+										if (objectPlayer === undefined) {
 											return null;
 										}
 										
-										if (playerHandle.strIdent === itemHandle.strPlayer) {
+										if (objectPlayer.strIdent === objectItem.strPlayer) {
 											continue;
 										}
 										
-										var dblDistanceX = playerHandle.dblPosition[0] - itemHandle.dblPosition[0];
-										var dblDistanceY = playerHandle.dblPosition[1] - itemHandle.dblPosition[1];
-										var dblDistanceZ = playerHandle.dblPosition[2] - itemHandle.dblPosition[2];
+										var dblDistanceX = objectPlayer.dblPosition[0] - objectItem.dblPosition[0];
+										var dblDistanceY = objectPlayer.dblPosition[1] - objectItem.dblPosition[1];
+										var dblDistanceZ = objectPlayer.dblPosition[2] - objectItem.dblPosition[2];
 										
 										if (Math.sqrt((dblDistanceX * dblDistanceX) + (dblDistanceY * dblDistanceY) + (dblDistanceZ * dblDistanceZ)) > Constants.dblInteractionSwordRange) {
 											continue;
@@ -602,44 +599,44 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 								}
 								
 								{
-									playerHandle.dblSize = Constants.dblPlayerHitbox;
+									objectPlayer.dblSize = Constants.dblPlayerHitbox;
 								}
 								
-								return playerHandle;
-							}, function(playerHandle) {
+								return objectPlayer;
+							}, function(objectPlayer) {
 								{
-									Gameserver.playerHit(playerHandle, itemHandle);
+									Gameserver.playerHit(objectPlayer, objectItem);
 								}
 							});
 						}
 						
 					} else if (objectData.strWeapon === 'weaponBow') {
-						var strIdent = 'itemArrow' + ' - ' + Node.hashbase(Node.cryptoHandle.randomBytes(16)).substr(0, 8);
-						var strPlayer = Player.playerHandle[socketHandle.strIdent].strIdent;
+						var strIdent = 'itemArrow' + ' - ' + Node.hashbase(Node.requireCrypto.randomBytes(16)).substr(0, 8);
+						var strPlayer = Player.objectPlayer[objectSocket.strIdent].strIdent;
 						var dblPosition = [ 0.0, 0.0, 0.0 ];
 						var dblVerlet = [ 0.0, 0.0, 0.0 ];
 						var dblAcceleration = [ 0.0, 0.0, 0.0 ];
 						var dblRotation = [ 0.0, 0.0, 0.0 ];
 						
 						{
-							dblPosition[0] = Player.playerHandle[socketHandle.strIdent].dblPosition[0] + (0.25 * Math.sin(Player.playerHandle[socketHandle.strIdent].dblRotation[1] + (0.5 * Math.PI)));
-							dblPosition[1] = Player.playerHandle[socketHandle.strIdent].dblPosition[1] + (0.1);
-							dblPosition[2] = Player.playerHandle[socketHandle.strIdent].dblPosition[2] + (0.25 * Math.cos(Player.playerHandle[socketHandle.strIdent].dblRotation[1] + (0.5 * Math.PI)));
+							dblPosition[0] = Player.objectPlayer[objectSocket.strIdent].dblPosition[0] + (0.25 * Math.sin(Player.objectPlayer[objectSocket.strIdent].dblRotation[1] + (0.5 * Math.PI)));
+							dblPosition[1] = Player.objectPlayer[objectSocket.strIdent].dblPosition[1] + (0.1);
+							dblPosition[2] = Player.objectPlayer[objectSocket.strIdent].dblPosition[2] + (0.25 * Math.cos(Player.objectPlayer[objectSocket.strIdent].dblRotation[1] + (0.5 * Math.PI)));
 							
 							dblVerlet[0] = dblPosition[0];
 							dblVerlet[1] = dblPosition[1];
 							dblVerlet[2] = dblPosition[2];
 							
-							dblAcceleration[0] = -1.0 * Math.sin(Player.playerHandle[socketHandle.strIdent].dblRotation[1]) * Math.cos(Player.playerHandle[socketHandle.strIdent].dblRotation[2]);
-							dblAcceleration[1] = -1.0 * Math.sin(Player.playerHandle[socketHandle.strIdent].dblRotation[2] + (1.0 * Math.PI));
-							dblAcceleration[2] = -1.0 * Math.cos(Player.playerHandle[socketHandle.strIdent].dblRotation[1]) * Math.cos(Player.playerHandle[socketHandle.strIdent].dblRotation[2]);
+							dblAcceleration[0] = -1.0 * Math.sin(Player.objectPlayer[objectSocket.strIdent].dblRotation[1]) * Math.cos(Player.objectPlayer[objectSocket.strIdent].dblRotation[2]);
+							dblAcceleration[1] = -1.0 * Math.sin(Player.objectPlayer[objectSocket.strIdent].dblRotation[2] + (1.0 * Math.PI));
+							dblAcceleration[2] = -1.0 * Math.cos(Player.objectPlayer[objectSocket.strIdent].dblRotation[1]) * Math.cos(Player.objectPlayer[objectSocket.strIdent].dblRotation[2]);
 							
-							dblRotation[0] = Player.playerHandle[socketHandle.strIdent].dblRotation[0];
-							dblRotation[1] = Player.playerHandle[socketHandle.strIdent].dblRotation[1];
-							dblRotation[2] = Player.playerHandle[socketHandle.strIdent].dblRotation[2];
+							dblRotation[0] = Player.objectPlayer[objectSocket.strIdent].dblRotation[0];
+							dblRotation[1] = Player.objectPlayer[objectSocket.strIdent].dblRotation[1];
+							dblRotation[2] = Player.objectPlayer[objectSocket.strIdent].dblRotation[2];
 						}
 						
-						Item.itemHandle[strIdent] = {
+						Item.objectItem[strIdent] = {
 							'strIdent': strIdent,
 							'strPlayer': strPlayer,
 							'dblPosition': dblPosition,
@@ -652,9 +649,9 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 				}
 			});
 			
-			socketHandle.on('disconnect', function() {
+			objectSocket.on('disconnect', function() {
 				{
-					delete Player.playerHandle[socketHandle.strIdent];
+					delete Player.objectPlayer[objectSocket.strIdent];
 				}
 			});
 		}
@@ -694,6 +691,39 @@ var Constants = {
 	dblArrowMaxvel: [ 0.36 ],
 	dblArrowFriction: [ 1.0, 1.0, 1.0 ]
 };
+
+var Physics = require(__dirname + '/assets/libPhysics.js');
+
+{
+	var objectBrowserify = {
+		'Constants': Constants,
+		'Voxel': null,
+		'Physics': Physics,
+		'Input': null
+	};
+
+	Physics.browserify(objectBrowserify);
+}
+
+var World = require(__dirname + '/assets/libWorld.js');
+var Player = require(__dirname + '/assets/libPlayer.js');
+var Item = require(__dirname + '/assets/libItem.js');
+
+{
+	var objectBrowserify = {
+		'Constants': Constants,
+		'Voxel': null,
+		'Physics': Physics,
+		'Input': null,
+		'World': World,
+		'Player': Player,
+		'Item': Item
+	};
+
+	World.browserify(objectBrowserify);
+	Player.browserify(objectBrowserify);
+	Item.browserify(objectBrowserify);
+}
 
 var Gameserver = {
 	strName: '',
@@ -866,25 +896,25 @@ var Gameserver = {
 				}
 				
 				{
-					World.loadBuffer(Node.fsHandle.readFileSync(__dirname + '/worlds/' + Gameserver.strWorldActive + '.txt').toString());
+					World.loadBuffer(null, Node.requireFs.readFileSync(__dirname + '/worlds/' + Gameserver.strWorldActive + '.txt').toString());
 				}
 				
 				{
-				    for (var intFor1 = 0; intFor1 < World.intFlagRed.length; intFor1 += 1) {
+					for (var intFor1 = 0; intFor1 < World.intFlagRed.length; intFor1 += 1) {
 						var intCoordinate = World.intFlagRed[intFor1];
 						
 						{
 							World.updateDestroy(intCoordinate);
 						}
-				    }
+					}
 					
-				    for (var intFor1 = 0; intFor1 < World.intFlagBlue.length; intFor1 += 1) {
+					for (var intFor1 = 0; intFor1 < World.intFlagBlue.length; intFor1 += 1) {
 						var intCoordinate = World.intFlagBlue[intFor1];
 						
 						{
 							World.updateDestroy(intCoordinate);
 						}
-				    }
+					}
 				}
 				
 			} else if (Gameserver.strWorldFingerprint.indexOf(Gameserver.strWorldActive + ' - ' + Gameserver.strPhaseActive) !== 0) {
@@ -894,22 +924,22 @@ var Gameserver = {
 				
 				{
 					if (Gameserver.strPhaseActive === 'Build') {
-					    for (var intFor1 = 0; intFor1 < World.intSeparator.length; intFor1 += 1) {
+						for (var intFor1 = 0; intFor1 < World.intSeparator.length; intFor1 += 1) {
 							var intCoordinate = World.intSeparator[intFor1];
 							
 							{
 								World.updateCreate(intCoordinate, 'voxelSeparator', true);
 							}
-					    }
+						}
 						
 					} else if (Gameserver.strPhaseActive === 'Combat') {
-					    for (var intFor1 = 0; intFor1 < World.intSeparator.length; intFor1 += 1) {
+						for (var intFor1 = 0; intFor1 < World.intSeparator.length; intFor1 += 1) {
 							var intCoordinate = World.intSeparator[intFor1];
 							
 							{
 								World.updateDestroy(intCoordinate);
 							}
-					    }
+						}
 						
 					}
 				}
@@ -922,27 +952,27 @@ var Gameserver = {
 				}
 				
 				{
-					Item.initFlag(Item.itemHandle['itemFlag - teamRed']);
+					Item.initFlag(Item.objectItem['itemFlag - teamRed']);
 					
-					Item.initFlag(Item.itemHandle['itemFlag - teamBlue']);
+					Item.initFlag(Item.objectItem['itemFlag - teamBlue']);
 				}
 				
 				{
-					Socket.serverHandle.emit('worldHandle', {
-						'strBuffer': World.saveBuffer()
+					Socket.objectServer.emit('eventWorld', {
+						'strBuffer': World.saveBuffer(null)
 					});
 				}
 				
 				{
-					for (var strIdent in Player.playerHandle) {
-						var playerHandle = Player.playerHandle[strIdent];
+					for (var strIdent in Player.objectPlayer) {
+						var objectPlayer = Player.objectPlayer[strIdent];
 						
-						if (playerHandle.strTeam === '') {
+						if (objectPlayer.strTeam === '') {
 							continue;
 						}
 						
 						{
-							Gameserver.playerRespawn(playerHandle);
+							Gameserver.playerRespawn(objectPlayer);
 						}
 					}
 				}
@@ -952,34 +982,34 @@ var Gameserver = {
 	
 	playerUpdate: function() {
 		{
-			Gameserver.intPlayerActive = Object.keys(Player.playerHandle).length;
+			Gameserver.intPlayerActive = Object.keys(Player.objectPlayer).length;
 		}
 		
 		{
-			for (var strIdent in Player.playerHandle) {
-				var playerHandle = Player.playerHandle[strIdent];
+			for (var strIdent in Player.objectPlayer) {
+				var objectPlayer = Player.objectPlayer[strIdent];
 				
-				if (playerHandle.strTeam === '') {
+				if (objectPlayer.strTeam === '') {
 					continue;
 				}
 				
 				{
-					if (playerHandle.intHealth < 1) {
+					if (objectPlayer.intHealth < 1) {
 						{
-							playerHandle.intDeaths += 1;
+							objectPlayer.intDeaths += 1;
 						}
 						
 						{
-							Gameserver.playerRespawn(playerHandle);
+							Gameserver.playerRespawn(objectPlayer);
 						}
 						
-					} else if (playerHandle.dblPosition[1] < (2.0 * Constants.dblGameBlocksize)) {
+					} else if (objectPlayer.dblPosition[1] < (2.0 * Constants.dblGameBlocksize)) {
 						{
-							playerHandle.intDeaths += 1;
+							objectPlayer.intDeaths += 1;
 						}
 						
 						{
-							Gameserver.playerRespawn(playerHandle);
+							Gameserver.playerRespawn(objectPlayer);
 						}
 						
 					}
@@ -988,92 +1018,92 @@ var Gameserver = {
 		}
 	},
 	
-	playerRespawn: function(playerHandle) {
+	playerRespawn: function(objectPlayer) {
 		{
-			playerHandle.strItem = '';
+			objectPlayer.strEntity = '';
 		}
 		
 		{
-			playerHandle.intHealth = Constants.intPlayerHealth;
+			objectPlayer.intHealth = Constants.intPlayerHealth;
 		}
 		
 		{
 			var intSpawn = [];
 			
-			if (playerHandle.strTeam === 'teamRed') {
+			if (objectPlayer.strTeam === 'teamRed') {
 				intSpawn = World.intSpawnRed[Math.floor(Math.random() * World.intSpawnRed.length)];
 				
-			} else if (playerHandle.strTeam === 'teamBlue') {
+			} else if (objectPlayer.strTeam === 'teamBlue') {
 				intSpawn = World.intSpawnBlue[Math.floor(Math.random() * World.intSpawnBlue.length)];
 				
 			}
 			
-			playerHandle.dblPosition[0] = intSpawn[0] + 0.5;
-			playerHandle.dblPosition[1] = intSpawn[1] + 2.0;
-			playerHandle.dblPosition[2] = intSpawn[2] + 0.5;
+			objectPlayer.dblPosition[0] = intSpawn[0] + 0.5;
+			objectPlayer.dblPosition[1] = intSpawn[1] + 2.0;
+			objectPlayer.dblPosition[2] = intSpawn[2] + 0.5;
 			
-			playerHandle.dblVerlet[0] = playerHandle.dblPosition[0];
-			playerHandle.dblVerlet[1] = playerHandle.dblPosition[1];
-			playerHandle.dblVerlet[2] = playerHandle.dblPosition[2];
+			objectPlayer.dblVerlet[0] = objectPlayer.dblPosition[0];
+			objectPlayer.dblVerlet[1] = objectPlayer.dblPosition[1];
+			objectPlayer.dblVerlet[2] = objectPlayer.dblPosition[2];
 		}
 		
 		{
-			playerHandle.socketHandle.emit('playerRespawn', {
-				'dblPosition': playerHandle.dblPosition,
-				'dblVerlet': playerHandle.dblVerlet
+			objectPlayer.objectSocket.emit('eventPlayerRespawn', {
+				'dblPosition': objectPlayer.dblPosition,
+				'dblVerlet': objectPlayer.dblVerlet
 			});
 		}
 		
 		{
-			if (Item.itemHandle['itemFlag - teamRed'].strPlayer === playerHandle.strIdent) {
+			if (Item.objectItem['itemFlag - teamRed'].strPlayer === objectPlayer.strIdent) {
 				{
-					Item.itemHandle['itemFlag - teamRed'].strPlayer = 'playerDropped';
+					Item.objectItem['itemFlag - teamRed'].strPlayer = 'playerDropped';
 				}
 				
-			} else if (Item.itemHandle['itemFlag - teamBlue'].strPlayer === playerHandle.strIdent) {
+			} else if (Item.objectItem['itemFlag - teamBlue'].strPlayer === objectPlayer.strIdent) {
 				{
-					Item.itemHandle['itemFlag - teamBlue'].strPlayer = 'playerDropped';
+					Item.objectItem['itemFlag - teamBlue'].strPlayer = 'playerDropped';
 				}
 				
 			}
 		}
 	},
 	
-	playerHit: function(playerHandle, itemHandle) {
+	playerHit: function(objectPlayer, objectItem) {
 		{
-			if (itemHandle.strIdent.indexOf('itemSword') === 0) {
-				playerHandle.intHealth -= Constants.intInteractionSwordDamage;
+			if (objectItem.strIdent.indexOf('itemSword') === 0) {
+				objectPlayer.intHealth -= Constants.intInteractionSwordDamage;
 				
-			} else if (itemHandle.strIdent.indexOf('itemArrow') === 0) {
-				playerHandle.intHealth -= Constants.intInteractionBowDamage;
+			} else if (objectItem.strIdent.indexOf('itemArrow') === 0) {
+				objectPlayer.intHealth -= Constants.intInteractionBowDamage;
 				
 			}
 		}
 		
 		{
-			if (itemHandle.strIdent.indexOf('itemSword') === 0) {
-				playerHandle.dblAcceleration[0] = -1.0 * Constants.dblInteractionSwordImpact[0] * Math.sin(itemHandle.dblRotation[1]) * Math.cos(itemHandle.dblRotation[2]);
-				playerHandle.dblAcceleration[1] = -1.0 * Constants.dblInteractionSwordImpact[1] * Math.sin(itemHandle.dblRotation[2] + (1.0 * Math.PI));
-				playerHandle.dblAcceleration[2] = -1.0 * Constants.dblInteractionSwordImpact[2] * Math.cos(itemHandle.dblRotation[1]) * Math.cos(itemHandle.dblRotation[2]);
+			if (objectItem.strIdent.indexOf('itemSword') === 0) {
+				objectPlayer.dblAcceleration[0] = -1.0 * Constants.dblInteractionSwordImpact[0] * Math.sin(objectItem.dblRotation[1]) * Math.cos(objectItem.dblRotation[2]);
+				objectPlayer.dblAcceleration[1] = -1.0 * Constants.dblInteractionSwordImpact[1] * Math.sin(objectItem.dblRotation[2] + (1.0 * Math.PI));
+				objectPlayer.dblAcceleration[2] = -1.0 * Constants.dblInteractionSwordImpact[2] * Math.cos(objectItem.dblRotation[1]) * Math.cos(objectItem.dblRotation[2]);
 				
-			} else if (itemHandle.strIdent.indexOf('itemArrow') === 0) {
-				playerHandle.dblAcceleration[0] = -1.0 * Constants.dblInteractionBowImpact[0] * Math.sin(itemHandle.dblRotation[1]) * Math.cos(itemHandle.dblRotation[2]);
-				playerHandle.dblAcceleration[1] = -1.0 * Constants.dblInteractionBowImpact[1] * Math.sin(itemHandle.dblRotation[2] + (1.0 * Math.PI));
-				playerHandle.dblAcceleration[2] = -1.0 * Constants.dblInteractionBowImpact[2] * Math.cos(itemHandle.dblRotation[1]) * Math.cos(itemHandle.dblRotation[2]);
+			} else if (objectItem.strIdent.indexOf('itemArrow') === 0) {
+				objectPlayer.dblAcceleration[0] = -1.0 * Constants.dblInteractionBowImpact[0] * Math.sin(objectItem.dblRotation[1]) * Math.cos(objectItem.dblRotation[2]);
+				objectPlayer.dblAcceleration[1] = -1.0 * Constants.dblInteractionBowImpact[1] * Math.sin(objectItem.dblRotation[2] + (1.0 * Math.PI));
+				objectPlayer.dblAcceleration[2] = -1.0 * Constants.dblInteractionBowImpact[2] * Math.cos(objectItem.dblRotation[1]) * Math.cos(objectItem.dblRotation[2]);
 				
 			}
 		}
 		
 		{
-			playerHandle.socketHandle.emit('playerHit', {
-				'dblAcceleration': playerHandle.dblAcceleration
+			objectPlayer.objectSocket.emit('eventPlayerHit', {
+				'dblAcceleration': objectPlayer.dblAcceleration
 			});
 		}
 		
 		{
-			if (playerHandle.intHealth < 1) {
-				if (Player.playerHandle[itemHandle.strPlayer] !== undefined) {
-					Player.playerHandle[itemHandle.strPlayer].intKills += 1;
+			if (objectPlayer.intHealth < 1) {
+				if (Player.objectPlayer[objectItem.strPlayer] !== undefined) {
+					Player.objectPlayer[objectItem.strPlayer].intKills += 1;
 				}
 			}
 		}
@@ -1081,42 +1111,42 @@ var Gameserver = {
 	
 	itemUpdate: function() {
 		{
-			for (var strIdent in Item.itemHandle) {
-				var itemHandle = Item.itemHandle[strIdent];
+			for (var strIdent in Item.objectItem) {
+				var objectItem = Item.objectItem[strIdent];
 				
 				{
-					if (itemHandle.strPlayer !== 'playerInitial') {
-						if (itemHandle.strPlayer !== 'playerDropped') {
-							if (Player.playerHandle[itemHandle.strPlayer] === undefined) {
-								itemHandle.strPlayer = 'playerDropped';
+					if (objectItem.strPlayer !== 'playerInitial') {
+						if (objectItem.strPlayer !== 'playerDropped') {
+							if (Player.objectPlayer[objectItem.strPlayer] === undefined) {
+								objectItem.strPlayer = 'playerDropped';
 							}
 						}
 					}
 				}
 				
 				{
-					if (itemHandle.strIdent.indexOf('itemFlag') === 0) {
+					if (objectItem.strIdent.indexOf('itemFlag') === 0) {
 						{
-							itemHandle.dblSize = Constants.dblFlagSize;
+							objectItem.dblSize = Constants.dblFlagSize;
 							
-							Physics.updateObjectcol(itemHandle, function(functionObjectcol) {
-								var playerHandle = null;
+							Physics.updateObjectcol(objectItem, function(functionObjectcol) {
+								var objectPlayer = null;
 								
 								{
 									if (functionObjectcol.strIdent === undefined) {
-										functionObjectcol.strIdent = Object.keys(Player.playerHandle);
+										functionObjectcol.strIdent = Object.keys(Player.objectPlayer);
 									}
 								}
 								
 								{
 									do {
-										playerHandle = Player.playerHandle[functionObjectcol.strIdent.pop()];
+										objectPlayer = Player.objectPlayer[functionObjectcol.strIdent.pop()];
 										
-										if (playerHandle === undefined) {
+										if (objectPlayer === undefined) {
 											return null;
 										}
 										
-										if (playerHandle.strTeam === '') {
+										if (objectPlayer.strTeam === '') {
 											continue;
 										}
 										
@@ -1125,40 +1155,40 @@ var Gameserver = {
 								}
 								
 								{
-									playerHandle.dblSize = Constants.dblPlayerHitbox;
+									objectPlayer.dblSize = Constants.dblPlayerHitbox;
 								}
 								
-								return playerHandle;
-							}, function(playerHandle) {
+								return objectPlayer;
+							}, function(objectPlayer) {
 								{
-									if (itemHandle.strPlayer === 'playerInitial') {
-										if (itemHandle.strIdent.indexOf(playerHandle.strTeam) === -1) {
+									if (objectItem.strPlayer === 'playerInitial') {
+										if (objectItem.strIdent.indexOf(objectPlayer.strTeam) === -1) {
 											{
-												itemHandle.strPlayer = playerHandle.strIdent;
+												objectItem.strPlayer = objectPlayer.strIdent;
 											}
 											
-										} else if (itemHandle.strIdent.indexOf(playerHandle.strTeam) !== -1) {
+										} else if (objectItem.strIdent.indexOf(objectPlayer.strTeam) !== -1) {
 											{
-												if (Item.itemHandle['itemFlag - teamBlue'].strPlayer === playerHandle.strIdent) {
+												if (Item.objectItem['itemFlag - teamBlue'].strPlayer === objectPlayer.strIdent) {
 													{
-														Item.initFlag(Item.itemHandle['itemFlag - teamBlue']);
+														Item.initFlag(Item.objectItem['itemFlag - teamBlue']);
 													}
 													
 													{
 														Gameserver.intScoreRed += 1;
 														
-														playerHandle.intScore += 1;
+														objectPlayer.intScore += 1;
 													}
 													
-												} else if (Item.itemHandle['itemFlag - teamRed'].strPlayer === playerHandle.strIdent) {
+												} else if (Item.objectItem['itemFlag - teamRed'].strPlayer === objectPlayer.strIdent) {
 													{
-														Item.initFlag(Item.itemHandle['itemFlag - teamRed']);
+														Item.initFlag(Item.objectItem['itemFlag - teamRed']);
 													}
 													
 													{
 														Gameserver.intScoreBlue += 1;
 														
-														playerHandle.intScore += 1;
+														objectPlayer.intScore += 1;
 													}
 													
 												}
@@ -1166,15 +1196,15 @@ var Gameserver = {
 											
 										}
 										
-									} else if (itemHandle.strPlayer === 'playerDropped') {
-										if (itemHandle.strIdent.indexOf(playerHandle.strTeam) === -1) {
+									} else if (objectItem.strPlayer === 'playerDropped') {
+										if (objectItem.strIdent.indexOf(objectPlayer.strTeam) === -1) {
 											{
-												itemHandle.strPlayer = playerHandle.strIdent;
+												objectItem.strPlayer = objectPlayer.strIdent;
 											}
 											
-										} else if (itemHandle.strIdent.indexOf(playerHandle.strTeam) !== -1) {
+										} else if (objectItem.strIdent.indexOf(objectPlayer.strTeam) !== -1) {
 											{
-												Item.initFlag(itemHandle);
+												Item.initFlag(objectItem);
 											}
 											
 										}
@@ -1184,31 +1214,31 @@ var Gameserver = {
 							});
 						}
 						
-					} else if (itemHandle.strIdent.indexOf('itemArrow') === 0) {
+					} else if (objectItem.strIdent.indexOf('itemArrow') === 0) {
 						{
-							itemHandle.dblSize = Constants.dblArrowSize;
+							objectItem.dblSize = Constants.dblArrowSize;
 							
-							Physics.updateObjectcol(itemHandle, function(functionObjectcol) {
-								var playerHandle = null;
+							Physics.updateObjectcol(objectItem, function(functionObjectcol) {
+								var objectPlayer = null;
 								
 								{
 									if (functionObjectcol.strIdent === undefined) {
-										functionObjectcol.strIdent = Object.keys(Player.playerHandle);
+										functionObjectcol.strIdent = Object.keys(Player.objectPlayer);
 									}
 								}
 								
 								{
 									do {
-										playerHandle = Player.playerHandle[functionObjectcol.strIdent.pop()];
+										objectPlayer = Player.objectPlayer[functionObjectcol.strIdent.pop()];
 										
-										if (playerHandle === undefined) {
+										if (objectPlayer === undefined) {
 											return null;
 										}
 										
-										if (playerHandle.strTeam === '') {
+										if (objectPlayer.strTeam === '') {
 											continue;
 											
-										} else if (playerHandle.strIdent === itemHandle.strPlayer) {
+										} else if (objectPlayer.strIdent === objectItem.strPlayer) {
 											continue;
 											
 										}
@@ -1218,17 +1248,17 @@ var Gameserver = {
 								}
 								
 								{
-									playerHandle.dblSize = Constants.dblPlayerHitbox;
+									objectPlayer.dblSize = Constants.dblPlayerHitbox;
 								}
 								
-								return playerHandle;
-							}, function(playerHandle) {
+								return objectPlayer;
+							}, function(objectPlayer) {
 								{
-									Gameserver.playerHit(playerHandle, itemHandle);
+									Gameserver.playerHit(objectPlayer, objectItem);
 								}
 								
 								{
-									delete Item.itemHandle[itemHandle.strIdent];
+									delete Item.objectItem[objectItem.strIdent];
 								}
 							});
 						}
@@ -1239,18 +1269,6 @@ var Gameserver = {
 		}
 	}
 };
-
-var Physics = require(__dirname + '/assets/libPhysics.js');
-
-Physics.browserify(Constants);
-
-var World = require(__dirname + '/assets/libWorld.js');
-var Player = require(__dirname + '/assets/libPlayer.js');
-var Item = require(__dirname + '/assets/libItem.js');
-
-World.browserify(Constants, null);
-Player.browserify(Constants, null, Physics);
-Item.browserify(Constants, null, Physics);
 
 {
 	Gameserver.init();
@@ -1263,7 +1281,7 @@ Item.browserify(Constants, null, Physics);
 		if (intCoordinateY === 0) {
 			return true;
 			
-		} else if (World.worldHandle[(intCoordinateX << 20) + (intCoordinateY << 10) + (intCoordinateZ << 0)] !== undefined) {
+		} else if (World.objectWorld[(intCoordinateX << 20) + (intCoordinateY << 10) + (intCoordinateZ << 0)] !== undefined) {
 			return true;
 			
 		}
@@ -1283,38 +1301,42 @@ Item.browserify(Constants, null, Physics);
 {
 	Item.init();
 	
-	Item.functionFlagInit = function(itemHandle) {
+	Item.functionFlagInit = function(objectItem) {
+		{
+			objectItem.strPlayer = 'playerInitial';
+		}
+
 		{
 			var intCoordinate = [ 0, 0, 0 ];
 			
-			if (itemHandle.strIdent.indexOf('teamRed') !== -1) {
+			if (objectItem.strIdent.indexOf('teamRed') !== -1) {
 				intCoordinate = World.intFlagRed[Math.floor(Math.random() * World.intFlagRed.length)];
 				
-			} else if (itemHandle.strIdent.indexOf('teamBlue') !== -1) {
+			} else if (objectItem.strIdent.indexOf('teamBlue') !== -1) {
 				intCoordinate = World.intFlagBlue[Math.floor(Math.random() * World.intFlagBlue.length)];
 				
 			}
 			
-			itemHandle.dblPosition[0] = intCoordinate[0] + 0.5;
-			itemHandle.dblPosition[1] = intCoordinate[1] + 0.5;
-			itemHandle.dblPosition[2] = intCoordinate[2] + 0.5;
+			objectItem.dblPosition[0] = intCoordinate[0] + 0.5;
+			objectItem.dblPosition[1] = intCoordinate[1] + 0.5;
+			objectItem.dblPosition[2] = intCoordinate[2] + 0.5;
 			
-			itemHandle.dblVerlet[0] = itemHandle.dblPosition[0];
-			itemHandle.dblVerlet[1] = itemHandle.dblPosition[1];
-			itemHandle.dblVerlet[2] = itemHandle.dblPosition[2];
+			objectItem.dblVerlet[0] = objectItem.dblPosition[0];
+			objectItem.dblVerlet[1] = objectItem.dblPosition[1];
+			objectItem.dblVerlet[2] = objectItem.dblPosition[2];
 		}
 	};
 	
-	Item.functionFlagPlayer = function(itemHandle) {
+	Item.functionFlagPlayer = function(objectItem) {
 		{
-			if (Player.playerHandle[itemHandle.strPlayer] !== undefined) {
-				itemHandle.dblPosition[0] = Player.playerHandle[itemHandle.strPlayer].dblPosition[0];
-				itemHandle.dblPosition[1] = Player.playerHandle[itemHandle.strPlayer].dblPosition[1] + 1.0;
-				itemHandle.dblPosition[2] = Player.playerHandle[itemHandle.strPlayer].dblPosition[2];
+			if (Player.objectPlayer[objectItem.strPlayer] !== undefined) {
+				objectItem.dblPosition[0] = Player.objectPlayer[objectItem.strPlayer].dblPosition[0];
+				objectItem.dblPosition[1] = Player.objectPlayer[objectItem.strPlayer].dblPosition[1] + 1.0;
+				objectItem.dblPosition[2] = Player.objectPlayer[objectItem.strPlayer].dblPosition[2];
 				
-				itemHandle.dblVerlet[0] = itemHandle.dblPosition[0];
-				itemHandle.dblVerlet[1] = itemHandle.dblPosition[1];
-				itemHandle.dblVerlet[2] = itemHandle.dblPosition[2];
+				objectItem.dblVerlet[0] = objectItem.dblPosition[0];
+				objectItem.dblVerlet[1] = objectItem.dblPosition[1];
+				objectItem.dblVerlet[2] = objectItem.dblPosition[2];
 			}
 		}
 	};
@@ -1371,12 +1393,12 @@ Item.browserify(Constants, null, Physics);
 		}
 		
 		{
-			Socket.serverHandle.emit('playerHandle', {
-				'strBuffer': Player.saveBuffer()
+			Socket.objectServer.emit('eventPlayer', {
+				'strBuffer': Player.saveBuffer(null)
 			});
 			
-			Socket.serverHandle.emit('itemHandle', {
-				'strBuffer': Item.saveBuffer()
+			Socket.objectServer.emit('eventItem', {
+				'strBuffer': Item.saveBuffer(null)
 			});
 		}
 		
@@ -1413,58 +1435,42 @@ Item.browserify(Constants, null, Physics);
 		};
 		
 		var functionRequest = function() {
-			var requestHttp = Node.httpHandle.request({
+			var objectClientrequest = Node.requireHttp.request({
 				'host': 'www.voxel-warriors.com',
 				'port': 80,
 				'path': '/host.xml?intPort=' + encodeURIComponent(NodeConf.intExpressPort) + '&strName=' + encodeURIComponent(Gameserver.strName) + '&intLoginPassword=' + encodeURIComponent(Gameserver.intLoginPassword) + '&strWorldActive=' + encodeURIComponent(Gameserver.strWorldActive) + '&intPlayerCapacity=' + encodeURIComponent(Gameserver.intPlayerCapacity) + '&intPlayerActive=' + encodeURIComponent(Gameserver.intPlayerActive),
 				'method': 'GET'
-			}, function(responseHttp) {
-				responseHttp.setEncoding('UTF-8');
+			}, function(objectClientresponse) {
+				objectClientresponse.setEncoding('UTF-8');
 				
-				responseHttp.on('data', function(strData) {
+				objectClientresponse.on('data', function(strData) {
 					
 				});
 				
-				responseHttp.on('end', function() {
+				objectClientresponse.on('end', function() {
 					functionSuccess();
 				});
 			});
 			
-			requestHttp.on('error', function(errorHandle) {
+			objectClientrequest.on('error', function(objectError) {
 				functionError();
 			});
 			
-			requestHttp.setTimeout(60 * 1000, function() {
-				requestHttp.abort();
+			objectClientrequest.setTimeout(60 * 1000, function() {
+				objectClientrequest.abort();
 			});
 			
-			requestHttp.end();
+			objectClientrequest.end();
 		};
 		
 		var Errorsuccess_intTimestamp = new Date().getTime();
 		
 		var functionError = function() {
-			var dateHandle = new Date();
-			
-			console.log('');
-			console.log('------------------------------------------------------------');
-			console.log('- Timestamp: ' + dateHandle.toISOString());
-			console.log('- Origin: VoxRect');
-			console.log('- Duration: ' + (dateHandle.getTime() - Errorsuccess_intTimestamp));
-			console.log('- Status: Error');
-			console.log('------------------------------------------------------------');
+			Node.log([ 'VoxRect', String(new Date().getTime() - Errorsuccess_intTimestamp), 'Error' ]);
 		};
 		
 		var functionSuccess = function() {
-			var dateHandle = new Date();
-			
-			console.log('');
-			console.log('------------------------------------------------------------');
-			console.log('- Timestamp: ' + dateHandle.toISOString());
-			console.log('- Origin: VoxRect');
-			console.log('- Duration: ' + (dateHandle.getTime() - Errorsuccess_intTimestamp));
-			console.log('- Status: Success');
-			console.log('------------------------------------------------------------');
+			Node.log([ 'VoxRect', String(new Date().getTime() - Errorsuccess_intTimestamp), 'Success' ]);
 		};
 		
 		functionAdvertise();

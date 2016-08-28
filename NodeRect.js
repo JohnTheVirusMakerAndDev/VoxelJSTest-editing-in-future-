@@ -1,88 +1,106 @@
 var NodeConf = require(__dirname + '/NodeConf.js')();
 
 var Node = {
-	childprocessHandle: null,
+	requireChild: null,
 	
-	cryptoHandle: null,
+	requireCrypto: null,
 	
-	fsHandle: null,
+	requireFs: null,
 	
-	httpHandle: null,
+	requireHttp: null,
 	
-	httpsHandle: null,
+	requireHttps: null,
 	
-	pathHandle: null,
+	requirePath: null,
 	
-	zlibHandle: null,
+	requireZlib: null,
 	
 	init: function() {
 		{
-			Node.childprocessHandle = require('child_process');
+			Node.requireChild = require('child_process');
 		}
 		
 		{
-			Node.cryptoHandle = require('crypto');
+			Node.requireCrypto = require('crypto');
 		}
 		
 		{
-			Node.fsHandle = require('fs');
+			Node.requireFs = require('fs');
 		}
 
 		{
-			Node.httpHandle = require('http');
+			Node.requireHttp = require('http');
 		}
 
 		{
-			Node.httpsHandle = require('https');
+			Node.requireHttps = require('https');
 		}
 
 		{
-			Node.pathHandle = require('path');
+			Node.requirePath = require('path');
 		}
 
 		{
-			Node.zlibHandle = require('zlib');
+			Node.requireZlib = require('zlib');
 		}
 	},
 	
 	dispel: function() {
 		{
-			Node.childprocessHandle = null;
+			Node.requireChild = null;
 		}
 		
 		{
-			Node.cryptoHandle = null;
+			Node.requireCrypto = null;
 		}
 		
 		{
-			Node.fsHandle = null;
+			Node.requireFs = null;
 		}
 		
 		{
-			Node.httpHandle = null;
+			Node.requireHttp = null;
 		}
 		
 		{
-			Node.httpsHandle = null;
+			Node.requireHttps = null;
 		}
 		
 		{
-			Node.pathHandle = null;
+			Node.requirePath = null;
 		}
 		
 		{
-			Node.zlibHandle = null;
+			Node.requireZlib = null;
+		}
+	},
+
+	log: function(strData) {
+		var strLog = [];
+
+		{
+			strLog.push((new Date().toISOString() + new Array(30).join(' ')).substr(0, 30));
+		}
+
+		{
+			for (var intFor1 = 0; intFor1 < strData.length; intFor1 += 1) {
+				strLog.push((strData[intFor1] + new Array(30).join(' ')).substr(0, 30));
+			}
+		}
+
+		{
+			console.log(strLog.join(' | '));
 		}
 	},
 	
 	hashbase: function(strData) {
-		var hashHande = Node.cryptoHandle.createHash('sha512');
+		var objectHash = Node.requireCrypto.createHash('sha512');
 		
 		{
-			hashHande.update(strData);
+			objectHash.update(strData);
 		}
 		
-		var strBase = hashHande.digest('base64');
+		var strBase = objectHash.digest('base64');
 		
 		{
 			strBase = strBase.replace(new RegExp('\\+', 'g'), '');
@@ -96,7 +114,7 @@ var Node = {
 		var objectData = {};
 		
 		{
-			var strData = Node.fsHandle.readFileSync(__dirname + '/' + strStorage + '.attr').toString();
+			var strData = Node.requireFs.readFileSync(__dirname + '/' + strStorage + '.attr').toString();
 			
 			if (strData === '') {
 				strData = '{}';
@@ -112,7 +130,7 @@ var Node = {
 		var objectData = {};
 		
 		{
-			var strData = Node.fsHandle.readFileSync(__dirname + '/' + strStorage + '.attr').toString();
+			var strData = Node.requireFs.readFileSync(__dirname + '/' + strStorage + '.attr').toString();
 			
 			if (strData === '') {
 				strData = '{}';
@@ -132,23 +150,23 @@ var Node = {
 				strData = '{}';
 			}
 			
-			Node.fsHandle.writeFileSync(__dirname + '/' + strStorage + '.attr', strData);
+			Node.requireFs.writeFileSync(__dirname + '/' + strStorage + '.attr', strData);
 		}
 	}
 };
 
 var Aws = {
-	awsHandle: null,
+	requireAws: null,
 	
-	storageHandle: null,
+	objectStorage: null,
 	
-	messageHandle: null,
+	objectMessage: null,
 	
 	init: function() {
 		{
-			Aws.awsHandle = require('aws-sdk');
+			Aws.requireAws = require('aws-sdk');
 			
-			Aws.awsHandle.config.update({
+			Aws.requireAws.config.update({
 				'accessKeyId': NodeConf.strAwsIdent,
 				'secretAccessKey': NodeConf.strAwsKey,
 				'region': 'us-east-1'
@@ -156,111 +174,112 @@ var Aws = {
 		}
 		
 		{
-			Aws.storageHandle = new Aws.awsHandle.S3();
+			Aws.objectStorage = new Aws.requireAws.S3();
 		}
 		
 		{
-			Aws.messageHandle = new Aws.awsHandle.SES();
+			Aws.objectMessage = new Aws.requireAws.SES();
 		}
 	},
 	
 	dispel: function() {
 		{
-			Aws.awsHandle = null;
+			Aws.requireAws = null;
 		}
 		
 		{
-			Aws.storageHandle = null;
+			Aws.objectStorage = null;
 		}
 		
 		{
-			Aws.messageHandle = null;
+			Aws.objectMessage = null;
 		}
 	}
 };
 
 var Express = {
-	expressHandle: null,
+	requireExpress: null,
 	
-	compressionHandle: null,
+	requireCompression: null,
 	
-	expresssessionHandle: null,
+	requireSession: null,
 	
-	connectpostgresHandle: null,
+	requireConnect: null,
 	
-	serverHandle: null,
+	objectServer: null,
 	
-	httpHandle: null,
+	objectHttp: null,
 	
 	init: function() {
 		{
-			Express.expressHandle = require('express');
+			Express.requireExpress = require('express');
 		}
 		
 		{
-			Express.compressionHandle = require('compression');
+			Express.requireCompression = require('compression');
 		}
 		
 		{
 			if (NodeConf.strExpressSession === 'sessionMemory') {
-				Express.expresssessionHandle = require('express-session');
+				Express.requireSession = require('express-session');
 				
 			} else if (NodeConf.strExpressSession === 'sessionPostgres') {
-				Express.expresssessionHandle = require('express-session');
+				Express.requireSession = require('express-session');
 				
-				Express.connectpostgresHandle = require('connect-pg-simple')(Express.expresssessionHandle);
+				Express.requireConnect = require('connect-pg-simple')(Express.requireSession);
 				
 			}
 		}
 		
 		{
-			Express.serverHandle = Express.expressHandle();
+			Express.objectServer = Express.requireExpress();
 		}
 		
 		{
-			Express.httpHandle = null;
+			Express.objectHttp = null;
 		}
 	},
 	
 	dispel: function() {
 		{
-			Express.expressHandle = null;
+			Express.requireExpress = null;
 		}
 		
 		{
-			Express.compressionHandle = null;
+			Express.requireCompression = null;
 		}
 		
 		{
-			Express.expresssessionHandle = null;
+			Express.requireSession = null;
 		}
 		
 		{
-			Express.connectpostgresHandle = null;
+			Express.requireConnect = null;
 		}
 		
 		{
-			Express.serverHandle = null;
+			Express.objectServer = null;
 		}
 		
 		{
-			Express.httpHandle = null;
+			Express.objectHttp = null;
 		}
 	},
 	
 	run: function() {
 		{
-			Express.serverHandle.enable('trust proxy');
+			Express.objectServer.set('x-powered-by', false);
+			Express.objectServer.set('trust proxy', true);
 			
-			Express.serverHandle.use(Express.compressionHandle({
+			Express.objectServer.use(Express.requireCompression({
 				'threshold': 0
 			}));
 			
-			Express.serverHandle.use(function(requestHandle, responseHandle, functionNext) {
-				requestHandle.strIp = requestHandle.ip;
+			Express.objectServer.use(function(objectRequest, objectResponse, functionNext) {
+				objectRequest.strIp = objectRequest.ip;
 				
-				if (requestHandle.strIp.toLowerCase().indexOf('::ffff:') === 0) {
-					requestHandle.strIp = requestHandle.strIp.substr(7);
+				if (objectRequest.strIp.toLowerCase().indexOf('::ffff:') === 0) {
+					objectRequest.strIp = objectRequest.strIp.substr(7);
 				}
 				
 				functionNext();
@@ -269,7 +288,7 @@ var Express = {
 		
 		{
 			if (NodeConf.strExpressSession === 'sessionMemory') {
-				Express.serverHandle.use(Express.expresssessionHandle({
+				Express.objectServer.use(Express.requireSession({
 					'secret': NodeConf.strExpressSecret,
 					'resave': false,
 					'saveUninitialized': true,
@@ -279,15 +298,15 @@ var Express = {
 				}));
 				
 			} else if (NodeConf.strExpressSession === 'sessionPostgres') {
-				Express.serverHandle.use(Express.expresssessionHandle({
+				Express.objectServer.use(Express.requireSession({
 					'secret': NodeConf.strExpressSecret,
 					'resave': false,
 					'saveUninitialized': true,
 					'cookie': {
 						'maxAge': 31 * 24 * 60 * 60 * 1000
 					},
-					'store': new Express.connectpostgresHandle({
-						'pg': Postgres.postgresHandle,
+					'store': new Express.requireConnect({
+						'pg': Postgres.requirePg,
 						'conString': NodeConf.strPostgresServer,
 						'tableName': 'Session'
 					})
@@ -297,7 +316,7 @@ var Express = {
 		}
 		
 		{
-			Express.httpHandle = Express.serverHandle.listen(NodeConf.intExpressPort);
+			Express.objectHttp = Express.objectServer.listen(NodeConf.intExpressPort);
 		}
 		
 		{
@@ -305,8 +324,8 @@ var Express = {
 				var FilesystemRead_strFiles = [];
 				
 				var functionFilesystemRead = function() {
-					Node.fsHandle.readdir(__dirname + '/tmp', function(errorHandle, strFiles) {
-						if (errorHandle !== null) {
+					Node.requireFs.readdir(__dirname + '/tmp', function(objectError, strFiles) {
+						if (objectError !== null) {
 							functionError();
 							
 							return;
@@ -347,14 +366,14 @@ var Express = {
 				};
 				
 				var functionFilesystemStat = function() {
-					Node.fsHandle.stat(__dirname + '/tmp/' + FilesystemRead_strFiles[FilesystemStatIterator_intIndex], function(errorHandle, statHandle) {
-						if (errorHandle !== null) {
+					Node.requireFs.stat(__dirname + '/tmp/' + FilesystemRead_strFiles[FilesystemStatIterator_intIndex], function(objectError, objectStat) {
+						if (objectError !== null) {
 							functionError();
 							
 							return;
 						}
 						
-						if (statHandle.ctime.getTime() < new Date().getTime() - (60 * 60 * 1000)) {
+						if (objectStat.ctime.getTime() < new Date().getTime() - (60 * 60 * 1000)) {
 							functionFilesystemDelete();
 							
 							return;
@@ -365,8 +384,8 @@ var Express = {
 				};
 				
 				var functionFilesystemDelete = function() {
-					Node.fsHandle.unlink(__dirname + '/tmp/' + FilesystemRead_strFiles[FilesystemStatIterator_intIndex], function(errorHandle) {
-						if (errorHandle !== null) {
+					Node.requireFs.unlink(__dirname + '/tmp/' + FilesystemRead_strFiles[FilesystemStatIterator_intIndex], function(objectError) {
+						if (objectError !== null) {
 							functionError();
 							
 							return;
@@ -379,27 +398,11 @@ var Express = {
 				var Errorsuccess_intTimestamp = new Date().getTime();
 				
 				var functionError = function() {
-					var dateHandle = new Date();
-					
-					console.log('');
-					console.log('------------------------------------------------------------');
-					console.log('- Timestamp: ' + dateHandle.toISOString());
-					console.log('- Origin: NodeRect - Express');
-					console.log('- Duration: ' + (dateHandle.getTime() - Errorsuccess_intTimestamp));
-					console.log('- Status: Error');
-					console.log('------------------------------------------------------------');
+					Node.log([ 'NodeRect - Express', String(new Date().getTime() - Errorsuccess_intTimestamp), 'Error' ]);
 				};
 				
 				var functionSuccess = function() {
-					var dateHandle = new Date();
-					
-					console.log('');
-					console.log('------------------------------------------------------------');
-					console.log('- Timestamp: ' + dateHandle.toISOString());
-					console.log('- Origin: NodeRect - Express');
-					console.log('- Duration: ' + (dateHandle.getTime() - Errorsuccess_intTimestamp));
-					console.log('- Status: Success');
-					console.log('------------------------------------------------------------');
+					Node.log([ 'NodeRect - Express', String(new Date().getTime() - Errorsuccess_intTimestamp), 'Success' ]);
 				};
 				
 				functionFilesystemRead();
@@ -411,59 +414,59 @@ var Express = {
 };
 
 var Geoip = {
-	geoipHandle: null,
+	requireGeoip: null,
 	
 	init: function() {
 		{
-			Geoip.geoipHandle = require('geoip-lite');
+			Geoip.requireGeoip = require('geoip-lite');
 		}
 	},
 	
 	dispel: function() {
 		{
-			Geoip.geoipHandle = null;
+			Geoip.requireGeoip = null;
 		}
 	}
 };
 
 var Hypertextmin = {
-	hypertextminHandle: null,
+	requireHtmlmin: null,
 	
 	init: function() {
 		{
-			Hypertextmin.hypertextminHandle = require('html-minifier');
+			Hypertextmin.requireHtmlmin = require('html-minifier');
 		}
 	},
 	
 	dispel: function() {
 		{
-			Hypertextmin.hypertextminHandle = null;
+			Hypertextmin.requireHtmlmin = null;
 		}
 	}
 };
 
 var Mime = {
-	mimeHandle: null,
+	requireMime: null,
 	
 	init: function() {
 		{
-			Mime.mimeHandle = require('mime');
+			Mime.requireMime = require('mime');
 		}
 	},
 	
 	dispel: function() {
 		{
-			Mime.mimeHandle = null;
+			Mime.requireMime = null;
 		}
 	}
 };
 
 var Multer = {
-	multerHandle: null,
+	requireMulter: null,
 	
 	init: function() {
 		{
-			Multer.multerHandle = require('multer')({
+			Multer.requireMulter = require('multer')({
 				'dest': __dirname + '/tmp',
 				'limits': {
 					'fieldNameSize': 64,
@@ -476,80 +479,83 @@ var Multer = {
 	
 	dispel: function() {
 		{
-			Multer.multerHandle = null;
+			Multer.requireMulter = null;
 		}
 	}
 };
 
 var Mustache = {
-	mustacheHandle: null,
+	requireMustache: null,
 	
 	init: function() {
 		{
-			Mustache.mustacheHandle = require('mustache');
+			Mustache.requireMustache = require('mustache');
 		}
 	},
 	
 	dispel: function() {
 		{
-			Mustache.mustacheHandle = null;
+			Mustache.requireMustache = null;
 		}
 	}
 };
 
 var Phantom = {
-	// INFO: sudo apt-get install fontconfig
-	
-	phantomjsHandle: null,
+	requirePhantom: null,
 	
 	init: function() {
 		{
-			Phantom.phantomjsHandle = require('phantomjs-prebuilt');
+			// sudo apt-get install fontconfig
+		}
+
+		{
+			Phantom.requirePhantom = require('phantomjs-prebuilt');
 		}
 	},
 	
 	dispel: function() {
 		{
-			Phantom.phantomjsHandle = null;
+			Phantom.requirePhantom = null;
 		}
 	}
 };
 
 var Postgres = {
-	postgresHandle: null,
+	requirePg: null,
 	
-	clientHandle: null,
+	objectClient: null,
 	
 	init: function() {
 		{
-			Postgres.postgresHandle = require('pg');
+			Postgres.requirePg = require('pg');
 			
-			Postgres.postgresHandle.defaults.parseInt8 = true;
+			Postgres.requirePg.defaults.parseInt8 = true;
 		}
 		
 		{
-			Postgres.postgresHandle.connect(NodeConf.strPostgresServer, function(errorHandle, clientHandle, functionDone) {
+			Postgres.requirePg.connect(NodeConf.strPostgresServer, function(objectError, objectClient, functionDone) {
 				{
-					Postgres.clientHandle = clientHandle;
+					Postgres.objectClient = objectClient;
 				}
 				
 				{
-					Postgres.clientHandle.functionQuery = Postgres.clientHandle.query;
+					Postgres.objectClient.functionQuery = Postgres.objectClient.query;
 					
-					Postgres.clientHandle.query = function(configHandle, functionCallback) {
-						Postgres.clientHandle.functionQuery(configHandle, function(errorHandle, resultHandle) {
+					Postgres.objectClient.query = function(objectConfig, functionCallback) {
+						Postgres.objectClient.functionQuery(objectConfig, function(objectError, objectResult) {
 							{
-								if (errorHandle !== null) {
-									if (configHandle.log === true) {
-										console.log('ERROR');
-										console.dir(configHandle);
-										console.dir(errorHandle);
+								if (objectError !== null) {
+									if (objectConfig.log === true) {
+										console.log('');
+										console.dir(objectConfig);
+										console.dir(objectError);
+										console.log('');
 									}
 								}
 							}
 							
 							{
-								functionCallback(errorHandle, resultHandle);
+								functionCallback(objectError, objectResult);
 							}
 						});
 					}
@@ -560,11 +566,11 @@ var Postgres = {
 	
 	dispel: function() {
 		{
-			Postgres.postgresHandle = null;
+			Postgres.requirePg = null;
 		}
 		
 		{
-			Postgres.clientHandle = null;
+			Postgres.objectClient = null;
 		}
 	}
 };
@@ -582,32 +588,32 @@ var Recaptcha = {
 		var Request_strData = '';
 		
 		var functionRequest = function() {
-			var requestHttp = Node.httpsHandle.request({
+			var objectClientrequest = Node.requireHttps.request({
 				'host': 'www.google.com',
 				'port': 443,
 				'path': '/recaptcha/api/siteverify?secret=' + encodeURIComponent(NodeConf.strRecaptchaPrivate) + '&response=' + encodeURIComponent(objectArguments.strResponse) + '&remoteip=' + encodeURIComponent(objectArguments.strIp),
 				'method': 'GET'
-			}, function(responseHttp) {
-				responseHttp.setEncoding('UTF-8');
+			}, function(objectClientresponse) {
+				objectClientresponse.setEncoding('UTF-8');
 				
-				responseHttp.on('data', function(strData) {
+				objectClientresponse.on('data', function(strData) {
 					Request_strData += strData;
 				});
 				
-				responseHttp.on('end', function() {
+				objectClientresponse.on('end', function() {
 					functionParse();
 				});
 			});
 			
-			requestHttp.on('error', function(errorHandle) {
+			objectClientrequest.on('error', function(objectError) {
 				functionCallback(null);
 			});
 			
-			requestHttp.setTimeout(3 * 1000, function() {
-				requestHttp.abort();
+			objectClientrequest.setTimeout(3 * 1000, function() {
+				objectClientrequest.abort();
 			});
 			
-			requestHttp.end();
+			objectClientrequest.end();
 		};
 		
 		var functionParse = function() {
@@ -633,71 +639,61 @@ var Recaptcha = {
 };
 
 var Socket = {
-	socketHandle: null,
+	requireSocket: null,
 	
-	serverHandle: null,
-	
-	httpHandle: null,
+	objectServer: null,
 	
 	init: function() {
 		{
-			Socket.socketHandle = require('socket.io');
+			Socket.requireSocket = require('socket.io');
 		}
 		
 		{
-			Socket.serverHandle = Socket.socketHandle();
-		}
-		
-		{
-			Socket.httpHandle = null;
+			Socket.objectServer = Socket.requireSocket();
 		}
 	},
 	
 	dispel: function() {
 		{
-			Socket.socketHandle = null;
+			Socket.requireSocket = null;
 		}
 		
 		{
-			Socket.serverHandle = null;
-		}
-		
-		{
-			Socket.httpHandle = null;
+			Socket.objectServer = null;
 		}
 	},
 	
 	run: function() {
 		{
-			Socket.serverHandle.attach(Express.httpHandle);
+			Socket.objectServer.attach(Express.objectHttp);
 			
-			Socket.serverHandle.origins('*:*');
+			Socket.objectServer.origins('*:*');
 		}
 	}
 };
 
 var Xml = {
-	xmldocHandle: null,	
+	requireXmldoc: null,	
 	
-	saxHandle: null,
+	requireSax: null,
 	
 	init: function() {
 		{
-			Xml.xmldocHandle = require('xmldoc');
+			Xml.requireXmldoc = require('xmldoc');
 		}
 		
 		{
-			Xml.saxHandle = require('sax');
+			Xml.requireSax = require('sax');
 		}
 	},
 	
 	dispel: function() {
 		{
-			Xml.xmldocHandle = null;
+			Xml.requireXmldoc = null;
 		}
 		
 		{
-			Xml.saxHandle = null;
+			Xml.requireSax = null;
 		}
 	}
 };
