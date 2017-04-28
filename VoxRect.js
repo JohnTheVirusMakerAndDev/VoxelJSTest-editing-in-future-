@@ -167,7 +167,7 @@ var VoxConf = require(__dirname + '/VoxConf.js')();
 {
 	Socket.objectServer.on('connection', function(objectSocket) {
 		{
-			objectSocket.strIdent = objectSocket.id.substr(2, 8);
+			objectSocket.strIdent = objectSocket.id;
 		}
 		
 		{

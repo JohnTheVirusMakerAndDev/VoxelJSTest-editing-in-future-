@@ -383,7 +383,7 @@ var Socket = {
 				{
 					Socket.objectSocket.io.engine.on('open', function() {
 						{
-							Socket.objectSocket.strIdent = Socket.objectSocket.io.engine.id.substr(0, 8);
+							Socket.objectSocket.strIdent = Socket.objectSocket.io.engine.id;
 						}
 					});
 					
