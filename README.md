@@ -4,12 +4,12 @@ this project aims to develop a game with voxel based graphics and a gameplay sim
 ## play
 since this game is purely multiplayer based, it is required to join a server. you can therefore simply navigate to [www.voxel-warriors.com](http://www.voxel-warriors.com/) in order to find a list of active servers. it is also possible to setup a new server, what is further described below.
 
-<p align="center"><img src="http://content.coderect.com/VoxRect/Website/ScreenshotThumb.png" alt="ScreenshotThumb"></p>
+<p align="center"><img src="http://content.sniklaus.com/VoxRect/Website/ScreenshotThumb.png" alt="ScreenshotThumb"></p>
 
 ## server
 make sure to have `node` and `npm` installed. otherwise navigate to [nodejs.org](https://nodejs.org/) in order to download the latest binaries.
 
-a prebuilt version of the server is being provided and can be [downloaded](http://content.coderect.com/VoxRect/Website/VoxRect.zip) accordingly. after unpacking it, go ahead and navigate to the root folder of the archive. before `node` is being used to start the server, the dependencies can then be installed by calling `npm` within a console.
+a prebuilt version of the server is being provided and can be [downloaded](http://content.sniklaus.com/VoxRect/Website/VoxRect.zip) accordingly. after unpacking it, go ahead and navigate to the root folder of the archive. before `node` is being used to start the server, the dependencies can then be installed by calling `npm` within a console.
 
 ```
 npm install
@@ -53,7 +53,7 @@ after `browserify` and `uglifyify` are available, the batch files can be used in
 ## architecture
 in order to gain a quick overview of the architecture, the following diagram can be consulted. since it is only a sketch, it does not follow a specific format.
 
-<p align="center"><img src="http://content.coderect.com/VoxRect/Website/Architecture.png" alt="Architecture"></p>
+<p align="center"><img src="http://content.sniklaus.com/VoxRect/Website/Architecture.png" alt="Architecture"></p>
 
 `NoteRect.js` is a basic library that is also being used in other projects. it is therefore quite generic and developers can probably just ignore it.
 
